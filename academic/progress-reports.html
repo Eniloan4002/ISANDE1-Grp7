@@ -1,25 +1,95 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>ICI Local 2.0 | Progress Reports</title>
+    <meta name="description" content="ICI Local 2.0 grade correction request prototype">
+    <title>ICI Local 2.0 | Grade Corrections</title>
     <link rel="stylesheet" href="../assets/css/global.css">
     <link rel="stylesheet" href="../assets/css/layout.css">
     <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/academic.css">
 </head>
 
 <body data-role="teacher" data-page="progress-reports.html">
     <main class="main-content">
-        <div class="breadcrumb"><a href="grade-entry.html">Academic</a><span>/</span><span>Progress Reports</span></div>
+        <div class="breadcrumb"><a href="class-list.html">Academic Records</a><span>/</span><span>Grade
+                Corrections</span></div>
         <section class="page-heading">
             <div>
                 <p class="eyebrow">SUBJECT TEACHER</p>
-                <h1>Progress Reports</h1>
-                <p>Review progress reports for assigned classes.</p>
+                <h1>Grade Corrections</h1>
+                <p>Request a traceable correction after a grade has been finalized and locked.</p>
             </div>
+            <span class="prototype-label">Proposed approval workflow</span>
         </section>
+
+        <div class="academic-stack">
+            <section class="policy-callout warning">
+                <strong>Approval policy pending school confirmation.</strong> This prototype follows the consultation's
+                proposed sequence: subject teacher request → principal approval → registrar approval and encoding. A
+                teacher can never directly edit a finalized grade.
+            </section>
+
+            <section class="academic-stats" aria-label="Grade correction statistics">
+                <article class="academic-stat"><strong>4</strong><span>Submitted requests</span><small>Current school year</small></article>
+                <article class="academic-stat warning"><strong>1</strong><span>Pending approval</span><small>Awaiting principal review</small></article>
+                <article class="academic-stat success"><strong>2</strong><span>Approved</span><small>Forwarded to registrar</small></article>
+                <article class="academic-stat danger"><strong>1</strong><span>Rejected</span><small>Reason retained in audit trail</small></article>
+            </section>
+
+            <div class="academic-grid">
+                <section class="content-panel">
+                    <div class="panel-header"><div><h2>New Correction Request</h2><p>For finalized grades only</p></div><span class="badge neutral-badge">UI preview</span></div>
+                    <div class="panel-body">
+                        <div class="field-grid">
+                            <label>Student<input readonly value="Pedro Reyes · STU-2026-0186"></label>
+                            <label>Subject<input readonly value="General Mathematics"></label>
+                            <label>Grading period<input readonly value="Quarter 1 · SY 2026–2027"></label>
+                            <label>Finalized record<input readonly value="Locked Aug 1, 2026"></label>
+                            <label>Current grade<input readonly value="74"></label>
+                            <label>Proposed corrected grade<input readonly value="78"></label>
+                            <label class="span-two">Reason<select disabled><option>Completed requirement</option><option>Computation error</option><option>Encoding error</option></select></label>
+                            <label class="span-two">Explanation<textarea readonly>Student completed the documented missing performance task within the authorized completion period.</textarea></label>
+                            <div class="static-field span-two">Supporting document<div class="file-placeholder">Supporting evidence would be attached here<br>Accepted file policy pending confirmation</div></div>
+                        </div>
+                        <div class="modal-actions"><button class="button button-secondary" type="button" disabled>Save draft</button><button class="button button-primary" type="button" disabled>Submit request</button></div>
+                    </div>
+                </section>
+
+                <section class="content-panel">
+                    <div class="panel-header"><div><h2>Request GCR-2026-004</h2><p>Approval and encoding timeline</p></div><span class="status-pill warning">Pending</span></div>
+                    <div class="panel-body">
+                        <ul class="timeline">
+                            <li class="complete"><span class="timeline-marker"></span><strong>Submitted by subject teacher</strong><small>Michael Reyes · Aug 4, 2026 · 10:32 AM<br>Reason and supporting evidence recorded</small></li>
+                            <li class="current"><span class="timeline-marker"></span><strong>Principal review</strong><small>Pending review by authorized principal<br>Approver assignment subject to policy confirmation</small></li>
+                            <li><span class="timeline-marker"></span><strong>Registrar approval</strong><small>Available only after principal approval</small></li>
+                            <li><span class="timeline-marker"></span><strong>Registrar encoding</strong><small>Authorized registrar applies the approved correction and preserves the original grade</small></li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+
+            <section class="content-panel">
+                <div class="panel-header"><div><h2>My Correction Requests</h2><p>Status history for finalized-grade requests</p></div></div>
+                <div class="toolbar">
+                    <label class="search-control"><span>Search</span><input type="search" placeholder="Student / request ID" aria-label="Search correction requests"></label>
+                    <label class="select-control"><span class="sr-only">Request status</span><select aria-label="Request status"><option>Status: All</option><option>Pending</option><option>Approved</option><option>Rejected</option><option>Encoded</option></select></label>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Request</th><th>Student</th><th>Subject / period</th><th>Grade change</th><th>Reason</th><th>Status</th><th>Submitted</th></tr></thead>
+                        <tbody>
+                            <tr><td>GCR-2026-004</td><td>Pedro Reyes<small>STU-2026-0186</small></td><td>General Mathematics<small>Quarter 1</small></td><td>74 → 78</td><td>Completed requirement</td><td><span class="status-pill warning">Principal review</span></td><td>Aug 4, 10:32 AM</td></tr>
+                            <tr><td>GCR-2026-003</td><td>Angela Lim<small>STU-2026-0187</small></td><td>Statistics and Probability<small>Quarter 4 · prior SY</small></td><td>82 → 84</td><td>Computation error</td><td><span class="status-pill success">Encoded</span></td><td>Jul 28, 2:10 PM</td></tr>
+                            <tr><td>GCR-2026-002</td><td>Carla Abad<small>STU-2026-0188</small></td><td>General Mathematics<small>Quarter 4 · prior SY</small></td><td>89 → 91</td><td>Encoding error</td><td><span class="status-pill danger">Rejected</span></td><td>Jul 22, 9:45 AM</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-footer"><span>Showing 3 of 4 requests</span><span>All decisions retained for audit</span></div>
+            </section>
+        </div>
     </main>
     <script src="../assets/js/portal-shell.js"></script>
     <script src="../assets/js/navigation.js"></script>
