@@ -1,0 +1,181 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ICI Local 2.0 Enrollment Queue">
+  <title>ICI Local 2.0 | Enrollment Queue</title>
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/enrollment.css">
+</head>
+
+<body data-role="registrar" data-page="queue.html">
+  <main class="main-content">
+    <div class="breadcrumb"><a href="#">Enrollment</a><span>/</span><span>Queue</span></div>
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
+        <h1>Enrollment Queue</h1>
+        <p>Incoming applications to encode, verify, and process. System auto-flags possible duplicates.</p>
+      </div><button class="button button-primary" data-modal-open>+ New Walk-in</button>
+    </section>
+    <section class="stats-grid" aria-label="Enrollment statistics">
+      <article class="stat-card accent-blue"><span class="stat-icon"></span>
+        <div><strong>12</strong><span>Pre-enlisted</span><small>4 received today</small></div>
+      </article>
+      <article class="stat-card accent-amber"><span class="stat-icon"></span>
+        <div><strong>7</strong><span>Pending requirements</span><small>Needs follow-up</small></div>
+      </article>
+      <article class="stat-card accent-red"><span class="stat-icon">!</span>
+        <div><strong>2</strong><span>Duplicate flags</span><small>For review</small></div>
+      </article>
+      <article class="stat-card accent-green"><span class="stat-icon">OK</span>
+        <div><strong>34</strong><span>Enrolled</span><small>This academic year</small></div>
+      </article>
+    </section>
+    <section class="content-panel queue-panel" aria-labelledby="queue-title">
+      <div class="panel-header">
+        <div>
+          <h2 id="queue-title">Applicant Queue</h2>
+          <p>Applications requiring registrar action.</p>
+        </div><button class="button button-outline" data-alert>Export List</button>
+      </div>
+      <div class="toolbar"><label class="search-control"><span>Search</span><input id="queue-search" type="search"
+            placeholder="Filter by name / ID..."></label><label class="select-control"><span class="sr-only">Filter by
+            status</span><select id="status-filter">
+            <option value="all">Status: All</option>
+            <option value="pre-enlisted">Pre-enlisted</option>
+            <option value="pending">Pending requirements</option>
+            <option value="review">For review</option>
+          </select></label><label class="select-control program-filter"><span class="sr-only">Filter by
+            program</span><select id="program-filter">
+            <option value="all">All programs</option>
+            <option value="shs">Senior High School</option>
+            <option value="college">College</option>
+          </select></label></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>App ID</th>
+              <th>Program</th>
+              <th>Category</th>
+              <th>Requirements</th>
+              <th>Status</th>
+              <th class="action-cell">Action</th>
+            </tr>
+          </thead>
+          <tbody id="queue-body">
+            <tr data-status="pre-enlisted" data-program="shs">
+              <td>
+                <div class="student-cell"><span class="student-avatar blue">JD</span>
+                  <div><strong>Dela Cruz, Juan</strong><small>LRN 119270140008</small></div>
+                </div>
+              </td>
+              <td>APP-2026-0148</td>
+              <td>HUMSS <small>Grade 11</small></td>
+              <td>New</td>
+              <td><span class="status-pill warning">Pending</span></td>
+              <td><span class="badge blue-badge">Pre-enlisted</span></td>
+              <td class="action-cell"><button class="row-action">View</button></td>
+            </tr>
+            <tr data-status="review" data-program="shs">
+              <td>
+                <div class="student-cell">
+                  <div><strong>Santos, Maria</strong><small>LRN 108517230184</small></div>
+                </div>
+              </td>
+              <td>APP-2026-0149</td>
+              <td>STEM <small>Grade 11</small></td>
+              <td>Transferee</td>
+              <td><span class="status-pill danger">Incomplete</span></td>
+              <td><span class="badge neutral-badge">For review</span></td>
+              <td class="action-cell"><button class="row-action">Review</button></td>
+            </tr>
+            <tr data-status="pending" data-program="college">
+              <td>
+                <div class="student-cell">
+                  <div><strong>Reyes, Pedro</strong><small>LRN 120381650117</small></div>
+                </div>
+              </td>
+              <td>APP-2026-0150</td>
+              <td>BSIT <small>1st Year</small></td>
+              <td>New</td>
+              <td><span class="status-pill danger">Incomplete</span></td>
+              <td><span class="badge amber-badge">Pending Req.</span></td>
+              <td class="action-cell"><button class="row-action">Continue</button></td>
+            </tr>
+            <tr data-status="pending" data-program="college">
+              <td>
+                <div class="student-cell">
+                  <div><strong>Lim, Angela</strong><small>LRN 112500710292</small></div>
+                </div>
+              </td>
+              <td>APP-2026-0151</td>
+              <td>BSOA <small>1st Year</small></td>
+              <td>Returnee</td>
+              <td><span class="status-pill success">Complete</span></td>
+              <td><span class="badge amber-badge">Pending Req.</span></td>
+              <td class="action-cell"><button class="row-action">Continue</button></td>
+            </tr>
+            <tr data-status="pre-enlisted" data-program="shs">
+              <td>
+                <div class="student-cell">
+                  <div><strong>Abad, Carla</strong><small>LRN 119770320691</small></div>
+                </div>
+              </td>
+              <td>APP-2026-0152</td>
+              <td>ABM <small>Grade 11</small></td>
+              <td>New</td>
+              <td><span class="status-pill success">Complete</span></td>
+              <td><span class="badge blue-badge">Pre-enlisted</span></td>
+              <td class="action-cell"><button class="row-action">View</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer"><span id="result-count">Showing 5 of 12 applicants</span>
+        <div class="pagination"><button disabled>&lt;</button><button
+            class="current">1</button><button>2</button><button>3</button><button>&gt;</button></div>
+      </div>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status"><span>OK</span>
+    <div><strong>Export prepared</strong><small>This is a demonstration prototype.</small></div><button
+      aria-label="Dismiss notification">X</button>
+  </div>
+  <div class="modal-backdrop" id="walkin-modal" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
+          <h2 id="modal-title">New Walk-in Application</h2>
+        </div><button class="modal-close" aria-label="Close">X</button>
+      </div>
+      <form class="application-form">
+        <div class="form-grid"><label>First name<input required placeholder="e.g., Ana"></label><label>Last name<input
+              required placeholder="e.g., Garcia"></label><label>Applicant category<select>
+              <option>New student</option>
+              <option>Transferee</option>
+              <option>Returnee</option>
+            </select></label><label>Preferred program<select>
+              <option>Senior High School</option>
+              <option>BS Information Technology</option>
+              <option>BS Office Administration</option>
+            </select></label></div>
+        <div class="modal-actions"><button class="button button-secondary modal-close"
+            type="button">Cancel</button><button class="button button-primary" type="submit">Create application</button>
+        </div>
+      </form>
+    </section>
+  </div>
+  <script src="../assets/js/portal-shell.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/app.js"></script>
+</body>
+
+</html>

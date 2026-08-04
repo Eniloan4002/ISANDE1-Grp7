@@ -1,0 +1,42 @@
+/*
+ * Styles for temporary placeholder pages.
+ * These may be removed once all modules are fully implemented.
+ */
+ 
+ .placeholder-panel {
+    min-height: 310px;
+    display: grid;
+    place-items: center;
+    background: #fff;
+    border: 1px solid #7e878a
+}
+
+.placeholder-message {
+    max-width: 430px;
+    padding: 24px;
+    text-align: center
+}
+
+.placeholder-message h2 {
+    margin: 0 0 8px;
+    font: 700 18px Roboto, Arial, sans-serif
+}
+
+.placeholder-message p {
+    margin: 0;
+    color: #687377;
+    font-size: 13px;
+    line-height: 1.6
+}
+
+.placeholder-message:before {
+    content: 'ICI LOCAL 2.0';
+    display: inline-block;
+    margin-bottom: 14px;
+    padding: 4px 9px;
+    border: 1px solid #8d989b;
+    color: #006889;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px
+}

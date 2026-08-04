@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ICI Local 2.0 | Role Selection</title>
+  <link rel="stylesheet" href="assets/css/global.css">
+  <link rel="stylesheet" href="assets/css/entry.css">
+</head>
+
+<body class="entry-page">
+  <main class="entry-layout">
+    <section class="entry-branding">
+      <div class="entry-brand"><span class="entry-mark">ICI</span>
+        <div><strong>ICI Local 2.0</strong><small>Student Information System</small></div>
+      </div>
+      <div class="institution-copy">
+        <h1>Iligan Computer Institute</h1>
+        <p>Integrated Student Records and Enrollment Management System </p>
+      </div>
+      <p class="entry-footer">ICI Local 2.0</p>
+    </section>
+    <section class="role-panel" aria-labelledby="role-heading">
+      <div class="panel-title">
+        <p>PROTOTYPE ACCESS ONLY</p>
+        <h2 id="role-heading">Enter ICI Local</h2><span>Select your system role to continue.</span>
+      </div>
+      <form id="role-form"><label for="role-select">Role</label><select id="role-select">
+          <option value="" selected disabled>Select role...</option>
+          <option value="enrollment/queue.html">Registrar Staff</option>
+          <option value="academic/advisory.html">Teacher Adviser</option>
+          <option value="academic/grade-entry.html">Subject Teacher</option>
+          <option value="reporting/guidance.html">Guidance Staff</option>
+          <option value="administration/users.html">System Administrator</option>
+        </select><button class="entry-button" type="submit">Login</button></form>
+      <p class="demo-note">This Login page is for demo purposes only. No username or password is required.</p>
+    </section>
+  </main>
+  <script src="assets/js/role-selection.js"></script>
+</body>
+
+</html>
