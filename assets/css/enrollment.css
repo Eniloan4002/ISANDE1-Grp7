@@ -20,6 +20,22 @@
     display: none
 }
 
+.stat-card.accent-blue {
+    border-left: 4px solid #006889
+}
+
+.stat-card.accent-amber {
+    border-left: 4px solid #c7952f
+}
+
+.stat-card.accent-red {
+    border-left: 4px solid #b04343
+}
+
+.stat-card.accent-green {
+    border-left: 4px solid #3d8a5f
+}
+
 .stat-icon {
     display: none
 }

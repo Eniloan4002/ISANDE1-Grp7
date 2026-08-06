@@ -1,29 +1,328 @@
-﻿<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>ICI Local 2.0 | Reporting and Monitoring</title>
-    <link rel="stylesheet" href="../assets/css/global.css">
-    <link rel="stylesheet" href="../assets/css/layout.css">
-    <link rel="stylesheet" href="../assets/css/components.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ICI Local 2.0 Reporting & Monitoring — generate registrar reports from the centralized student database.">
+  <title>ICI Local 2.0 | Reporting &amp; Monitoring</title>
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/enrollment.css">
+  <style>
+    .gen-grid {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 14px;
+      align-items: start
+    }
+
+    .type-list {
+      background: #fff;
+      border: 1px solid #7e878a;
+      border-radius: 1px
+    }
+
+    .type-list .head {
+      padding: 10px 12px;
+      border-bottom: 3px solid var(--primary-color);
+      font: 700 15px Roboto, Arial, sans-serif
+    }
+
+    .type-item {
+      display: block;
+      width: 100%;
+      padding: 10px 12px;
+      border: 0;
+      border-bottom: 1px solid #e0e4e5;
+      background: #fff;
+      text-align: left;
+      color: #3a4346;
+      font: 600 12px 'Segoe UI', Arial, sans-serif;
+      cursor: pointer
+    }
+
+    .type-item:hover {
+      background: #f0f7fa
+    }
+
+    .type-item.active {
+      background: #eaf3f8;
+      border-left: 4px solid #006889;
+      color: #175e80
+    }
+
+    .type-item small {
+      display: block;
+      margin-top: 2px;
+      color: #7a8487;
+      font-size: 10px;
+      font-weight: 400
+    }
+
+    .params-panel {
+      background: #fff;
+      border: 1px solid #7e878a;
+      border-radius: 1px
+    }
+
+    .params-panel .panel-header h2 {
+      font-size: 14px
+    }
+
+    .params {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px 12px;
+      padding: 13px 14px
+    }
+
+    .params label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #3d4649
+    }
+
+    .params select,
+    .params input {
+      width: 100%;
+      height: 32px;
+      margin-top: 4px;
+      border: 1px solid #8d9597;
+      border-radius: 1px;
+      padding: 0 7px;
+      background: #fff;
+      font-size: 12px
+    }
+
+    .params .wide {
+      grid-column: 1 / -1
+    }
+
+    .gen-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 14px;
+      border-top: 1px solid #d5d9da;
+      background: #f4f6f6
+    }
+
+    .gen-actions .hint {
+      color: #7a8487;
+      font-size: 10px
+    }
+
+    .preview-panel {
+      display: none;
+      margin-top: 14px
+    }
+
+    .preview-panel.show {
+      display: block
+    }
+
+    .preview-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 16px;
+      padding: 8px 14px;
+      border-bottom: 1px solid #d5d9da;
+      color: #5c6669;
+      font-size: 11px
+    }
+
+    .preview-meta strong {
+      color: #2b3437
+    }
+
+    .report-actions {
+      display: flex;
+      gap: 8px;
+      padding: 10px 14px;
+      border-top: 1px solid #d5d9da;
+      background: #f4f6f6
+    }
+
+    .report-actions .spacer {
+      flex: 1
+    }
+
+    .table-wrap {
+      overflow-x: auto
+    }
+
+    @media(max-width:1000px) {
+      .gen-grid {
+        grid-template-columns: 1fr
+      }
+
+      .params {
+        grid-template-columns: 1fr 1fr
+      }
+    }
+
+    @media(max-width:640px) {
+      .params {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
 </head>
 
 <body data-role="registrar" data-page="reporting-monitoring.html">
-    <main class="main-content">
-        <div class="breadcrumb"><a href="queue.html">Registrar Staff</a><span>/</span><span>Reporting and
-                Monitoring</span></div>
-        <section class="page-heading">
-            <div>
-                <p class="eyebrow">REGISTRAR STAFF</p>
-                <h1>Reporting and Monitoring</h1>
-                <p>View registrar reports and enrollment monitoring information.</p>
-            </div>
-        </section>
-    </main>
-    <script src="../assets/js/portal-shell.js"></script>
-    <script src="../assets/js/navigation.js"></script>
+  <main class="main-content">
+    <div class="breadcrumb"><a href="queue.html">Enrollment</a><span>/</span><span>Reporting &amp; Monitoring</span></div>
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
+        <h1>Reporting &amp; Monitoring</h1>
+        <p>Generate registrar reports directly from the centralized student database. Reports are compiled automatically — view, print, or export as needed.</p>
+      </div>
+    </section>
+
+    <section class="stats-grid" aria-label="Reporting statistics">
+      <article class="stat-card accent-blue">
+        <div><strong>128</strong><span>Reports generated</span><small>SY 2025-2026</small></div>
+      </article>
+      <article class="stat-card accent-green">
+        <div><strong>14</strong><span>This month</span><small>Compiled automatically</small></div>
+      </article>
+      <article class="stat-card accent-amber">
+        <div><strong>9</strong><span>Document requests</span><small>Form 137 / 138 / TOR</small></div>
+      </article>
+      <article class="stat-card accent-red">
+        <div><strong>6</strong><span>At-risk flagged</span><small>For monitoring</small></div>
+      </article>
+    </section>
+
+    <section class="gen-grid" aria-label="Report generator">
+      <div class="type-list">
+        <div class="head">Report Type</div>
+        <button class="type-item active" data-type="enrollment">Enrollment Summary<small>Pre-enlisted / pending / enrolled counts by campus</small></button>
+        <button class="type-item" data-type="records">Student Records<small>Directory of active student records</small></button>
+        <button class="type-item" data-type="missing">Missing Requirements<small>Students with incomplete credentials</small></button>
+        <button class="type-item" data-type="attendance">Attendance<small>First-week attendance rates by section</small></button>
+        <button class="type-item" data-type="honor">Honor Students<small>Top students by general weighted average</small></button>
+        <button class="type-item" data-type="docs">Registrar Documents<small>Form 137 / 138 / TOR requests issued</small></button>
+      </div>
+
+      <div class="params-panel">
+        <div class="panel-header">
+          <div>
+            <h2 id="gen-title">Enrollment Summary</h2>
+            <p id="gen-desc">Select the report parameters, then generate.</p>
+          </div>
+        </div>
+        <div class="params">
+          <label>School year<select><option>2026-2027</option><option selected>2025-2026</option><option>2024-2025</option></select></label>
+          <label>Grading period<select><option>N/A — Enrollment</option><option>1st Quarter</option><option>2nd Quarter</option><option>3rd Quarter</option><option>4th Quarter</option></select></label>
+          <label>Grade level<select><option selected>All levels</option><option>Grade 11</option><option>Grade 12</option><option>1st Year</option></select></label>
+          <label>Campus<select><option selected>All campuses</option><option>Main — Iligan</option><option>Kapatagan</option><option>Bugo — CDO</option></select></label>
+          <label class="wide">Section<select><option selected>All sections</option><option>STEM-A</option><option>STEM-B</option><option>STEM-C</option><option>HUMSS-1</option><option>ABM-1</option></select></label>
+        </div>
+        <div class="gen-actions">
+          <button class="button button-primary" id="btn-generate">Generate Report</button>
+          <span class="hint">Generation is logged — who, when, and which criteria were used.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-panel preview-panel" id="preview-panel" aria-labelledby="preview-title">
+      <div class="panel-header">
+        <div>
+          <h2 id="preview-title">Generated Report</h2>
+          <p>Preview below — you can print or export this report.</p>
+        </div>
+      </div>
+      <div class="preview-meta" id="preview-meta"></div>
+      <div class="table-wrap">
+        <table id="preview-table">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="report-actions">
+        <span class="hint">Prepared by the registrar — verified against the centralized database.</span>
+        <div class="spacer"></div>
+        <button class="button button-outline" data-export>Export CSV</button>
+        <button class="button button-secondary" data-export-pdf>Export PDF</button>
+        <button class="button button-primary" id="btn-print">Print</button>
+      </div>
+    </section>
+
+    <section class="content-panel" aria-labelledby="log-title" style="margin-top:14px;">
+      <div class="panel-header">
+        <div>
+          <h2 id="log-title">Recent Report Generation</h2>
+          <p>Every report generation is logged for audit — who, when, and which criteria were used.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date &amp; time</th>
+              <th>Report</th>
+              <th>Criteria</th>
+              <th>Generated by</th>
+              <th>Format</th>
+            </tr>
+          </thead>
+          <tbody id="log-body">
+            <tr>
+              <td>Aug 7, 2026 09:52 AM</td>
+              <td>Enrollment Summary</td>
+              <td>SY 2025-2026 · All campuses</td>
+              <td>R. Santos</td>
+              <td>PDF</td>
+            </tr>
+            <tr>
+              <td>Aug 6, 2026 03:18 PM</td>
+              <td>Missing Requirements</td>
+              <td>Grade 11 · Main — Iligan</td>
+              <td>R. Santos</td>
+              <td>CSV</td>
+            </tr>
+            <tr>
+              <td>Aug 5, 2026 10:06 AM</td>
+              <td>Honor Students</td>
+              <td>Grade 11 · 1st Quarter</td>
+              <td>R. Santos</td>
+              <td>PDF</td>
+            </tr>
+            <tr>
+              <td>Aug 4, 2026 02:41 PM</td>
+              <td>Attendance</td>
+              <td>All sections · Week 1</td>
+              <td>R. Santos</td>
+              <td>Print</td>
+            </tr>
+            <tr>
+              <td>Aug 2, 2026 11:30 AM</td>
+              <td>Registrar Documents</td>
+              <td>SY 2025-2026 · All</td>
+              <td>R. Santos</td>
+              <td>PDF</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer"><span>Showing 5 of 128 logged generations</span>
+        <div class="pagination"><button disabled>&lt;</button><button class="current">1</button><button>2</button><button>...</button><button>13</button><button>&gt;</button></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status"><span>OK</span>
+    <div><strong>Report generated</strong><small>Report compiled and logged.</small></div><button aria-label="Dismiss notification">X</button>
+  </div>
+
+  <script src="../assets/js/portal-shell.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/reporting.js"></script>
 </body>
 
 </html>

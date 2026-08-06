@@ -1,29 +1,287 @@
-﻿<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>ICI Local 2.0 | Duplicate Records</title>
-    <link rel="stylesheet" href="../assets/css/global.css">
-    <link rel="stylesheet" href="../assets/css/layout.css">
-    <link rel="stylesheet" href="../assets/css/components.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ICI Local 2.0 Duplicate Records — review and resolve possible duplicate student records.">
+  <title>ICI Local 2.0 | Duplicate Records</title>
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/enrollment.css">
+  <style>
+    .compare-panel {
+      display: none;
+      margin-top: 14px;
+      background: #fff;
+      border: 1px solid #7e878a;
+      border-radius: 1px
+    }
+
+    .compare-panel.show {
+      display: block
+    }
+
+    .compare-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      border-bottom: 3px solid #b04343
+    }
+
+    .compare-head h2 {
+      margin: 0;
+      font: 700 15px Roboto, Arial, sans-serif
+    }
+
+    .compare-head .match-meter {
+      font-size: 11px;
+      color: #7c3f3f
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: #d5d9da
+    }
+
+    .compare-col {
+      background: #fff;
+      padding: 12px 14px
+    }
+
+    .compare-col h3 {
+      margin: 0 0 10px;
+      font: 700 12px Roboto, Arial, sans-serif;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+      color: #40505a
+    }
+
+    .compare-col .sub {
+      margin: -6px 0 10px;
+      color: #7a8487;
+      font-size: 11px
+    }
+
+    .field-row {
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+      padding: 6px 8px;
+      border-bottom: 1px dotted #d8dcdd;
+      font-size: 12px
+    }
+
+    .field-row:last-child {
+      border-bottom: 0
+    }
+
+    .field-row .k {
+      flex: 0 0 92px;
+      color: #7a8487;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .4px
+    }
+
+    .field-row .v {
+      color: #2f383b;
+      font-weight: 600
+    }
+
+    .field-row.match {
+      background: #fdf6e3;
+      outline: 1px solid #e2c98a
+    }
+
+    .field-row.match .tag-match {
+      margin-left: auto;
+      border: 1px solid #c9a94f;
+      border-radius: 9px;
+      padding: 0 6px;
+      background: #fff9ea;
+      color: #7a5c13;
+      font-size: 9px;
+      font-weight: 700;
+      white-space: nowrap
+    }
+
+    .decision-box {
+      padding: 12px 14px;
+      border-top: 1px solid #d5d9da;
+      background: #f4f6f6
+    }
+
+    .decision-box .q {
+      margin: 0 0 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #333c3f
+    }
+
+    .decision-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .decision-actions .spacer {
+      flex: 1
+    }
+
+    .resolve-note {
+      display: none;
+      margin-top: 10px;
+      padding: 8px 10px;
+      border: 1px solid #7fae8f;
+      background: #eef7f1;
+      color: #286445;
+      font-size: 11px
+    }
+
+    .resolve-note.show {
+      display: block
+    }
+
+    @media(max-width:760px) {
+      .compare-grid {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
 </head>
 
 <body data-role="registrar" data-page="duplicate.html">
-    <main class="main-content">
-        <div class="breadcrumb"><a href="queue.html">Enrollment Management</a><span>/</span><span>Duplicate
-                Records</span></div>
-        <section class="page-heading">
-            <div>
-                <p class="eyebrow">REGISTRAR STAFF</p>
-                <h1>Duplicate Records</h1>
-                <p>Review possible duplicate applicant records.</p>
-            </div>
-        </section>
-    </main>
-    <script src="../assets/js/portal-shell.js"></script>
-    <script src="../assets/js/navigation.js"></script>
+  <main class="main-content">
+    <div class="breadcrumb"><a href="queue.html">Enrollment</a><span>/</span><span>Duplicate Records</span></div>
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
+        <h1>Duplicate Records</h1>
+        <p>The system flags possible duplicates against the centralized database. Review both records side by side and resolve — merge or reject.</p>
+      </div>
+    </section>
+
+    <section class="stats-grid" aria-label="Duplicate statistics">
+      <article class="stat-card accent-red">
+        <div><strong>2</strong><span>Active flags</span><small>Awaiting resolution</small></div>
+      </article>
+      <article class="stat-card accent-green">
+        <div><strong>5</strong><span>Resolved</span><small>This month</small></div>
+      </article>
+      <article class="stat-card accent-amber">
+        <div><strong>1</strong><span>High confidence</span><small>90%+ match</small></div>
+      </article>
+      <article class="stat-card accent-blue">
+        <div><strong>0</strong><span>Unresolved &gt; 7 days</span><small>Needs attention</small></div>
+      </article>
+    </section>
+
+    <section class="content-panel" aria-labelledby="dup-table-title">
+      <div class="panel-header">
+        <div>
+          <h2 id="dup-table-title">Flagged Duplicate Pairs</h2>
+          <p>Select a pair to compare the incoming application against the existing student record.</p>
+        </div>
+      </div>
+      <div class="toolbar">
+        <label class="search-control"><span>Search</span><input id="dup-search" type="search" placeholder="Filter by name / ID..."></label>
+        <label class="select-control"><span class="sr-only">Filter by status</span><select id="dup-status">
+            <option value="all">Status: All</option>
+            <option value="open">For review</option>
+            <option value="resolved">Resolved</option>
+          </select></label>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Incoming application</th>
+              <th>App ID</th>
+              <th>Existing record</th>
+              <th>Student ID</th>
+              <th>Match</th>
+              <th>Status</th>
+              <th class="action-cell">Action</th>
+            </tr>
+          </thead>
+          <tbody id="dup-body">
+            <tr data-status="open" data-name="Santos, Maria A." data-app="APP-2026-0149">
+              <td><strong>Santos, Maria A.</strong></td>
+              <td>APP-2026-0149</td>
+              <td><strong>Santos, Maria Ann</strong></td>
+              <td>STU-2024-0771</td>
+              <td><span class="status-pill danger">92%</span></td>
+              <td><span class="badge amber-badge">For review</span></td>
+              <td class="action-cell"><button class="row-action">Review</button></td>
+            </tr>
+            <tr data-status="open" data-name="Bautista, Carlo" data-app="APP-2026-0153">
+              <td><strong>Bautista, Carlo</strong></td>
+              <td>APP-2026-0153</td>
+              <td><strong>Bautista, Carlos D.</strong></td>
+              <td>STU-2023-1210</td>
+              <td><span class="status-pill warning">78%</span></td>
+              <td><span class="badge amber-badge">For review</span></td>
+              <td class="action-cell"><button class="row-action">Review</button></td>
+            </tr>
+            <tr data-status="resolved" data-name="Garcia, Ana" data-app="APP-2026-0140">
+              <td><strong>Garcia, Ana</strong></td>
+              <td>APP-2026-0140</td>
+              <td><strong>Garcia, Ana Marie</strong></td>
+              <td>STU-2022-0503</td>
+              <td><span class="status-pill warning">81%</span></td>
+              <td><span class="badge blue-badge">Merged</span></td>
+              <td class="action-cell"><button class="row-action">View</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer"><span id="result-count">Showing 3 of 7 duplicate pairs</span>
+        <div class="pagination"><button disabled>&lt;</button><button class="current">1</button><button>2</button><button>&gt;</button></div>
+      </div>
+    </section>
+
+    <section class="compare-panel" id="compare-panel" aria-labelledby="compare-title">
+      <div class="compare-head">
+        <h2 id="compare-title">Side-by-Side Review</h2>
+        <span class="match-meter" id="match-meter"></span>
+      </div>
+      <div class="compare-grid">
+        <div class="compare-col">
+          <h3>Incoming Application</h3>
+          <p class="sub" id="cmp-app"></p>
+          <div id="cmp-incoming"></div>
+        </div>
+        <div class="compare-col">
+          <h3>Existing Record</h3>
+          <p class="sub" id="cmp-existing"></p>
+          <div id="cmp-existing-fields"></div>
+        </div>
+      </div>
+      <div class="decision-box">
+        <p class="q">◆ Resolve duplicate record — both records will be compared field by field. Matching fields are highlighted.</p>
+        <div class="decision-actions">
+          <button class="button button-secondary" id="btn-reject">Reject — Not a duplicate</button>
+          <div class="spacer"></div>
+          <button class="button button-primary" id="btn-merge">Merge Records</button>
+        </div>
+        <div class="resolve-note" id="resolve-note"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status"><span>OK</span>
+    <div><strong>Resolved</strong><small>Duplicate record processed.</small></div><button aria-label="Dismiss notification">X</button>
+  </div>
+
+  <script src="../assets/js/portal-shell.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/duplicate.js"></script>
 </body>
 
 </html>
