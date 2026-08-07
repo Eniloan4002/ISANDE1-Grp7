@@ -10,6 +10,21 @@
   <link rel="stylesheet" href="../assets/css/layout.css">
   <link rel="stylesheet" href="../assets/css/components.css">
   <link rel="stylesheet" href="../assets/css/enrollment.css">
+  <style>
+    tr.row-flash {
+      animation: row-flash 1.6s ease-out 2
+    }
+
+    @keyframes row-flash {
+      0%,
+      100% {
+        background: #fff
+      }
+      30% {
+        background: #d7ecf5
+      }
+    }
+  </style>
 </head>
 
 <body data-role="registrar" data-page="queue.html">
@@ -41,7 +56,8 @@
         <div>
           <h2 id="queue-title">Applicant Queue</h2>
           <p>Applications requiring registrar action.</p>
-        </div><button class="button button-outline" data-alert>Export List</button>
+        </div>
+        <div style="display:flex;gap:8px;"><button class="button button-outline" data-alert>Export List</button><button class="button button-secondary" id="reset-demo" title="Restore the original demo dataset">↺ Reset Demo</button></div>
       </div>
       <div class="toolbar"><label class="search-control"><span>Search</span><input id="queue-search" type="search"
             placeholder="Filter by name / ID..."></label><label class="select-control"><span class="sr-only">Filter by
@@ -156,23 +172,33 @@
           <h2 id="modal-title">New Walk-in Application</h2>
         </div><button class="modal-close" aria-label="Close">X</button>
       </div>
-      <form class="application-form">
-        <div class="form-grid"><label>First name<input required placeholder="e.g., Ana"></label><label>Last name<input
-              required placeholder="e.g., Garcia"></label><label>Applicant category<select>
-              <option>New student</option>
+      <form class="application-form" id="walkin-form">
+        <div class="form-grid">
+          <label>First name<input id="w-first" required placeholder="e.g., Ana"></label>
+          <label>Last name<input id="w-last" required placeholder="e.g., Garcia"></label>
+          <label>Applicant category<select id="w-category">
+              <option>New</option>
               <option>Transferee</option>
               <option>Returnee</option>
-            </select></label><label>Preferred program<select>
-              <option>Senior High School</option>
-              <option>BS Information Technology</option>
-              <option>BS Office Administration</option>
-            </select></label></div>
+            </select></label>
+          <label>Preferred program<select id="w-program">
+              <option value="shs">Senior High School</option>
+              <option value="college">College</option>
+            </select></label>
+          <label>Track / Strand<select id="w-track">
+              <option value="">— select —</option>
+              <option value="ACADEMIC">Academic</option>
+              <option value="TVL">TVL</option>
+            </select></label>
+          <label>Contact No.<input id="w-contact" placeholder="e.g., 0917 555 0000"></label>
+        </div>
         <div class="modal-actions"><button class="button button-secondary modal-close"
             type="button">Cancel</button><button class="button button-primary" type="submit">Create application</button>
         </div>
       </form>
     </section>
   </div>
+  <script src="../assets/js/data-store.js"></script>
   <script src="../assets/js/portal-shell.js"></script>
   <script src="../assets/js/navigation.js"></script>
   <script src="../assets/js/app.js"></script>

@@ -6,6 +6,11 @@
 .sidebar {
     width: 238px;
     flex: none;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
+    overflow-y: auto;
     background: #00618c;
     color: #fff;
     border-right: 3px solid #00496a
@@ -261,18 +266,6 @@
     font-size: 13px
 }
 
-.main-content:before {
-    content: 'REGISTRAR STAFF';
-    display: inline-block;
-    margin-bottom: 8px;
-    border: 1px solid #8c969a;
-    border-radius: 10px;
-    padding: 3px 10px;
-    color: #60686b;
-    letter-spacing: 1px;
-    font-size: 10px
-}
-
 .topbar+.main-content {}
 
 @media(max-width:960px) {
@@ -471,8 +464,3 @@
     font-size: 12px
 }
 
-.main-content:before {
-    margin-bottom: 6px;
-    padding: 2px 9px;
-    font-size: 9px
-}
