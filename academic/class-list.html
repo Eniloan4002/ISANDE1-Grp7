@@ -1,25 +1,74 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>ICI Local 2.0 | Class List</title>
+    <meta name="description" content="ICI Local 2.0 subject teacher assigned classes">
+    <title>ICI Local 2.0 | Assigned Classes</title>
     <link rel="stylesheet" href="../assets/css/global.css">
     <link rel="stylesheet" href="../assets/css/layout.css">
     <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/academic.css">
 </head>
 
 <body data-role="teacher" data-page="class-list.html">
     <main class="main-content">
-        <div class="breadcrumb"><a href="grade-entry.html">Academic</a><span>/</span><span>Class List</span></div>
+        <div class="breadcrumb"><a href="grade-entry.html">Academic Records</a><span>/</span><span>Assigned
+                Classes</span></div>
         <section class="page-heading">
             <div>
                 <p class="eyebrow">SUBJECT TEACHER</p>
-                <h1>Class List</h1>
-                <p>View students in your assigned subject classes.</p>
+                <h1>Assigned Classes</h1>
+                <p>Access only the subjects and class sections assigned to your account.</p>
             </div>
+            <span class="prototype-label">UI preview only</span>
         </section>
+
+        <div class="academic-stack">
+            <section class="academic-stats" aria-label="Assigned class statistics">
+                <article class="academic-stat"><strong>4</strong><span>Assigned classes</span><small>Michael Reyes · Subject Teacher</small></article>
+                <article class="academic-stat success"><strong>2</strong><span>Submission open</span><small>Quarter 1 grading window</small></article>
+                <article class="academic-stat warning"><strong>1</strong><span>Draft class</span><small>Grades not yet submitted</small></article>
+                <article class="academic-stat"><strong>1</strong><span>Finalized class</span><small>Corrections require approval</small></article>
+            </section>
+
+            <section class="policy-callout warning">
+                <strong>Submission-window rule:</strong> Teachers may encode grades only for their assigned classes
+                while the grading period is open. Finalized grades are read-only and must use the grade-correction
+                workflow.
+            </section>
+
+            <section class="content-panel">
+                <div class="panel-header"><div><h2>My Classes</h2><p>School Year 2026–2027 · First Semester</p></div><span class="badge blue-badge">Quarter 1</span></div>
+                <div class="toolbar">
+                    <label class="search-control"><span>Search</span><input type="search" placeholder="Subject or section" aria-label="Search assigned classes"></label>
+                    <label class="select-control"><span class="sr-only">Submission status</span><select aria-label="Submission status"><option>Status: All</option><option>Open</option><option>Draft</option><option>Submitted</option><option>Finalized</option></select></label>
+                </div>
+                <div class="panel-body">
+                    <div class="class-card-grid">
+                        <a class="class-card" href="grade-entry.html"><span class="status-pill success">Open</span><h3>General Mathematics</h3><p>Grade 11 · STEM A · Room 204</p><div class="class-card-meta"><span>32 students</span><span>18 of 32 encoded</span></div></a>
+                        <a class="class-card" href="grade-entry.html"><span class="status-pill warning">Draft</span><h3>General Mathematics</h3><p>Grade 11 · STEM B · Room 205</p><div class="class-card-meta"><span>30 students</span><span>0 of 30 encoded</span></div></a>
+                        <a class="class-card" href="grade-entry.html"><span class="status-pill success">Open</span><h3>Statistics and Probability</h3><p>Grade 11 · ABM A · Room 301</p><div class="class-card-meta"><span>28 students</span><span>28 of 28 encoded</span></div></a>
+                        <a class="class-card" href="progress-reports.html"><span class="badge neutral-badge">Finalized</span><h3>General Mathematics</h3><p>Grade 12 · STEM A · Prior period</p><div class="class-card-meta"><span>31 students</span><span>Locked Aug 1</span></div></a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-panel">
+                <div class="panel-header"><div><h2>Grading Schedule</h2><p>Access state for the current grading cycle</p></div></div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Period</th><th>Window</th><th>Teacher access</th><th>Submission state</th><th>Record owner</th></tr></thead>
+                        <tbody>
+                            <tr><td>Quarter 1</td><td>July 29 – August 7, 2026</td><td><span class="status-pill success">Open</span></td><td>Drafts accepted</td><td>Registrar schedule</td></tr>
+                            <tr><td>Quarter 2</td><td><span class="pending-value">Not configured</span></td><td><span class="badge neutral-badge">Not opened</span></td><td>No access</td><td>Registrar schedule</td></tr>
+                            <tr><td>Quarter 3</td><td><span class="pending-value">Not configured</span></td><td><span class="badge neutral-badge">Not opened</span></td><td>No access</td><td>Registrar schedule</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
     </main>
     <script src="../assets/js/portal-shell.js"></script>
     <script src="../assets/js/navigation.js"></script>
