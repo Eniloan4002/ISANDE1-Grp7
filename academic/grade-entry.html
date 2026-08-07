@@ -1,100 +1,12 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="ICI Local 2.0 grading component and score entry prototype">
-    <title>ICI Local 2.0 | Grade Entry</title>
-    <link rel="stylesheet" href="../assets/css/global.css">
-    <link rel="stylesheet" href="../assets/css/layout.css">
-    <link rel="stylesheet" href="../assets/css/components.css">
-    <link rel="stylesheet" href="../assets/css/academic.css">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="ICI Local 2.0 functional grade entry prototype"><title>ICI Local 2.0 | Grade Entry</title>
+  <link rel="stylesheet" href="../assets/css/global.css"><link rel="stylesheet" href="../assets/css/layout.css"><link rel="stylesheet" href="../assets/css/components.css"><link rel="stylesheet" href="../assets/css/academic.css">
 </head>
-
 <body data-role="teacher" data-page="grade-entry.html">
-    <main class="main-content">
-        <div class="breadcrumb"><a href="class-list.html">Assigned Classes</a><span>/</span><span>Grade Entry</span>
-        </div>
-        <section class="page-heading">
-            <div>
-                <p class="eyebrow">SUBJECT TEACHER</p>
-                <h1>Grade Entry</h1>
-                <p>Review grading components and encode scores during the authorized submission period.</p>
-            </div>
-            <span class="status-pill success">Quarter 1 window open</span>
-        </section>
-
-        <div class="academic-stack">
-            <section class="identity-card">
-                <span class="identity-mark">GM</span>
-                <div><h2>General Mathematics</h2><p>Grade 11 · STEM A · 32 students</p><small>Assigned teacher: Michael Reyes · SY 2026–2027</small></div>
-                <div class="identity-actions"><span class="badge blue-badge">18 of 32 encoded</span><small>Last draft: Aug 4, 11:20 AM</small></div>
-            </section>
-
-            <section class="policy-callout warning">
-                <strong>Grading policy not yet configured.</strong> Written work, examinations, performance tasks,
-                projects, recitation, and their percentage weights must be validated with the school before quarter
-                grades can be calculated. The component names below illustrate the required score-entry structure only.
-            </section>
-
-            <div class="academic-grid equal">
-                <section class="content-panel">
-                    <div class="panel-header"><div><h2>Component Configuration</h2><p>School-approved weights will be applied here</p></div><span class="badge neutral-badge">Pending configuration</span></div>
-                    <div class="table-wrap">
-                        <table>
-                            <thead><tr><th>Component</th><th>Assessment examples</th><th>Weight</th><th>Configuration</th></tr></thead>
-                            <tbody>
-                                <tr><td>Written Work</td><td>Quizzes / long examinations</td><td><span class="pending-value">Not configured</span></td><td>Academic policy</td></tr>
-                                <tr><td>Performance Tasks</td><td>Projects / demonstrations</td><td><span class="pending-value">Not configured</span></td><td>Academic policy</td></tr>
-                                <tr><td>Other Component</td><td>Recitation or school-defined item</td><td><span class="pending-value">Not configured</span></td><td>Academic policy</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-                <section class="content-panel">
-                    <div class="panel-header"><div><h2>Submission Details</h2><p>Authorized class and grading window</p></div></div>
-                    <div class="panel-body">
-                        <dl class="definition-grid">
-                            <div><dt>Grading period</dt><dd>Quarter 1</dd></div>
-                            <div><dt>Access state</dt><dd>Open</dd></div>
-                            <div><dt>Deadline</dt><dd>Aug 7, 2026</dd></div>
-                            <div><dt>Teacher</dt><dd>Michael Reyes</dd></div>
-                            <div><dt>Record state</dt><dd>Draft</dd></div>
-                            <div><dt>Quarter grade</dt><dd>Policy pending</dd></div>
-                        </dl>
-                    </div>
-                </section>
-            </div>
-
-            <section class="content-panel">
-                <div class="panel-header"><div><h2>Student Score Sheet</h2><p>Read-only presentation of component-level score entry</p></div><span class="prototype-label">No calculation or saving</span></div>
-                <div class="toolbar">
-                    <label class="search-control"><span>Search</span><input type="search" placeholder="Student name / ID" aria-label="Search score sheet"></label>
-                    <label class="select-control"><span class="sr-only">Record status</span><select aria-label="Record status"><option>Records: All</option><option>Complete</option><option>Incomplete</option><option>Not started</option></select></label>
-                    <span class="program-filter badge neutral-badge">Weights pending school validation</span>
-                </div>
-                <div class="table-wrap">
-                    <table class="grade-table">
-                        <thead><tr><th>Student</th><th>Written Work 1</th><th>Written Work 2</th><th>Performance Task 1</th><th>Other Component</th><th>Quarter Grade</th><th>Status</th></tr></thead>
-                        <tbody>
-                            <tr><td><div class="student-cell"><div><strong>Dela Cruz, Juan</strong><small>STU-2026-0184</small></div></div></td><td><input readonly value="18 / 20" aria-label="Juan written work 1"></td><td><input readonly value="42 / 50" aria-label="Juan written work 2"></td><td><input readonly value="88 / 100" aria-label="Juan performance task 1"></td><td><input readonly value="9 / 10" aria-label="Juan other component"></td><td><span class="pending-value">Pending policy</span></td><td><span class="status-pill success">Scores encoded</span></td></tr>
-                            <tr><td><div class="student-cell"><div><strong>Santos, Maria</strong><small>STU-2026-0185</small></div></div></td><td><input readonly value="20 / 20" aria-label="Maria written work 1"></td><td><input readonly value="46 / 50" aria-label="Maria written work 2"></td><td><input readonly value="92 / 100" aria-label="Maria performance task 1"></td><td><input readonly value="10 / 10" aria-label="Maria other component"></td><td><span class="pending-value">Pending policy</span></td><td><span class="status-pill success">Scores encoded</span></td></tr>
-                            <tr><td><div class="student-cell"><div><strong>Reyes, Pedro</strong><small>STU-2026-0186</small></div></div></td><td><input readonly value="14 / 20" aria-label="Pedro written work 1"></td><td><input readonly value="—" aria-label="Pedro written work 2"></td><td><input readonly value="76 / 100" aria-label="Pedro performance task 1"></td><td><input readonly value="8 / 10" aria-label="Pedro other component"></td><td><span class="pending-value">Incomplete</span></td><td><span class="status-pill warning">Missing score</span></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="table-footer"><span>Showing 3 of 32 students</span><div><button class="button button-secondary" type="button" disabled>Save draft</button> <button class="button button-primary" type="button" disabled>Submit grades</button></div></div>
-            </section>
-
-            <section class="module-note">
-                On submission, the production system would record the responsible teacher, date, and time. After the
-                registrar finalizes this grading period, these records become locked and corrections require approval.
-            </section>
-        </div>
-    </main>
-    <script src="../assets/js/portal-shell.js"></script>
-    <script src="../assets/js/navigation.js"></script>
+  <main class="main-content" id="academic-app"></main>
+  <script src="../assets/js/data-store.js"></script><script src="../assets/js/academic-module.js"></script><script src="../assets/js/portal-shell.js"></script><script src="../assets/js/navigation.js"></script>
 </body>
-
 </html>

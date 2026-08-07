@@ -1,115 +1,12 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="ICI Local 2.0 adviser student record">
-    <title>ICI Local 2.0 | Student Class Record</title>
-    <link rel="stylesheet" href="../assets/css/global.css">
-    <link rel="stylesheet" href="../assets/css/layout.css">
-    <link rel="stylesheet" href="../assets/css/components.css">
-    <link rel="stylesheet" href="../assets/css/academic.css">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="ICI Local 2.0 synchronized adviser student record"><title>ICI Local 2.0 | Student Class Record</title>
+  <link rel="stylesheet" href="../assets/css/global.css"><link rel="stylesheet" href="../assets/css/layout.css"><link rel="stylesheet" href="../assets/css/components.css"><link rel="stylesheet" href="../assets/css/academic.css">
 </head>
-
 <body data-role="adviser" data-page="class-records.html">
-    <main class="main-content">
-        <div class="breadcrumb"><a href="advisory.html">Advisory Class</a><span>/</span><span>Student Class
-                Record</span></div>
-        <section class="page-heading">
-            <div>
-                <p class="eyebrow">TEACHER ADVISER</p>
-                <h1>Student Class Record</h1>
-                <p>A consolidated, read-only view of the selected student's current records.</p>
-            </div>
-            <a class="button button-outline" href="advisory.html">Back to roster</a>
-        </section>
-
-        <div class="academic-stack">
-            <section class="identity-card" aria-label="Selected student">
-                <span class="identity-mark">JD</span>
-                <div>
-                    <h2>Juan Dela Cruz</h2>
-                    <p>STU-2026-0184 · LRN 119270140008</p>
-                    <small>Grade 11 · STEM A · Iligan Main Campus</small>
-                </div>
-                <div class="identity-actions">
-                    <span class="status-pill success">Enrolled</span>
-                    <small>Assigned adviser: Nicole Chua</small>
-                </div>
-            </section>
-
-            <section class="module-note">
-                <strong>Read-only access:</strong> Teacher advisers cannot modify core student, enrollment, requirement,
-                or grade data. Adviser notes and flags are maintained on the Student Monitoring page.
-            </section>
-
-            <section class="content-panel">
-                <div class="panel-header">
-                    <div><h2>Enrollment and Requirements</h2><p>Data retrieved from registrar-managed records</p></div>
-                    <span class="source-chip">Registrar data</span>
-                </div>
-                <div class="panel-body">
-                    <dl class="definition-grid">
-                        <div><dt>Enrollment category</dt><dd>New student</dd></div>
-                        <div><dt>Enrollment status</dt><dd>Enrolled</dd></div>
-                        <div><dt>Confirmed by</dt><dd>Maria Lopez · Aug 1</dd></div>
-                        <div><dt>Requirements</dt><dd>4 of 5 submitted</dd></div>
-                        <div><dt>Pending item</dt><dd>Incoming academic record</dd></div>
-                        <div><dt>Checklist source</dt><dd>Enrollment Management</dd></div>
-                    </dl>
-                </div>
-            </section>
-
-            <section class="content-panel">
-                <div class="panel-header">
-                    <div><h2>Quarterly Academic Record</h2><p>Subjects by quarter with final-grade column</p></div>
-                    <span class="source-chip calculated">Submitted grade data</span>
-                </div>
-                <div class="policy-callout warning">
-                    <strong>School grading policy pending confirmation.</strong> Academic standing and final-grade
-                    computations must use the school-approved component weights and thresholds once configured.
-                </div>
-                <div class="table-wrap">
-                    <table class="quarter-table">
-                        <thead><tr><th>Subject</th><th>Quarter 1</th><th>Quarter 2</th><th>Quarter 3</th><th>Quarter 4</th><th>Final Grade</th></tr></thead>
-                        <tbody>
-                            <tr><td>Oral Communication</td><td>88</td><td>—</td><td>—</td><td>—</td><td><span class="pending-value">Pending</span></td></tr>
-                            <tr><td>General Mathematics</td><td>84</td><td>—</td><td>—</td><td>—</td><td><span class="pending-value">Pending</span></td></tr>
-                            <tr><td>Earth Science</td><td>86</td><td>—</td><td>—</td><td>—</td><td><span class="pending-value">Pending</span></td></tr>
-                            <tr><td>Physical Education and Health</td><td>91</td><td>—</td><td>—</td><td>—</td><td><span class="pending-value">Pending</span></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="table-footer"><span>Quarter 1 submitted · not yet finalized</span><span>Official form
-                        mapping pending school validation</span></div>
-            </section>
-
-            <div class="academic-grid equal">
-                <section class="content-panel">
-                    <div class="panel-header"><div><h2>Section History</h2><p>Registrar-maintained assignments</p></div></div>
-                    <div class="panel-body">
-                        <ul class="audit-list">
-                            <li><strong>Grade 11 · STEM A</strong><span>SY 2026–2027 · Iligan Main Campus</span><small>Room assignment: Policy not configured</small></li>
-                            <li><strong>Grade 10 · Rizal</strong><span>SY 2025–2026 · Previous school</span><small>Imported academic-history reference</small></li>
-                        </ul>
-                    </div>
-                </section>
-                <section class="content-panel">
-                    <div class="panel-header"><div><h2>Latest Adviser Activity</h2><p>Authored notes and flags</p></div><span class="source-chip authored">Adviser-authored</span></div>
-                    <div class="panel-body">
-                        <ul class="audit-list">
-                            <li><strong>Attendance follow-up</strong><span>Flagged for adviser review</span><small>Nicole Chua · Aug 3, 2026 · 9:10 AM</small></li>
-                            <li><strong>Parent contacted</strong><span>Attendance concern discussed by phone</span><small>Nicole Chua · Aug 4, 2026 · 2:20 PM</small></li>
-                        </ul>
-                        <a class="button button-outline" href="student-monitoring.html">Open monitoring history</a>
-                    </div>
-                </section>
-            </div>
-        </div>
-    </main>
-    <script src="../assets/js/portal-shell.js"></script>
-    <script src="../assets/js/navigation.js"></script>
+  <main class="main-content" id="academic-app"></main>
+  <script src="../assets/js/data-store.js"></script><script src="../assets/js/academic-module.js"></script><script src="../assets/js/portal-shell.js"></script><script src="../assets/js/navigation.js"></script>
 </body>
-
 </html>
