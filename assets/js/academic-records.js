@@ -94,7 +94,7 @@ function openRecord(row) {
   document.querySelector('#rec-attend-status').textContent = rec.attendStatus;
 
   confirmBanner.className = 'confirm-banner' + (rec.confirmable ? ' good' : '');
-  confirmBanner.innerHTML = `<span>${rec.confirmable ? '✓' : '⚠'}</span><div><strong>${rec.confirmable ? 'All conditions met.' : 'Action required.'}</strong> ${rec.confirmHint}</div>`;
+  confirmBanner.innerHTML = `<span>${rec.confirmable ? 'OK' : '!'}</span><div><strong>${rec.confirmable ? 'All conditions met.' : 'Action required.'}</strong> ${rec.confirmHint}</div>`;
   confirmBtn.textContent = rec.status === 'enrolled' ? 'Already Enrolled' : 'Confirm Enrollment';
   confirmBtn.disabled = rec.status === 'enrolled';
   openModal();
@@ -130,6 +130,21 @@ document.querySelector('#btn-assign').addEventListener('click', () => {
   showToast('Student assigned', `${currentRecord.name} assigned to ${section}. Change logged in the audit trail.`);
 });
 
+// Auto section (simulate) — assigns the active journey student to their
+// persona section (or STEM-B for any other record).
+document.querySelector('#btn-sim').addEventListener('click', () => {
+  if (!currentRecord || !currentRow) { showToast('Open a record', 'Open a student record first.'); return; }
+  const j = Store.getJourney();
+  if (j && j.active && currentRecord.app === j.appId) {
+    Sim.runStage(7);
+    currentRow.querySelector('td:nth-child(6)').textContent = Store.sections[currentRow.dataset.id] || '—';
+  } else {
+    Store.assignSection(currentRow.dataset.id, 'STEM-B');
+    currentRow.querySelector('td:nth-child(6)').textContent = 'STEM-B';
+  }
+  showToast('Section assigned', `${currentRecord.name} — assigned (simulated), capacity validated.`);
+});
+
 // Confirm enrollment (only when requirements + attendance conditions are met) — persists.
 confirmBtn.addEventListener('click', () => {
   if (!currentRecord.confirmable) {
@@ -146,3 +161,19 @@ confirmBtn.addEventListener('click', () => {
 
 document.addEventListener('store:change', renderRows);
 renderRows();
+
+// Deep-link support: arriving from the journey (?app=<APP-ID>) opens the matching
+// student record. The record is created on demand if it does not exist yet.
+(function openJourneyRecord() {
+  const appId = new URLSearchParams(location.search).get('app');
+  if (!appId) return;
+  let sid = Store.recordByApp(appId);
+  if (!sid) sid = Store.createRecord(appId);
+  const row = [...tbody.querySelectorAll('tr')].find(r => r.dataset.id === sid);
+  if (!row) return;
+  [...tbody.querySelectorAll('tr')].forEach(r => r.style.background = '');
+  row.style.background = '#eaf3f8';
+  openRecord(row);
+  showToast('Student record opened', `${Store.getRecord(sid).name} (${sid}) — loaded from the enrollment journey.`);
+  setTimeout(() => modal.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
+}());

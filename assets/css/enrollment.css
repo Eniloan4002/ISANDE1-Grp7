@@ -81,3 +81,158 @@
         width: 100%
     }
 }
+
+/* ---- Enrollment journey simulation (shared across module screens) ---- */
+.journey-banner {
+    margin-bottom: 14px;
+    border: 1px solid #7e878a;
+    border-radius: 1px;
+    background: #fff
+}
+
+.journey-banner .jb-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    border-bottom: 3px solid var(--primary-color)
+}
+
+.jb-title strong {
+    font: 700 15px Roboto, Arial, sans-serif;
+    color: #263033
+}
+
+.jb-title .jb-sub {
+    display: block;
+    margin-top: 2px;
+    color: #6b7679;
+    font-size: 11px
+}
+
+.jb-sub strong {
+    color: #1d4e68
+}
+
+.jb-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap
+}
+
+.jb-pipe {
+    display: flex;
+    gap: 8px;
+    padding: 12px 14px 10px;
+    flex-wrap: wrap
+}
+
+.jstage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    min-width: 78px;
+    color: #8a9497;
+    font-size: 9px;
+    text-align: center
+}
+
+.jstage i {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border: 1px solid #b9c2c4;
+    border-radius: 50%;
+    background: #fff;
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 700
+}
+
+.jstage small {
+    line-height: 1.15;
+    max-width: 78px
+}
+
+.jstage.done i {
+    background: #eef7f1;
+    border-color: #7fae8f;
+    color: #286445
+}
+
+.jstage.active i {
+    background: #175e80;
+    border-color: #175e80;
+    color: #fff;
+    box-shadow: 0 0 0 3px #d5e8f0
+}
+
+.jstage.active small {
+    color: #175e80;
+    font-weight: 700
+}
+
+.jstage.skip i {
+    border-style: dashed;
+    color: #b6bcbe
+}
+
+.jb-note {
+    margin: 0;
+    padding: 4px 14px 12px;
+    color: #4d575a;
+    font-size: 11px;
+    line-height: 1.5
+}
+
+.journey-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    padding: 9px 12px;
+    border: 1px solid #3f7d9b;
+    background: #eaf3f8;
+    color: #1d5a76;
+    font-size: 11px
+}
+
+.journey-chip .jchip-icon {
+    font-size: 14px
+}
+
+.journey-chip .jchip-text {
+    flex: 1;
+    min-width: 200px
+}
+
+.journey-chip .jchip-text em {
+    color: #4d757f;
+    font-style: normal
+}
+
+.journey-chip .jchip-next {
+    white-space: nowrap;
+    color: #4d757f
+}
+
+.journey-chip .jchip-next strong {
+    color: #12455c
+}
+
+.journey-chip a.button {
+    text-decoration: none;
+    padding: 4px 10px;
+    font-size: 10px
+}
+
+.jdot {
+    margin-left: 6px;
+    color: #d8a31a;
+    font-size: 12px
+}

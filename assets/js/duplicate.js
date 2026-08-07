@@ -119,6 +119,22 @@ function resolve(action) {
 mergeBtn.addEventListener('click', () => resolve('merge'));
 rejectBtn.addEventListener('click', () => resolve('reject'));
 
+// Resolve (simulate) — runs the Duplicate Review stage for the active
+// journey student (or resolves the open pair as a merge for any other pair).
+document.querySelector('#btn-sim').addEventListener('click', () => {
+  if (!currentPair) { showToast('Select a pair', 'Choose a flagged pair first.'); return; }
+  const j = Store.getJourney();
+  if (j && j.active && j.appId === currentPair) {
+    Sim.runStage(3);
+  } else {
+    resolve('merge');
+    return;
+  }
+  const row = [...tbody.querySelectorAll('tr')].find(r => r.dataset.app === currentPair);
+  if (row) openPair(row);
+  showToast('Duplicate resolved', `${currentPair} — merged (simulated). Logged in the audit trail.`);
+});
+
 document.addEventListener('store:change', renderPairs);
 renderPairs();
 
