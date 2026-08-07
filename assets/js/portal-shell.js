@@ -2,7 +2,8 @@
 const portal = document.body.dataset.role;
 const page = document.body.dataset.page;
 const roleConfig = {
-  registrar: { label: 'Registrar Staff', office: "Registrar's Office", initials: 'RS', items: [['submission.html', 'Enrollment Submission'], ['queue.html', 'Enrollment Queue'], ['evaluate.html', 'Evaluate Applications'], ['requirements.html', 'Requirements'], ['attendance.html', 'First-Week Attendance'], ['duplicate.html', 'Duplicate Records'], ['academic-records.html', 'Academic Records'], ['enrolled.html', 'Enrolled & Assigned'], ['reporting-monitoring.html', 'Reporting & Monitoring']] },
+  student: { label: 'Prospective Student', office: 'Student Portal', initials: 'PS', items: [['submission.html', 'Enrollment Submission']] },
+  registrar: { label: 'Registrar Staff', office: "Registrar's Office", initials: 'RS', items: [['queue.html', 'Enrollment Queue'], ['evaluate.html', 'Evaluate Applications'], ['requirements.html', 'Requirements'], ['attendance.html', 'First-Week Attendance'], ['duplicate.html', 'Duplicate Records'], ['academic-records.html', 'Academic Records'], ['enrolled.html', 'Enrolled & Assigned'], ['reporting-monitoring.html', 'Reporting & Monitoring']] },
   adviser: { label: 'Teacher Adviser', office: 'Teacher Adviser Portal', initials: 'TA', items: [['advisory.html', 'Advisory Class'], ['class-records.html', 'Class Records'], ['student-monitoring.html', 'Student Monitoring']] },
   teacher: { label: 'Subject Teacher', office: 'Subject Teacher Portal', initials: 'ST', items: [['grade-entry.html', 'Grade Entry'], ['class-list.html', 'Assigned Classes'], ['progress-reports.html', 'Grade Corrections']] },
   guidance: { label: 'Guidance Staff', office: 'Guidance Office', initials: 'GS', items: [['guidance.html', 'Guidance Records'], ['student-profiles.html', 'Student Profiles'], ['reports.html', 'Reports']] },

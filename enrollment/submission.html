@@ -576,12 +576,12 @@
   </style>
 </head>
 
-<body data-role="registrar" data-page="submission.html">
+<body data-role="student" data-page="submission.html">
   <main class="main-content">
-    <div class="breadcrumb"><a href="queue.html">Enrollment</a><span>/</span><span>New Application</span></div>
+    <div class="breadcrumb"><a href="submission.html">Enrollment</a><span>/</span><span>New Application</span></div>
     <section class="page-heading">
       <div>
-        <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
+        <p class="eyebrow">PROSPECTIVE STUDENT</p>
         <h1>Enrollment Submission</h1>
         <p>Applicant initiates enrollment — submit the full application form, personal information, and required documents.</p>
       </div>
@@ -590,7 +590,7 @@
     <section class="sim-card" id="sim-card" aria-label="Enrollment journey simulation">
       <div class="sim-head">
         <div><strong>Simulate a Student Submission</strong>
-          <p>Fill the application one section at a time — start the simulation, then click each section's <strong>Fill</strong> button to populate it. When all six are filled, submit and follow the journey all the way to <strong>Officially Enrolled &amp; Assigned</strong>.</p></div>
+          <p>This is the applicant's own screen. Start the simulation, then click <strong>Fill</strong> on each Google Form page to populate it as the student would. When all six pages are filled, submit and follow the journey to <strong>Officially Enrolled &amp; Assigned</strong>.</p></div>
         <div style="display:flex;gap:8px;">
           <button class="button button-primary" type="button" id="sim-start">Start Simulation</button>
           <button class="button button-outline" type="button" id="sim-cancel" hidden>Cancel</button>
@@ -620,12 +620,10 @@
         <div class="sim-progress-bar"><span id="sim-progress-fill"></span></div>
         <span id="sim-progress-text">Preparing…</span>
       </div>
-    </section>
-
-    <div class="editor-bar" role="tablist" aria-label="View mode">
-      <button class="editor-tab active" id="tab-edit" type="button" role="tab" aria-selected="true">Edit Form</button>
-      <button class="editor-tab" id="tab-preview" type="button" role="tab" aria-selected="false">Preview as Student</button>
-      <span class="editor-hint">Preview shows the application form exactly as a prospective student sees it — one section per page.</span>
+    </section>      <div class="editor-bar" role="tablist" aria-label="View mode">
+      <button class="editor-tab active" id="tab-edit" type="button" role="tab" aria-selected="true">All fields</button>
+      <button class="editor-tab" id="tab-preview" type="button" role="tab" aria-selected="false">Google Form view</button>
+      <span class="editor-hint">The Google Form view shows the application exactly as the student completes it — one section per page.</span>
     </div>
 
     <div class="submit-success" id="submit-success">
@@ -853,6 +851,7 @@
       <div class="preview-body" id="preview-body"></div>
       <div class="preview-nav">
         <button class="button button-secondary" type="button" id="preview-back">&lt; Back</button>
+        <button class="button button-outline" type="button" id="preview-fill" hidden>Fill this page</button>
         <span class="note" id="preview-note"></span>
         <button class="button button-primary" type="button" id="preview-next">Next →</button>
       </div>

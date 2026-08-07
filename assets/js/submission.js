@@ -141,6 +141,8 @@ document.querySelector('#submission-form').addEventListener('submit', event => {
   successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
   document.querySelector('#submission-form').classList.add('hidden');
   document.querySelector('.editor-bar').classList.add('hidden');
+  previewPanel.classList.remove('show');
+  previewPanel.setAttribute('aria-hidden', 'true');
   showToast('Application submitted', `${id} — entered the Enrollment Queue as Pre-Enlisted.`);
 });
 
@@ -168,6 +170,7 @@ const previewBody = document.querySelector('#preview-body');
 const previewStep = document.querySelector('#preview-step');
 const previewProgress = document.querySelector('#preview-progress');
 const previewBack = document.querySelector('#preview-back');
+const previewFill = document.querySelector('#preview-fill');
 const previewNext = document.querySelector('#preview-next');
 const previewNote = document.querySelector('#preview-note');
 
@@ -266,6 +269,10 @@ function ipPreviewValue() {
 function uploadPreviewValue(i) {
   const input = uploadInputs[i];
   if (input && input.files && input.files[0]) return 'Attached: ' + input.files[0].name;
+  // Simulated attachments (browsers forbid setting file inputs) are tracked in
+  // pendingUploads and rendered here so the student's Google Form view shows them.
+  const docName = ['PSA Birth Certificate', 'Form 137', 'Certificate of Completion', 'Good Moral Certificate'][i];
+  if (pendingUploads[docName]) return 'Attached: ' + pendingUploads[docName] + ' (simulated)';
   return '';
 }
 
@@ -278,6 +285,7 @@ function escapeHtml(text) {
 }
 
 let previewIndex = 0;
+let filledPages = new Set();   // Google Form pages completed via the simulation
 function renderPreviewPage() {
   const section = PREVIEW_SECTIONS[previewIndex];
   previewStep.textContent = `Section ${previewIndex + 1} of ${PREVIEW_SECTIONS.length}`;
@@ -291,9 +299,32 @@ function renderPreviewPage() {
     }).join('');
   previewBack.disabled = previewIndex === 0;
   const isLast = previewIndex === PREVIEW_SECTIONS.length - 1;
-  previewNext.textContent = isLast ? 'Finish Preview' : 'Next →';
-  previewNote.textContent = isLast ? 'This is the final section. The student would press “Submit” here.' : '';
+  const allFilled = simulated && filledPages.size === TOTAL_SECTIONS;
+  const pageFilled = filledPages.has(previewIndex);
+  if (previewFill) {
+    previewFill.hidden = !simulated;
+    previewFill.disabled = pageFilled;
+    previewFill.textContent = pageFilled ? 'Filled' : 'Fill this page';
+  }
+  previewNext.textContent = isLast ? (allFilled ? 'Submit Application' : 'Finish Preview') : 'Next →';
+  previewNote.textContent = isLast
+    ? (allFilled ? 'All pages filled — press Submit Application to finish.' : 'This is the final section. The student would press “Submit” here.')
+    : '';
 }
+
+// The preview's Fill button populates only the Google Form page currently shown.
+previewFill?.addEventListener('click', () => {
+  if (!simulated) {
+    showToast('Start the simulation first', 'Click Start Simulation, then fill each page.');
+    return;
+  }
+  if (filledPages.has(previewIndex)) return;
+  previewFill.disabled = true;
+  previewFill.textContent = 'Filling…';
+  // markSectionFilled re-renders the preview (and resets this button's state)
+  // when the Google Form view is visible, so no extra render is needed here.
+  fillSection(previewIndex).then(() => markSectionFilled(previewIndex));
+});
 
 function showPreview(show) {
   formEl.classList.toggle('hidden', show);
@@ -317,10 +348,20 @@ previewNext.addEventListener('click', () => {
   if (previewIndex < PREVIEW_SECTIONS.length - 1) {
     previewIndex++;
     renderPreviewPage();
-  } else {
-    showPreview(false);
-    showToast('Preview finished', 'Returned to the editor — the form is ready for a real submission.');
+    return;
   }
+  if (simulated) {
+    if (filledPages.size !== TOTAL_SECTIONS) {
+      // Stay in the student's view — tell them what's left, don't yank them out.
+      showToast('Not all pages filled yet', `Fill the remaining ${TOTAL_SECTIONS - filledPages.size} page(s) before submitting.`);
+      return;
+    }
+    // All Google Form pages filled — fire the real submit handler.
+    formEl.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    return;
+  }
+  showPreview(false);
+  showToast('Preview finished', 'Returned to the all-fields view — the form is ready for a real submission.');
 });
 
 // ---- Simulate a Student Submission (click-through) ----
@@ -454,6 +495,7 @@ async function fillSection(idx) {
 
 function markSectionFilled(idx) {
   filledSections++;
+  filledPages.add(idx);
   const btn = document.querySelector(`.section-fill[data-section="${idx}"]`);
   if (btn) { btn.disabled = true; btn.textContent = 'Filled'; btn.classList.add('filled'); }
   if (filledSections === TOTAL_SECTIONS) {
@@ -464,6 +506,8 @@ function markSectionFilled(idx) {
   } else {
     setProgress(Math.round((filledSections / TOTAL_SECTIONS) * 100), `${filledSections} of ${TOTAL_SECTIONS} sections filled — click the next Fill.`);
   }
+  // Keep the Google Form view in sync (Fill button state + Submit label).
+  if (previewPanel.classList.contains('show')) renderPreviewPage();
 }
 
 // Arm the simulation: clear the form, unlock the per-section Fill buttons,
@@ -471,6 +515,7 @@ function markSectionFilled(idx) {
 function cancelSimulation() {
   simulated = false;
   filledSections = 0;
+  filledPages = new Set();
   pendingUploads = {};
   document.querySelectorAll('.section-fill').forEach(btn => {
     btn.disabled = true;
@@ -486,6 +531,7 @@ function cancelSimulation() {
   simMode.disabled = false;
   simSpeed.disabled = false;
   setProgress(0, 'Simulation cancelled — the form is back to manual mode.');
+  if (previewPanel.classList.contains('show')) renderPreviewPage();
 }
 
 // Arm the simulation: clear the form, unlock the per-section Fill buttons,
@@ -493,6 +539,7 @@ function cancelSimulation() {
 function resetSimulation() {
   simulated = true;
   filledSections = 0;
+  filledPages = new Set();
   pendingUploads = {};
   formEl.querySelectorAll('input, select').forEach(el => {
     if (el.type !== 'checkbox' && el.type !== 'file') el.value = '';
@@ -516,7 +563,7 @@ function resetSimulation() {
   if (draftBtn) draftBtn.disabled = true;
   if (submitBtn) submitBtn.disabled = true;
   if (simCancel) simCancel.hidden = false;
-  setProgress(4, 'Simulation armed — click each section to fill it.');
+  setProgress(4, 'Simulation armed — click each page to fill it.');
 }
 
 simCancel?.addEventListener('click', () => {
@@ -532,8 +579,9 @@ simStart.addEventListener('click', () => {
   simMode.disabled = true;
   simSpeed.disabled = true;
   resetSimulation();
-  showToast('Simulation started', `Filling as ${persona.label} — click each section's Fill button, then submit.`);
-  if (formSections[0]) formSections[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // The applicant completes the form from their own Google Form view.
+  showPreview(true);
+  showToast('Simulation started', `Filling as ${persona.label} — click Fill on each page of the form, then submit.`);
 });
 
 // Each section header's Fill button populates just that section's fields.
@@ -591,3 +639,7 @@ formEl.addEventListener('submit', () => {
     : 'Continue journey in the Enrollment Queue →';
   showToast('Simulation started', `${Store.applicants[id].name} (${id}) — the journey is saved and ready to follow.`);
 });
+
+// The Enrollment Submission screen is the applicant's own screen — open on the
+// Google Form view by default so the simulation reads as the student's POV.
+showPreview(true);
