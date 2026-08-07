@@ -49,10 +49,6 @@
       gap: 10px 14px
     }
 
-    .form-grid.two {
-      grid-template-columns: repeat(2, 1fr)
-    }
-
     .form-grid label {
       display: block;
       font-size: 11px;
@@ -126,18 +122,6 @@
       height: 26px;
       margin-left: 6px;
       display: none
-    }
-
-    .readonly-note {
-      display: flex;
-      gap: 7px;
-      margin-top: 12px;
-      padding: 8px 10px;
-      border: 1px dashed #9aa7ab;
-      background: #f4f7f8;
-      color: #566064;
-      font-size: 11px;
-      line-height: 1.45
     }
 
     .dup-note {
@@ -220,7 +204,6 @@
 
     @media(max-width:640px) {
       .form-grid,
-      .form-grid.two,
       .check-group {
         grid-template-columns: 1fr
       }
@@ -236,7 +219,8 @@
         <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
         <h1>Evaluate Applications</h1>
         <p>Review incoming applications and encode the full enrollment application form. Application data is autofilled — the system runs an automated duplicate check on save.</p>
-      </div><button class="button button-primary" id="clear-form">+ New Walk-in</button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;"><a class="button button-secondary" href="queue.html">← Back to Queue</a><button class="button button-primary" id="clear-form">+ New Walk-in</button></div>
     </section>
 
     <section class="stats-grid" aria-label="Evaluation statistics">
@@ -359,6 +343,11 @@
                   <option value="TVL">TVL (Technical-Vocational)</option>
                 </select></label>
               <label>Strand / Specialization *<select id="f-strand"></select></label>
+              <label>Preferred campus<select id="f-campus">
+                  <option>Main — Iligan</option>
+                  <option>Kapatagan</option>
+                  <option>Bugo — CDO</option>
+                </select></label>
               <label class="full">If classes will not be 100% face to face, what is your preferred distance learning modality/modalities? (Check all that applies) *
                 <div class="check-group" id="delivery-group">
                   <label><input type="checkbox" name="delivery" value="Modular (Print)"> Modular (Print)</label>
@@ -373,31 +362,10 @@
           </div>
         </div>
 
-        <!-- 2. Enrollment details (read-only from cashiering) -->
+        <!-- 2. Student information -->
         <div class="form-section">
           <div class="section-head">
-            <h2>2 · Enrollment Details</h2>
-            <span class="hint">Category reference data is read-only,<br>pulled from the cashiering system.</span>
-          </div>
-          <div class="form-body">
-            <div class="form-grid two">
-              <label>Category<input id="f-category" readonly></label>
-              <label>Assessment reference<input id="f-ref" readonly></label>
-              <label>Bracket<input id="f-bracket" readonly></label>
-              <label>Preferred campus<select id="f-campus">
-                  <option>Main — Iligan</option>
-                  <option>Kapatagan</option>
-                  <option>Bugo — CDO</option>
-                </select></label>
-            </div>
-            <div class="readonly-note"><span>ⓘ</span><div>Reference data comes from the cashiering system (read-only). Voucher categorization (QVR / ESC / ALS / Regular) and brackets are assigned there and cannot be edited here.</div></div>
-          </div>
-        </div>
-
-        <!-- 3. Student information -->
-        <div class="form-section">
-          <div class="section-head">
-            <h2>3 · Student Information</h2>
+            <h2>2 · Student Information</h2>
             <span class="hint">LRN is provided by the previous school (DepEd).<br>Please refrain from using ALL CAPS.</span>
           </div>
           <div class="form-body">
@@ -439,10 +407,10 @@
           </div>
         </div>
 
-        <!-- 4. Complete home address -->
+        <!-- 3. Complete home address -->
         <div class="form-section">
           <div class="section-head">
-            <h2>4 · Complete Home Address</h2>
+            <h2>3 · Complete Home Address</h2>
           </div>
           <div class="form-body">
             <div class="form-grid">
@@ -461,10 +429,11 @@
           </div>
         </div>
 
-        <!-- 5. Current school -->
+        <!-- 4. Current school -->
         <div class="form-section">
           <div class="section-head">
-            <h2>5 · Current School</h2>
+            <h2>4 · Current School</h2>
+            <span class="hint">If you are currently enrolled, provide your<br>previous school details.</span>
           </div>
           <div class="form-body">
             <div class="form-grid">
@@ -472,17 +441,17 @@
                   <option>No</option>
                   <option>Yes</option>
                 </select></label>
-              <label class="span2 hidden school-field">Name of your School *<input id="f-school"></label>
-              <label class="hidden school-field">School's Address<small>Barangay, City/Municipality, Province</small><input id="f-school-address"></label>
-              <label class="hidden school-field">School's ID<input id="f-school-id"></label>
+              <label class="span2">Name of your School *<input id="f-school"></label>
+              <label>School's Address<small>Barangay, City/Municipality, Province</small><input id="f-school-address"></label>
+              <label>School's ID<input id="f-school-id"></label>
             </div>
           </div>
         </div>
 
-        <!-- 6. Parent / guardian -->
+        <!-- 5. Parent / guardian -->
         <div class="form-section">
           <div class="section-head">
-            <h2>6 · Parent / Guardian</h2>
+            <h2>5 · Parent / Guardian</h2>
             <span class="hint">Certification consent: information is used for the<br>Learner Information System (DepEd) and is confidential.</span>
           </div>
           <div class="form-body">
@@ -517,6 +486,7 @@
     <div><strong>Saved</strong><small>Record updated in the enrollment queue.</small></div><button aria-label="Dismiss notification">X</button>
   </div>
 
+  <script src="../assets/js/data-store.js"></script>
   <script src="../assets/js/portal-shell.js"></script>
   <script src="../assets/js/navigation.js"></script>
   <script src="../assets/js/evaluate.js"></script>

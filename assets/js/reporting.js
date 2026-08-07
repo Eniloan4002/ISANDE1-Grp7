@@ -1,4 +1,4 @@
-// Reporting & Monitoring demo interactions. No server or persistent data is used.
+// Reporting & Monitoring demo interactions — backed by the shared localStorage store.
 // Toast helper (shared by all enrollment screens).
 const toast = document.querySelector('#toast');
 let timer;
@@ -93,6 +93,19 @@ function paramSummary() {
   return selects.map(select => select.options[select.selectedIndex].text).join(' · ');
 }
 
+function renderLog() {
+  const log = document.querySelector('#log-body');
+  const entries = Store.getReportLog();
+  log.innerHTML = entries.map((entry, idx) =>
+    `<tr>
+      <td>${entry.when}</td><td>${entry.title}</td><td>${entry.criteria}</td><td>${entry.by}</td><td>${entry.format}</td>
+      <td class="action-cell"><button class="row-action" data-del-log="${idx}" title="Remove log entry">Remove</button></td>
+    </tr>`
+  ).join('');
+  const count = document.querySelector('#log-count');
+  if (count) count.textContent = `Showing ${entries.length} of ${entries.length} logged generations`;
+}
+
 function generate() {
   const type = typeButtons.find(button => button.classList.contains('active')).dataset.type;
   const report = REPORTS[type];
@@ -103,12 +116,23 @@ function generate() {
   preview.classList.add('show');
   preview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-  const log = document.querySelector('#log-body');
-  log.insertAdjacentHTML('afterbegin', `<tr><td>${now}</td><td>${report.title}</td><td>${paramSummary()}</td><td>R. Santos</td><td>PDF</td></tr>`);
+  Store.addReport({ when: now, title: report.title, criteria: paramSummary(), by: 'R. Santos', format: 'PDF' });
+  renderLog();
   showToast('Report generated', `${report.title} compiled and logged for audit.`);
 }
+
+document.querySelector('#log-body').addEventListener('click', event => {
+  const btn = event.target.closest('[data-del-log]');
+  if (!btn) return;
+  Store.removeReport(Number(btn.dataset.delLog));
+  renderLog();
+  showToast('Log entry removed', 'Report generation log updated.');
+});
 
 document.querySelector('#btn-generate').addEventListener('click', generate);
 document.querySelector('#btn-print').addEventListener('click', () => showToast('Printing', 'The report is being sent to the printer.'));
 document.querySelectorAll('[data-export]').forEach(button => button.addEventListener('click', () => showToast('Export prepared', 'CSV file downloaded — demonstration prototype.')));
 document.querySelectorAll('[data-export-pdf]').forEach(button => button.addEventListener('click', () => showToast('Export prepared', 'PDF file downloaded — demonstration prototype.')));
+
+document.addEventListener('store:change', renderLog);
+renderLog();
