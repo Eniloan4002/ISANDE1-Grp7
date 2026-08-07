@@ -11,7 +11,7 @@
 
   const toast = document.createElement('div');
   toast.className = 'toast';
-  toast.innerHTML = '<span>✓</span><div><strong></strong><small></small></div><button aria-label="Close">×</button>';
+  toast.innerHTML = '<span>OK</span><div><strong></strong><small></small></div><button aria-label="Dismiss notification">X</button>';
   document.body.append(toast);
   let toastTimer;
   function showToast(title, detail) {
