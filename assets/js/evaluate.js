@@ -201,6 +201,20 @@ function saveAndReturn(kind) {
 document.querySelector('#btn-draft').addEventListener('click', () => saveAndReturn('draft'));
 document.querySelector('#btn-check').addEventListener('click', () => saveAndReturn('check'));
 
+// ⚡ Auto-encode (simulate) — runs the Encode Profile stage for the active
+// journey student (or simply stores the form for any other applicant).
+document.querySelector('#btn-sim').addEventListener('click', () => {
+  if (!activeApp) { showToast('No application selected', 'Select an application from the list first.'); return; }
+  const j = Store.getJourney();
+  if (j && j.active && j.appId === activeApp) {
+    Sim.runStage(2);
+    showToast('Encode simulated', `${APPLICANTS[activeApp].name} (${activeApp}) — profile encoded; automated duplicate check ran.`);
+    return;
+  }
+  Store.updateApplicant(activeApp, collectForm());
+  showToast('Profile saved', `${APPLICANTS[activeApp].name} — encode details stored.`);
+});
+
 // Initialize the strand list for the default track.
 renderStrands(document.querySelector('#f-track').value);
 

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ICI Local 2.0 — Student Officially Enrolled and Assigned to Section. End of the enrollment journey.">
+  <title>ICI Local 2.0 | Enrolled & Assigned</title>
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/enrollment.css">
+  <style>
+    .enroll-done {
+      margin-bottom: 14px;
+      border: 1px solid #7e878a;
+      border-radius: 1px;
+      background: #fff;
+      overflow: hidden
+    }
+
+    .done-hero {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 22px 20px 18px;
+      border-bottom: 3px solid #3d8a5f;
+      background: #f2faf5
+    }
+
+    .done-seal {
+      display: grid;
+      place-items: center;
+      width: 52px;
+      height: 52px;
+      flex: 0 0 52px;
+      border: 2px solid #3d8a5f;
+      border-radius: 50%;
+      background: #eef7f1;
+      color: #286445;
+      font-size: 22px
+    }
+
+    .done-hero h2 {
+      margin: 0;
+      font: 700 18px Roboto, Arial, sans-serif;
+      color: #20452f
+    }
+
+    .done-hero p {
+      margin: 4px 0 0;
+      color: #4d6d57;
+      font-size: 12px;
+      line-height: 1.5
+    }
+
+    .done-body {
+      padding: 16px 20px
+    }
+
+    .rec-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 16px
+    }
+
+    .rec-card {
+      border: 1px solid #c9d0d2;
+      border-radius: 2px;
+      padding: 10px 12px;
+      background: #fafbfb
+    }
+
+    .rec-card h3 {
+      margin: 0 0 6px;
+      font: 700 10px Roboto, Arial, sans-serif;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      color: #6a7477
+    }
+
+    .rec-card .big {
+      font: 700 16px Roboto, Arial, sans-serif;
+      color: #263033
+    }
+
+    .rec-card .big.ok {
+      color: #286445
+    }
+
+    .rec-card small {
+      display: block;
+      margin-top: 3px;
+      color: #8a9497;
+      font-size: 10px
+    }
+
+    .confirm-stamp {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 22px;
+      margin-bottom: 16px;
+      padding: 10px 12px;
+      border: 1px solid #c9d0d2;
+      background: #f4f6f6;
+      color: #4d575a;
+      font-size: 11px
+    }
+
+    .confirm-stamp strong {
+      color: #2b3437
+    }
+
+    .tl-title {
+      margin: 0 0 8px;
+      font: 700 11px Roboto, Arial, sans-serif;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      color: #5c6669
+    }
+
+    .tl-list {
+      list-style: none;
+      margin: 0 0 16px;
+      padding: 0
+    }
+
+    .tl-item {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 6px 2px;
+      border-bottom: 1px dotted #d4d9db;
+      font-size: 11px;
+      color: #4d575a
+    }
+
+    .tl-item:last-child {
+      border-bottom: 0
+    }
+
+    .tl-item .tl-dot {
+      flex: 0 0 16px;
+      text-align: center;
+      font-weight: 700
+    }
+
+    .tl-item.done .tl-dot {
+      color: #286445
+    }
+
+    .tl-item.skip .tl-dot {
+      color: #b6bcbe
+    }
+
+    .tl-item .tl-label {
+      flex: 1
+    }
+
+    .tl-item .tl-when {
+      white-space: nowrap;
+      color: #7a8487
+    }
+
+    .done-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px solid #c8cdcf
+    }
+
+    .done-actions a.button {
+      text-decoration: none
+    }
+
+    .empty-state {
+      margin-bottom: 14px;
+      padding: 26px 20px;
+      border: 1px solid #7e878a;
+      border-radius: 1px;
+      background: #fff;
+      color: #4d575a;
+      font-size: 12px;
+      line-height: 1.6;
+      text-align: center
+    }
+
+    .empty-state strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #2b3437;
+      font-size: 15px
+    }
+
+    @media(max-width:820px) {
+      .rec-grid {
+        grid-template-columns: 1fr 1fr
+      }
+    }
+
+    @media(max-width:560px) {
+      .rec-grid {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
+</head>
+
+<body data-role="registrar" data-page="enrolled.html">
+  <main class="main-content">
+    <div class="breadcrumb"><a href="queue.html">Enrollment</a><span>/</span><span>Complete</span></div>
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
+        <h1>Enrolled &amp; Assigned</h1>
+        <p>End of the enrollment journey — the student is officially enrolled and assigned to a section.</p>
+      </div>
+    </section>
+
+    <section class="enroll-done" id="done-panel" hidden aria-label="Enrollment completion">
+      <div class="done-hero">
+        <span class="done-seal">✓</span>
+        <div>
+          <h2>Student Officially Enrolled &amp; Assigned to Section</h2>
+          <p id="done-sub">Confirmation and section change have been logged in the audit trail.</p>
+        </div>
+      </div>
+      <div class="done-body">
+        <div class="confirm-stamp">
+          <span>Student: <strong id="enr-name">—</strong></span>
+          <span>Application: <strong id="enr-meta">—</strong></span>
+          <span>Confirmed: <strong id="enr-confirmed">—</strong></span>
+          <span>Registrar: <strong id="enr-registrar">—</strong></span>
+        </div>
+
+        <div class="rec-grid">
+          <div class="rec-card">
+            <h3>Student ID</h3>
+            <div class="big" id="enr-student-id">—</div>
+            <small>Centralized student record</small>
+          </div>
+          <div class="rec-card">
+            <h3>Status</h3>
+            <div class="big ok" id="enr-status">Enrolled</div>
+            <small>Enrollment confirmed</small>
+          </div>
+          <div class="rec-card">
+            <h3>Section</h3>
+            <div class="big ok" id="enr-section">—</div>
+            <small>Capacity validated</small>
+          </div>
+          <div class="rec-card">
+            <h3>Category</h3>
+            <div class="big" id="enr-category">—</div>
+            <small>Assessment ref: <span id="enr-ref">—</span></small>
+          </div>
+        </div>
+
+        <p class="tl-title">Journey recap — submission to official enrollment</p>
+        <ul class="tl-list" id="enr-timeline"></ul>
+
+        <div class="done-actions">
+          <a class="button button-secondary" href="queue.html">← Return to Queue</a>
+          <a class="button button-primary" href="submission.html">Start New Enrollment →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="empty-state" id="empty-state" hidden>
+      <strong>No enrollment journey found</strong>
+      No completed student record is selected. Start one from the Enrollment Submission screen, or pick an applicant from the Enrollment Queue.
+      <div style="margin-top:14px;"><a class="button button-primary" href="submission.html">Go to Enrollment Submission →</a></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status"><span>OK</span>
+    <div><strong>Enrollment complete</strong><small>The student is officially enrolled and assigned to a section.</small></div><button aria-label="Dismiss notification">X</button>
+  </div>
+
+  <script src="../assets/js/data-store.js"></script>
+  <script src="../assets/js/portal-shell.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/simulation.js"></script>
+  <script src="../assets/js/enrolled.js"></script>
+</body>
+
+</html>

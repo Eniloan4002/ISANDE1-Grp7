@@ -433,6 +433,92 @@
       text-decoration: none
     }
 
+    /* ---- 🎬 Simulate a Student Submission ---- */
+    .sim-card {
+      margin-bottom: 14px;
+      border: 1px solid #7e878a;
+      border-radius: 1px;
+      background: #fff
+    }
+
+    .sim-card .sim-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 3px solid var(--primary-color)
+    }
+
+    .sim-card .sim-head strong {
+      font: 700 15px Roboto, Arial, sans-serif;
+      color: #263033
+    }
+
+    .sim-card .sim-head p {
+      margin: 3px 0 0;
+      color: #6b7679;
+      font-size: 11px;
+      line-height: 1.5
+    }
+
+    .sim-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      padding: 10px 14px;
+      background: #f4f6f6
+    }
+
+    .sim-controls label {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #3d4649
+    }
+
+    .sim-controls select {
+      height: 30px;
+      min-width: 190px;
+      border: 1px solid #8d9597;
+      border-radius: 1px;
+      padding: 0 6px;
+      font-size: 12px;
+      background: #fff
+    }
+
+    .sim-progress {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      border-top: 1px solid #d5d9da;
+      font-size: 11px;
+      color: #4d575a
+    }
+
+    .sim-progress[hidden] {
+      display: none
+    }
+
+    .sim-progress-bar {
+      flex: 1;
+      height: 6px;
+      background: #d5e2e8;
+      border-radius: 3px;
+      overflow: hidden
+    }
+
+    .sim-progress-bar span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: #2e7aa0;
+      transition: width .2s ease
+    }
+
     @media(max-width:1000px) {
       .form-grid {
         grid-template-columns: 1fr 1fr
@@ -460,6 +546,38 @@
       </div>
     </section>
 
+    <section class="sim-card" id="sim-card" aria-label="Enrollment journey simulation">
+      <div class="sim-head">
+        <div><strong>🎬 Simulate a Student Submission</strong>
+          <p>Auto-fill the application form the way a prospective student would, submit it, then follow the journey all the way to <strong>Officially Enrolled &amp; Assigned</strong>.</p></div>
+        <button class="button button-primary" type="button" id="sim-start">▶ Start Simulation</button>
+      </div>
+      <div class="sim-controls">
+        <label>Scenario (persona)
+          <select id="sim-persona">
+            <option value="new">New Student — Clean Run</option>
+            <option value="transferee">Transferee — Duplicate Flag</option>
+            <option value="returnee">Returnee — Follow-Up Needed</option>
+          </select></label>
+        <label>Journey mode
+          <select id="sim-mode">
+            <option value="auto">Auto-play full journey</option>
+            <option value="step">Step-through (guide me)</option>
+            <option value="manual">Manual (submit only)</option>
+          </select></label>
+        <label>Fill speed
+          <select id="sim-speed">
+            <option value="fast">Fast</option>
+            <option value="normal" selected>Normal</option>
+            <option value="slow">Slow</option>
+          </select></label>
+      </div>
+      <div class="sim-progress" id="sim-progress" hidden>
+        <div class="sim-progress-bar"><span id="sim-progress-fill"></span></div>
+        <span id="sim-progress-text">Preparing…</span>
+      </div>
+    </section>
+
     <div class="editor-bar" role="tablist" aria-label="View mode">
       <button class="editor-tab active" id="tab-edit" type="button" role="tab" aria-selected="true">✎ Edit Form</button>
       <button class="editor-tab" id="tab-preview" type="button" role="tab" aria-selected="false">◉ Preview as Student</button>
@@ -469,7 +587,7 @@
     <div class="submit-success" id="submit-success">
       <strong>Application Submitted ✓</strong>
       <p>Reference <strong id="success-app">APP-2026-0153</strong> — the application has entered the Registrar's <strong>Enrollment Queue</strong> as <strong>Pre-Enlisted</strong>. You will be contacted for the next steps.</p>
-      <a href="queue.html">View the Enrollment Queue →</a>
+      <a href="queue.html" id="success-queue-link">View the Enrollment Queue →</a>
     </div>
 
     <form id="submission-form">
@@ -686,6 +804,7 @@
   <script src="../assets/js/data-store.js"></script>
   <script src="../assets/js/portal-shell.js"></script>
   <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/simulation.js"></script>
   <script src="../assets/js/submission.js"></script>
 </body>
 

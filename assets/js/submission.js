@@ -319,3 +319,190 @@ previewNext.addEventListener('click', () => {
     showToast('Preview finished', 'Returned to the editor — the form is ready for a real submission.');
   }
 });
+
+// ---- 🎬 Simulate a Student Submission ----
+// Auto-fills the form the way a prospective student would (typing animation,
+// conditional fields behave), submits through the real handler, then starts the
+// persisted journey so the Enrollment Queue can drive it to official enrollment.
+const simStart = document.querySelector('#sim-start');
+const simPersona = document.querySelector('#sim-persona');
+const simMode = document.querySelector('#sim-mode');
+const simSpeed = document.querySelector('#sim-speed');
+const simProgress = document.querySelector('#sim-progress');
+const simProgressFill = document.querySelector('#sim-progress-fill');
+const simProgressText = document.querySelector('#sim-progress-text');
+const successLink = document.querySelector('#success-queue-link');
+const formSections = [...document.querySelectorAll('#submission-form .form-section')];
+
+const SPEED = {
+  fast: { char: 6, pause: 30, banner: 400 },
+  normal: { char: 9, pause: 120, banner: 650 },
+  slow: { char: 14, pause: 320, banner: 1000 }
+};
+
+let simulated = false;
+let pendingUploads = {};
+
+const wait = ms => new Promise(res => setTimeout(res, ms));
+
+async function typeInto(el, value, perChar) {
+  if (!el) return;
+  value = String(value || '');
+  el.value = '';
+  if (el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
+    el.value = value;
+  } else {
+    for (let i = 0; i < value.length; i++) {
+      el.value = value.slice(0, i + 1);
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      await wait(perChar);
+    }
+  }
+  el.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+function setProgress(pct, text) {
+  simProgress.hidden = false;
+  simProgressFill.style.width = pct + '%';
+  simProgressText.textContent = text;
+}
+
+async function fillForm(persona) {
+  const speed = SPEED[simSpeed.value] || SPEED.normal;
+  const S = id => document.querySelector(id);
+
+  const plan = [
+    { label: '1 · Enrollment Preferences', fields: [
+      () => typeInto(S('#s-grade'), persona.grade, speed.char),
+      () => typeInto(S('#s-track'), persona.track, speed.char),
+      () => typeInto(S('#s-strand'), persona.strand, speed.char),
+      () => typeInto(S('#s-campus'), persona.campus, speed.char),
+      () => deliveryChecks.forEach(c => { c.checked = persona.delivery.includes(c.value); c.dispatchEvent(new Event('change', { bubbles: true })); }),
+      () => typeInto(S('#s-delivery-other'), persona.deliveryOther, speed.char)
+    ] },
+    { label: '2 · Student Information', fields: [
+      () => typeInto(S('#s-lrn-status'), persona.lrnStatus, speed.char),
+      () => typeInto(S('#s-psa'), persona.psa, speed.char),
+      () => typeInto(S('#s-lrn'), persona.lrn, speed.char),
+      () => typeInto(S('#s-last'), persona.last, speed.char),
+      () => typeInto(S('#s-first'), persona.first, speed.char),
+      () => typeInto(S('#s-middle'), persona.middle, speed.char),
+      () => typeInto(S('#s-ext'), persona.ext, speed.char),
+      () => typeInto(S('#s-dob'), persona.dob, speed.char),
+      () => typeInto(S('#s-sex'), persona.sex, speed.char),
+      () => typeInto(S('#s-age'), persona.age, speed.char),
+      () => typeInto(S('#s-contact'), persona.contact, speed.char),
+      () => typeInto(S('#s-email'), persona.email, speed.char),
+      () => typeInto(S('#s-ip'), persona.ip, speed.char),
+      () => typeInto(S('#s-ip-other'), persona.ipOther, speed.char),
+      () => typeInto(S('#s-mother-tongue'), persona.motherTongue, speed.char),
+      () => typeInto(S('#s-honors'), persona.honors, speed.char)
+    ] },
+    { label: '3 · Complete Home Address', fields: [
+      () => typeInto(S('#s-house'), persona.house, speed.char),
+      () => typeInto(S('#s-province'), persona.province, speed.char),
+      () => typeInto(S('#s-city'), persona.city, speed.char),
+      () => typeInto(S('#s-barangay'), persona.barangay, speed.char)
+    ] },
+    { label: '4 · Current School', fields: [
+      () => typeInto(S('#s-enrolled'), persona.enrolled, speed.char),
+      () => typeInto(S('#s-school'), persona.school, speed.char),
+      () => typeInto(S('#s-school-address'), persona.schoolAddress, speed.char),
+      () => typeInto(S('#s-school-id'), persona.schoolId, speed.char)
+    ] },
+    { label: '5 · Parent / Guardian', fields: [
+      () => typeInto(S('#s-father'), persona.father, speed.char),
+      () => typeInto(S('#s-mother'), persona.mother, speed.char),
+      () => typeInto(S('#s-guardian'), persona.guardian, speed.char),
+      () => typeInto(S('#s-guardian-contact'), persona.guardianContact, speed.char),
+      () => typeInto(S('#s-regdate'), persona.regDate, speed.char),
+      () => typeInto(S('#s-referred'), persona.referred, speed.char)
+    ] }
+  ];
+
+  const total = plan.length;
+  for (let i = 0; i < total; i++) {
+    const section = plan[i];
+    if (formSections[i]) formSections[i].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    setProgress(Math.round((i / total) * 88), `Filling ${section.label}…`);
+    for (const fn of section.fields) { await fn(); await wait(speed.pause); }
+  }
+
+  // 6 · Upload Requirements — simulated attach (browsers forbid setting file inputs).
+  setProgress(92, 'Attaching scanned documents…');
+  pendingUploads = {};
+  document.querySelectorAll('.upload-item').forEach(item => {
+    const docName = item.querySelector('.name').childNodes[0].textContent.trim();
+    const file = persona.uploads[docName];
+    if (!file) return;
+    pendingUploads[docName] = file;
+    item.querySelector('.pick-label').textContent = 'Attached: ' + file + ' ✓ (simulated)';
+    const removeBtn = item.querySelector('.file-remove');
+    if (removeBtn) removeBtn.hidden = false;
+    showToast('File attached', `${docName} — ${file} (simulated upload).`);
+  });
+  await wait(400);
+}
+
+simStart.addEventListener('click', async () => {
+  simStart.disabled = true;
+  simPersona.disabled = true;
+  simMode.disabled = true;
+  simSpeed.disabled = true;
+
+  const persona = Store.getPersona(simPersona.value);
+
+  // Lock the real form buttons while the animation runs so a mid-fill click
+  // cannot submit partial data; the simulated flag is only armed right before submit.
+  const draftBtn = document.querySelector('#btn-draft');
+  const submitBtn = formEl.querySelector('button[type="submit"]');
+  if (draftBtn) draftBtn.disabled = true;
+  if (submitBtn) submitBtn.disabled = true;
+
+  // Reset any earlier demo fill so the animation starts clean.
+  formEl.querySelectorAll('input, select').forEach(el => {
+    if (el.type !== 'checkbox' && el.type !== 'file') el.value = '';
+  });
+  deliveryChecks.forEach(c => { c.checked = false; });
+  document.querySelector('#s-delivery-other').style.display = 'none';
+  document.querySelector('#s-ip-other-wrap').classList.add('hidden');
+  renderStrands('');
+
+  showToast('Simulation started', `Filling the form as ${persona.label} — watch each section complete itself.`);
+  setProgress(2, 'Preparing…');
+  await fillForm(persona);
+
+  setProgress(98, 'Submitting application…');
+  await wait(300);
+  simulated = true;
+  // Fire the real submit handler (synthetic event — the handler calls preventDefault).
+  formEl.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+});
+
+// Runs after the main submit handler: attach uploads, start the journey, and
+// re-point the success action at the journey continuation.
+formEl.addEventListener('submit', () => {
+  if (!simulated) return;
+  simulated = false;
+  const draftBtn = document.querySelector('#btn-draft');
+  const submitBtn = formEl.querySelector('button[type="submit"]');
+  if (draftBtn) draftBtn.disabled = false;
+  if (submitBtn) submitBtn.disabled = false;
+  const id = document.querySelector('#success-app').textContent.trim();
+  if (!id) return;
+
+  Object.entries(pendingUploads).forEach(([doc, name]) => Store.attachUpload(id, doc, name));
+  // The form has no category field (Enrollment Details was dissolved) — patch it from the persona.
+  Store.updateApplicant(id, { category: Store.getPersona(simPersona.value).category });
+
+  const mode = simMode.value;
+  const bannerSpeed = (SPEED[simSpeed.value] || SPEED.normal).banner;
+  Store.startJourney({ appId: id, persona: simPersona.value, mode, speed: bannerSpeed });
+
+  const auto = mode === 'auto' ? '&auto=1' : '';
+  successLink.href = `queue.html?journey=${encodeURIComponent(id)}${auto}`;
+  successLink.textContent = mode === 'auto'
+    ? 'Continue journey — watch it reach Officially Enrolled →'
+    : 'Continue journey in the Enrollment Queue →';
+  showToast('Simulation started', `${Store.applicants[id].name} (${id}) — the journey is saved and ready to follow.`);
+});

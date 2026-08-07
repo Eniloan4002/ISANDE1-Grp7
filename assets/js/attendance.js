@@ -131,6 +131,21 @@ document.querySelector('#btn-keep-tracking').addEventListener('click', () => {
   showToast('Still tracking', `${Store.applicants[activeApp].name} — requirements and attendance will keep being monitored until both conditions are met.`);
 });
 
+// ⚡ Verify week 1 (simulate) — marks all five days present for the active
+// journey student (or whatever student is selected).
+document.querySelector('#btn-sim').addEventListener('click', () => {
+  if (!activeApp) { showToast('Select a student', 'Choose an applicant from the monitoring list first.'); return; }
+  const j = Store.getJourney();
+  if (j && j.active && j.appId === activeApp) {
+    Sim.runStage(5);
+  } else {
+    Store.completeWeekAttendance(activeApp);
+  }
+  renderLog(activeApp);
+  renderList();
+  showToast('Week 1 verified', `${Store.applicants[activeApp].name} — 5 of 5 days present. Gate: both met.`);
+});
+
 // Prevent navigation when the confirm gate is not met.
 document.querySelector('#btn-confirm').addEventListener('click', event => {
   if (!activeApp) {

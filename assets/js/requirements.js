@@ -84,6 +84,7 @@ function overallStatus(appId) {
 
 const modal = document.querySelector('#req-modal');
 let currentApp = null;
+let currentRow = null;
 
 function openModal() {
   modal.setAttribute('aria-hidden', 'false');
@@ -96,6 +97,7 @@ function closeModal() {
 }
 
 function showRequirements(row) {
+  currentRow = row;
   currentApp = row.dataset.app;
   const student = stateFor(currentApp);
   const meta = document.querySelector('#req-meta');
@@ -162,6 +164,20 @@ document.querySelector('#doc-list').addEventListener('click', event => {
 
 document.querySelector('#btn-send-followup').addEventListener('click', () => {
   showToast('Follow-up notice sent', `Reminder emailed to ${stateFor(currentApp).email}`);
+});
+
+// ⚡ Complete all docs (simulate) — marks all four documents submitted for the
+// active journey student (or for whatever checklist is open).
+document.querySelector('#btn-sim').addEventListener('click', () => {
+  if (!currentApp) { showToast('Open a student', 'Open a requirements checklist first.'); return; }
+  const j = Store.getJourney();
+  if (j && j.active && j.appId === currentApp) {
+    Sim.runStage(4);
+  } else {
+    DOCS.forEach(doc => Store.setRequirement(currentApp, doc, 'submitted'));
+  }
+  if (currentRow) showRequirements(currentRow);
+  showToast('All documents submitted', `${Store.applicants[currentApp].name} — 4 of 4 verified (simulated).`);
 });
 
 // Keep the list in sync with the shared store (e.g. after a removal elsewhere).

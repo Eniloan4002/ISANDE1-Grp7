@@ -171,7 +171,8 @@
       ip: 'No', ipOther: '', motherTongue: 'Bisaya/Cebuano', honors: '',
       house: '', province: 'Lanao del Norte', city: '', barangay: '',
       enrolled: 'No', school: '', schoolAddress: '', schoolId: '',
-      father: '', mother: '', guardian: '', guardianContact: '', regDate: '', referred: 'STAFF'
+      father: '', mother: '', guardian: '', guardianContact: '', regDate: '', referred: 'STAFF',
+      uploads: {}
     }, partial, { id });
     // Give new applicants a default requirement + attendance profile so every screen sees them.
     if (!data.requirements[id]) {
@@ -214,6 +215,7 @@
     req.docs[doc] = status;
     if (!data.audits[id]) data.audits[id] = [];
     data.audits[id].unshift(`${doc} marked ${status} by R. Santos — ${stamp()}`);
+    deriveRequirements(id);
     persist();
   }
   function getAudits(id) { return data.audits[id] || []; }
@@ -240,9 +242,22 @@
   function getRecord(id) { return data.records[id]; }
   function confirmRecord(id) {
     const rec = data.records[id];
-    if (!rec || !rec.confirmable) return false;
+    if (!rec) return false;
+    // Live-recompute the gate so fresh records (and manual edits elsewhere) stay honest.
+    const overall = deriveRequirements(rec.app);
+    const verified = attendanceVerified(rec.app);
+    rec.confirmable = overall === 'Complete' && verified;
+    if (!rec.confirmable) return false;
     rec.status = 'enrolled';
-    if (data.applicants[rec.app]) data.applicants[rec.app].queueStatus = 'enrolled';
+    rec.req = [overall, 'success'];
+    rec.attend = attendanceSummary(rec.app);
+    rec.attendStatus = 'Verified ✓';
+    rec.confirmedAt = nowStamp();
+    rec.confirmedBy = 'R. Santos (RS)';
+    if (data.applicants[rec.app]) {
+      data.applicants[rec.app].queueStatus = 'enrolled';
+      data.applicants[rec.app].evalStatus = 'ready';
+    }
     persist();
     return true;
   }
@@ -258,6 +273,264 @@
     persist();
   }
 
+  // ---- derived statuses (keeps the attendance gate + records truthful) ----
+  function deriveRequirements(id) {
+    const req = data.requirements[id];
+    if (!req) return 'Pending';
+    const values = Object.values(req.docs || {});
+    const overall = !values.length ? 'Pending'
+      : values.every(v => v === 'submitted') ? 'Complete'
+      : values.some(v => v === 'missing' || v === 'invalid') ? 'Incomplete'
+      : 'Pending';
+    if (data.attendance[id]) data.attendance[id].req = overall;
+    return overall;
+  }
+
+  function attendanceVerified(id) {
+    const att = data.attendance[id];
+    return Boolean(att && Array.isArray(att.log) && att.log.length && att.log.every(d => d.status === 'Present'));
+  }
+
+  function attendanceSummary(id) {
+    const att = data.attendance[id];
+    if (!att || !Array.isArray(att.log)) return [];
+    return att.log.map(d => d.status === 'Present' ? 'present' : d.status === 'Absent' ? 'absent' : 'pending');
+  }
+
+  function completeWeekAttendance(id) {
+    const att = data.attendance[id];
+    if (!att) return;
+    const dates = ['Aug 3', 'Aug 4', 'Aug 5', 'Aug 6', 'Aug 7'];
+    att.log.forEach((d, i) => { d.status = 'Present'; d.date = dates[i] || d.date; });
+    att.req = deriveRequirements(id);
+    persist();
+  }
+
+  // ---- student records (created on demand so fresh applicants can be confirmed) ----
+  function nextStudentId() {
+    const ids = Object.keys(data.records).filter(id => /^STU-2026-/.test(id)).map(id => Number(id.split('-')[2])).filter(Boolean);
+    const max = ids.length ? Math.max(...ids) : 455;
+    return 'STU-2026-' + String(max + 1).padStart(4, '0');
+  }
+
+  function nextRef() {
+    const refs = Object.keys(data.records).map(sid => Number(data.records[sid].ref.split('-')[1])).filter(Boolean);
+    const max = refs.length ? Math.max(...refs) : 95;
+    return 'CSH-' + String(max + 1).padStart(4, '0');
+  }
+
+  function recordByApp(appId) {
+    for (const sid of Object.keys(data.records)) if (data.records[sid].app === appId) return sid;
+    return null;
+  }
+
+  function initialsOf(name) {
+    const parts = String(name || '').replace(/,/g, ' ').split(/\s+/).filter(Boolean);
+    return (parts.map(p => p[0] || '').join('').toUpperCase() || 'ST').slice(0, 2);
+  }
+
+  function categoryLabel(app) {
+    const map = { New: 'New Student — Regular', Transferee: 'Transferee — Voucher (ESC)', Returnee: 'Returnee — Regular' };
+    return map[app.category] || app.category || 'New Student — Regular';
+  }
+
+  function createRecord(appId) {
+    const app = data.applicants[appId];
+    if (!app) return null;
+    const existing = recordByApp(appId);
+    if (existing) return existing;
+    const sid = nextStudentId();
+    const overall = deriveRequirements(appId);
+    const verified = attendanceVerified(appId);
+    data.records[sid] = {
+      app: appId, name: app.name,
+      initials: initialsOf(app.name),
+      meta: `${app.programLabel} · ${app.campus}`,
+      status: 'pending',
+      category: categoryLabel(app),
+      ref: nextRef(),
+      bracket: 'Bracket A',
+      req: [overall, overall === 'Complete' ? 'success' : 'danger'],
+      reqDate: stampDate(),
+      attend: attendanceSummary(appId),
+      attendStatus: verified ? 'Verified ✓' : 'Not yet verified',
+      confirmable: overall === 'Complete' && verified,
+      confirmHint: (overall === 'Complete' && verified)
+        ? 'Requirements complete AND attendance verified. Ready to confirm enrollment.'
+        : (overall === 'Complete' ? 'Attendance not yet fully verified.' : 'Requirements are not yet complete.'),
+      confirmedAt: '', confirmedBy: ''
+    };
+    persist();
+    return sid;
+  }
+
+  // ---- simulated uploads (browsers forbid setting input[type=file] values) ----
+  function attachUpload(appId, doc, fakeName) {
+    const app = data.applicants[appId];
+    if (!app) return;
+    if (!app.uploads) app.uploads = {};
+    app.uploads[doc] = fakeName;
+    persist();
+  }
+
+  // ---- duplicate flagging for simulated transferees ----
+  function flagPair(appId) {
+    if (data.pairs[appId]) return;
+    const app = data.applicants[appId];
+    if (!app) return;
+    const p = getPersona(data.simulation ? data.simulation.persona : 'transferee');
+    data.pairs[appId] = {
+      meter: p.meter || '78% match confidence',
+      incoming: {
+        sub: `${app.category} · ${appId} · Submitted ${stampDate()}`,
+        fields: [
+          ['Full name', app.name, true],
+          ['Date of birth', app.dob, true],
+          ['Sex', app.sex, true],
+          ['LRN', app.lrn || '—', true],
+          ['Previous school', app.school || '—', true],
+          ['Guardian contact', app.guardianContact || '—', false],
+          ['Status', 'Pre-Enlisted', false]
+        ]
+      },
+      existing: {
+        sub: `Student ${p.existingId} · Record since 2023`,
+        fields: [
+          ['Full name', p.existingName, false],
+          ['Date of birth', app.dob, true],
+          ['Sex', app.sex, true],
+          ['LRN', p.existingLrn, false],
+          ['Previous school', app.school || '—', true],
+          ['Guardian contact', app.guardianContact || '—', false],
+          ['Status', 'Active', false]
+        ]
+      }
+    };
+    persist();
+  }
+
+  // ---- journey simulation (persisted so the journey survives navigation) ----
+  const JOURNEY_STAGES = [
+    { n: 0, label: 'Submission', screen: 'submission.html' },
+    { n: 1, label: 'Enrollment Queue', screen: 'queue.html' },
+    { n: 2, label: 'Encode Profile', screen: 'evaluate.html' },
+    { n: 3, label: 'Duplicate Review', screen: 'duplicate.html' },
+    { n: 4, label: 'Requirements', screen: 'requirements.html' },
+    { n: 5, label: 'Attendance', screen: 'attendance.html' },
+    { n: 6, label: 'Confirm Enrollment', screen: 'academic-records.html' },
+    { n: 7, label: 'Section Assignment', screen: 'academic-records.html' },
+    { n: 8, label: 'Enrolled & Assigned', screen: 'enrolled.html' }
+  ];
+
+  // Demo personas — realistic applicant data + per-stage scripts.
+  const PERSONAS = {
+    new: {
+      label: 'New Student — Clean Run', dup: false, section: 'STEM-B',
+      meter: '', existingName: '', existingId: '', existingLrn: '',
+      category: 'New', grade: 'Grade 11', track: 'ACADEMIC', strand: 'STEM',
+      campus: 'Main — Iligan', campusKey: 'main', program: 'shs',
+      last: 'Villanueva', first: 'Bea', middle: 'Marie', ext: '',
+      lrnStatus: 'With LRN', lrn: '121567830945', psa: 'PSA-2026-000771',
+      dob: '05/12/2009', sex: 'Female', age: '17', contact: '0917 555 0156', email: 'bea.villanueva@email.com',
+      ip: 'No', ipOther: '', motherTongue: 'Bisaya/Cebuano', honors: 'With Honors (Grade 10)',
+      house: 'Blk 4, Purok 7', province: 'Lanao del Norte', city: 'Iligan City', barangay: 'Hinaplanon',
+      enrolled: 'No', school: '', schoolAddress: '', schoolId: '',
+      father: 'Ramon Villanueva', mother: 'Lourdes Marie Villanueva', guardian: 'Ramon Villanueva',
+      guardianContact: '0917 555 0156', regDate: '08/07/2026', referred: 'STAFF',
+      delivery: ['Modular (Print)', 'Online'], deliveryOther: '',
+      uploads: { 'PSA Birth Certificate': 'PSA-Villanueva.pdf', 'Form 137': 'Form137-Villanueva.pdf', 'Certificate of Completion': 'Completion-Villanueva.pdf', 'Good Moral Certificate': 'GoodMoral-Villanueva.pdf' }
+    },
+    transferee: {
+      label: 'Transferee — Duplicate Flag', dup: true, section: 'Cookery-1',
+      meter: '78% match confidence', existingName: 'Bautista, Carlos D.', existingId: 'STU-2023-1210', existingLrn: '120987654321',
+      category: 'Transferee', grade: 'Grade 11', track: 'TVL', strand: 'CA',
+      campus: 'Bugo — CDO', campusKey: 'bugo', program: 'shs',
+      last: 'Bautista', first: 'Carlo', middle: 'Dizon', ext: '',
+      lrnStatus: 'With LRN', lrn: '121456789012', psa: 'PSA-2024-003182',
+      dob: '03/09/2009', sex: 'Male', age: '17', contact: '0922 555 0157', email: 'carlo.bautista@email.com',
+      ip: 'No', ipOther: '', motherTongue: 'Hiligaynon', honors: '',
+      house: 'Purok 2, Brgy. Bugo', province: 'Misamis Oriental', city: 'Cagayan de Oro', barangay: 'Bugo',
+      enrolled: 'Yes', school: 'Iligan City National High School', schoolAddress: 'Pala-o, Iligan City', schoolId: 'ICN-2023-221',
+      father: 'Edwin Bautista', mother: 'Marilou Dizon Bautista', guardian: 'Edwin Bautista',
+      guardianContact: '0922 555 0157', regDate: '08/07/2026', referred: 'GUIDANCE',
+      delivery: ['Online'], deliveryOther: '',
+      uploads: { 'PSA Birth Certificate': 'PSA-Bautista.pdf', 'Form 137': 'Form137-Bautista.pdf', 'Certificate of Completion': 'Completion-Bautista.pdf', 'Good Moral Certificate': 'GoodMoral-Bautista.pdf' }
+    },
+    returnee: {
+      label: 'Returnee — Follow-Up Needed', dup: false, section: 'GAS-1',
+      meter: '', existingName: '', existingId: '', existingLrn: '',
+      category: 'Returnee', grade: 'Grade 12', track: 'ACADEMIC', strand: 'GAS',
+      campus: 'Kapatagan', campusKey: 'kapatagan', program: 'shs',
+      last: 'Fernandez', first: 'Miguel', middle: 'Santos', ext: 'Jr.',
+      lrnStatus: 'Returning (Balik-Aral)', lrn: '112588901234', psa: 'PSA-2021-006044',
+      dob: '08/21/2008', sex: 'Male', age: '18', contact: '0923 555 0158', email: 'miguel.fernandez@email.com',
+      ip: 'Yes', ipOther: 'Meranaw', motherTongue: 'Maranao', honors: '',
+      house: 'Sitio Raya, Purok 4', province: 'Lanao del Sur', city: 'Marawi City', barangay: 'Tambo',
+      enrolled: 'No', school: 'Tambo Central School', schoolAddress: 'Tambo, Marawi City', schoolId: 'TCS-2020-158',
+      father: 'Arturo Fernandez', mother: 'Rowena Santos Fernandez', guardian: 'Rowena Santos Fernandez',
+      guardianContact: '0923 555 0158', regDate: '08/07/2026', referred: 'TVL',
+      delivery: ['Modular (Print)', 'Educational TV'], deliveryOther: '',
+      uploads: { 'PSA Birth Certificate': 'PSA-Fernandez.pdf', 'Form 137': 'Form137-Fernandez.pdf', 'Certificate of Completion': 'Completion-Fernandez.pdf', 'Good Moral Certificate': 'GoodMoral-Fernandez.pdf' }
+    }
+  };
+
+  function getPersona(name) { return PERSONAS[name] || PERSONAS.new; }
+
+  function startJourney(opts) {
+    if (data.simulation && data.simulation.active && data.simulation.appId !== opts.appId) {
+      delete data.pairs[data.simulation.appId];
+    }
+    data.simulation = {
+      active: true, appId: opts.appId, persona: opts.persona || 'new',
+      mode: opts.mode || 'auto', speed: opts.speed || 650,
+      stage: 1, startedAt: nowStamp(), timeline: []
+    };
+    logStage(0, 'Student submitted the enrollment form');
+    logStage(1, 'Application entered the Enrollment Queue as Pre-Enlisted');
+    persist();
+    return opts.appId;
+  }
+
+  function getJourney() { return data.simulation || null; }
+
+  function logStage(n, label) {
+    if (!data.simulation) return;
+    data.simulation.timeline = data.simulation.timeline.filter(e => e.stage !== n);
+    data.simulation.timeline.push({ stage: n, label, at: nowStamp() });
+  }
+
+  function setStage(n, label) {
+    if (!data.simulation) return;
+    data.simulation.stage = Math.max(data.simulation.stage, n);
+    if (label) logStage(n, label);
+    persist();
+  }
+
+  // Next applicable stage, skipping Duplicate Review for personas with no flag.
+  function nextJourneyStage() {
+    const j = data.simulation;
+    if (!j || !j.active) return null;
+    for (let n = j.stage + 1; n <= 8; n++) {
+      if (n === 3 && getPersona(j.persona).dup !== true) continue;
+      return n;
+    }
+    return null;
+  }
+
+  function completeJourney() {
+    if (!data.simulation) return;
+    data.simulation.active = false;
+    data.simulation.stage = 8;
+    logStage(8, 'Student officially enrolled & assigned to a section');
+    persist();
+  }
+
+  function cancelJourney() {
+    if (!data.simulation) return;
+    data.simulation.active = false;
+    persist();
+  }
+
   // ---- reporting helpers ----
   function getReportLog() { return data.reportLog; }
   function addReport(entry) {
@@ -270,6 +543,14 @@
   }
 
   function stamp() { return 'Aug 7, 2026 10:42 AM'; }
+
+  function stampDate() {
+    return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function nowStamp() {
+    return new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+  }
 
   function resetDemo() {
     data = clone(SEED);
@@ -295,6 +576,10 @@
     getPair, getPairStatus, resolvePair,
     getRecords, getRecord, confirmRecord, assignSection, removeRecord,
     getReportLog, addReport, removeReport,
+    deriveRequirements, attendanceVerified, attendanceSummary, createRecord, recordByApp, attachUpload,
+    flagPair, completeWeekAttendance,
+    JOURNEY_STAGES, PERSONAS, getPersona,
+    startJourney, getJourney, setStage, nextJourneyStage, completeJourney, cancelJourney,
     resetDemo
   };
 })();
