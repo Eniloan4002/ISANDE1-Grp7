@@ -9,6 +9,7 @@
     applicants: {
       'APP-2026-0148': {
         name: 'Dela Cruz, Juan', lrn: '119270140008', category: 'New', programLabel: 'HUMSS · Grade 11', program: 'shs',
+        submittedAt: 'Aug 2, 2026',
         campus: 'Main — Iligan', campusKey: 'main',
         queueStatus: 'pre-enlisted', evalStatus: 'review', flag: '',
         grade: 'Grade 11', track: 'ACADEMIC', strand: 'HUMSS', delivery: ['Modular (Print)'], deliveryOther: '',
@@ -22,6 +23,7 @@
       },
       'APP-2026-0149': {
         name: 'Santos, Maria A.', lrn: '108517230184', category: 'Transferee', programLabel: 'STEM · Grade 11', program: 'shs',
+        submittedAt: 'Aug 2, 2026',
         campus: 'Main — Iligan', campusKey: 'main',
         queueStatus: 'review', evalStatus: 'flag', flag: 'dup',
         grade: 'Grade 11', track: 'ACADEMIC', strand: 'STEM', delivery: ['Modular (Digital)', 'Online'], deliveryOther: '',
@@ -35,6 +37,7 @@
       },
       'APP-2026-0150': {
         name: 'Reyes, Pedro', lrn: '120381650117', category: 'New', programLabel: 'TVL-Cookery · Grade 11', program: 'shs',
+        submittedAt: 'Aug 2, 2026',
         campus: 'Bugo — CDO', campusKey: 'bugo',
         queueStatus: 'pending', evalStatus: 'review', flag: '',
         grade: 'Grade 11', track: 'TVL', strand: 'CA', delivery: ['Online'], deliveryOther: '',
@@ -48,6 +51,7 @@
       },
       'APP-2026-0151': {
         name: 'Lim, Angela', lrn: '112500710292', category: 'Returnee', programLabel: 'BSOA · 1st Year', program: 'college',
+        submittedAt: 'Aug 5, 2026',
         campus: 'Kapatagan', campusKey: 'kapatagan',
         queueStatus: 'pending', evalStatus: 'ready', flag: '',
         grade: 'Grade 12', track: 'ACADEMIC', strand: 'GAS', delivery: ['Modular (Print)', 'Educational TV'], deliveryOther: '',
@@ -61,6 +65,7 @@
       },
       'APP-2026-0152': {
         name: 'Abad, Carla', lrn: '119770320691', category: 'New', programLabel: 'ABM · Grade 11', program: 'shs',
+        submittedAt: 'Aug 3, 2026',
         campus: 'Main — Iligan', campusKey: 'main',
         queueStatus: 'pre-enlisted', evalStatus: 'ready', flag: '',
         grade: 'Grade 11', track: 'ACADEMIC', strand: 'ABM', delivery: ['Modular (Print)', 'Online'], deliveryOther: '',
@@ -113,11 +118,11 @@
     },
     pairStatus: { 'APP-2026-0140': 'merged' },
     records: {
-      'STU-2026-0452': { app: 'APP-2026-0152', name: 'Abad, Carla', initials: 'CA', meta: 'Grade 11 · ABM · Main — Iligan', status: 'pending', category: 'New Student — Regular', ref: 'CSH-0096', bracket: 'Bracket A', req: ['Complete', 'success'], reqDate: 'Aug 6, 2026', attend: ['present', 'present', 'present', 'present', 'present'], attendStatus: 'Verified ✓', confirmable: true, confirmHint: 'Requirements complete AND attendance verified. Ready to confirm enrollment.' },
+      'STU-2026-0452': { app: 'APP-2026-0152', name: 'Abad, Carla', initials: 'CA', meta: 'Grade 11 · ABM · Main — Iligan', status: 'pending', category: 'New Student — Regular', ref: 'CSH-0096', bracket: 'Bracket A', req: ['Complete', 'success'], reqDate: 'Aug 6, 2026', attend: ['present', 'present', 'present', 'present', 'present'], attendStatus: 'Verified', confirmable: true, confirmHint: 'Requirements complete AND attendance verified. Ready to confirm enrollment.' },
       'STU-2026-0453': { app: 'APP-2026-0148', name: 'Dela Cruz, Juan', initials: 'JD', meta: 'Grade 11 · HUMSS · Main — Iligan', status: 'pending', category: 'New Student — Regular', ref: 'CSH-0089', bracket: 'Bracket A', req: ['Incomplete', 'danger'], reqDate: 'Aug 3, 2026', attend: ['present', 'present', 'absent', 'present', 'pending'], attendStatus: 'Not yet verified', confirmable: false, confirmHint: 'Cannot confirm yet — requirements are incomplete and attendance is not fully verified.' },
-      'STU-2026-0454': { app: 'APP-2026-0149', name: 'Santos, Maria A.', initials: 'MS', meta: 'Grade 11 · STEM · Main — Iligan', status: 'enrolled', category: 'Transferee — Voucher (ESC)', ref: 'CSH-0091', bracket: 'Bracket B', req: ['Complete', 'success'], reqDate: 'Aug 6, 2026', attend: ['present', 'present', 'present', 'present', 'present'], attendStatus: 'Verified ✓', confirmable: false, confirmHint: 'Student is already officially enrolled.' },
-      'STU-2026-0455': { app: 'APP-2026-0150', name: 'Reyes, Pedro', initials: 'PR', meta: 'Grade 11 · TVL-Cookery · Bugo — CDO', status: 'enrolled', category: 'New Student — Regular', ref: 'CSH-0093', bracket: 'Bracket A', req: ['Complete', 'success'], reqDate: 'Aug 5, 2026', attend: ['present', 'present', 'present', 'absent', 'present'], attendStatus: 'Verified ✓', confirmable: false, confirmHint: 'Student is already officially enrolled.' },
-      'STU-2026-0451': { app: 'APP-2026-0151', name: 'Lim, Angela', initials: 'AL', meta: '1st Year · BSOA · Kapatagan', status: 'enrolled', category: 'Returnee — Regular', ref: 'CSH-0095', bracket: 'Bracket B', req: ['Complete', 'success'], reqDate: 'Aug 6, 2026', attend: ['present', 'present', 'present', 'present', 'present'], attendStatus: 'Verified ✓', confirmable: false, confirmHint: 'Student is already officially enrolled. Assign a section to complete sectioning.' }
+      'STU-2026-0454': { app: 'APP-2026-0149', name: 'Santos, Maria A.', initials: 'MS', meta: 'Grade 11 · STEM · Main — Iligan', status: 'enrolled', category: 'Transferee — Voucher (ESC)', ref: 'CSH-0091', bracket: 'Bracket B', req: ['Complete', 'success'], reqDate: 'Aug 6, 2026', attend: ['present', 'present', 'present', 'present', 'present'], attendStatus: 'Verified', confirmable: false, confirmHint: 'Student is already officially enrolled.' },
+      'STU-2026-0455': { app: 'APP-2026-0150', name: 'Reyes, Pedro', initials: 'PR', meta: 'Grade 11 · TVL-Cookery · Bugo — CDO', status: 'enrolled', category: 'New Student — Regular', ref: 'CSH-0093', bracket: 'Bracket A', req: ['Complete', 'success'], reqDate: 'Aug 5, 2026', attend: ['present', 'present', 'present', 'absent', 'present'], attendStatus: 'Verified', confirmable: false, confirmHint: 'Student is already officially enrolled.' },
+      'STU-2026-0451': { app: 'APP-2026-0151', name: 'Lim, Angela', initials: 'AL', meta: '1st Year · BSOA · Kapatagan', status: 'enrolled', category: 'Returnee — Regular', ref: 'CSH-0095', bracket: 'Bracket B', req: ['Complete', 'success'], reqDate: 'Aug 6, 2026', attend: ['present', 'present', 'present', 'present', 'present'], attendStatus: 'Verified', confirmable: false, confirmHint: 'Student is already officially enrolled. Assign a section to complete sectioning.' }
     },
     sections: { 'STU-2026-0454': 'STEM-B', 'STU-2026-0455': 'Cookery-1' },
     reportLog: [
@@ -163,6 +168,7 @@
     const id = partial.id || nextAppId();
     data.applicants[id] = Object.assign({
       name: '', lrn: '', category: 'New', programLabel: '—', program: 'shs',
+      submittedAt: '',
       campus: 'Main — Iligan', campusKey: 'main',
       queueStatus: 'pre-enlisted', evalStatus: 'ready', flag: '',
       grade: 'Grade 11', track: 'ACADEMIC', strand: '', delivery: [], deliveryOther: '',
@@ -174,6 +180,8 @@
       father: '', mother: '', guardian: '', guardianContact: '', regDate: '', referred: 'STAFF',
       uploads: {}
     }, partial, { id });
+    // Stamp the submission date for any new application (keeps the queue sortable).
+    if (!data.applicants[id].submittedAt) data.applicants[id].submittedAt = stampDate();
     // Give new applicants a default requirement + attendance profile so every screen sees them.
     if (!data.requirements[id]) {
       data.requirements[id] = { docs: { 'PSA Birth Certificate': 'pending', 'Form 137': 'pending', 'Certificate of Completion': 'pending', 'Good Moral Certificate': 'pending' }, contact: partial.contact || '—', email: partial.email || '' };
@@ -251,7 +259,7 @@
     rec.status = 'enrolled';
     rec.req = [overall, 'success'];
     rec.attend = attendanceSummary(rec.app);
-    rec.attendStatus = 'Verified ✓';
+    rec.attendStatus = 'Verified';
     rec.confirmedAt = nowStamp();
     rec.confirmedBy = 'R. Santos (RS)';
     if (data.applicants[rec.app]) {
@@ -353,7 +361,7 @@
       req: [overall, overall === 'Complete' ? 'success' : 'danger'],
       reqDate: stampDate(),
       attend: attendanceSummary(appId),
-      attendStatus: verified ? 'Verified ✓' : 'Not yet verified',
+      attendStatus: verified ? 'Verified' : 'Not yet verified',
       confirmable: overall === 'Complete' && verified,
       confirmHint: (overall === 'Complete' && verified)
         ? 'Requirements complete AND attendance verified. Ready to confirm enrollment.'

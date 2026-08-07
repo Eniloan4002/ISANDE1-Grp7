@@ -39,6 +39,47 @@
       line-height: 1.4
     }
 
+    .section-head-right {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .section-fill {
+      border: 1px solid #5f7e8e;
+      background: #eef6f9;
+      color: #175e80;
+      border-radius: 14px;
+      padding: 4px 12px;
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer
+    }
+
+    .section-fill:hover:not(:disabled) {
+      background: #e0eef4
+    }
+
+    .section-fill:disabled {
+      opacity: .5;
+      cursor: default
+    }
+
+    .section-fill.filled {
+      border-color: #3d8a5f;
+      background: #eef7f1;
+      color: #286445
+    }
+
+    .section-head {
+      cursor: pointer
+    }
+
+    .section-head .section-fill {
+      cursor: pointer
+    }
+
     .form-body {
       padding: 14px
     }
@@ -433,7 +474,7 @@
       text-decoration: none
     }
 
-    /* ---- 🎬 Simulate a Student Submission ---- */
+    /* ---- Simulate a Student Submission ---- */
     .sim-card {
       margin-bottom: 14px;
       border: 1px solid #7e878a;
@@ -548,9 +589,12 @@
 
     <section class="sim-card" id="sim-card" aria-label="Enrollment journey simulation">
       <div class="sim-head">
-        <div><strong>🎬 Simulate a Student Submission</strong>
-          <p>Auto-fill the application form the way a prospective student would, submit it, then follow the journey all the way to <strong>Officially Enrolled &amp; Assigned</strong>.</p></div>
-        <button class="button button-primary" type="button" id="sim-start">▶ Start Simulation</button>
+        <div><strong>Simulate a Student Submission</strong>
+          <p>Fill the application one section at a time — start the simulation, then click each section's <strong>Fill</strong> button to populate it. When all six are filled, submit and follow the journey all the way to <strong>Officially Enrolled &amp; Assigned</strong>.</p></div>
+        <div style="display:flex;gap:8px;">
+          <button class="button button-primary" type="button" id="sim-start">Start Simulation</button>
+          <button class="button button-outline" type="button" id="sim-cancel" hidden>Cancel</button>
+        </div>
       </div>
       <div class="sim-controls">
         <label>Scenario (persona)
@@ -579,13 +623,13 @@
     </section>
 
     <div class="editor-bar" role="tablist" aria-label="View mode">
-      <button class="editor-tab active" id="tab-edit" type="button" role="tab" aria-selected="true">✎ Edit Form</button>
-      <button class="editor-tab" id="tab-preview" type="button" role="tab" aria-selected="false">◉ Preview as Student</button>
+      <button class="editor-tab active" id="tab-edit" type="button" role="tab" aria-selected="true">Edit Form</button>
+      <button class="editor-tab" id="tab-preview" type="button" role="tab" aria-selected="false">Preview as Student</button>
       <span class="editor-hint">Preview shows the application form exactly as a prospective student sees it — one section per page.</span>
     </div>
 
     <div class="submit-success" id="submit-success">
-      <strong>Application Submitted ✓</strong>
+      <strong>Application Submitted</strong>
       <p>Reference <strong id="success-app">APP-2026-0153</strong> — the application has entered the Registrar's <strong>Enrollment Queue</strong> as <strong>Pre-Enlisted</strong>. You will be contacted for the next steps.</p>
       <a href="queue.html" id="success-queue-link">View the Enrollment Queue →</a>
     </div>
@@ -595,7 +639,10 @@
       <div class="form-section">
         <div class="section-head">
           <h2>1 · Enrollment Preferences</h2>
-          <span class="hint">Grade level, track, and preferred<br>campus for SY 2026-2027.</span>
+          <div class="section-head-right">
+            <span class="hint">Grade level, track, and preferred<br>campus for SY 2026-2027.</span>
+            <button type="button" class="section-fill" data-section="0" disabled>Fill</button>
+          </div>
         </div>
         <div class="form-body">
           <div class="form-grid">
@@ -634,7 +681,10 @@
       <div class="form-section">
         <div class="section-head">
           <h2>2 · Student Information</h2>
-          <span class="hint">LRN is provided by the previous school (DepEd).<br>Please refrain from using ALL CAPS.</span>
+          <div class="section-head-right">
+            <span class="hint">LRN is provided by the previous school (DepEd).<br>Please refrain from using ALL CAPS.</span>
+            <button type="button" class="section-fill" data-section="1" disabled>Fill</button>
+          </div>
         </div>
         <div class="form-body">
           <div class="form-grid">
@@ -677,6 +727,9 @@
       <div class="form-section">
         <div class="section-head">
           <h2>3 · Complete Home Address</h2>
+          <div class="section-head-right">
+            <button type="button" class="section-fill" data-section="2" disabled>Fill</button>
+          </div>
         </div>
         <div class="form-body">
           <div class="form-grid">
@@ -699,7 +752,10 @@
       <div class="form-section">
         <div class="section-head">
           <h2>4 · Current School</h2>
-          <span class="hint">If you are currently enrolled, provide your<br>previous school details.</span>
+          <div class="section-head-right">
+            <span class="hint">If you are currently enrolled, provide your<br>previous school details.</span>
+            <button type="button" class="section-fill" data-section="3" disabled>Fill</button>
+          </div>
         </div>
         <div class="form-body">
           <div class="form-grid">
@@ -718,7 +774,10 @@
       <div class="form-section">
         <div class="section-head">
           <h2>5 · Parent / Guardian</h2>
-          <span class="hint">Certification consent: information is used for the<br>Learner Information System (DepEd) and is confidential.</span>
+          <div class="section-head-right">
+            <span class="hint">Certification consent: information is used for the<br>Learner Information System (DepEd) and is confidential.</span>
+            <button type="button" class="section-fill" data-section="4" disabled>Fill</button>
+          </div>
         </div>
         <div class="form-body">
           <div class="form-grid">
@@ -744,29 +803,32 @@
       <div class="form-section">
         <div class="section-head">
           <h2>6 · Upload Requirements</h2>
-          <span class="hint">Required for enrollment.<br>Upload a scanned copy of each.</span>
+          <div class="section-head-right">
+            <span class="hint">Required for enrollment.<br>Upload a scanned copy of each.</span>
+            <button type="button" class="section-fill" data-section="5" disabled>Fill</button>
+          </div>
         </div>
         <div class="form-body">
           <div class="upload-grid">
             <div class="upload-item">
               <div class="name">PSA Birth Certificate<small>Photo or scan · PDF / JPG</small></div>
               <span class="file-pick"><span class="pick-label" tabindex="0">Choose file</span><input type="file" accept=".pdf,.jpg,.jpeg,.png" aria-label="Upload PSA Birth Certificate"></span>
-              <button type="button" class="file-remove" hidden aria-label="Remove PSA Birth Certificate">✕ Remove</button>
+              <button type="button" class="file-remove" hidden aria-label="Remove PSA Birth Certificate">Remove</button>
             </div>
             <div class="upload-item">
               <div class="name">Form 137<small>Previous school records · PDF / JPG</small></div>
               <span class="file-pick"><span class="pick-label" tabindex="0">Choose file</span><input type="file" accept=".pdf,.jpg,.jpeg,.png" aria-label="Upload Form 137"></span>
-              <button type="button" class="file-remove" hidden aria-label="Remove Form 137">✕ Remove</button>
+              <button type="button" class="file-remove" hidden aria-label="Remove Form 137">Remove</button>
             </div>
             <div class="upload-item">
               <div class="name">Certificate of Completion<small>If available · PDF / JPG</small></div>
               <span class="file-pick"><span class="pick-label" tabindex="0">Choose file</span><input type="file" accept=".pdf,.jpg,.jpeg,.png" aria-label="Upload Certificate of Completion"></span>
-              <button type="button" class="file-remove" hidden aria-label="Remove Certificate of Completion">✕ Remove</button>
+              <button type="button" class="file-remove" hidden aria-label="Remove Certificate of Completion">Remove</button>
             </div>
             <div class="upload-item">
               <div class="name">Good Moral Certificate<small>From previous school · PDF / JPG</small></div>
               <span class="file-pick"><span class="pick-label" tabindex="0">Choose file</span><input type="file" accept=".pdf,.jpg,.jpeg,.png" aria-label="Upload Good Moral Certificate"></span>
-              <button type="button" class="file-remove" hidden aria-label="Remove Good Moral Certificate">✕ Remove</button>
+              <button type="button" class="file-remove" hidden aria-label="Remove Good Moral Certificate">Remove</button>
             </div>
           </div>
           <p class="upload-note">Each document is verified by the Registrar during encoding. Missing documents are tracked on the Requirements Checklist and may be followed up.</p>

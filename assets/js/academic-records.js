@@ -94,7 +94,7 @@ function openRecord(row) {
   document.querySelector('#rec-attend-status').textContent = rec.attendStatus;
 
   confirmBanner.className = 'confirm-banner' + (rec.confirmable ? ' good' : '');
-  confirmBanner.innerHTML = `<span>${rec.confirmable ? '✓' : '⚠'}</span><div><strong>${rec.confirmable ? 'All conditions met.' : 'Action required.'}</strong> ${rec.confirmHint}</div>`;
+  confirmBanner.innerHTML = `<span>${rec.confirmable ? 'OK' : '!'}</span><div><strong>${rec.confirmable ? 'All conditions met.' : 'Action required.'}</strong> ${rec.confirmHint}</div>`;
   confirmBtn.textContent = rec.status === 'enrolled' ? 'Already Enrolled' : 'Confirm Enrollment';
   confirmBtn.disabled = rec.status === 'enrolled';
   openModal();
@@ -130,7 +130,7 @@ document.querySelector('#btn-assign').addEventListener('click', () => {
   showToast('Student assigned', `${currentRecord.name} assigned to ${section}. Change logged in the audit trail.`);
 });
 
-// ⚡ Auto section (simulate) — assigns the active journey student to their
+// Auto section (simulate) — assigns the active journey student to their
 // persona section (or STEM-B for any other record).
 document.querySelector('#btn-sim').addEventListener('click', () => {
   if (!currentRecord || !currentRow) { showToast('Open a record', 'Open a student record first.'); return; }

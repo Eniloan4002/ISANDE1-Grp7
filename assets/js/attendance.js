@@ -93,9 +93,9 @@ function recomputeGate(data) {
     el.textContent = label;
     el.className = ok ? 'ok' : 'no';
   };
-  setState('gate-req', reqOk, reqOk ? 'Complete ✓' : `${data.req} ✗`);
-  setState('gate-att', attendanceOk, attendanceOk ? 'Verified ✓' : 'Not verified ✗');
-  setState('gate-overall', reqOk && attendanceOk, reqOk && attendanceOk ? 'Both met ✓' : 'Not met ✗');
+  setState('gate-req', reqOk, reqOk ? 'Complete' : `${data.req}`);
+  setState('gate-att', attendanceOk, attendanceOk ? 'Verified' : 'Not verified');
+  setState('gate-overall', reqOk && attendanceOk, reqOk && attendanceOk ? 'Both met' : 'Not met');
 
   document.querySelector('#btn-confirm').classList.toggle('disabled', !(reqOk && attendanceOk));
   document.querySelector('#btn-keep-tracking').disabled = reqOk && attendanceOk;
@@ -131,7 +131,7 @@ document.querySelector('#btn-keep-tracking').addEventListener('click', () => {
   showToast('Still tracking', `${Store.applicants[activeApp].name} — requirements and attendance will keep being monitored until both conditions are met.`);
 });
 
-// ⚡ Verify week 1 (simulate) — marks all five days present for the active
+// Verify week 1 (simulate) — marks all five days present for the active
 // journey student (or whatever student is selected).
 document.querySelector('#btn-sim').addEventListener('click', () => {
   if (!activeApp) { showToast('Select a student', 'Choose an applicant from the monitoring list first.'); return; }

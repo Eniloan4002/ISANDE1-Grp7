@@ -24,6 +24,7 @@ function renderQueue() {
         </div>
       </td>
       <td>${app.id}</td>
+      <td>${app.submittedAt || '—'}</td>
       <td>${app.programLabel}</td>
       <td>${app.category}</td>
       <td><span class="status-pill ${reqClass}">${app.queueStatus === 'enrolled' ? 'Complete' : app.queueStatus === 'pre-enlisted' ? 'Pending' : 'Incomplete'}</span></td>

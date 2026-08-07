@@ -54,10 +54,10 @@ function render() {
       if (!entry) {
         return `<li class="tl-item"><span class="tl-dot">○</span><span class="tl-label">${s.label}</span><span class="tl-when">—</span></li>`;
       }
-      return `<li class="tl-item done"><span class="tl-dot">✓</span><span class="tl-label">${entry.label || s.label}</span><span class="tl-when">${entry.at}</span></li>`;
+      return `<li class="tl-item done"><span class="tl-dot">•</span><span class="tl-label">${entry.label || s.label}</span><span class="tl-when">${entry.at}</span></li>`;
     }).join('');
   } else {
-    timeline.innerHTML = `<li class="tl-item done"><span class="tl-dot">✓</span><span class="tl-label">Enrollment confirmed</span><span class="tl-when">${(rec && rec.confirmedAt) || '—'}</span></li>`;
+    timeline.innerHTML = `<li class="tl-item done"><span class="tl-dot">•</span><span class="tl-label">Enrollment confirmed</span><span class="tl-when">${(rec && rec.confirmedAt) || '—'}</span></li>`;
   }
 
   if (rec && rec.status === 'enrolled') {

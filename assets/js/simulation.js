@@ -86,17 +86,17 @@
       const skipped = s.n === 3 && !persona.dup;
       const done = s.n <= j.stage;
       const cls = (done ? 'done ' : '') + (s.n === j.stage ? 'active ' : '') + (skipped ? 'skip' : '');
-      return `<span class="jstage ${cls}" title="${s.label}"><i>${skipped ? '·' : done ? '✓' : s.n}</i><small>${s.label}</small></span>`;
+      return `<span class="jstage ${cls}" title="${s.label}"><i>${skipped ? '·' : done ? '•' : s.n}</i><small>${s.label}</small></span>`;
     }).join('');
     const nextLabel = next === null ? 'Enrolled & Assigned' : (STAGES[next] ? STAGES[next].label : '—');
     return `<section class="journey-banner" id="journey-banner" aria-label="Enrollment journey simulation">
       <div class="jb-head">
-        <div class="jb-title"><strong>🎬 Enrollment Journey Simulation</strong>
+        <div class="jb-title"><strong>Enrollment Journey Simulation</strong>
           <span class="jb-sub"><strong>${app.name}</strong> (${j.appId}) · ${persona.label} · ${j.mode === 'auto' ? 'Auto-play' : 'Step-through'}</span></div>
         <div class="jb-actions">
           <button class="button button-outline" type="button" id="jb-next">Next stage →</button>
-          <button class="button button-primary" type="button" id="jb-play">▶ Play full journey</button>
-          <button class="button button-secondary" type="button" id="jb-end" title="End this journey">✕ End</button>
+          <button class="button button-primary" type="button" id="jb-play">Play full journey</button>
+          <button class="button button-secondary" type="button" id="jb-end" title="End this journey">End</button>
         </div>
       </div>
       <div class="jb-pipe">${dots}</div>
@@ -172,7 +172,7 @@
     location.reload();
   }
 
-  // Highlight the journey applicant's row + attach a ✦ marker (after any re-render).
+  // Highlight the journey applicant's row + attach a bullet marker (after any re-render).
   function markJourneyRow() {
     const j = window.Store.getJourney();
     if (!j || !j.active) return;
@@ -181,7 +181,7 @@
     if (!row) return;
     const strong = row.querySelector('.student-cell strong');
     if (strong && !strong.querySelector('.jdot')) {
-      strong.appendChild(Object.assign(document.createElement('span'), { className: 'jdot', title: 'Journey in progress', textContent: '✦' }));
+      strong.appendChild(Object.assign(document.createElement('span'), { className: 'jdot', title: 'Journey in progress', textContent: '•' }));
     }
     row.style.background = row.style.background || '#eef6fa';
     row.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -198,7 +198,7 @@
     const nextLabel = next === null ? 'Enrolled & Assigned' : (STAGES[next] ? STAGES[next].label : '—');
     const chip = document.createElement('div');
     chip.className = 'journey-chip';
-    chip.innerHTML = `<span class="jchip-icon">🎬</span>
+    chip.innerHTML = `<span class="jchip-icon">•</span>
       <span class="jchip-text">Journey in progress — <strong>${app.name}</strong> · Stage ${j.stage}/9 <em>${stage ? stage.label : ''}</em></span>
       <span class="jchip-next">Next: <strong>${nextLabel}</strong></span>
       <a class="button button-outline" href="${journeyUrl(j.appId)}">Continue journey →</a>`;

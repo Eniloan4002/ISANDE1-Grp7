@@ -119,7 +119,7 @@ function resolve(action) {
 mergeBtn.addEventListener('click', () => resolve('merge'));
 rejectBtn.addEventListener('click', () => resolve('reject'));
 
-// ⚡ Resolve (simulate) — runs the Duplicate Review stage for the active
+// Resolve (simulate) — runs the Duplicate Review stage for the active
 // journey student (or resolves the open pair as a merge for any other pair).
 document.querySelector('#btn-sim').addEventListener('click', () => {
   if (!currentPair) { showToast('Select a pair', 'Choose a flagged pair first.'); return; }

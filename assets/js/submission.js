@@ -63,6 +63,9 @@ document.querySelectorAll('.upload-item').forEach(item => {
   removeBtn.addEventListener('click', () => {
     input.value = '';
     syncFileState();
+    // Honor the removal for simulated uploads too, so the document is not
+    // silently attached on submit.
+    delete pendingUploads[docName];
     item.querySelector('.pick-label').focus();
     showToast('File removed', `${docName} cleared — no file attached. Choose a file to re-upload.`);
   });
@@ -320,11 +323,13 @@ previewNext.addEventListener('click', () => {
   }
 });
 
-// ---- 🎬 Simulate a Student Submission ----
-// Auto-fills the form the way a prospective student would (typing animation,
-// conditional fields behave), submits through the real handler, then starts the
-// persisted journey so the Enrollment Queue can drive it to official enrollment.
+// ---- Simulate a Student Submission (click-through) ----
+// The presenter arms the simulation, then fills the application one section at
+// a time — each section header carries a Fill button that populates that
+// section's fields from the chosen persona. After all six sections are filled,
+// the real Submit button fires and the persisted journey starts in the Queue.
 const simStart = document.querySelector('#sim-start');
+const simCancel = document.querySelector('#sim-cancel');
 const simPersona = document.querySelector('#sim-persona');
 const simMode = document.querySelector('#sim-mode');
 const simSpeed = document.querySelector('#sim-speed');
@@ -335,15 +340,20 @@ const successLink = document.querySelector('#success-queue-link');
 const formSections = [...document.querySelectorAll('#submission-form .form-section')];
 
 const SPEED = {
-  fast: { char: 6, pause: 30, banner: 400 },
-  normal: { char: 9, pause: 120, banner: 650 },
-  slow: { char: 14, pause: 320, banner: 1000 }
+  fast: { char: 5, pause: 20, banner: 400 },
+  normal: { char: 9, pause: 60, banner: 650 },
+  slow: { char: 14, pause: 160, banner: 1000 }
 };
 
-let simulated = false;
+const TOTAL_SECTIONS = 6;
+
+let simulated = false;    // armed once Start Simulation is clicked
+let filledSections = 0;   // sections completed via Fill clicks
 let pendingUploads = {};
 
 const wait = ms => new Promise(res => setTimeout(res, ms));
+
+const S = id => document.querySelector(id);
 
 async function typeInto(el, value, perChar) {
   if (!el) return;
@@ -367,12 +377,10 @@ function setProgress(pct, text) {
   simProgressText.textContent = text;
 }
 
-async function fillForm(persona) {
-  const speed = SPEED[simSpeed.value] || SPEED.normal;
-  const S = id => document.querySelector(id);
-
-  const plan = [
-    { label: '1 · Enrollment Preferences', fields: [
+// One field plan per section (mirrors the Google Form sections 1–6). Each plan
+// returns closures that type the persona's values into that section's inputs.
+const SECTION_PLANS = [
+  { label: '1 · Enrollment Preferences', run: (persona, speed) => [
       () => typeInto(S('#s-grade'), persona.grade, speed.char),
       () => typeInto(S('#s-track'), persona.track, speed.char),
       () => typeInto(S('#s-strand'), persona.strand, speed.char),
@@ -380,7 +388,7 @@ async function fillForm(persona) {
       () => deliveryChecks.forEach(c => { c.checked = persona.delivery.includes(c.value); c.dispatchEvent(new Event('change', { bubbles: true })); }),
       () => typeInto(S('#s-delivery-other'), persona.deliveryOther, speed.char)
     ] },
-    { label: '2 · Student Information', fields: [
+  { label: '2 · Student Information', run: (persona, speed) => [
       () => typeInto(S('#s-lrn-status'), persona.lrnStatus, speed.char),
       () => typeInto(S('#s-psa'), persona.psa, speed.char),
       () => typeInto(S('#s-lrn'), persona.lrn, speed.char),
@@ -398,19 +406,19 @@ async function fillForm(persona) {
       () => typeInto(S('#s-mother-tongue'), persona.motherTongue, speed.char),
       () => typeInto(S('#s-honors'), persona.honors, speed.char)
     ] },
-    { label: '3 · Complete Home Address', fields: [
+  { label: '3 · Complete Home Address', run: (persona, speed) => [
       () => typeInto(S('#s-house'), persona.house, speed.char),
       () => typeInto(S('#s-province'), persona.province, speed.char),
       () => typeInto(S('#s-city'), persona.city, speed.char),
       () => typeInto(S('#s-barangay'), persona.barangay, speed.char)
     ] },
-    { label: '4 · Current School', fields: [
+  { label: '4 · Current School', run: (persona, speed) => [
       () => typeInto(S('#s-enrolled'), persona.enrolled, speed.char),
       () => typeInto(S('#s-school'), persona.school, speed.char),
       () => typeInto(S('#s-school-address'), persona.schoolAddress, speed.char),
       () => typeInto(S('#s-school-id'), persona.schoolId, speed.char)
     ] },
-    { label: '5 · Parent / Guardian', fields: [
+  { label: '5 · Parent / Guardian', run: (persona, speed) => [
       () => typeInto(S('#s-father'), persona.father, speed.char),
       () => typeInto(S('#s-mother'), persona.mother, speed.char),
       () => typeInto(S('#s-guardian'), persona.guardian, speed.char),
@@ -418,48 +426,74 @@ async function fillForm(persona) {
       () => typeInto(S('#s-regdate'), persona.regDate, speed.char),
       () => typeInto(S('#s-referred'), persona.referred, speed.char)
     ] }
-  ];
+];
 
-  const total = plan.length;
-  for (let i = 0; i < total; i++) {
-    const section = plan[i];
-    if (formSections[i]) formSections[i].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    setProgress(Math.round((i / total) * 88), `Filling ${section.label}…`);
-    for (const fn of section.fields) { await fn(); await wait(speed.pause); }
+// Fill ONE section (0–5) from the selected persona. Section 6 (index 5) is the
+// upload grid — browsers forbid setting file inputs, so we mark documents as
+// "attached (simulated)" instead.
+async function fillSection(idx) {
+  const persona = Store.getPersona(simPersona.value);
+  const speed = SPEED[simSpeed.value] || SPEED.normal;
+  if (idx === 5) {
+    pendingUploads = {};
+    document.querySelectorAll('.upload-item').forEach(item => {
+      const docName = item.querySelector('.name').childNodes[0].textContent.trim();
+      const file = persona.uploads[docName];
+      if (!file) return;
+      pendingUploads[docName] = file;
+      item.querySelector('.pick-label').textContent = 'Attached: ' + file + ' (simulated)';
+      const removeBtn = item.querySelector('.file-remove');
+      if (removeBtn) removeBtn.hidden = false;
+    });
+    showToast('Documents attached', 'All four scanned documents attached (simulated).');
+    return;
   }
-
-  // 6 · Upload Requirements — simulated attach (browsers forbid setting file inputs).
-  setProgress(92, 'Attaching scanned documents…');
-  pendingUploads = {};
-  document.querySelectorAll('.upload-item').forEach(item => {
-    const docName = item.querySelector('.name').childNodes[0].textContent.trim();
-    const file = persona.uploads[docName];
-    if (!file) return;
-    pendingUploads[docName] = file;
-    item.querySelector('.pick-label').textContent = 'Attached: ' + file + ' ✓ (simulated)';
-    const removeBtn = item.querySelector('.file-remove');
-    if (removeBtn) removeBtn.hidden = false;
-    showToast('File attached', `${docName} — ${file} (simulated upload).`);
-  });
-  await wait(400);
+  const plan = SECTION_PLANS[idx];
+  for (const fn of plan.run(persona, speed)) { await fn(); await wait(speed.pause); }
 }
 
-simStart.addEventListener('click', async () => {
-  simStart.disabled = true;
-  simPersona.disabled = true;
-  simMode.disabled = true;
-  simSpeed.disabled = true;
+function markSectionFilled(idx) {
+  filledSections++;
+  const btn = document.querySelector(`.section-fill[data-section="${idx}"]`);
+  if (btn) { btn.disabled = true; btn.textContent = 'Filled'; btn.classList.add('filled'); }
+  if (filledSections === TOTAL_SECTIONS) {
+    const submitBtn = formEl.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = false;
+    setProgress(100, 'All sections filled — click Submit Application →');
+    showToast('Form complete', 'Every section is filled. Click “Submit Application” to finish.');
+  } else {
+    setProgress(Math.round((filledSections / TOTAL_SECTIONS) * 100), `${filledSections} of ${TOTAL_SECTIONS} sections filled — click the next Fill.`);
+  }
+}
 
-  const persona = Store.getPersona(simPersona.value);
-
-  // Lock the real form buttons while the animation runs so a mid-fill click
-  // cannot submit partial data; the simulated flag is only armed right before submit.
+// Arm the simulation: clear the form, unlock the per-section Fill buttons,
+// and lock the real Submit until every section has been filled by hand.
+function cancelSimulation() {
+  simulated = false;
+  filledSections = 0;
+  pendingUploads = {};
+  document.querySelectorAll('.section-fill').forEach(btn => {
+    btn.disabled = true;
+    btn.textContent = 'Fill';
+    btn.classList.remove('filled');
+  });
   const draftBtn = document.querySelector('#btn-draft');
   const submitBtn = formEl.querySelector('button[type="submit"]');
-  if (draftBtn) draftBtn.disabled = true;
-  if (submitBtn) submitBtn.disabled = true;
+  if (draftBtn) draftBtn.disabled = false;
+  if (submitBtn) submitBtn.disabled = false;
+  simStart.disabled = false;
+  simPersona.disabled = false;
+  simMode.disabled = false;
+  simSpeed.disabled = false;
+  setProgress(0, 'Simulation cancelled — the form is back to manual mode.');
+}
 
-  // Reset any earlier demo fill so the animation starts clean.
+// Arm the simulation: clear the form, unlock the per-section Fill buttons,
+// and lock the real Submit until every section has been filled by hand.
+function resetSimulation() {
+  simulated = true;
+  filledSections = 0;
+  pendingUploads = {};
   formEl.querySelectorAll('input, select').forEach(el => {
     if (el.type !== 'checkbox' && el.type !== 'file') el.value = '';
   });
@@ -467,16 +501,67 @@ simStart.addEventListener('click', async () => {
   document.querySelector('#s-delivery-other').style.display = 'none';
   document.querySelector('#s-ip-other-wrap').classList.add('hidden');
   renderStrands('');
+  document.querySelectorAll('.upload-item').forEach(item => {
+    item.querySelector('.pick-label').textContent = 'Choose file';
+    const removeBtn = item.querySelector('.file-remove');
+    if (removeBtn) removeBtn.hidden = true;
+  });
+  document.querySelectorAll('.section-fill').forEach(btn => {
+    btn.disabled = false;
+    btn.textContent = 'Fill';
+    btn.classList.remove('filled');
+  });
+  const draftBtn = document.querySelector('#btn-draft');
+  const submitBtn = formEl.querySelector('button[type="submit"]');
+  if (draftBtn) draftBtn.disabled = true;
+  if (submitBtn) submitBtn.disabled = true;
+  if (simCancel) simCancel.hidden = false;
+  setProgress(4, 'Simulation armed — click each section to fill it.');
+}
 
-  showToast('Simulation started', `Filling the form as ${persona.label} — watch each section complete itself.`);
-  setProgress(2, 'Preparing…');
-  await fillForm(persona);
+simCancel?.addEventListener('click', () => {
+  cancelSimulation();
+  if (simCancel) simCancel.hidden = true;
+  showToast('Simulation cancelled', 'The form is back to manual mode — you can edit and submit normally.');
+});
 
-  setProgress(98, 'Submitting application…');
-  await wait(300);
-  simulated = true;
-  // Fire the real submit handler (synthetic event — the handler calls preventDefault).
-  formEl.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+simStart.addEventListener('click', () => {
+  const persona = Store.getPersona(simPersona.value);
+  simStart.disabled = true;
+  simPersona.disabled = true;
+  simMode.disabled = true;
+  simSpeed.disabled = true;
+  resetSimulation();
+  showToast('Simulation started', `Filling as ${persona.label} — click each section's Fill button, then submit.`);
+  if (formSections[0]) formSections[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+// Each section header's Fill button populates just that section's fields.
+// The whole header is clickable too — the chip is the visible affordance.
+function armSectionFill(btn) {
+  if (!simulated || btn.disabled) {
+    if (!simulated) showToast('Start the simulation first', 'Click Start Simulation, then fill each section.');
+    return;
+  }
+  const idx = Number(btn.dataset.section);
+  btn.disabled = true;
+  btn.textContent = 'Filling…';
+  fillSection(idx).then(() => markSectionFilled(idx));
+}
+
+document.querySelectorAll('.section-fill').forEach(btn => {
+  btn.addEventListener('click', event => {
+    event.stopPropagation();
+    armSectionFill(btn);
+  });
+});
+
+// Clicking anywhere on a section header fills that section (when armed).
+document.querySelectorAll('#submission-form .section-head').forEach(head => {
+  head.addEventListener('click', () => {
+    const btn = head.querySelector('.section-fill');
+    if (btn) armSectionFill(btn);
+  });
 });
 
 // Runs after the main submit handler: attach uploads, start the journey, and

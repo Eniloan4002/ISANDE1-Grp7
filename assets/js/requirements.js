@@ -166,7 +166,7 @@ document.querySelector('#btn-send-followup').addEventListener('click', () => {
   showToast('Follow-up notice sent', `Reminder emailed to ${stateFor(currentApp).email}`);
 });
 
-// ⚡ Complete all docs (simulate) — marks all four documents submitted for the
+// Complete all docs (simulate) — marks all four documents submitted for the
 // active journey student (or for whatever checklist is open).
 document.querySelector('#btn-sim').addEventListener('click', () => {
   if (!currentApp) { showToast('Open a student', 'Open a requirements checklist first.'); return; }
