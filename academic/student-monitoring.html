@@ -1,88 +1,12 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="ICI Local 2.0 adviser notes and student flags">
-    <title>ICI Local 2.0 | Student Monitoring</title>
-    <link rel="stylesheet" href="../assets/css/global.css">
-    <link rel="stylesheet" href="../assets/css/layout.css">
-    <link rel="stylesheet" href="../assets/css/components.css">
-    <link rel="stylesheet" href="../assets/css/academic.css">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="ICI Local 2.0 persistent adviser notes and student flags"><title>ICI Local 2.0 | Student Monitoring</title>
+  <link rel="stylesheet" href="../assets/css/global.css"><link rel="stylesheet" href="../assets/css/layout.css"><link rel="stylesheet" href="../assets/css/components.css"><link rel="stylesheet" href="../assets/css/academic.css">
 </head>
-
 <body data-role="adviser" data-page="student-monitoring.html">
-    <main class="main-content">
-        <div class="breadcrumb"><a href="advisory.html">Academic Records</a><span>/</span><span>Student
-                Monitoring</span></div>
-        <section class="page-heading">
-            <div>
-                <p class="eyebrow">TEACHER ADVISER</p>
-                <h1>Student Monitoring</h1>
-                <p>Review adviser-authored notes and flags for students in your assigned section.</p>
-            </div>
-            <span class="prototype-label">UI preview only</span>
-        </section>
-
-        <div class="academic-stack">
-            <section class="identity-card">
-                <span class="identity-mark">JD</span>
-                <div><h2>Juan Dela Cruz</h2><p>STU-2026-0184 · Grade 11 STEM A</p><small>Selected from your advisory roster</small></div>
-                <div class="identity-actions"><span class="badge amber-badge">1 active flag</span><small>Last updated Aug 4, 2026</small></div>
-            </section>
-
-            <section class="module-note">
-                <strong>Accountability:</strong> Every note or flag identifies the responsible adviser and records its
-                date and time. Core academic and enrollment statuses remain read-only on this page.
-            </section>
-
-            <div class="academic-grid">
-                <section class="content-panel">
-                    <div class="panel-header"><div><h2>Monitoring History</h2><p>Adviser activity for the selected student</p></div><span class="source-chip authored">Adviser-authored</span></div>
-                    <div class="panel-body">
-                        <ul class="timeline">
-                            <li class="current"><span class="timeline-marker"></span><strong>Attendance follow-up remains active</strong><small>Student recorded three absences this period. Coordinate with subject teachers before parent follow-up.<br>Nicole Chua · Aug 4, 2026 · 2:20 PM</small></li>
-                            <li class="complete"><span class="timeline-marker"></span><strong>Parent contacted</strong><small>Attendance concern discussed by phone; guardian acknowledged the notice.<br>Nicole Chua · Aug 4, 2026 · 1:45 PM</small></li>
-                            <li><span class="timeline-marker"></span><strong>Missing requirement noted</strong><small>An incoming academic record remains pending in the registrar checklist. Official document label requires validation.<br>Nicole Chua · Aug 3, 2026 · 9:10 AM</small></li>
-                        </ul>
-                    </div>
-                </section>
-
-                <section class="content-panel">
-                    <div class="panel-header"><div><h2>New Adviser Note</h2><p>Presentation-only form</p></div></div>
-                    <div class="panel-body">
-                        <div class="field-grid">
-                            <label>Note type<select disabled><option>Attendance follow-up</option></select></label>
-                            <label>Priority<select disabled><option>Standard</option></select></label>
-                            <label class="span-two">Note<textarea readonly>Record a concise observation or follow-up action here.</textarea></label>
-                            <label>Flag status<select disabled><option>Active</option></select></label>
-                            <label>Responsible adviser<input readonly value="Nicole Chua"></label>
-                        </div>
-                        <div class="module-note spaced-block">Submitting would record the current date,
-                            time, and authenticated adviser. This prototype does not save changes.</div>
-                        <div class="modal-actions"><button class="button button-secondary" type="button" disabled>Clear</button><button class="button button-primary" type="button" disabled>Save note</button></div>
-                    </div>
-                </section>
-            </div>
-
-            <section class="content-panel">
-                <div class="panel-header"><div><h2>Related Statuses</h2><p>Reference data from other modules</p></div></div>
-                <div class="table-wrap">
-                    <table>
-                        <thead><tr><th>Status</th><th>Current value</th><th>Source</th><th>Last updated</th><th>Adviser access</th></tr></thead>
-                        <tbody>
-                            <tr><td>Enrollment</td><td><span class="status-pill success">Enrolled</span></td><td>Registrar enrollment record</td><td>Aug 1, 2026</td><td>View only</td></tr>
-                            <tr><td>Requirements</td><td><span class="status-pill warning">1 pending</span></td><td>Enrollment checklist</td><td>Aug 2, 2026</td><td>View only</td></tr>
-                            <tr><td>Academic standing</td><td><span class="badge neutral-badge">Policy pending</span></td><td>Configured grade rules</td><td>Not calculated</td><td>View only</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </div>
-    </main>
-    <script src="../assets/js/portal-shell.js"></script>
-    <script src="../assets/js/navigation.js"></script>
+  <main class="main-content" id="academic-app"></main>
+  <script src="../assets/js/data-store.js"></script><script src="../assets/js/academic-module.js"></script><script src="../assets/js/portal-shell.js"></script><script src="../assets/js/navigation.js"></script>
 </body>
-
 </html>

@@ -128,7 +128,77 @@
     reportLog: [
       { when: 'Aug 7, 2026 10:42 AM', title: 'Enrollment Summary', criteria: 'Enrollment Summary · 2026-2027 · First Semester · Main Campus · All Tracks · Aug 01, 2026 - Aug 31, 2026', by: 'R. Santos', format: 'PDF' },
       { when: 'Aug 6, 2026 03:20 PM', title: 'Missing Requirements', criteria: 'Missing Requirements · 2026-2027 · First Semester · All Campuses · All Tracks · Jul 01, 2026 - Aug 31, 2026', by: 'R. Santos', format: 'CSV' }
-    ]
+    ],
+    academic: {
+      schemaVersion: 2,
+      policy: {
+        passingGrade: 75,
+        confirmed: false,
+        components: [
+          { key: 'written', label: 'Written Work', weight: 40 },
+          { key: 'performance', label: 'Performance Tasks', weight: 50 },
+          { key: 'other', label: 'Recitation / Other', weight: 10 }
+        ],
+        assessments: [
+          { key: 'ww1', label: 'Written Work 1', category: 'written', max: 20 },
+          { key: 'ww2', label: 'Written Work 2', category: 'written', max: 50 },
+          { key: 'pt1', label: 'Performance Task 1', category: 'performance', max: 100 },
+          { key: 'other1', label: 'Recitation / Other', category: 'other', max: 10 }
+        ]
+      },
+      periods: {
+        'SY2026-Q1': { id: 'SY2026-Q1', schoolYear: '2026–2027', label: 'Quarter 1', deadline: 'Aug 7, 2026', status: 'open', openedBy: 'R. Santos', openedAt: 'Jul 29, 2026 8:00 AM', finalizedBy: '', finalizedAt: '' },
+        'SY2025-Q4': { id: 'SY2025-Q4', schoolYear: '2025–2026', label: 'Quarter 4', deadline: 'Mar 28, 2026', status: 'finalized', openedBy: 'R. Santos', openedAt: 'Mar 1, 2026 8:00 AM', finalizedBy: 'R. Santos', finalizedAt: 'Apr 1, 2026 4:30 PM' }
+      },
+      students: {
+        'STU-2026-0184': { appId: 'APP-2026-0148', name: 'Dela Cruz, Juan', initials: 'JD', lrn: '119270140008', gradeLevel: 'Grade 11', section: 'STEM A', campus: 'Iligan Main Campus', adviser: 'Nicole Chua', sectionHistory: [{ label: 'Grade 11 · STEM A', detail: 'SY 2026–2027 · Iligan Main Campus' }, { label: 'Grade 10 · Rizal', detail: 'SY 2025–2026 · Previous school' }] },
+        'STU-2026-0185': { appId: 'APP-2026-0149', name: 'Santos, Maria', initials: 'MS', lrn: '108517230184', gradeLevel: 'Grade 11', section: 'STEM A', campus: 'Iligan Main Campus', adviser: 'Nicole Chua', sectionHistory: [{ label: 'Grade 11 · STEM A', detail: 'SY 2026–2027 · Iligan Main Campus' }, { label: 'Grade 10 · STEM', detail: 'SY 2025–2026 · Kapatagan NHS' }] },
+        'STU-2026-0186': { appId: 'APP-2026-0150', name: 'Reyes, Pedro', initials: 'PR', lrn: '120381650117', gradeLevel: 'Grade 11', section: 'STEM A', campus: 'Iligan Main Campus', adviser: 'Nicole Chua', sectionHistory: [{ label: 'Grade 11 · STEM A', detail: 'SY 2026–2027 · Iligan Main Campus' }, { label: 'Grade 10 · Mabini', detail: 'SY 2025–2026 · Previous school' }] },
+        'STU-2026-0187': { appId: 'APP-2026-0151', name: 'Lim, Angela', initials: 'AL', lrn: '112500710292', gradeLevel: 'Grade 11', section: 'STEM A', campus: 'Iligan Main Campus', adviser: 'Nicole Chua', sectionHistory: [{ label: 'Grade 11 · STEM A', detail: 'SY 2026–2027 · Iligan Main Campus' }, { label: 'Grade 10 · Bonifacio', detail: 'SY 2025–2026 · Previous school' }] }
+      },
+      classes: {
+        'CLS-GM-STEMA': { id: 'CLS-GM-STEMA', subject: 'General Mathematics', section: 'STEM A', gradeLevel: 'Grade 11', room: 'Room 204', teacher: 'Michael Reyes', periodId: 'SY2026-Q1', studentIds: ['STU-2026-0184', 'STU-2026-0185', 'STU-2026-0186', 'STU-2026-0187'], status: 'draft', submittedBy: '', submittedAt: '' },
+        'CLS-STAT-ABMA': { id: 'CLS-STAT-ABMA', subject: 'Statistics and Probability', section: 'ABM A', gradeLevel: 'Grade 11', room: 'Room 301', teacher: 'Michael Reyes', periodId: 'SY2026-Q1', studentIds: ['STU-2026-0185', 'STU-2026-0187'], status: 'submitted', submittedBy: 'Michael Reyes', submittedAt: 'Aug 4, 2026 11:05 AM' },
+        'CLS-OC-STEMA': { id: 'CLS-OC-STEMA', subject: 'Oral Communication', section: 'STEM A', gradeLevel: 'Grade 11', room: 'Room 202', teacher: 'Michael Reyes', periodId: 'SY2026-Q1', studentIds: ['STU-2026-0184', 'STU-2026-0185', 'STU-2026-0186', 'STU-2026-0187'], status: 'submitted', submittedBy: 'Michael Reyes', submittedAt: 'Aug 4, 2026 9:30 AM' }
+      },
+      grades: {
+        'CLS-GM-STEMA': {
+          'STU-2026-0184': { scores: { ww1: 18, ww2: 42, pt1: 88, other1: 9 }, quarterGrade: 87, status: 'draft', updatedAt: 'Aug 4, 2026 11:20 AM' },
+          'STU-2026-0185': { scores: { ww1: 20, ww2: 46, pt1: 92, other1: 10 }, quarterGrade: 94, status: 'draft', updatedAt: 'Aug 4, 2026 11:20 AM' },
+          'STU-2026-0186': { scores: { ww1: 14, ww2: null, pt1: 76, other1: 8 }, quarterGrade: null, status: 'incomplete', updatedAt: 'Aug 4, 2026 11:20 AM' },
+          'STU-2026-0187': { scores: { ww1: 17, ww2: 40, pt1: 85, other1: 9 }, quarterGrade: 84, status: 'draft', updatedAt: 'Aug 4, 2026 11:20 AM' }
+        },
+        'CLS-STAT-ABMA': {
+          'STU-2026-0185': { scores: { ww1: 19, ww2: 44, pt1: 91, other1: 9 }, quarterGrade: 91, status: 'submitted', updatedAt: 'Aug 4, 2026 11:05 AM' },
+          'STU-2026-0187': { scores: { ww1: 16, ww2: 41, pt1: 84, other1: 9 }, quarterGrade: 84, status: 'submitted', updatedAt: 'Aug 4, 2026 11:05 AM' }
+        },
+        'CLS-OC-STEMA': {
+          'STU-2026-0184': { scores: { ww1: 18, ww2: 43, pt1: 90, other1: 9 }, quarterGrade: 89, status: 'submitted', updatedAt: 'Aug 4, 2026 9:30 AM' },
+          'STU-2026-0185': { scores: { ww1: 19, ww2: 45, pt1: 93, other1: 10 }, quarterGrade: 93, status: 'submitted', updatedAt: 'Aug 4, 2026 9:30 AM' },
+          'STU-2026-0186': { scores: { ww1: 15, ww2: 38, pt1: 79, other1: 8 }, quarterGrade: 79, status: 'submitted', updatedAt: 'Aug 4, 2026 9:30 AM' },
+          'STU-2026-0187': { scores: { ww1: 17, ww2: 42, pt1: 86, other1: 9 }, quarterGrade: 86, status: 'submitted', updatedAt: 'Aug 4, 2026 9:30 AM' }
+        }
+      },
+      history: {
+        'STU-2026-0184': [{ subject: 'Oral Communication', schoolYear: '2026–2027', quarters: { q1: 89, q2: null, q3: null, q4: null }, finalGrade: null }, { subject: 'General Mathematics', schoolYear: '2026–2027', quarters: { q1: 87, q2: null, q3: null, q4: null }, finalGrade: null }, { subject: 'Earth Science', schoolYear: '2026–2027', quarters: { q1: 86, q2: null, q3: null, q4: null }, finalGrade: null }],
+        'STU-2026-0185': [{ subject: 'Oral Communication', schoolYear: '2026–2027', quarters: { q1: 93, q2: null, q3: null, q4: null }, finalGrade: null }, { subject: 'General Mathematics', schoolYear: '2026–2027', quarters: { q1: 94, q2: null, q3: null, q4: null }, finalGrade: null }, { subject: 'Statistics and Probability', schoolYear: '2026–2027', quarters: { q1: 91, q2: null, q3: null, q4: null }, finalGrade: null }],
+        'STU-2026-0186': [{ subject: 'Oral Communication', schoolYear: '2026–2027', quarters: { q1: 79, q2: null, q3: null, q4: null }, finalGrade: null }, { subject: 'General Mathematics', schoolYear: '2025–2026', quarters: { q1: 76, q2: 75, q3: 74, q4: 74 }, finalGrade: 75 }, { subject: 'Earth Science', schoolYear: '2026–2027', quarters: { q1: 78, q2: null, q3: null, q4: null }, finalGrade: null }],
+        'STU-2026-0187': [{ subject: 'Oral Communication', schoolYear: '2026–2027', quarters: { q1: 86, q2: null, q3: null, q4: null }, finalGrade: null }, { subject: 'General Mathematics', schoolYear: '2026–2027', quarters: { q1: 84, q2: null, q3: null, q4: null }, finalGrade: null }, { subject: 'Statistics and Probability', schoolYear: '2026–2027', quarters: { q1: 84, q2: null, q3: null, q4: null }, finalGrade: null }]
+      },
+      adviserNotes: {
+        'STU-2026-0184': [{ type: 'Attendance follow-up', priority: 'Standard', text: 'Student recorded three absences this period. Coordinate with subject teachers before parent follow-up.', status: 'Active', adviser: 'Nicole Chua', when: 'Aug 4, 2026 2:20 PM' }, { type: 'Parent contacted', priority: 'Standard', text: 'Attendance concern discussed by phone; guardian acknowledged the notice.', status: 'Resolved', adviser: 'Nicole Chua', when: 'Aug 4, 2026 1:45 PM' }],
+        'STU-2026-0185': [],
+        'STU-2026-0186': [{ type: 'Academic follow-up', priority: 'High', text: 'Missing Written Work 2 score requires completion.', status: 'Active', adviser: 'Nicole Chua', when: 'Aug 4, 2026 1:25 PM' }],
+        'STU-2026-0187': [{ type: 'Requirements reminder', priority: 'Standard', text: 'Pending enrollment document follow-up.', status: 'Active', adviser: 'Nicole Chua', when: 'Aug 4, 2026 2:05 PM' }]
+      },
+      incompleteCases: {
+        'INC-2026-001': { id: 'INC-2026-001', studentId: 'STU-2026-0186', classId: 'CLS-GM-STEMA', periodId: 'SY2026-Q1', assessmentKey: 'ww2', status: 'pending_teacher', notes: [{ text: 'Teacher notified about the missing Written Work 2 score.', by: 'R. Santos', when: 'Aug 5, 2026 9:15 AM' }], resolvedAt: '', resolvedBy: '' }
+      },
+      corrections: {
+        'GCR-2026-004': { id: 'GCR-2026-004', studentId: 'STU-2026-0186', subject: 'General Mathematics', schoolYear: '2025–2026', quarterKey: 'q4', periodId: 'SY2025-Q4', currentGrade: 74, proposedGrade: 78, reason: 'Completed requirement', explanation: 'Student completed the documented missing performance task within the authorized completion period.', attachment: { name: 'completion-evidence.pdf', type: 'application/pdf', size: 184320 }, status: 'principal_review', submittedBy: 'Michael Reyes', submittedAt: 'Aug 4, 2026 10:32 AM', audit: [{ action: 'Submitted by subject teacher', by: 'Michael Reyes', when: 'Aug 4, 2026 10:32 AM' }] }
+      },
+      audit: [{ action: 'Quarter 1 grading period opened', by: 'R. Santos', when: 'Jul 29, 2026 8:00 AM' }]
+    }
   };
 
   let data = null;
@@ -146,8 +216,21 @@
 
   // Ensure every applicant carries its own id (seed data is keyed by id but the
   // objects themselves need an id field for list rendering).
+  function mergeMissing(target, defaults) {
+    Object.keys(defaults).forEach(key => {
+      if (target[key] === undefined || target[key] === null) {
+        target[key] = clone(defaults[key]);
+      } else if (typeof target[key] === 'object' && !Array.isArray(target[key]) && typeof defaults[key] === 'object' && !Array.isArray(defaults[key])) {
+        mergeMissing(target[key], defaults[key]);
+      }
+    });
+  }
+
   function normalize() {
     Object.keys(data.applicants).forEach(key => { data.applicants[key].id = key; });
+    if (!data.academic) data.academic = clone(SEED.academic);
+    else mergeMissing(data.academic, SEED.academic);
+    persist(false);
   }
 
   function persist(emit = true) {
@@ -550,6 +633,247 @@
     persist();
   }
 
+  // ---- academic records helpers ----
+  function getAcademicStudent(id) { return data.academic.students[id]; }
+  function getAcademicClass(id) { return data.academic.classes[id]; }
+  function getAcademicPeriod(id) { return data.academic.periods[id]; }
+  function getAcademicClasses() { return data.academic.classes; }
+  function getCorrections() { return data.academic.corrections; }
+  function getIncompleteCases() { return data.academic.incompleteCases; }
+
+  function requirementSummary(studentId) {
+    const student = getAcademicStudent(studentId);
+    const req = student ? data.requirements[student.appId] : null;
+    if (!req) return { label: 'Not available', tone: 'neutral-badge', detail: 'No enrollment checklist' };
+    const values = Object.values(req.docs || {});
+    const submitted = values.filter(value => value === 'submitted').length;
+    if (values.length && values.every(value => value === 'submitted')) return { label: 'Complete', tone: 'success', detail: `${submitted} of ${values.length} submitted` };
+    if (values.some(value => value === 'missing' || value === 'invalid')) return { label: 'Incomplete', tone: 'danger', detail: `${submitted} of ${values.length} submitted` };
+    return { label: 'Pending', tone: 'warning', detail: `${submitted} of ${values.length} submitted` };
+  }
+
+  function calculateAcademicGrade(classId, studentId) {
+    const record = data.academic.grades[classId]?.[studentId];
+    if (!record) return { complete: false, grade: null, missing: [] };
+    const policy = data.academic.policy;
+    const missing = policy.assessments.filter(assessment => record.scores[assessment.key] === null || record.scores[assessment.key] === '' || record.scores[assessment.key] === undefined).map(assessment => assessment.key);
+    if (missing.length) return { complete: false, grade: null, missing };
+    let grade = 0;
+    policy.components.forEach(component => {
+      const assessments = policy.assessments.filter(assessment => assessment.category === component.key);
+      const earned = assessments.reduce((sum, assessment) => sum + Number(record.scores[assessment.key] || 0), 0);
+      const possible = assessments.reduce((sum, assessment) => sum + Number(assessment.max || 0), 0);
+      grade += possible ? (earned / possible) * Number(component.weight || 0) : 0;
+    });
+    return { complete: true, grade: Math.round(grade), missing: [] };
+  }
+
+  function refreshGradeRecord(classId, studentId, targetStatus) {
+    const record = data.academic.grades[classId]?.[studentId];
+    if (!record) return null;
+    const result = calculateAcademicGrade(classId, studentId);
+    record.quarterGrade = result.grade;
+    record.status = result.complete ? (targetStatus || record.status || 'draft') : 'incomplete';
+    record.updatedAt = stamp();
+    return result;
+  }
+
+  function updateAcademicPolicy(weights) {
+    const policy = data.academic.policy;
+    const next = policy.components.map(component => Number(weights[component.key]));
+    if (next.some(value => !Number.isFinite(value) || value < 0) || next.reduce((sum, value) => sum + value, 0) !== 100) return false;
+    policy.components.forEach((component, index) => { component.weight = next[index]; });
+    Object.entries(data.academic.grades).forEach(([classId, records]) => {
+      Object.keys(records).forEach(studentId => refreshGradeRecord(classId, studentId));
+    });
+    data.academic.audit.unshift({ action: 'Demo grading component weights updated', by: 'Michael Reyes', when: stamp() });
+    persist();
+    return true;
+  }
+
+  function saveClassScores(classId, updates) {
+    const academicClass = getAcademicClass(classId);
+    const period = academicClass ? getAcademicPeriod(academicClass.periodId) : null;
+    if (!academicClass || !period || period.status === 'finalized') return false;
+    Object.entries(updates).forEach(([studentId, scores]) => {
+      const record = data.academic.grades[classId]?.[studentId];
+      if (!record) return;
+      Object.entries(scores).forEach(([key, value]) => { record.scores[key] = value === '' || value === null ? null : Number(value); });
+      refreshGradeRecord(classId, studentId, 'draft');
+      const openCase = Object.values(data.academic.incompleteCases).find(item => item.classId === classId && item.studentId === studentId && item.status !== 'resolved');
+      if (openCase && calculateAcademicGrade(classId, studentId).complete) openCase.status = 'for_registrar';
+    });
+    academicClass.status = 'draft';
+    academicClass.submittedAt = '';
+    academicClass.submittedBy = '';
+    persist();
+    return true;
+  }
+
+  function nextIncompleteId() {
+    const max = Object.keys(data.academic.incompleteCases).map(id => Number(id.split('-').pop())).filter(Number.isFinite).reduce((value, current) => Math.max(value, current), 0);
+    return `INC-2026-${String(max + 1).padStart(3, '0')}`;
+  }
+
+  function submitClassGrades(classId) {
+    const academicClass = getAcademicClass(classId);
+    const period = academicClass ? getAcademicPeriod(academicClass.periodId) : null;
+    if (!academicClass || !period || period.status === 'finalized') return { ok: false, incomplete: 0 };
+    let incomplete = 0;
+    academicClass.studentIds.forEach(studentId => {
+      const result = refreshGradeRecord(classId, studentId, 'submitted');
+      const currentCase = Object.values(data.academic.incompleteCases).find(item => item.classId === classId && item.studentId === studentId && item.status !== 'resolved');
+      if (!result?.complete) {
+        incomplete += 1;
+        if (!currentCase) {
+          const id = nextIncompleteId();
+          data.academic.incompleteCases[id] = { id, studentId, classId, periodId: academicClass.periodId, assessmentKey: result?.missing[0] || '', status: 'pending_teacher', notes: [{ text: 'Incomplete grade identified during teacher submission.', by: academicClass.teacher, when: stamp() }], resolvedAt: '', resolvedBy: '' };
+        }
+      } else if (currentCase) {
+        currentCase.status = 'for_registrar';
+        currentCase.notes.unshift({ text: 'Teacher supplied the missing score; awaiting registrar verification.', by: academicClass.teacher, when: stamp() });
+      }
+    });
+    academicClass.status = 'submitted';
+    academicClass.submittedBy = academicClass.teacher;
+    academicClass.submittedAt = stamp();
+    data.academic.audit.unshift({ action: `${academicClass.subject} grades submitted`, by: academicClass.teacher, when: stamp() });
+    persist();
+    return { ok: true, incomplete };
+  }
+
+  function academicStanding(studentId) {
+    const grades = [];
+    let incomplete = false;
+    Object.entries(data.academic.classes).forEach(([classId, academicClass]) => {
+      if (!academicClass.studentIds.includes(studentId) || academicClass.periodId !== 'SY2026-Q1') return;
+      const result = calculateAcademicGrade(classId, studentId);
+      if (result.complete) grades.push(result.grade);
+      else incomplete = true;
+    });
+    if (!grades.length && !incomplete) return { label: 'Not available', tone: 'neutral-badge', detail: 'No submitted grades' };
+    const average = grades.length ? Math.round(grades.reduce((sum, grade) => sum + grade, 0) / grades.length) : null;
+    if (incomplete || (average !== null && average < data.academic.policy.passingGrade)) return { label: 'At risk', tone: 'danger', detail: incomplete ? 'Incomplete academic record' : `Average ${average}` };
+    return { label: 'Good standing', tone: 'success', detail: `Average ${average}` };
+  }
+
+  function getAcademicHistory(studentId) {
+    const history = clone(data.academic.history[studentId] || []);
+    Object.entries(data.academic.classes).forEach(([classId, academicClass]) => {
+      if (!academicClass.studentIds.includes(studentId) || academicClass.periodId !== 'SY2026-Q1') return;
+      const result = calculateAcademicGrade(classId, studentId);
+      let row = history.find(item => item.subject === academicClass.subject && item.schoolYear === '2026–2027');
+      if (!row) {
+        row = { subject: academicClass.subject, schoolYear: '2026–2027', quarters: { q1: null, q2: null, q3: null, q4: null }, finalGrade: null };
+        history.push(row);
+      }
+      row.quarters.q1 = result.grade;
+    });
+    return history;
+  }
+
+  function addAdviserNote(studentId, note) {
+    if (!data.academic.students[studentId]) return false;
+    if (!data.academic.adviserNotes[studentId]) data.academic.adviserNotes[studentId] = [];
+    data.academic.adviserNotes[studentId].unshift({ type: note.type, priority: note.priority, text: note.text, status: note.status, adviser: 'Nicole Chua', when: stamp() });
+    data.academic.audit.unshift({ action: `Adviser note added for ${data.academic.students[studentId].name}`, by: 'Nicole Chua', when: stamp() });
+    persist();
+    return true;
+  }
+
+  function nextCorrectionId() {
+    const max = Object.keys(data.academic.corrections).map(id => Number(id.split('-').pop())).filter(Number.isFinite).reduce((value, current) => Math.max(value, current), 0);
+    return `GCR-2026-${String(max + 1).padStart(3, '0')}`;
+  }
+
+  function submitCorrection(request) {
+    const history = data.academic.history[request.studentId] || [];
+    const row = history.find(item => item.subject === request.subject && item.schoolYear === request.schoolYear);
+    const currentGrade = row?.quarters?.[request.quarterKey];
+    if (!row || currentGrade === null || currentGrade === undefined) return null;
+    const id = nextCorrectionId();
+    data.academic.corrections[id] = { id, studentId: request.studentId, subject: request.subject, schoolYear: request.schoolYear, quarterKey: request.quarterKey, periodId: request.periodId, currentGrade: Number(currentGrade), proposedGrade: Number(request.proposedGrade), reason: request.reason, explanation: request.explanation, attachment: request.attachment || { name: '', type: '', size: 0 }, status: 'principal_review', submittedBy: 'Michael Reyes', submittedAt: stamp(), audit: [{ action: 'Submitted by subject teacher', by: 'Michael Reyes', when: stamp() }] };
+    persist();
+    return id;
+  }
+
+  function reviewCorrection(id, action) {
+    const request = data.academic.corrections[id];
+    if (!request) return false;
+    if (action === 'principal-approve' && request.status === 'principal_review') {
+      request.status = 'registrar_review';
+      request.audit.push({ action: 'Approved by Principal', by: 'Principal Review (prototype)', when: stamp() });
+    } else if (action === 'registrar-approve' && request.status === 'registrar_review') {
+      request.status = 'approved';
+      request.audit.push({ action: 'Approved by Registrar', by: 'R. Santos', when: stamp() });
+    } else if (action === 'reject' && ['principal_review', 'registrar_review'].includes(request.status)) {
+      request.status = 'rejected';
+      request.audit.push({ action: 'Request rejected', by: 'R. Santos', when: stamp() });
+    } else if (action === 'encode' && request.status === 'approved') {
+      const row = (data.academic.history[request.studentId] || []).find(item => item.subject === request.subject && item.schoolYear === request.schoolYear);
+      if (!row) return false;
+      row.quarters[request.quarterKey] = Number(request.proposedGrade);
+      const available = Object.values(row.quarters).filter(value => value !== null && value !== undefined).map(Number);
+      row.finalGrade = available.length === 4 ? Math.round(available.reduce((sum, grade) => sum + grade, 0) / available.length) : row.finalGrade;
+      request.status = 'encoded';
+      request.encodedAt = stamp();
+      request.encodedBy = 'R. Santos';
+      request.audit.push({ action: `Corrected grade encoded (${request.currentGrade} → ${request.proposedGrade})`, by: 'R. Santos', when: stamp() });
+    } else return false;
+    persist();
+    return true;
+  }
+
+  function addIncompleteNote(id, text) {
+    const item = data.academic.incompleteCases[id];
+    if (!item || !text.trim()) return false;
+    item.notes.unshift({ text: text.trim(), by: 'R. Santos', when: stamp() });
+    persist();
+    return true;
+  }
+
+  function resolveIncomplete(id, completedScore) {
+    const item = data.academic.incompleteCases[id];
+    if (!item || item.status === 'resolved') return false;
+    const record = data.academic.grades[item.classId]?.[item.studentId];
+    const assessment = data.academic.policy.assessments.find(entry => entry.key === item.assessmentKey);
+    if (!record || !assessment) return false;
+    const score = completedScore === '' || completedScore === null ? record.scores[item.assessmentKey] : Number(completedScore);
+    if (!Number.isFinite(Number(score)) || Number(score) < 0 || Number(score) > assessment.max) return false;
+    record.scores[item.assessmentKey] = Number(score);
+    refreshGradeRecord(item.classId, item.studentId, 'submitted');
+    item.status = 'resolved';
+    item.resolvedAt = stamp();
+    item.resolvedBy = 'R. Santos';
+    item.notes.unshift({ text: `Completed score verified and recorded: ${score}/${assessment.max}.`, by: 'R. Santos', when: stamp() });
+    persist();
+    return true;
+  }
+
+  function finalizationStatus(periodId) {
+    const classes = Object.values(data.academic.classes).filter(item => item.periodId === periodId);
+    const unsubmitted = classes.filter(item => !['submitted', 'finalized'].includes(item.status));
+    const incomplete = Object.values(data.academic.incompleteCases).filter(item => item.periodId === periodId && item.status !== 'resolved');
+    const corrections = Object.values(data.academic.corrections).filter(item => item.periodId === periodId && !['encoded', 'rejected'].includes(item.status));
+    return { classes, unsubmitted, incomplete, corrections, ready: Boolean(classes.length) && !unsubmitted.length && !incomplete.length && !corrections.length };
+  }
+
+  function finalizeAcademicPeriod(periodId) {
+    const period = getAcademicPeriod(periodId);
+    const state = finalizationStatus(periodId);
+    if (!period || period.status === 'finalized' || !state.ready) return false;
+    period.status = 'finalized';
+    period.finalizedAt = stamp();
+    period.finalizedBy = 'R. Santos';
+    state.classes.forEach(academicClass => {
+      academicClass.status = 'finalized';
+      Object.values(data.academic.grades[academicClass.id] || {}).forEach(record => { record.status = 'finalized'; });
+    });
+    data.academic.audit.unshift({ action: `${period.schoolYear} ${period.label} finalized`, by: 'R. Santos', when: stamp() });
+    persist();
+    return true;
+  }
+
   function stamp() { return 'Aug 7, 2026 10:42 AM'; }
 
   function stampDate() {
@@ -578,12 +902,18 @@
     get records() { return data.records; },
     get sections() { return data.sections; },
     get reportLog() { return data.reportLog; },
+    get academic() { return data.academic; },
     nextAppId, addApplicant, updateApplicant, removeApplicant,
     getRequirements, setRequirement, getAudits,
     getAttendance, setAttendance,
     getPair, getPairStatus, resolvePair,
     getRecords, getRecord, confirmRecord, assignSection, removeRecord,
     getReportLog, addReport, removeReport,
+    getAcademicStudent, getAcademicClass, getAcademicPeriod, getAcademicClasses,
+    getCorrections, getIncompleteCases, requirementSummary, calculateAcademicGrade,
+    updateAcademicPolicy, saveClassScores, submitClassGrades, academicStanding,
+    getAcademicHistory, addAdviserNote, submitCorrection, reviewCorrection,
+    addIncompleteNote, resolveIncomplete, finalizationStatus, finalizeAcademicPeriod,
     deriveRequirements, attendanceVerified, attendanceSummary, createRecord, recordByApp, attachUpload,
     flagPair, completeWeekAttendance,
     JOURNEY_STAGES, PERSONAS, getPersona,
