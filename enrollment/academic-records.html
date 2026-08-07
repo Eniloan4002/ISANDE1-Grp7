@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="ICI Local 2.0 Academic Records — consolidated enrolled student records, enrollment confirmation, and section assignment.">
+  <meta name="description"
+    content="ICI Local 2.0 Academic Records — consolidated enrolled student records, enrollment confirmation, and section assignment.">
   <title>ICI Local 2.0 | Academic Records</title>
   <link rel="stylesheet" href="../assets/css/global.css">
   <link rel="stylesheet" href="../assets/css/layout.css">
@@ -207,7 +208,8 @@
       <div>
         <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
         <h1>Academic Records</h1>
-        <p>Consolidated view of enrolled students. Review confirmation, requirements, first-week attendance, and section assignments.</p>
+        <p>Consolidated view of enrolled students. Review confirmation, requirements, first-week attendance, and section
+          assignments.</p>
       </div>
     </section>
 
@@ -234,13 +236,15 @@
         </div>
       </div>
       <div class="toolbar">
-        <label class="search-control"><span>Search</span><input id="ar-search" type="search" placeholder="Filter by name / ID..."></label>
+        <label class="search-control"><span>Search</span><input id="ar-search" type="search"
+            placeholder="Filter by name / ID..."></label>
         <label class="select-control"><span class="sr-only">Filter by status</span><select id="ar-status">
             <option value="all">Status: All</option>
             <option value="enrolled">Enrolled</option>
             <option value="pending">Pending confirmation</option>
           </select></label>
-        <label class="select-control program-filter"><span class="sr-only">Filter by campus</span><select id="ar-campus">
+        <label class="select-control program-filter"><span class="sr-only">Filter by campus</span><select
+            id="ar-campus">
             <option value="all">All campuses</option>
             <option value="main">Main — Iligan</option>
             <option value="kapatagan">Kapatagan</option>
@@ -261,7 +265,8 @@
             </tr>
           </thead>
           <tbody id="ar-body">
-            <tr data-status="pending" data-campus="main" data-name="Abad, Carla" data-id="STU-2026-0452" data-program="ABM">
+            <tr data-status="pending" data-campus="main" data-name="Abad, Carla" data-id="STU-2026-0452"
+              data-program="ABM">
               <td>
                 <div class="student-cell">
                   <div><strong>Abad, Carla</strong><small>LRN 119770320691</small></div>
@@ -274,7 +279,8 @@
               <td>—</td>
               <td class="action-cell"><button class="row-action">View</button></td>
             </tr>
-            <tr data-status="enrolled" data-campus="main" data-name="Santos, Maria A." data-id="STU-2026-0454" data-program="STEM">
+            <tr data-status="enrolled" data-campus="main" data-name="Santos, Maria A." data-id="STU-2026-0454"
+              data-program="STEM">
               <td>
                 <div class="student-cell">
                   <div><strong>Santos, Maria A.</strong><small>LRN 108517230184</small></div>
@@ -287,7 +293,8 @@
               <td>STEM-B</td>
               <td class="action-cell"><button class="row-action">View</button></td>
             </tr>
-            <tr data-status="enrolled" data-campus="bugo" data-name="Reyes, Pedro" data-id="STU-2026-0455" data-program="TVL — Cookery">
+            <tr data-status="enrolled" data-campus="bugo" data-name="Reyes, Pedro" data-id="STU-2026-0455"
+              data-program="TVL — Cookery">
               <td>
                 <div class="student-cell">
                   <div><strong>Reyes, Pedro</strong><small>LRN 120381650117</small></div>
@@ -300,7 +307,8 @@
               <td>Cookery-1</td>
               <td class="action-cell"><button class="row-action">View</button></td>
             </tr>
-            <tr data-status="enrolled" data-campus="kapatagan" data-name="Lim, Angela" data-id="STU-2026-0451" data-program="BS Office Admin">
+            <tr data-status="enrolled" data-campus="kapatagan" data-name="Lim, Angela" data-id="STU-2026-0451"
+              data-program="BS Office Admin">
               <td>
                 <div class="student-cell">
                   <div><strong>Lim, Angela</strong><small>LRN 112500710292</small></div>
@@ -313,7 +321,8 @@
               <td>—</td>
               <td class="action-cell"><button class="row-action">View</button></td>
             </tr>
-            <tr data-status="pending" data-campus="main" data-name="Dela Cruz, Juan" data-id="STU-2026-0453" data-program="HUMSS">
+            <tr data-status="pending" data-campus="main" data-name="Dela Cruz, Juan" data-id="STU-2026-0453"
+              data-program="HUMSS">
               <td>
                 <div class="student-cell">
                   <div><strong>Dela Cruz, Juan</strong><small>LRN 119270140008</small></div>
@@ -330,7 +339,8 @@
         </table>
       </div>
       <div class="table-footer"><span id="result-count">Showing 5 of 34 records</span>
-        <div class="pagination"><button disabled>&lt;</button><button class="current">1</button><button>2</button><button>3</button><button>4</button><button>&gt;</button></div>
+        <div class="pagination"><button disabled>&lt;</button><button
+            class="current">1</button><button>2</button><button>3</button><button>4</button><button>&gt;</button></div>
       </div>
     </section>
   </main>
@@ -365,7 +375,8 @@
           <div class="info-card">
             <h3>First-Week Attendance</h3>
             <div class="attend-chips" id="rec-attend"></div>
-            <div class="row" style="margin-top:8px;"><span>Verification</span><strong id="rec-attend-status">—</strong></div>
+            <div class="row" style="margin-top:8px;"><span>Verification</span><strong id="rec-attend-status">—</strong>
+            </div>
           </div>
         </div>
 
@@ -377,12 +388,36 @@
           <div class="table-wrap">
             <table>
               <thead>
-                <tr><th>Section</th><th>Track</th><th>Enrolled</th><th>Capacity</th><th>Status</th></tr>
+                <tr>
+                  <th>Section</th>
+                  <th>Track</th>
+                  <th>Enrolled</th>
+                  <th>Capacity</th>
+                  <th>Status</th>
+                </tr>
               </thead>
               <tbody>
-                <tr><td>STEM-A</td><td>STEM</td><td>40</td><td>40</td><td><span class="status-pill danger">Full</span></td></tr>
-                <tr><td>STEM-B</td><td>STEM</td><td>36</td><td>40</td><td><span class="status-pill success">Open</span></td></tr>
-                <tr><td>STEM-C</td><td>STEM</td><td>22</td><td>40</td><td><span class="status-pill success">Open</span></td></tr>
+                <tr>
+                  <td>STEM-A</td>
+                  <td>STEM</td>
+                  <td>40</td>
+                  <td>40</td>
+                  <td><span class="status-pill danger">Full</span></td>
+                </tr>
+                <tr>
+                  <td>STEM-B</td>
+                  <td>STEM</td>
+                  <td>36</td>
+                  <td>40</td>
+                  <td><span class="status-pill success">Open</span></td>
+                </tr>
+                <tr>
+                  <td>STEM-C</td>
+                  <td>STEM</td>
+                  <td>22</td>
+                  <td>40</td>
+                  <td><span class="status-pill success">Open</span></td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -399,7 +434,9 @@
         </div>
 
         <div class="confirm-banner" id="rec-confirm">
-          <span>⚙</span><div>Enrollment confirmation is allowed once <strong>requirements are complete</strong> and <strong>first-week attendance is verified</strong>.</div>
+          <span>⚙</span>
+          <div>Enrollment confirmation is allowed once <strong>requirements are complete</strong> and <strong>first-week
+              attendance is verified</strong>.</div>
         </div>
 
         <div class="modal-actions">
@@ -411,7 +448,8 @@
   </div>
 
   <div class="toast" id="toast" role="status"><span>OK</span>
-    <div><strong>Updated</strong><small>Student record updated.</small></div><button aria-label="Dismiss notification">X</button>
+    <div><strong>Updated</strong><small>Student record updated.</small></div><button
+      aria-label="Dismiss notification">X</button>
   </div>
 
   <script src="../assets/js/data-store.js"></script>

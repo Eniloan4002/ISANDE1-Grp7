@@ -1,10 +1,10 @@
-// Shared role portal shell used by all placeholder pages.
+// Shared role portal shell used by all role-based pages.
 const portal = document.body.dataset.role;
 const page = document.body.dataset.page;
 const roleConfig = {
   registrar: { label: 'Registrar Staff', office: "Registrar's Office", initials: 'RS', items: [['submission.html', 'Enrollment Submission'], ['queue.html', 'Enrollment Queue'], ['evaluate.html', 'Evaluate Applications'], ['requirements.html', 'Requirements'], ['attendance.html', 'First-Week Attendance'], ['duplicate.html', 'Duplicate Records'], ['academic-records.html', 'Academic Records'], ['enrolled.html', 'Enrolled & Assigned'], ['reporting-monitoring.html', 'Reporting & Monitoring']] },
   adviser: { label: 'Teacher Adviser', office: 'Teacher Adviser Portal', initials: 'TA', items: [['advisory.html', 'Advisory Class'], ['class-records.html', 'Class Records'], ['student-monitoring.html', 'Student Monitoring']] },
-  teacher: { label: 'Subject Teacher', office: 'Subject Teacher Portal', initials: 'ST', items: [['grade-entry.html', 'Grade Entry'], ['class-list.html', 'Class List'], ['progress-reports.html', 'Progress Reports']] },
+  teacher: { label: 'Subject Teacher', office: 'Subject Teacher Portal', initials: 'ST', items: [['grade-entry.html', 'Grade Entry'], ['class-list.html', 'Assigned Classes'], ['progress-reports.html', 'Grade Corrections']] },
   guidance: { label: 'Guidance Staff', office: 'Guidance Office', initials: 'GS', items: [['guidance.html', 'Guidance Records'], ['student-profiles.html', 'Student Profiles'], ['reports.html', 'Reports']] },
   admin: { label: 'System Administrator', office: 'System Administration', initials: 'SA', items: [['users.html', 'User Accounts'], ['system-settings.html', 'System Settings'], ['audit-log.html', 'Audit Log']] }
 };
