@@ -1,15 +1,204 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="ICI Local 2.0 registrar academic records workspace">
-    <title>ICI Local 2.0 | Academic Records</title>
-    <link rel="stylesheet" href="../assets/css/global.css">
-    <link rel="stylesheet" href="../assets/css/layout.css">
-    <link rel="stylesheet" href="../assets/css/components.css">
-    <link rel="stylesheet" href="../assets/css/academic.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="ICI Local 2.0 Academic Records — consolidated enrolled student records, enrollment confirmation, and section assignment.">
+  <title>ICI Local 2.0 | Academic Records</title>
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/enrollment.css">
+  <style>
+    .modal.wide {
+      width: min(760px, 100%)
+    }
+
+    .record-body {
+      padding: 16px 18px
+    }
+
+    .record-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 13px;
+      border-bottom: 1px solid #d5d9da
+    }
+
+    .record-avatar {
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      border: 1px solid #3f7d9b;
+      border-radius: 50%;
+      background: #eaf3f8;
+      color: #175e80;
+      font: 700 14px 'Segoe UI', Arial, sans-serif
+    }
+
+    .record-header .who strong {
+      display: block;
+      font-size: 16px;
+      color: #263033
+    }
+
+    .record-header .who small {
+      color: #6d777a;
+      font-size: 11px
+    }
+
+    .record-header .right {
+      margin-left: auto;
+      text-align: right
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px
+    }
+
+    .info-card {
+      border: 1px solid #c9d0d2;
+      border-radius: 2px;
+      padding: 9px 11px;
+      background: #fafbfb
+    }
+
+    .info-card h3 {
+      margin: 0 0 6px;
+      font: 700 10px Roboto, Arial, sans-serif;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      color: #6a7477
+    }
+
+    .info-card .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 4px 0;
+      font-size: 12px
+    }
+
+    .info-card .row span:first-child {
+      color: #7a8487
+    }
+
+    .info-card .row strong {
+      color: #2f383b;
+      font-weight: 600;
+      text-align: right
+    }
+
+    .attend-chips {
+      display: flex;
+      gap: 5px;
+      margin-top: 4px
+    }
+
+    .attend-chip {
+      flex: 1;
+      text-align: center;
+      border: 1px solid #b9c2c4;
+      border-radius: 2px;
+      padding: 3px 0;
+      background: #fff;
+      color: #556064;
+      font-size: 9px;
+      font-weight: 700
+    }
+
+    .attend-chip.present {
+      background: #eef7f1;
+      border-color: #7fae8f;
+      color: #286445
+    }
+
+    .attend-chip.absent {
+      background: #fff3f3;
+      border-color: #cf9a9a;
+      color: #854343
+    }
+
+    .section-box {
+      border: 1px solid #c9d0d2;
+      border-radius: 2px
+    }
+
+    .section-box .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 11px;
+      border-bottom: 1px solid #d5d9da;
+      background: #f4f6f6
+    }
+
+    .section-box .head h3 {
+      margin: 0;
+      font: 700 12px Roboto, Arial, sans-serif
+    }
+
+    .section-box .head small {
+      color: #7a8487;
+      font-size: 10px
+    }
+
+    .section-box table {
+      min-width: 0
+    }
+
+    .assign-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 11px;
+      border-top: 1px solid #d5d9da;
+      background: #fafbfb
+    }
+
+    .assign-row select {
+      flex: 1;
+      height: 33px;
+      max-width: 300px;
+      border: 1px solid #8d9597;
+      border-radius: 1px;
+      padding: 0 7px;
+      font-size: 12px;
+      background: #fff
+    }
+
+    .confirm-banner {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 14px 0 4px;
+      padding: 9px 11px;
+      border: 1px solid #c9b78a;
+      background: #fdfaf1;
+      color: #6b5c2f;
+      font-size: 11px
+    }
+
+    .confirm-banner.good {
+      border-color: #7fae8f;
+      background: #eef7f1;
+      color: #286445
+    }
+
+    @media(max-width:760px) {
+      .info-grid {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
 </head>
 
 <body data-role="registrar" data-page="academic-records.html">
@@ -19,7 +208,8 @@
       <div>
         <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
         <h1>Academic Records</h1>
-        <p>Consolidated view of enrolled students. Review confirmation, requirements, first-week attendance, and section assignments.</p>
+        <p>Consolidated view of enrolled students. Review confirmation, requirements, first-week attendance, and section
+          assignments.</p>
       </div>
     </section>
 
@@ -46,13 +236,15 @@
         </div>
       </div>
       <div class="toolbar">
-        <label class="search-control"><span>Search</span><input id="ar-search" type="search" placeholder="Filter by name / ID..."></label>
+        <label class="search-control"><span>Search</span><input id="ar-search" type="search"
+            placeholder="Filter by name / ID..."></label>
         <label class="select-control"><span class="sr-only">Filter by status</span><select id="ar-status">
             <option value="all">Status: All</option>
             <option value="enrolled">Enrolled</option>
             <option value="pending">Pending confirmation</option>
           </select></label>
-        <label class="select-control program-filter"><span class="sr-only">Filter by campus</span><select id="ar-campus">
+        <label class="select-control program-filter"><span class="sr-only">Filter by campus</span><select
+            id="ar-campus">
             <option value="all">All campuses</option>
             <option value="main">Main — Iligan</option>
             <option value="kapatagan">Kapatagan</option>
@@ -73,7 +265,8 @@
             </tr>
           </thead>
           <tbody id="ar-body">
-            <tr data-status="pending" data-campus="main" data-name="Abad, Carla" data-id="STU-2026-0452" data-program="ABM">
+            <tr data-status="pending" data-campus="main" data-name="Abad, Carla" data-id="STU-2026-0452"
+              data-program="ABM">
               <td>
                 <div class="student-cell">
                   <div><strong>Abad, Carla</strong><small>LRN 119770320691</small></div>
@@ -86,7 +279,8 @@
               <td>—</td>
               <td class="action-cell"><button class="row-action">View</button></td>
             </tr>
-            <tr data-status="enrolled" data-campus="main" data-name="Santos, Maria A." data-id="STU-2026-0454" data-program="STEM">
+            <tr data-status="enrolled" data-campus="main" data-name="Santos, Maria A." data-id="STU-2026-0454"
+              data-program="STEM">
               <td>
                 <div class="student-cell">
                   <div><strong>Santos, Maria A.</strong><small>LRN 108517230184</small></div>
@@ -99,7 +293,8 @@
               <td>STEM-B</td>
               <td class="action-cell"><button class="row-action">View</button></td>
             </tr>
-            <tr data-status="enrolled" data-campus="bugo" data-name="Reyes, Pedro" data-id="STU-2026-0455" data-program="TVL — Cookery">
+            <tr data-status="enrolled" data-campus="bugo" data-name="Reyes, Pedro" data-id="STU-2026-0455"
+              data-program="TVL — Cookery">
               <td>
                 <div class="student-cell">
                   <div><strong>Reyes, Pedro</strong><small>LRN 120381650117</small></div>
@@ -112,7 +307,8 @@
               <td>Cookery-1</td>
               <td class="action-cell"><button class="row-action">View</button></td>
             </tr>
-            <tr data-status="enrolled" data-campus="kapatagan" data-name="Lim, Angela" data-id="STU-2026-0451" data-program="BS Office Admin">
+            <tr data-status="enrolled" data-campus="kapatagan" data-name="Lim, Angela" data-id="STU-2026-0451"
+              data-program="BS Office Admin">
               <td>
                 <div class="student-cell">
                   <div><strong>Lim, Angela</strong><small>LRN 112500710292</small></div>
@@ -125,7 +321,8 @@
               <td>—</td>
               <td class="action-cell"><button class="row-action">View</button></td>
             </tr>
-            <tr data-status="pending" data-campus="main" data-name="Dela Cruz, Juan" data-id="STU-2026-0453" data-program="HUMSS">
+            <tr data-status="pending" data-campus="main" data-name="Dela Cruz, Juan" data-id="STU-2026-0453"
+              data-program="HUMSS">
               <td>
                 <div class="student-cell">
                   <div><strong>Dela Cruz, Juan</strong><small>LRN 119270140008</small></div>
@@ -142,7 +339,8 @@
         </table>
       </div>
       <div class="table-footer"><span id="result-count">Showing 5 of 34 records</span>
-        <div class="pagination"><button disabled>&lt;</button><button class="current">1</button><button>2</button><button>3</button><button>4</button><button>&gt;</button></div>
+        <div class="pagination"><button disabled>&lt;</button><button
+            class="current">1</button><button>2</button><button>3</button><button>4</button><button>&gt;</button></div>
       </div>
     </section>
   </main>
@@ -161,125 +359,102 @@
           <div class="who"><strong id="rec-name">—</strong><small id="rec-meta">—</small></div>
           <div class="right"><span id="rec-status"></span></div>
         </div>
-        <section class="page-heading">
-            <div>
-                <p class="eyebrow">REGISTRAR STAFF</p>
-                <h1>Academic Records</h1>
-                <p>Review academic history, clearance obligations, incomplete grades, and grading-period readiness.</p>
+
+        <div class="info-grid">
+          <div class="info-card">
+            <h3>Enrollment</h3>
+            <div class="row"><span>Category</span><strong id="rec-category">—</strong></div>
+            <div class="row"><span>Assessment ref.</span><strong id="rec-ref">—</strong></div>
+            <div class="row"><span>Bracket</span><strong id="rec-bracket">—</strong></div>
+          </div>
+          <div class="info-card">
+            <h3>Requirements</h3>
+            <div class="row"><span>Overall status</span><strong id="rec-req">—</strong></div>
+            <div class="row"><span>Last update</span><strong id="rec-reqdate">—</strong></div>
+          </div>
+          <div class="info-card">
+            <h3>First-Week Attendance</h3>
+            <div class="attend-chips" id="rec-attend"></div>
+            <div class="row" style="margin-top:8px;"><span>Verification</span><strong id="rec-attend-status">—</strong>
             </div>
-            <span class="prototype-label">UI preview only</span>
-        </section>
-
-        <div class="academic-stack">
-            <section class="content-panel">
-                <div class="toolbar">
-                    <label class="search-control"><span>Search</span><input type="search" value="Juan Dela Cruz"
-                            aria-label="Search student by name, student ID, or LRN"></label>
-                    <label class="select-control"><span class="sr-only">School year</span><select
-                            aria-label="School year"><option>SY 2026–2027</option><option>SY 2025–2026</option></select></label>
-                    <span class="program-filter badge neutral-badge">Search by name, student ID, or LRN</span>
-                </div>
-                <div class="workspace-tabs" aria-label="Academic records workspace sections">
-                    <span class="active">Student Record</span><span>Incomplete Grades</span><span>Clearance</span><span>Period Management</span>
-                </div>
-            </section>
-
-            <section class="identity-card">
-                <span class="identity-mark">JD</span>
-                <div><h2>Juan Dela Cruz</h2><p>STU-2026-0184 · LRN 119270140008</p><small>Grade 11 · STEM A · Iligan Main Campus</small></div>
-                <div class="identity-actions"><span class="status-pill warning">Credential hold</span><small>1 requirement and 1 clearance item pending</small></div>
-            </section>
-
-            <div class="academic-grid equal">
-                <section class="content-panel">
-                    <div class="panel-header"><div><h2>Student Record Summary</h2><p>Consolidated registrar view</p></div></div>
-                    <div class="panel-body">
-                        <dl class="definition-grid">
-                            <div><dt>Enrollment status</dt><dd>Enrolled</dd></div>
-                            <div><dt>Admission requirements</dt><dd>4 of 5</dd></div>
-                            <div><dt>Academic standing</dt><dd>Policy pending</dd></div>
-                            <div><dt>Incomplete grades</dt><dd>1 open case</dd></div>
-                            <div><dt>Approved corrections</dt><dd>1 historical</dd></div>
-                            <div><dt>Credential readiness</dt><dd>On hold</dd></div>
-                        </dl>
-                    </div>
-                </section>
-                <section class="content-panel">
-                    <div class="panel-header"><div><h2>Document Readiness</h2><p>Official definitions require validation</p></div></div>
-                    <div class="panel-body">
-                        <ul class="audit-list">
-                            <li><strong>Academic history summary</strong><span>Available for internal review</span><small>Subjects and quarter grades shown below</small></li>
-                            <li><strong>Form 137 / Form 138 mapping</strong><span class="pending-value">Pending school and DepEd validation</span><small>Do not generate until official names, fields, and layouts are confirmed</small></li>
-                            <li><strong>Transcript / credential release</strong><span>On hold</span><small>Clear all academic and non-academic obligations first</small></li>
-                        </ul>
-                    </div>
-                </section>
-            </div>
-
-            <section class="content-panel">
-                <div class="panel-header"><div><h2>Academic History</h2><p>Subjects arranged by quarter with a final-grade column</p></div><button class="button button-outline" type="button" disabled>Print / Export</button></div>
-                <div class="table-wrap">
-                    <table class="quarter-table">
-                        <thead><tr><th>Subject</th><th>Quarter 1</th><th>Quarter 2</th><th>Quarter 3</th><th>Quarter 4</th><th>Final Grade</th><th>Correction Ref.</th></tr></thead>
-                        <tbody>
-                            <tr><td>Oral Communication</td><td>88</td><td>—</td><td>—</td><td>—</td><td><span class="pending-value">Pending</span></td><td>—</td></tr>
-                            <tr><td>General Mathematics</td><td><span class="status-pill warning">INC</span></td><td>—</td><td>—</td><td>—</td><td><span class="pending-value">Pending</span></td><td>—</td></tr>
-                            <tr><td>Earth Science</td><td>86</td><td>—</td><td>—</td><td>—</td><td><span class="pending-value">Pending</span></td><td>—</td></tr>
-                            <tr><td>Physical Education and Health</td><td>91</td><td>—</td><td>—</td><td>—</td><td><span class="pending-value">Pending</span></td><td>GCR-2025-014</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="table-footer"><span>Quarter 1 records · grading period still open</span><span>Approved correction references remain attached to the record</span></div>
-            </section>
-
-            <section class="content-panel">
-                <div class="panel-header"><div><h2>Incomplete Grade Cases</h2><p>Automatically identified from submitted grade records</p></div><span class="badge amber-badge">1 open case</span></div>
-                <div class="toolbar">
-                    <label class="select-control"><span class="sr-only">Grade level</span><select aria-label="Grade level"><option>Grade 11</option></select></label>
-                    <label class="select-control"><span class="sr-only">Period</span><select aria-label="Grading period"><option>Quarter 1</option></select></label>
-                    <label class="select-control"><span class="sr-only">Case status</span><select aria-label="Case status"><option>Status: All</option><option>Open</option><option>Completed</option></select></label>
-                </div>
-                <div class="table-wrap">
-                    <table>
-                        <thead><tr><th>Case</th><th>Student</th><th>Subject / teacher</th><th>Missing requirement</th><th>Status</th><th>Latest follow-up</th><th>Registrar action</th></tr></thead>
-                        <tbody>
-                            <tr><td>INC-2026-009</td><td>Juan Dela Cruz<small>STU-2026-0184</small></td><td>General Mathematics<small>Michael Reyes</small></td><td>Performance Task 2</td><td><span class="status-pill warning">Pending teacher submission</span></td><td>Aug 4 · reminder sent</td><td>Record follow-up only</td></tr>
-                            <tr><td>INC-2026-006</td><td>Angela Lim<small>STU-2026-0187</small></td><td>Statistics and Probability<small>Michael Reyes</small></td><td>Project portfolio</td><td><span class="status-pill success">Completed</span></td><td>Aug 2 · grade verified</td><td>Record updated</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="table-footer"><span>Completed cases remain visible in the audit history</span><button class="button button-outline" type="button" disabled>Record follow-up</button></div>
-            </section>
-
-            <section class="content-panel">
-                <div class="panel-header"><div><h2>Student Clearance</h2><p>Academic grades are only one part of credential and promotion clearance</p></div><span class="badge amber-badge">1 pending office</span></div>
-                <div class="panel-body">
-                    <div class="clearance-grid">
-                        <article class="clearance-item pending"><strong>Academic Records</strong><span>Pending</span><small>One incomplete grade case remains open<br>Responsible office: Registrar</small></article>
-                        <article class="clearance-item"><strong>Library</strong><span>Cleared</span><small>No unreturned books or recorded penalties<br>Responsible office: Library</small></article>
-                        <article class="clearance-item"><strong>Laboratory</strong><span>Cleared</span><small>No unresolved equipment obligations<br>Responsible office: Laboratory</small></article>
-                        <article class="clearance-item pending"><strong>Other Obligations</strong><span>Policy not configured</span><small>Additional offices and obligations require school confirmation</small></article>
-                    </div>
-                </div>
-            </section>
-
-            <section class="content-panel">
-                <div class="panel-header"><div><h2>Grading Period and School-Year Lifecycle</h2><p>Registrar-controlled state overview</p></div><span class="prototype-label">No state changes</span></div>
-                <div class="panel-body">
-                    <div class="lifecycle-row">
-                        <article class="lifecycle-step"><strong>1 · Open school year</strong><span>SY 2026–2027 active</span><small>Opened by Claire Mendoza · Aug 1, 8:00 AM</small></article>
-                        <article class="lifecycle-step"><strong>2 · Open grading period</strong><span>Quarter 1 open</span><small>Teacher access enabled for assigned classes</small></article>
-                        <article class="lifecycle-step"><strong>3 · Verify and resolve</strong><span>4 open items</span><small>31 of 34 submissions complete; exceptions remain</small></article>
-                        <article class="lifecycle-step"><strong>4 · Finalize and lock</strong><span>Not available</span><small>Finalization blocked until readiness checks pass</small></article>
-                    </div>
-                    <div class="module-note spaced-block"><strong>Prior-period audit:</strong> Quarter 4, SY 2025–2026 was finalized and locked by Claire Mendoza on May 30, 2026 at 4:18 PM.</div>
-                    <div class="policy-callout warning spaced-block"><strong>Promotion and school-year rollover rules are not configured.</strong> Promotion, summer-class, retention, and graduation decisions must use confirmed school policy without deleting historical records.</div>
-                </div>
-            </section>
+          </div>
         </div>
-    </main>
-    <script src="../assets/js/portal-shell.js"></script>
-    <script src="../assets/js/navigation.js"></script>
+
+        <div class="section-box">
+          <div class="head">
+            <h3>Section Assignment</h3>
+            <small>Capacity is validated on assign — full sections are blocked.</small>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Section</th>
+                  <th>Track</th>
+                  <th>Enrolled</th>
+                  <th>Capacity</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>STEM-A</td>
+                  <td>STEM</td>
+                  <td>40</td>
+                  <td>40</td>
+                  <td><span class="status-pill danger">Full</span></td>
+                </tr>
+                <tr>
+                  <td>STEM-B</td>
+                  <td>STEM</td>
+                  <td>36</td>
+                  <td>40</td>
+                  <td><span class="status-pill success">Open</span></td>
+                </tr>
+                <tr>
+                  <td>STEM-C</td>
+                  <td>STEM</td>
+                  <td>22</td>
+                  <td>40</td>
+                  <td><span class="status-pill success">Open</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="assign-row">
+            <label for="rec-section" style="font-size:12px;font-weight:700;color:#3d4649;">Assign to section</label>
+            <select id="rec-section">
+              <option value="STEM-B">STEM-B — 36/40 (Open)</option>
+              <option value="STEM-C">STEM-C — 22/40 (Open)</option>
+              <option value="STEM-A" disabled>STEM-A — 40/40 (Full)</option>
+            </select>
+            <button class="button button-secondary" id="btn-assign">Assign Student</button>
+          </div>
+        </div>
+
+        <div class="confirm-banner" id="rec-confirm">
+          <span>⚙</span>
+          <div>Enrollment confirmation is allowed once <strong>requirements are complete</strong> and <strong>first-week
+              attendance is verified</strong>.</div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="button button-secondary modal-close" type="button">Close</button>
+          <button class="button button-primary" type="button" id="btn-confirm">Confirm Enrollment</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status"><span>OK</span>
+    <div><strong>Updated</strong><small>Student record updated.</small></div><button
+      aria-label="Dismiss notification">X</button>
+  </div>
+
+  <script src="../assets/js/data-store.js"></script>
+  <script src="../assets/js/portal-shell.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/academic-records.js"></script>
 </body>
 
 </html>

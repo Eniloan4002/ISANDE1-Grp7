@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ICI Local 2.0 First-Week Attendance Monitoring — the gate before enrollment confirmation.">
+  <title>ICI Local 2.0 | First-Week Attendance</title>
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/enrollment.css">
+  <style>
+    .selected-banner {
+      display: none;
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      border: 1px solid #3f7d9b;
+      background: #eaf3f8;
+      color: #1d5a76;
+      font-size: 11px
+    }
+
+    .selected-banner.show {
+      display: block
+    }
+
+    .selected-banner strong {
+      color: #12455c
+    }
+
+    .log-panel {
+      background: #fff;
+      border: 1px solid #7e878a;
+      border-radius: 1px;
+      margin-bottom: 14px
+    }
+
+    .log-panel .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 3px solid var(--primary-color)
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font: 700 15px Roboto, Arial, sans-serif
+    }
+
+    .section-head .hint {
+      color: #6b7679;
+      font-size: 10px;
+      text-align: right;
+      line-height: 1.4
+    }
+
+    .log-body {
+      padding: 14px
+    }
+
+    .att-day-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 4px;
+      border-bottom: 1px dashed #c3c9cb
+    }
+
+    .att-day-row:last-child {
+      border-bottom: 0
+    }
+
+    .att-day-row .day {
+      width: 46px;
+      font: 700 12px Roboto, Arial, sans-serif;
+      color: #2f383b
+    }
+
+    .att-day-row .date {
+      width: 74px;
+      color: #7a8487;
+      font-size: 11px
+    }
+
+    .att-day-row .status-select {
+      height: 28px;
+      border: 1px solid #8d9597;
+      border-radius: 1px;
+      padding: 0 5px;
+      font-size: 11px;
+      background: #fff
+    }
+
+    .gate-note {
+      display: flex;
+      gap: 8px;
+      margin: 14px 0 4px;
+      padding: 10px 12px;
+      border: 1px solid #b9c9cf;
+      background: #f0f7fa;
+      color: #2f5b6d;
+      font-size: 11px;
+      line-height: 1.5
+    }
+
+    .gate-check {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 22px;
+      padding: 4px 2px 2px;
+      font-size: 12px;
+      color: #3d4649
+    }
+
+    .gate-check .ok {
+      color: #286445;
+      font-weight: 700
+    }
+
+    .gate-check .no {
+      color: #854343;
+      font-weight: 700
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #c8cdcf
+    }
+
+    .btn-row a.button {
+      text-decoration: none
+    }
+
+    .btn-row a.button.disabled {
+      background: #e3e5e5;
+      border-color: #b6bcbe;
+      color: #8b9496
+    }
+
+    .btn-row button[disabled] {
+      background: #e3e5e5;
+      border-color: #b6bcbe;
+      color: #8b9496;
+      cursor: default
+    }
+
+    .flow-note {
+      display: flex;
+      gap: 7px;
+      margin: 12px 0 0;
+      padding: 9px 11px;
+      border: 1px solid #b9c9cf;
+      background: #f0f7fa;
+      color: #2f5b6d;
+      font-size: 11px;
+      line-height: 1.5
+    }
+  </style>
+</head>
+
+<body data-role="registrar" data-page="attendance.html">
+  <main class="main-content">
+    <div class="breadcrumb"><a href="queue.html">Enrollment</a><span>/</span><a href="queue.html">Queue</a><span>/</span><span>Attendance</span></div>
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
+        <h1>First-Week Attendance Monitoring</h1>
+        <p>The system monitors first-week attendance. Enrollment can be confirmed only when requirements are complete AND attendance is verified.</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;"><a class="button button-secondary" href="queue.html">← Back to Queue</a></div>
+    </section>
+
+    <section class="stats-grid" aria-label="Attendance statistics">
+      <article class="stat-card accent-blue">
+        <div><strong id="st-days">5</strong><span>Days tracked</span><small>Week 1 · Aug 3–7, 2026</small></div>
+      </article>
+      <article class="stat-card accent-green">
+        <div><strong id="st-present">0</strong><span>Present</span><small>Attended on time</small></div>
+      </article>
+      <article class="stat-card accent-red">
+        <div><strong id="st-absent">0</strong><span>Absent</span><small>Needs follow-up</small></div>
+      </article>
+      <article class="stat-card accent-amber">
+        <div><strong id="st-pending">0</strong><span>Pending</span><small>Not yet recorded</small></div>
+      </article>
+    </section>
+
+    <section class="content-panel" aria-labelledby="att-list-title" style="margin-bottom:14px;">
+      <div class="panel-header">
+        <div>
+          <h2 id="att-list-title">Applicants Under Monitoring</h2>
+          <p>Select a student to review their Week 1 attendance log and the confirmation gate.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>App ID</th>
+              <th>Category</th>
+              <th>Requirements</th>
+              <th>Week 1 attendance</th>
+              <th>Gate</th>
+              <th class="action-cell">Action</th>
+            </tr>
+          </thead>
+          <tbody id="att-body">
+            <tr data-app="APP-2026-0150">
+              <td><strong>Reyes, Pedro</strong></td>
+              <td>APP-2026-0150</td>
+              <td>New</td>
+              <td><span class="status-pill warning">Incomplete</span></td>
+              <td><span class="badge amber-badge">3 of 5 present</span></td>
+              <td><span class="status-pill danger">Not met</span></td>
+              <td class="action-cell"><button class="row-action">Monitor</button></td>
+            </tr>
+            <tr data-app="APP-2026-0148">
+              <td><strong>Dela Cruz, Juan</strong></td>
+              <td>APP-2026-0148</td>
+              <td>New</td>
+              <td><span class="status-pill warning">Incomplete</span></td>
+              <td><span class="badge amber-badge">3 of 5 present</span></td>
+              <td><span class="status-pill danger">Not met</span></td>
+              <td class="action-cell"><button class="row-action">Monitor</button></td>
+            </tr>
+            <tr data-app="APP-2026-0149">
+              <td><strong>Santos, Maria A.</strong></td>
+              <td>APP-2026-0149</td>
+              <td>Transferee</td>
+              <td><span class="status-pill warning">Incomplete</span></td>
+              <td><span class="badge amber-badge">4 of 5 present</span></td>
+              <td><span class="status-pill danger">Not met</span></td>
+              <td class="action-cell"><button class="row-action">Monitor</button></td>
+            </tr>
+            <tr data-app="APP-2026-0151">
+              <td><strong>Lim, Angela</strong></td>
+              <td>APP-2026-0151</td>
+              <td>Returnee</td>
+              <td><span class="status-pill success">Complete</span></td>
+              <td><span class="badge blue-badge">5 of 5 present</span></td>
+              <td><span class="status-pill success">Both met</span></td>
+              <td class="action-cell"><button class="row-action">Monitor</button></td>
+            </tr>
+            <tr data-app="APP-2026-0152">
+              <td><strong>Abad, Carla</strong></td>
+              <td>APP-2026-0152</td>
+              <td>New</td>
+              <td><span class="status-pill success">Complete</span></td>
+              <td><span class="badge blue-badge">5 of 5 present</span></td>
+              <td><span class="status-pill success">Both met</span></td>
+              <td class="action-cell"><button class="row-action">Monitor</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer"><span>Showing 5 of 12 applicants under first-week monitoring</span>
+        <div class="pagination"><button disabled>&lt;</button><button class="current">1</button><button>2</button><button>3</button><button>&gt;</button></div>
+      </div>
+    </section>
+
+    <section class="log-panel" aria-labelledby="log-title">
+      <div class="section-head">
+        <h2 id="log-title">WEEK 1 — ATTENDANCE LOG</h2>
+        <span class="hint" id="log-hint">Select a student above.</span>
+      </div>
+      <div class="log-body">
+        <div class="selected-banner" id="selected-banner">Monitoring: <strong id="selected-name">—</strong> <span id="selected-id"></span></div>
+
+        <div id="att-log"></div>
+
+        <div class="gate-note"><span>☑</span><div><strong>Requirements complete AND attendance verified?</strong> — enrollment can only be confirmed when both conditions are met.</div></div>
+        <div class="gate-check" id="gate-check">
+          <span>1 · Requirements: <span class="no" id="gate-req">—</span></span>
+          <span>2 · Attendance: <span class="no" id="gate-att">—</span></span>
+          <span>Overall: <span class="no" id="gate-overall">—</span></span>
+        </div>
+
+        <div class="btn-row">
+          <a class="button button-secondary" href="requirements.html">&lt; Back to Requirements</a>
+          <button class="button" type="button" id="btn-keep-tracking">Not met - keep tracking</button>
+          <a class="button button-primary" id="btn-confirm" href="academic-records.html">Both met - Confirm →</a>
+        </div>
+        <div class="flow-note"><span>→</span><div>"Not met" loops back to tracking until complete (or withdrawal). "Both met" proceeds to confirmation.</div></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status"><span>OK</span>
+    <div><strong>Attendance updated</strong><small>Day status recorded for this student.</small></div><button aria-label="Dismiss notification">X</button>
+  </div>
+
+  <script src="../assets/js/data-store.js"></script>
+  <script src="../assets/js/portal-shell.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/attendance.js"></script>
+</body>
+
+</html>
