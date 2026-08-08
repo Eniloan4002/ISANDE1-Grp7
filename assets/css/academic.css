@@ -598,6 +598,236 @@ select:disabled {
     text-transform: uppercase
 }
 
+.incomplete-filters {
+    flex-wrap: wrap;
+    align-items: flex-end
+}
+
+.incomplete-filters .search-control {
+    flex: 1 1 220px
+}
+
+.incomplete-filters .select-control {
+    display: flex;
+    min-width: 132px;
+    height: auto;
+    padding: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+    border: 0;
+    background: transparent
+}
+
+.incomplete-filters .select-control span {
+    color: #4d585c;
+    font-size: 9px;
+    font-weight: 700
+}
+
+.incomplete-filters .select-control select {
+    width: 100%;
+    min-width: 132px
+}
+
+.incomplete-filters .button {
+    align-self: flex-end;
+    white-space: nowrap
+}
+
+.incomplete-filter-summary {
+    padding: 7px 14px;
+    border-bottom: 1px solid #c5cacc;
+    background: #f7f8f8
+}
+
+.incomplete-filter-summary p {
+    margin: 0;
+    color: #5e696d;
+    font-size: 10px;
+    font-weight: 600
+}
+
+.empty-state {
+    display: grid;
+    gap: 3px;
+    padding: 18px 14px;
+    color: #5c686c;
+    background: #fafbfb;
+    text-align: center
+}
+
+.empty-state strong {
+    color: #3c484c;
+    font-size: 12px
+}
+
+.empty-state span {
+    font-size: 10px
+}
+
+.academic-history-screen {
+    display: grid;
+    gap: 14px
+}
+
+.academic-history-print {
+    display: none
+}
+
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 14mm
+    }
+
+    html,
+    body {
+        min-width: 0;
+        background: #fff
+    }
+
+    body[data-page="registrar-records.html"] .app-shell {
+        display: block;
+        min-height: 0
+    }
+
+    body[data-page="registrar-records.html"] .sidebar,
+    body[data-page="registrar-records.html"] .topbar,
+    body[data-page="registrar-records.html"] .breadcrumb,
+    body[data-page="registrar-records.html"] .page-heading,
+    body[data-page="registrar-records.html"] .academic-history-screen,
+    body[data-page="registrar-records.html"] .toast,
+    body[data-page="registrar-records.html"] .main-content:before {
+        display: none !important
+    }
+
+    body[data-page="registrar-records.html"] .main-frame,
+    body[data-page="registrar-records.html"] .main-content,
+    body[data-page="registrar-records.html"] #academic-app {
+        display: block;
+        max-width: none;
+        padding: 0
+    }
+
+    body[data-page="registrar-records.html"] .academic-stack {
+        display: block
+    }
+
+    body[data-page="registrar-records.html"] .academic-history-print {
+        display: block !important;
+        color: #111;
+        font: 10pt Arial, sans-serif
+    }
+
+    .academic-history-print-header {
+        padding-bottom: 10pt;
+        border-bottom: 2px solid #111;
+        text-align: center
+    }
+
+    .academic-history-institution {
+        margin: 0 0 5pt;
+        font-size: 12pt;
+        font-weight: 700
+    }
+
+    .academic-history-print h1 {
+        margin: 0 0 7pt;
+        font-size: 18pt
+    }
+
+    .academic-history-print-header>p:last-child {
+        margin: 0;
+        font-size: 9pt
+    }
+
+    .academic-history-print-section {
+        margin-top: 14pt;
+        page-break-inside: avoid
+    }
+
+    .academic-history-print-section h2 {
+        margin: 0 0 6pt;
+        padding-bottom: 4pt;
+        border-bottom: 1px solid #555;
+        font-size: 11pt
+    }
+
+    .academic-history-print-summary {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: 0;
+        border-top: 1px solid #888;
+        border-left: 1px solid #888
+    }
+
+    .academic-history-print-summary>div {
+        min-height: 32pt;
+        padding: 5pt 7pt;
+        border-right: 1px solid #888;
+        border-bottom: 1px solid #888
+    }
+
+    .academic-history-print-summary dt {
+        margin-bottom: 2pt;
+        color: #444;
+        font-size: 8pt;
+        font-weight: 700;
+        text-transform: uppercase
+    }
+
+    .academic-history-print-summary dd {
+        margin: 0;
+        font-size: 10pt
+    }
+
+    .academic-history-print .table-wrap {
+        overflow: visible
+    }
+
+    .academic-history-print table {
+        width: 100%;
+        min-width: 0;
+        table-layout: fixed;
+        page-break-inside: avoid;
+        font-size: 9pt
+    }
+
+    .academic-history-print th,
+    .academic-history-print td {
+        padding: 5pt 4pt;
+        border: 1px solid #777
+    }
+
+    .academic-history-print th {
+        background: #e5e5e5;
+        font-size: 8pt
+    }
+
+    .academic-history-print th:first-child,
+    .academic-history-print td:first-child {
+        width: 32%;
+        text-align: left
+    }
+
+    .academic-history-print th:not(:first-child),
+    .academic-history-print td:not(:first-child) {
+        width: 13.6%;
+        text-align: center
+    }
+
+    .academic-history-print td small {
+        margin-top: 2pt;
+        color: #555;
+        font-size: 7pt
+    }
+
+    .academic-history-print .pending-value {
+        color: #111
+    }
+}
+
 @media(max-width:1100px) {
     .academic-stats,
     .clearance-grid,
@@ -648,5 +878,13 @@ select:disabled {
 
     .span-two {
         grid-column: auto
+    }
+
+    .incomplete-filters .search-control,
+    .incomplete-filters .select-control,
+    .incomplete-filters .select-control select,
+    .incomplete-filters .button {
+        width: 100%;
+        min-width: 0
     }
 }
