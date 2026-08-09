@@ -1,29 +1,611 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>ICI Local 2.0 | Reports</title>
-    <link rel="stylesheet" href="../assets/css/global.css">
-    <link rel="stylesheet" href="../assets/css/layout.css">
-    <link rel="stylesheet" href="../assets/css/components.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Guidance Staff at-risk student monitoring report">
+  <title>ICI Local 2.0 | At-Risk Student Reports</title>
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <style>
+    /* Page-specific report layout; shared shell and component styles remain unchanged. */
+    .report-actions {
+      display: flex;
+      gap: 7px
+    }
+
+    .criteria-panel {
+      margin-bottom: 14px
+    }
+
+    .criteria-title {
+      margin: 0;
+      padding: 9px 13px;
+      background: #e6e8e8;
+      border-bottom: 1px solid #8c9496;
+      font: 700 12px Roboto, Arial, sans-serif;
+      letter-spacing: .3px
+    }
+
+    .criteria-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      padding: 11px 13px
+    }
+
+    .criteria-field {
+      display: block;
+      color: #5c6669;
+      font: 700 10px 'Segoe UI', Arial, sans-serif;
+      letter-spacing: .45px;
+      text-transform: uppercase
+    }
+
+    .criteria-field select {
+      display: block;
+      width: 100%;
+      height: 32px;
+      margin-top: 5px;
+      padding: 0 7px;
+      border: 1px solid #858d90;
+      border-radius: 1px;
+      background: #fff;
+      color: #3c4548;
+      font: 12px 'Segoe UI', Arial, sans-serif
+    }
+
+    .criteria-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 13px 11px
+    }
+
+    .generation-meta {
+      color: #6d777a;
+      font-size: 10px
+    }
+
+    .risk-table-title {
+      margin: 0 0 7px;
+      font: 700 14px Roboto, Arial, sans-serif
+    }
+
+    .risk-table {
+      min-width: 780px
+    }
+
+    .risk-table th:nth-child(1) {
+      width: 20%
+    }
+
+    .risk-table th:nth-child(2) {
+      width: 19%
+    }
+
+    .risk-table th:nth-child(3) {
+      width: 25%
+    }
+
+    .risk-table th:nth-child(4) {
+      width: 11%
+    }
+
+    .risk-table th:nth-child(5) {
+      width: 12%
+    }
+
+    .risk-table th:nth-child(6) {
+      width: 13%
+    }
+
+    .priority {
+      display: inline-block;
+      min-width: 44px;
+      padding: 2px 7px;
+      border: 1px solid #8d9496;
+      border-radius: 10px;
+      text-align: center;
+      font: 10px 'Segoe UI', Arial, sans-serif
+    }
+
+    .priority-high {
+      background: #f6e8e8;
+      color: #873b3b
+    }
+
+    .priority-medium {
+      background: #fff4df;
+      color: #81621f
+    }
+
+    .priority-low {
+      background: #edf3f5;
+      color: #4e656e
+    }
+
+    .case-status {
+      display: inline-block;
+      color: #4e5c61;
+      font: 10px 'Segoe UI', Arial, sans-serif
+    }
+
+    .case-status:before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      margin-right: 4px;
+      border-radius: 50%;
+      background: #7c898d
+    }
+
+    .status-open:before {
+      background: #ad7a1e
+    }
+
+    .status-follow:before {
+      background: #236e90
+    }
+
+    .status-monitor:before {
+      background: #5c7c67
+    }
+
+    .case-actions {
+      display: flex;
+      justify-content: center;
+      gap: 5px
+    }
+
+    .case-actions .row-action {
+      white-space: nowrap
+    }
+
+    .report-note {
+      margin-top: 10px;
+      padding: 8px 11px;
+      border: 1px dashed #9ba3a5;
+      background: #fbfbfb;
+      color: #687174;
+      font-size: 11px
+    }
+
+    .report-note strong {
+      color: #3f4c50
+    }
+
+    .report-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 7px;
+      margin-top: 14px
+    }
+
+    .report-empty {
+      display: none;
+      padding: 18px;
+      text-align: center;
+      color: #6d777a;
+      font-size: 12px
+    }
+
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      z-index: 40;
+      inset: 0;
+      place-items: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, .35)
+    }
+
+    .modal-backdrop.open {
+      display: grid
+    }
+
+    .report-modal {
+      width: min(510px, 100%);
+      background: #fff;
+      border: 2px solid #39718a;
+      box-shadow: 3px 4px 14px #555
+    }
+
+    .report-modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 13px 16px;
+      background: #e8f1f4;
+      border-bottom: 1px solid #9aaeb7
+    }
+
+    .report-modal-header h2 {
+      margin: 0;
+      font: 700 16px Roboto, Arial, sans-serif
+    }
+
+    .report-modal-header p {
+      margin: 3px 0 0;
+      color: #637078;
+      font-size: 11px
+    }
+
+    .modal-close {
+      border: 0;
+      background: transparent;
+      color: #47555a;
+      font-size: 20px
+    }
+
+    .report-modal-body {
+      padding: 15px 16px
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 115px 1fr;
+      gap: 7px 12px;
+      margin: 0;
+      font-size: 12px
+    }
+
+    .detail-grid dt {
+      font-weight: 700;
+      color: #536268
+    }
+
+    .detail-grid dd {
+      margin: 0;
+      color: #273338
+    }
+
+    .intervention-form label {
+      display: block;
+      margin-top: 10px;
+      color: #4c5b60;
+      font-size: 11px;
+      font-weight: 700
+    }
+
+    .intervention-form select,
+    .intervention-form textarea {
+      width: 100%;
+      margin-top: 4px;
+      border: 1px solid #858d90;
+      border-radius: 1px;
+      background: #fff;
+      padding: 6px;
+      font: 12px 'Open Sans', Arial, sans-serif
+    }
+
+    .intervention-form select {
+      height: 32px
+    }
+
+    .intervention-form textarea {
+      height: 70px;
+      resize: vertical
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 7px;
+      margin: 16px -16px -15px;
+      padding: 10px 16px;
+      border-top: 1px solid #c8cdcf
+    }
+
+    .report-toast {
+      display: none;
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 50;
+      padding: 10px 12px;
+      background: #fff;
+      border: 1px solid #4e656e;
+      box-shadow: 2px 2px 8px #999;
+      color: #344247;
+      font-size: 11px
+    }
+
+    .report-toast.show {
+      display: block
+    }
+
+    @media(max-width:800px) {
+      .criteria-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+
+      .report-actions {
+        width: 100%
+      }
+
+      .report-actions .button {
+        flex: 1
+      }
+    }
+
+    @media(max-width:560px) {
+      .criteria-grid {
+        grid-template-columns: 1fr
+      }
+
+      .criteria-footer {
+        align-items: stretch;
+        flex-direction: column
+      }
+
+      .report-footer {
+        justify-content: stretch
+      }
+
+      .report-footer .button {
+        flex: 1
+      }
+    }
+  </style>
 </head>
 
 <body data-role="guidance" data-page="reports.html">
-    <main class="main-content">
-        <div class="breadcrumb"><a href="guidance.html">Reporting and Monitoring</a><span>/</span><span>Reports</span>
+  <main class="main-content">
+    <div class="breadcrumb"><a href="guidance.html">Reporting and Monitoring</a><span>/</span><span>At-Risk Student
+        Reports</span></div>
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">GUIDANCE STAFF</p>
+        <h1>At-Risk Student Reports</h1>
+        <p>Identify students requiring intervention based on academic, attendance, and requirement concerns.</p>
+      </div>
+      <div class="report-actions"><button class="button button-outline" id="print-report"
+          type="button">Print</button><button class="button button-primary" id="export-report" type="button">Export
+          Report</button></div>
+    </section>
+
+    <section class="content-panel criteria-panel" aria-labelledby="criteria-heading">
+      <h2 class="criteria-title" id="criteria-heading">REPORT CRITERIA</h2>
+      <div class="criteria-grid">
+        <label class="criteria-field">Grade Level<select id="grade-filter">
+            <option value="all">All Grade Levels</option>
+            <option value="11">Grade 11</option>
+            <option value="12">Grade 12</option>
+          </select></label>
+        <label class="criteria-field">Section<select id="section-filter">
+            <option value="all">All Sections</option>
+            <option value="STEM-B">Grade 11 STEM-B</option>
+            <option value="STEM-A">Grade 11 STEM-A</option>
+            <option value="HUMSS-A">Grade 11 HUMSS-A</option>
+            <option value="ABM-A">Grade 11 ABM-A</option>
+          </select></label>
+        <label class="criteria-field">Adviser<select id="adviser-filter">
+            <option value="all">All Advisers</option>
+            <option value="Ms. Ramos">Ms. Ramos</option>
+            <option value="Mr. Santos">Mr. Santos</option>
+            <option value="Ms. Villanueva">Ms. Villanueva</option>
+          </select></label>
+        <label class="criteria-field">Risk Type<select id="risk-filter">
+            <option value="all">All Risk Types</option>
+            <option value="attendance">Attendance</option>
+            <option value="academic">Academic</option>
+            <option value="documentation">Documentation</option>
+          </select></label>
+        <label class="criteria-field">Reporting Period<select id="period-filter">
+            <option value="first">First Quarter</option>
+            <option value="second">Second Quarter</option>
+            <option value="semester">First Semester</option>
+          </select></label>
+        <label class="criteria-field">Sort By<select id="sort-filter">
+            <option value="priority">Priority - High to Low</option>
+            <option value="student">Student Name</option>
+            <option value="status">Case Status</option>
+          </select></label>
+        <label class="criteria-field">Risk Criterion<select id="criterion-filter">
+            <option value="all">All configured criteria</option>
+          </select></label>
+      </div>
+      <div class="criteria-footer"><span class="generation-meta" id="generation-meta">Last generated: August 9, 2026,
+          9:30 AM - Guidance Staff</span><button class="button button-primary" id="generate-report"
+          type="button">Generate Report</button></div>
+    </section>
+
+    <section aria-labelledby="risk-list-heading">
+      <h2 class="risk-table-title" id="risk-list-heading">At-Risk Student List</h2>
+      <div class="content-panel table-wrap">
+        <table class="risk-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Section</th>
+              <th>Risk Type</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th class="action-cell">Action</th>
+            </tr>
+          </thead>
+          <tbody id="risk-table-body">
+            <tr data-grade="11" data-section="STEM-B" data-adviser="Ms. Ramos" data-risk="attendance"
+              data-criterion="absence-5" data-priority="3" data-status="Open" data-student="Dela Cruz, Juan"
+              data-risk-label="Five Consecutive Absences">
+              <td><strong>Dela Cruz, Juan</strong><small>LRN 119270140008</small></td>
+              <td>Grade 11 STEM-B</td>
+              <td>Five Consecutive Absences</td>
+              <td><span class="priority priority-high">High</span></td>
+              <td><span class="case-status status-open">Open</span></td>
+              <td>
+                <div class="case-actions"><button class="row-action view-case" type="button">View</button><button
+                    class="row-action log-case" type="button">Log Intervention</button></div>
+              </td>
+            </tr>
+            <tr data-grade="11" data-section="STEM-A" data-adviser="Mr. Santos" data-risk="documentation"
+              data-criterion="incomplete-credentials" data-priority="2" data-status="Follow-up"
+              data-student="Santos, Maria" data-risk-label="Missing Form 137">
+              <td><strong>Santos, Maria</strong><small>LRN 108517230184</small></td>
+              <td>Grade 11 STEM-A</td>
+              <td>Missing Form 137</td>
+              <td><span class="priority priority-medium">Medium</span></td>
+              <td><span class="case-status status-follow">Follow-up</span></td>
+              <td>
+                <div class="case-actions"><button class="row-action view-case" type="button">View</button><button
+                    class="row-action log-case" type="button">Log Intervention</button></div>
+              </td>
+            </tr>
+            <tr data-grade="11" data-section="HUMSS-A" data-adviser="Ms. Villanueva" data-risk="academic"
+              data-criterion="below-75" data-priority="3" data-status="Open" data-student="Reyes, Pedro"
+              data-risk-label="Failing Grades">
+              <td><strong>Reyes, Pedro</strong><small>LRN 120381650117</small></td>
+              <td>Grade 11 HUMSS-A</td>
+              <td>Failing Grades</td>
+              <td><span class="priority priority-high">High</span></td>
+              <td><span class="case-status status-open">Open</span></td>
+              <td>
+                <div class="case-actions"><button class="row-action view-case" type="button">View</button><button
+                    class="row-action log-case" type="button">Log Intervention</button></div>
+              </td>
+            </tr>
+            <tr data-grade="11" data-section="STEM-B" data-adviser="Ms. Ramos" data-risk="attendance"
+              data-criterion="low-attendance" data-priority="1" data-status="Monitoring" data-student="Garcia, Anne"
+              data-risk-label="Low Attendance">
+              <td><strong>Garcia, Anne</strong><small>LRN 118270140264</small></td>
+              <td>Grade 11 STEM-B</td>
+              <td>Low Attendance</td>
+              <td><span class="priority priority-low">Low</span></td>
+              <td><span class="case-status status-monitor">Monitoring</span></td>
+              <td>
+                <div class="case-actions"><button class="row-action view-case" type="button">View</button><button
+                    class="row-action log-case" type="button">Log Intervention</button></div>
+              </td>
+            </tr>
+            <tr data-grade="11" data-section="STEM-B" data-adviser="Ms. Ramos" data-risk="documentation"
+              data-criterion="missing-requirements" data-priority="2" data-status="Open" data-student="Lim, Angela"
+              data-risk-label="Pending Requirements">
+              <td><strong>Lim, Angela</strong><small>LRN 112500710292</small></td>
+              <td>Grade 11 STEM-B</td>
+              <td>Pending Requirements</td>
+              <td><span class="priority priority-medium">Medium</span></td>
+              <td><span class="case-status status-open">Open</span></td>
+              <td>
+                <div class="case-actions"><button class="row-action view-case" type="button">View</button><button
+                    class="row-action log-case" type="button">Log Intervention</button></div>
+              </td>
+            </tr>
+            <tr data-grade="11" data-section="ABM-A" data-adviser="Mr. Santos" data-risk="documentation"
+              data-criterion="incomplete-credentials" data-priority="2" data-status="Follow-up"
+              data-student="Villanueva, Carlo" data-risk-label="Missing PSA Birth Certificate">
+              <td><strong>Villanueva, Carlo</strong><small>LRN 116481720635</small></td>
+              <td>Grade 11 ABM-A</td>
+              <td>Missing PSA Birth Certificate</td>
+              <td><span class="priority priority-medium">Medium</span></td>
+              <td><span class="case-status status-follow">Follow-up</span></td>
+              <td>
+                <div class="case-actions"><button class="row-action view-case" type="button">View</button><button
+                    class="row-action log-case" type="button">Log Intervention</button></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="report-empty" id="empty-state">No students match the selected report criteria.</p>
+      </div>
+      <div class="report-note"><strong>Follow-up information:</strong> Select a student to review the reported concern
+        or record an intervention taken by Guidance Staff.</div>
+      <div class="report-footer"><button class="button button-outline" id="reset-filters" type="button">Reset
+          Criteria</button></div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="detail-modal" aria-hidden="true">
+    <section class="report-modal" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+      <header class="report-modal-header">
+        <div>
+          <h2 id="detail-title">Student Risk Details</h2>
+          <p>At-risk student monitoring record</p>
+        </div><button class="modal-close" type="button" aria-label="Close">X</button>
+      </header>
+      <div class="report-modal-body">
+        <dl class="detail-grid" id="detail-content"></dl>
+      </div>
+    </section>
+  </div>
+  <div class="modal-backdrop" id="intervention-modal" aria-hidden="true">
+    <section class="report-modal" role="dialog" aria-modal="true" aria-labelledby="intervention-title">
+      <header class="report-modal-header">
+        <div>
+          <h2 id="intervention-title">Log Intervention</h2>
+          <p id="intervention-student">Student follow-up record</p>
+        </div><button class="modal-close" type="button" aria-label="Close">X</button>
+      </header>
+      <form class="report-modal-body intervention-form" id="intervention-form"><label>Follow-up action<select required>
+            <option value="">Select action</option>
+            <option>Called parent or guardian</option>
+            <option>Student counselling session</option>
+            <option>Referred to class adviser</option>
+            <option>Requested document follow-up</option>
+          </select></label><label>Notes<textarea required
+            placeholder="Briefly describe the follow-up action taken."></textarea></label>
+        <div class="modal-actions"><button class="button button-secondary modal-close"
+            type="button">Cancel</button><button class="button button-primary" type="submit">Save Intervention</button>
         </div>
-        <section class="page-heading">
-            <div>
-                <p class="eyebrow">GUIDANCE STAFF</p>
-                <h1>Reports</h1>
-                <p>Prepare guidance and student monitoring reports.</p>
-            </div>
-        </section>
-    </main>
-    <script src="../assets/js/portal-shell.js"></script>
-    <script src="../assets/js/navigation.js"></script>
+      </form>
+    </section>
+  </div>
+  <div class="report-toast" id="report-toast" role="status"></div>
+
+  <script src="../assets/js/portal-shell.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script>
+    const reportRows = [...document.querySelectorAll('#risk-table-body tr')];
+    const filters = ['grade-filter', 'section-filter', 'adviser-filter', 'risk-filter', 'period-filter', 'sort-filter', 'criterion-filter'].map(id => document.getElementById(id));
+    const tableBody = document.getElementById('risk-table-body');
+    const emptyState = document.getElementById('empty-state');
+    const toast = document.getElementById('report-toast');
+    let selectedRow;
+    let toastTimer;
+
+    function showToast(message) { toast.textContent = message; toast.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 3200); }
+    const criterionOptions = {
+      all: [['all', 'All configured criteria'], ['absence-5', '5+ consecutive absences'], ['low-attendance', 'Attendance below threshold'], ['below-75', 'Failing grades'], ['missing-requirements', 'Missing requirements'], ['incomplete-credentials', 'Incomplete credentials']],
+      attendance: [['all', 'All configured criteria'], ['absence-5', '5+ consecutive absences'], ['low-attendance', 'Attendance below threshold']],
+      academic: [['all', 'All configured criteria'], ['below-75', 'Failing grades']],
+      documentation: [['all', 'All configured criteria'], ['missing-requirements', 'Missing requirements'], ['incomplete-credentials', 'Incomplete credentials']]
+    };
+    function updateCriterionOptions() {
+      const risk = document.getElementById('risk-filter').value;
+      document.getElementById('criterion-filter').innerHTML = criterionOptions[risk].map(([value, label]) => `<option value="${value}">${label}</option>`).join('');
+    }
+    function applyFilters() {
+      const grade = document.getElementById('grade-filter').value;
+      const section = document.getElementById('section-filter').value;
+      const adviser = document.getElementById('adviser-filter').value;
+      const risk = document.getElementById('risk-filter').value;
+      const criterion = document.getElementById('criterion-filter').value;
+      const sort = document.getElementById('sort-filter').value;
+      reportRows.forEach(row => { row.hidden = !((grade === 'all' || row.dataset.grade === grade) && (section === 'all' || row.dataset.section === section) && (adviser === 'all' || row.dataset.adviser === adviser) && (risk === 'all' || row.dataset.risk === risk) && (criterion === 'all' || row.dataset.criterion === criterion)); });
+      const visibleRows = reportRows.filter(row => !row.hidden).sort((a, b) => sort === 'student' ? a.dataset.student.localeCompare(b.dataset.student) : sort === 'status' ? a.dataset.status.localeCompare(b.dataset.status) : Number(b.dataset.priority) - Number(a.dataset.priority));
+      visibleRows.forEach(row => tableBody.append(row));
+      emptyState.style.display = visibleRows.length ? 'none' : 'block';
+    }
+    document.getElementById('risk-filter').addEventListener('change', updateCriterionOptions);
+    document.getElementById('generate-report').addEventListener('click', () => { applyFilters(); const timestamp = new Intl.DateTimeFormat('en-PH', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date()); document.getElementById('generation-meta').textContent = `Last generated: ${timestamp} - Guidance Staff`; showToast('At-risk student report generated.'); });
+    document.getElementById('reset-filters').addEventListener('click', () => { filters.forEach(filter => filter.selectedIndex = 0); updateCriterionOptions(); applyFilters(); document.getElementById('generation-meta').textContent = 'Last generated: August 9, 2026, 9:30 AM - Guidance Staff'; });
+
+    function openModal(id) { const modal = document.getElementById(id); modal.classList.add('open'); modal.setAttribute('aria-hidden', 'false'); }
+    function closeModal(modal) { modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true'); }
+    document.querySelectorAll('.modal-close').forEach(button => button.addEventListener('click', () => closeModal(button.closest('.modal-backdrop'))));
+    document.querySelectorAll('.modal-backdrop').forEach(modal => modal.addEventListener('click', event => { if (event.target === modal) closeModal(modal); }));
+    reportRows.forEach(row => {
+      row.querySelector('.view-case').addEventListener('click', () => { const values = [['Student', row.dataset.student], ['LRN', row.querySelector('small').textContent], ['Section', row.cells[1].textContent], ['Reported concern', row.dataset.riskLabel], ['Priority', row.cells[3].textContent], ['Case status', row.dataset.status], ['Assigned adviser', row.dataset.adviser]]; document.getElementById('detail-content').innerHTML = values.map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`).join(''); openModal('detail-modal'); });
+      row.querySelector('.log-case').addEventListener('click', () => { selectedRow = row; document.getElementById('intervention-student').textContent = `${row.dataset.student} - ${row.dataset.riskLabel}`; openModal('intervention-modal'); });
+    });
+    document.getElementById('intervention-form').addEventListener('submit', event => { event.preventDefault(); selectedRow.dataset.status = 'Monitoring'; const status = selectedRow.querySelector('.case-status'); status.textContent = 'Monitoring'; status.className = 'case-status status-monitor'; closeModal(document.getElementById('intervention-modal')); event.target.reset(); showToast('Intervention recorded for ' + selectedRow.dataset.student + '.'); });
+    document.getElementById('print-report').addEventListener('click', () => window.print());
+    document.getElementById('export-report').addEventListener('click', () => showToast('At-risk student report prepared for export.'));
+  </script>
 </body>
 
 </html>
