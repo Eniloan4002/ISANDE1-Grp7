@@ -85,13 +85,30 @@
       font-size: 11px
     }
 
-    .att-day-row .status-select {
+    .att-day-row .day-chip {
       height: 28px;
-      border: 1px solid #8d9597;
-      border-radius: 1px;
-      padding: 0 5px;
-      font-size: 11px;
-      background: #fff
+      min-width: 92px;
+      border: 1px solid #858d90;
+      border-radius: 10px;
+      padding: 0 10px;
+      font: 700 11px 'Segoe UI', Arial, sans-serif;
+      background: #fff;
+      cursor: pointer
+    }
+
+    .att-day-row .day-chip:hover {
+      filter: brightness(0.96)
+    }
+
+    .section-head .hint {
+      display: flex;
+      flex-direction: column;
+      gap: 2px
+    }
+
+    #log-tally {
+      font-weight: 700;
+      color: #3d4649
     }
 
     .gate-note {
@@ -179,16 +196,16 @@
 
     <section class="stats-grid" aria-label="Attendance statistics">
       <article class="stat-card accent-blue">
-        <div><strong id="st-days">5</strong><span>Days tracked</span><small>Week 1 · Aug 3–7, 2026</small></div>
+        <div><strong id="st-total">0</strong><span>Total monitored</span><small>Week 1 · Aug 3–7, 2026</small></div>
       </article>
       <article class="stat-card accent-green">
-        <div><strong id="st-present">0</strong><span>Present</span><small>Attended on time</small></div>
-      </article>
-      <article class="stat-card accent-red">
-        <div><strong id="st-absent">0</strong><span>Absent</span><small>Needs follow-up</small></div>
+        <div><strong id="st-ready">0</strong><span>Ready to confirm</span><small>Both conditions met</small></div>
       </article>
       <article class="stat-card accent-amber">
-        <div><strong id="st-pending">0</strong><span>Pending</span><small>Not yet recorded</small></div>
+        <div><strong id="st-docs">0</strong><span>Needs documents</span><small>Requirements incomplete</small></div>
+      </article>
+      <article class="stat-card accent-red">
+        <div><strong id="st-attn">0</strong><span>Needs attendance</span><small>Not yet verified</small></div>
       </article>
     </section>
 
@@ -199,6 +216,16 @@
           <p>Select a student to review their Week 1 attendance log and the confirmation gate.</p>
         </div>
       </div>
+      <div class="toolbar">
+        <label class="search-control"><span>Search</span><input id="att-search" type="search" placeholder="Filter by name / ID..."></label>
+        <label class="select-control"><span class="sr-only">Filter by status</span><select id="att-status">
+            <option value="all">Status: All</option>
+            <option value="ready">Ready to confirm</option>
+            <option value="docs">Needs documents</option>
+            <option value="attendance">Needs attendance</option>
+            <option value="not-started">Not started</option>
+          </select></label>
+      </div>
       <div class="table-wrap">
         <table>
           <thead>
@@ -206,62 +233,22 @@
               <th>Student</th>
               <th>App ID</th>
               <th>Category</th>
-              <th>Requirements</th>
-              <th>Week 1 attendance</th>
-              <th>Gate</th>
+              <th>Status</th>
               <th class="action-cell">Action</th>
             </tr>
           </thead>
           <tbody id="att-body">
-            <tr data-app="APP-2026-0150">
+            <tr data-app="APP-2026-0150" data-status="docs">
               <td><strong>Reyes, Pedro</strong></td>
               <td>APP-2026-0150</td>
               <td>New</td>
-              <td><span class="status-pill warning">Incomplete</span></td>
-              <td><span class="badge amber-badge">3 of 5 present</span></td>
-              <td><span class="status-pill danger">Not met</span></td>
-              <td class="action-cell"><button class="row-action">Monitor</button></td>
-            </tr>
-            <tr data-app="APP-2026-0148">
-              <td><strong>Dela Cruz, Juan</strong></td>
-              <td>APP-2026-0148</td>
-              <td>New</td>
-              <td><span class="status-pill warning">Incomplete</span></td>
-              <td><span class="badge amber-badge">3 of 5 present</span></td>
-              <td><span class="status-pill danger">Not met</span></td>
-              <td class="action-cell"><button class="row-action">Monitor</button></td>
-            </tr>
-            <tr data-app="APP-2026-0149">
-              <td><strong>Santos, Maria A.</strong></td>
-              <td>APP-2026-0149</td>
-              <td>Transferee</td>
-              <td><span class="status-pill warning">Incomplete</span></td>
-              <td><span class="badge amber-badge">4 of 5 present</span></td>
-              <td><span class="status-pill danger">Not met</span></td>
-              <td class="action-cell"><button class="row-action">Monitor</button></td>
-            </tr>
-            <tr data-app="APP-2026-0151">
-              <td><strong>Lim, Angela</strong></td>
-              <td>APP-2026-0151</td>
-              <td>Returnee</td>
-              <td><span class="status-pill success">Complete</span></td>
-              <td><span class="badge blue-badge">5 of 5 present</span></td>
-              <td><span class="status-pill success">Both met</span></td>
-              <td class="action-cell"><button class="row-action">Monitor</button></td>
-            </tr>
-            <tr data-app="APP-2026-0152">
-              <td><strong>Abad, Carla</strong></td>
-              <td>APP-2026-0152</td>
-              <td>New</td>
-              <td><span class="status-pill success">Complete</span></td>
-              <td><span class="badge blue-badge">5 of 5 present</span></td>
-              <td><span class="status-pill success">Both met</span></td>
+              <td><span class="status-pill warning">Needs documents</span> <small>3/5 present</small></td>
               <td class="action-cell"><button class="row-action">Monitor</button></td>
             </tr>
           </tbody>
         </table>
       </div>
-      <div class="table-footer"><span>Showing 5 of 12 applicants under first-week monitoring</span>
+      <div class="table-footer"><span id="att-result-count">Showing 5 of 12 applicants under first-week monitoring</span>
         <div class="pagination"><button disabled>&lt;</button><button class="current">1</button><button>2</button><button>3</button><button>&gt;</button></div>
       </div>
     </section>
@@ -269,7 +256,10 @@
     <section class="log-panel" aria-labelledby="log-title">
       <div class="section-head">
         <h2 id="log-title">WEEK 1 — ATTENDANCE LOG</h2>
-        <span class="hint" id="log-hint">Select a student above.</span>
+        <div class="hint">
+          <span id="log-hint">Select a student above.</span>
+          <span id="log-tally"></span>
+        </div>
       </div>
       <div class="log-body">
         <div class="selected-banner" id="selected-banner">Monitoring: <strong id="selected-name">—</strong> <span id="selected-id"></span></div>
@@ -286,7 +276,6 @@
         <div class="btn-row">
           <a class="button button-secondary" href="requirements.html">&lt; Back to Requirements</a>
           <button class="button" type="button" id="btn-keep-tracking">Not met - keep tracking</button>
-          <button class="button button-secondary" type="button" id="btn-sim" title="Mark all five days present through the simulation">Verify week 1 (simulate)</button>
           <a class="button button-primary" id="btn-confirm" href="academic-records.html">Both met - Confirm →</a>
         </div>
         <div class="flow-note"><span>→</span><div>"Not met" loops back to tracking until complete (or withdrawal). "Both met" proceeds to confirmation.</div></div>
@@ -301,7 +290,6 @@
   <script src="../assets/js/data-store.js"></script>
   <script src="../assets/js/portal-shell.js"></script>
   <script src="../assets/js/navigation.js"></script>
-  <script src="../assets/js/simulation.js"></script>
   <script src="../assets/js/attendance.js"></script>
 </body>
 

@@ -155,6 +155,49 @@
       min-width: 0
     }
 
+    .section-filter {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 11px;
+      border-bottom: 1px solid #d5d9da;
+      background: #fafbfb;
+      font-size: 11px;
+      color: #6a7477
+    }
+
+    .section-filter .show-all-toggle {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 600;
+      color: #3d4649;
+      white-space: nowrap
+    }
+
+    .sec-row {
+      cursor: pointer
+    }
+
+    .sec-row:hover {
+      background: #f4f6f6
+    }
+
+    .sec-row.is-selected {
+      background: #eaf3f8;
+      box-shadow: inset 3px 0 0 #3f7d9b
+    }
+
+    .sec-row.is-full {
+      cursor: not-allowed;
+      color: #9aa2a4
+    }
+
+    .sec-row.is-full .status-pill {
+      opacity: .85
+    }
+
     .assign-row {
       display: flex;
       align-items: center;
@@ -164,15 +207,11 @@
       background: #fafbfb
     }
 
-    .assign-row select {
+    .assign-row .assign-hint {
       flex: 1;
-      height: 33px;
-      max-width: 300px;
-      border: 1px solid #8d9597;
-      border-radius: 1px;
-      padding: 0 7px;
       font-size: 12px;
-      background: #fff
+      font-weight: 600;
+      color: #3d4649
     }
 
     .confirm-banner {
@@ -385,60 +424,29 @@
             <h3>Section Assignment</h3>
             <small>Capacity is validated on assign — full sections are blocked.</small>
           </div>
+          <div class="section-filter">
+            <span id="rec-section-scope">Showing matching sections</span>
+            <label class="show-all-toggle"><input type="checkbox" id="rec-section-showall"> Show all sections</label>
+          </div>
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
                   <th>Section</th>
-                  <th>Track</th>
-                  <th>Enrolled</th>
-                  <th>Capacity</th>
+                  <th>Track / Specialization</th>
+                  <th>Campus</th>
+                  <th>Building</th>
+                  <th>Room</th>
+                  <th>Enrolled / Capacity</th>
                   <th>Status</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td>STEM-A</td>
-                  <td>STEM</td>
-                  <td>40</td>
-                  <td>40</td>
-                  <td><span class="status-pill danger">Full</span></td>
-                </tr>
-                <tr>
-                  <td>STEM-B</td>
-                  <td>STEM</td>
-                  <td>36</td>
-                  <td>40</td>
-                  <td><span class="status-pill success">Open</span></td>
-                </tr>
-                <tr>
-                  <td>STEM-C</td>
-                  <td>STEM</td>
-                  <td>22</td>
-                  <td>40</td>
-                  <td><span class="status-pill success">Open</span></td>
-                </tr>
-                <tr>
-                  <td>Cookery-1</td>
-                  <td>TVL · Culinary Arts</td>
-                  <td>18</td>
-                  <td>25</td>
-                  <td><span class="status-pill success">Open</span></td>
-                </tr>
-              </tbody>
+              <tbody id="rec-section-body"></tbody>
             </table>
           </div>
           <div class="assign-row">
-            <label for="rec-section" style="font-size:12px;font-weight:700;color:#3d4649;">Assign to section</label>
-            <select id="rec-section">
-              <option value="STEM-B">STEM-B — 36/40 (Open)</option>
-              <option value="STEM-C">STEM-C — 22/40 (Open)</option>
-              <option value="Cookery-1">Cookery-1 — 18/25 (Open)</option>
-              <option value="STEM-A" disabled>STEM-A — 40/40 (Full)</option>
-            </select>
-            <button class="button button-secondary" type="button" id="btn-assign">Assign Student</button>
-            <button class="button button-secondary" type="button" id="btn-sim" title="Assign through the simulation">Auto section (simulate)</button>
-          </div>
+            <span class="assign-hint" id="rec-section-selected">No section selected</span>
+            <button class="button button-secondary" type="button" id="btn-assign" disabled>Assign Student</button>          </div>
         </div>
 
         <div class="confirm-banner" id="rec-confirm">
@@ -463,7 +471,6 @@
   <script src="../assets/js/data-store.js"></script>
   <script src="../assets/js/portal-shell.js"></script>
   <script src="../assets/js/navigation.js"></script>
-  <script src="../assets/js/simulation.js"></script>
   <script src="../assets/js/academic-records.js"></script>
 </body>
 

@@ -161,6 +161,26 @@
       text-decoration: none
     }
 
+    .prior-banner {
+      display: none;
+      margin-top: 10px;
+      padding: 9px 11px;
+      border: 1px solid #4f9b6d;
+      background: #f1faf4;
+      font-size: 11px;
+      color: #285c3d;
+      line-height: 1.45
+    }
+
+    .prior-banner.show {
+      display: block
+    }
+
+    .prior-banner strong {
+      display: block;
+      margin-bottom: 3px
+    }
+
     .hidden {
       display: none !important
     }
@@ -348,6 +368,7 @@
                   <option>Kapatagan</option>
                   <option>Bugo — CDO</option>
                 </select></label>
+              <label>Enrollment Category<small>As indicated in the application form</small><input id="f-category" readonly></label>
               <label class="full">If classes will not be 100% face to face, what is your preferred distance learning modality/modalities? (Check all that applies) *
                 <div class="check-group" id="delivery-group">
                   <label><input type="checkbox" name="delivery" value="Modular (Print)"> Modular (Print)</label>
@@ -377,6 +398,9 @@
                 </select></label>
               <label>PSA Birth Certificate No.<small>If available upon registration</small><input id="f-psa"></label>
               <label>Learner's Reference Number (LRN) *<input id="f-lrn" placeholder="12-digit number"></label>
+              <label>Continuing student check<small>Verify prior ICI enrollment by LRN</small>
+                <button type="button" class="button button-secondary" id="btn-check-prior" style="width:100%;height:33px;margin-top:4px;">Check for prior ICI record</button>
+              </label>
               <label>Last Name *<input id="f-last" autocomplete="off"></label>
               <label>First Name *<input id="f-first" autocomplete="off"></label>
               <label>Middle Name *<input id="f-middle"></label>
@@ -385,6 +409,7 @@
               <label>Sex *<select id="f-sex"><option>Female</option><option>Male</option></select></label>
               <label>Age *<input id="f-age" type="number" min="10" max="30"></label>
               <label>Student's Contact Number *<input id="f-contact"></label>
+              <label>Email<small>For enrollment notifications</small><input id="f-email" type="email"></label>
               <label>Belonging to any Indigenous People (IP)?<select id="f-ip">
                   <option>No</option>
                   <option>Yes</option>
@@ -403,6 +428,10 @@
             <div class="dup-suggest" id="dup-suggest">Possible duplicate — the system checks existing records as you type.
               <strong>Existing record found: <a id="dup-existing-link" href="duplicate.html">Existing student record</a></strong>
               <span id="dup-match-reason">Matching identity details require a side-by-side review before saving this application.</span>
+            </div>
+            <div class="prior-banner" id="prior-banner">
+              <strong>Continuing student — prior ICI record found</strong>
+              <span id="prior-banner-text"></span>
             </div>
           </div>
         </div>
@@ -475,7 +504,6 @@
             <div class="btn-row">
               <button class="button button-secondary" type="button" id="btn-draft">Save Draft</button>
               <button class="button button-primary" type="button" id="btn-check">Save &amp; Run Duplicate Check</button>
-              <button class="button button-secondary" type="button" id="btn-sim" title="Encode the selected application through the simulation">Auto-encode (simulate)</button>
             </div>
           </div>
         </div>
@@ -490,7 +518,6 @@
   <script src="../assets/js/data-store.js"></script>
   <script src="../assets/js/portal-shell.js"></script>
   <script src="../assets/js/navigation.js"></script>
-  <script src="../assets/js/simulation.js"></script>
   <script src="../assets/js/evaluate.js"></script>
 </body>
 

@@ -63,11 +63,11 @@ const APPLICANTS = Store.applicants;
 
 // Form field bindings: element id -> applicant key.
 const FIELD_MAP = {
-  'f-campus': 'campus',
+  'f-campus': 'campus', 'f-category': 'category',
   'f-grade': 'grade', 'f-track': 'track', 'f-strand': 'strand',
   'f-lrn-status': 'lrnStatus', 'f-psa': 'psa', 'f-lrn': 'lrn', 'f-last': 'last', 'f-first': 'first',
   'f-middle': 'middle', 'f-ext': 'ext', 'f-dob': 'dob', 'f-sex': 'sex', 'f-age': 'age',
-  'f-contact': 'contact', 'f-ip': 'ip', 'f-ip-other': 'ipOther', 'f-mother-tongue': 'motherTongue', 'f-honors': 'honors',
+  'f-contact': 'contact', 'f-email': 'email', 'f-ip': 'ip', 'f-ip-other': 'ipOther', 'f-mother-tongue': 'motherTongue', 'f-honors': 'honors',
   'f-house': 'house', 'f-province': 'province', 'f-city': 'city', 'f-barangay': 'barangay',
   'f-enrolled': 'enrolled', 'f-school': 'school', 'f-school-address': 'schoolAddress', 'f-school-id': 'schoolId',
   'f-father': 'father', 'f-mother': 'mother', 'f-guardian': 'guardian', 'f-guardian-contact': 'guardianContact',
@@ -111,32 +111,37 @@ function applyApplicant(app) {
   document.querySelector('#f-ip-other-wrap').classList.toggle('hidden', app.ip !== 'Yes');
 }
 
+// Builds the candidate {name, dob, lrn} from the form's own fields, in the
+// same "Last, First" format applicant records already use (see app.name).
+function currentCandidate() {
+  const last = document.querySelector('#f-last').value.trim();
+  const first = document.querySelector('#f-first').value.trim();
+  return {
+    name: (last || first) ? `${last}, ${first}` : '',
+    dob: document.querySelector('#f-dob').value.trim(),
+    lrn: document.querySelector('#f-lrn').value.trim()
+  };
+}
+
 function refreshDuplicateSuggestion() {
   const suggest = document.querySelector('#dup-suggest');
-  const lastName = document.querySelector('#f-last').value.trim().toLowerCase();
-  const journey = Store.getJourney();
-  const persona = journey && journey.appId === activeApp ? Store.getPersona(journey.persona) : null;
-  const pair = activeApp && (APPLICANTS[activeApp].flag === 'dup' || persona?.dup) ? Store.getPair(activeApp) : null;
-  const flagged = activeApp && (APPLICANTS[activeApp].flag === 'dup' || Boolean(persona && persona.dup));
-  const incomingFields = pair?.incoming?.fields || [];
-  const existingFields = pair?.existing?.fields || [];
-  const existingName = existingFields.find(([label]) => label === 'Full name')?.[1] || persona?.existingName || 'Existing student record';
-  const existingId = pair?.existing?.sub?.match(/STU-[\d-]+/)?.[0] || persona?.existingId || '';
-  const matches = incomingFields.filter(([, , match]) => match).map(([label]) => label.toLowerCase());
-  const matchLabels = matches.length
-    ? matches.join(', ')
-    : persona?.dup ? 'date of birth, sex, previous school, guardian contact' : 'identity details';
-  const existingLink = document.querySelector('#dup-existing-link');
-  const matchReason = document.querySelector('#dup-match-reason');
-  if (existingLink) {
-    existingLink.textContent = `${existingName}${existingId ? ` · ${existingId}` : ''}`;
-    existingLink.href = activeApp ? `duplicate.html?app=${encodeURIComponent(activeApp)}` : 'duplicate.html';
-  }
-  if (matchReason) {
-    matchReason.textContent = `Matching fields: ${matchLabels}. Review the incoming and existing records before saving this application.`;
-  }
-  suggest.classList.toggle('show', Boolean(flagged || lastName.includes('santos')));
-}
+  const link = suggest.querySelector('strong a');
+  const note = suggest.querySelector('span');
+  const seedFlag = Boolean(activeApp && APPLICANTS[activeApp].flag === 'dup');
+  const candidate = currentCandidate();
+  const match = candidate.name ? Store.suggestDuplicate(candidate, activeApp) : null;
+  suggest.classList.toggle('show', Boolean(seedFlag || match));
+  if (match) {
+    const pct = Math.round(match.score * 100);
+    link.textContent = match.name;
+    link.href = `duplicate.html?app=${encodeURIComponent(activeApp)}`;
+    note.textContent = `Possible match: ${match.name} — ${pct}% confidence. Review before saving this application.`;
+  } else if (seedFlag) {
+    const seeded = APPLICANTS[activeApp];
+    link.textContent = seeded.name;
+    link.href = `duplicate.html?app=${encodeURIComponent(activeApp)}`;
+    note.textContent = 'Same name and birth date. Review before saving this application.';
+  }}
 document.querySelector('#f-last').addEventListener('input', refreshDuplicateSuggestion);
 
 // Load an application into the encode form, highlight its row, and show the banner.
@@ -151,6 +156,7 @@ function selectApplication(id) {
   document.querySelector('#selected-name').textContent = app.name;
   document.querySelector('#selected-id').textContent = `· ${id}`;
   document.querySelector('#selected-banner').classList.add('show');
+  document.querySelector('#prior-banner').classList.remove('show');
   refreshDuplicateSuggestion();
   return true;
 }
@@ -186,6 +192,7 @@ document.querySelector('#clear-form').addEventListener('click', () => {
   document.querySelector('#f-ip-other-wrap').classList.add('hidden');
   document.querySelector('#selected-banner').classList.remove('show');
   document.querySelector('#dup-suggest').classList.remove('show');
+  document.querySelector('#prior-banner').classList.remove('show');
   document.querySelector('#f-track').value = 'ACADEMIC';
   renderStrands('ACADEMIC');
   showToast('Form cleared', 'Ready for a new walk-in application.');
@@ -211,37 +218,38 @@ function saveAndReturn(kind) {
   if (!activeApp) { showToast('No application selected', 'Select an application from the list first.'); return; }
   Store.updateApplicant(activeApp, collectForm());
   if (kind === 'check') {
-    const lastName = document.querySelector('#f-last').value.trim().toLowerCase();
-    const journey = Store.getJourney();
-    const transfereeScenario = journey?.appId === activeApp && journey.persona === 'transferee';
-    const duplicate = transfereeScenario || APPLICANTS[activeApp].flag === 'dup' || lastName.includes('santos');
-    if (duplicate) {
-      Store.updateApplicant(activeApp, transfereeScenario
-        ? { evalStatus: 'flag', queueStatus: 'review', flag: 'dup' }
-        : { evalStatus: 'flag' });
-      if (transfereeScenario) Store.flagPair(activeApp);
-    } else {
-      Store.updateApplicant(activeApp, { evalStatus: 'ready', queueStatus: 'review' });
+    const seedFlag = APPLICANTS[activeApp].flag === 'dup';
+    const candidate = currentCandidate();
+    const match = candidate.name ? Store.suggestDuplicate(candidate, activeApp) : null;
+    if (match && match.score >= 0.75 && !Store.getPair(activeApp)) {
+      Store.createPairFromMatch(activeApp, match);
     }
-  }
+    const duplicate = Boolean(seedFlag || match);
+    Store.updateApplicant(activeApp, duplicate ? { evalStatus: 'flag' } : { evalStatus: 'ready', queueStatus: 'review' });  }
   location.href = `queue.html?highlight=${encodeURIComponent(activeApp)}&saved=${kind}`;
 }
 
 document.querySelector('#btn-draft').addEventListener('click', () => saveAndReturn('draft'));
 document.querySelector('#btn-check').addEventListener('click', () => saveAndReturn('check'));
 
-// Auto-encode (simulate) — runs the Encode Profile stage for the active
-// journey student (or simply stores the form for any other applicant).
-document.querySelector('#btn-sim').addEventListener('click', () => {
+// Check for prior ICI record — for continuing students (e.g. Grade 11 -> 12
+// at the same school) who already have requirements on file. Looks up the
+// typed LRN against the prior-enrollment catalog and, on a match, links the
+// record so the checklist doesn't ask for documents already submitted.
+document.querySelector('#btn-check-prior').addEventListener('click', () => {
   if (!activeApp) { showToast('No application selected', 'Select an application from the list first.'); return; }
-  const j = Store.getJourney();
-  if (j && j.active && j.appId === activeApp) {
-    Sim.runStage(2);
-    showToast('Encode simulated', `${APPLICANTS[activeApp].name} (${activeApp}) — profile encoded; automated duplicate check ran.`);
+  const banner = document.querySelector('#prior-banner');
+  const lrn = document.querySelector('#f-lrn').value.trim();
+  const match = Store.findPriorStudent(lrn);
+  if (!match) {
+    banner.classList.remove('show');
+    showToast('No prior record found', 'No matching ICI enrollment record for this LRN.');
     return;
   }
-  Store.updateApplicant(activeApp, collectForm());
-  showToast('Profile saved', `${APPLICANTS[activeApp].name} — encode details stored.`);
+  Store.linkPriorStudent(activeApp, match.id);
+  document.querySelector('#prior-banner-text').textContent = `Completed ${match.lastGradeLevel}, SY ${match.lastSchoolYear}, ${match.campus}. Requirements on file — no resubmission required.`;
+  banner.classList.add('show');
+  showToast('Continuing student confirmed', `${match.name} (${match.id}) — prior ICI record linked.`);
 });
 
 // Initialize the strand list for the default track.

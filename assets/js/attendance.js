@@ -12,45 +12,96 @@ toast.querySelector('button').addEventListener('click', () => toast.classList.re
 
 const tbody = document.querySelector('#att-body');
 const confirmLink = document.querySelector('#btn-confirm');
-
-function gateFor(appId) {
+const searchInput = document.querySelector('#att-search');
+const statusFilterEl = document.querySelector('#att-status');
+const resultCountEl = document.querySelector('#att-result-count');
+// Single source of truth for the "requirements complete AND attendance verified"
+// gate — used by the master list, the detail panel, and the confirm handler.
+function gateStatus(appId) {
   const att = Store.getAttendance(appId);
-  if (!att) return { label: 'Not met', tone: 'danger' };
+  if (!att) {
+    return { key: 'not-started', label: 'Not started', tone: 'neutral', present: 0, absent: 0, total: 5, reqOk: false, attendanceOk: false, reqLabel: 'Pending' };
+  }
+  const total = att.log.length;
   const present = att.log.filter(d => d.status === 'Present').length;
-  const ok = att.req === 'Complete' && present === att.log.length;
-  return ok ? { label: 'Both met', tone: 'success' } : { label: 'Not met', tone: 'danger' };
+  const absent = att.log.filter(d => d.status === 'Absent').length;
+  const reqOk = att.req === 'Complete';
+  const attendanceOk = Store.attendanceVerified(appId);
+
+  let key, label, tone;
+  if (reqOk && attendanceOk) {
+    key = 'ready'; label = 'Ready to confirm'; tone = 'success';
+  } else if (!reqOk && present === 0 && absent === 0) {
+    key = 'not-started'; label = 'Not started'; tone = 'neutral';
+  } else if (!reqOk) {
+    key = 'docs'; label = 'Needs documents'; tone = 'warning';
+  } else {
+    key = 'attendance'; label = 'Needs attendance'; tone = absent > 0 ? 'danger' : 'warning';
+  }
+  return { key, label, tone, present, absent, total, reqOk, attendanceOk, reqLabel: att.req };
+}
+
+function highlightActiveRow() {
+  [...tbody.querySelectorAll('tr')].forEach(r => r.style.background = (r.dataset.app === activeApp) ? '#eaf3f8' : '');
 }
 
 function renderList() {
   const applicants = Object.values(Store.applicants);
   tbody.innerHTML = applicants.map(app => {
-    const att = Store.getAttendance(app.id);
-    const present = att ? att.log.filter(d => d.status === 'Present').length : 0;
-    const gate = gateFor(app.id);
-    const reqPill = att && att.req === 'Complete'
-      ? '<span class="status-pill success">Complete</span>'
-      : '<span class="status-pill warning">' + (att && att.req ? att.req : 'Pending') + '</span>';
-    return `<tr data-app="${app.id}">
+    const gate = gateStatus(app.id);
+    const toneClass = gate.tone === 'neutral' ? 'status-pill' : `status-pill ${gate.tone}`;
+    return `<tr data-app="${app.id}" data-status="${gate.key}">
       <td><strong>${app.name}</strong></td>
       <td>${app.id}</td>
       <td>${app.category}</td>
-      <td>${reqPill}</td>
-      <td><span class="badge ${present === 5 ? 'blue-badge' : 'amber-badge'}">${present} of 5 present</span></td>
-      <td><span class="status-pill ${gate.tone}">${gate.label}</span></td>
+      <td><span class="${toneClass}">${gate.label}</span> <small>${gate.present}/${gate.total} present</small></td>
       <td class="action-cell"><button class="row-action">Monitor</button></td>
     </tr>`;
   }).join('');
+  highlightActiveRow();
+  filterList();
+  renderStats(applicants);
 }
 
-function updateStats(data) {
+function filterList() {
+  let visible = 0;
+  const term = searchInput.value.toLowerCase();
+  [...tbody.querySelectorAll('tr')].forEach(row => {
+    const show = row.textContent.toLowerCase().includes(term) &&
+      (statusFilterEl.value === 'all' || row.dataset.status === statusFilterEl.value);
+    row.hidden = !show;
+    if (show) visible++;
+  });
+  resultCountEl.textContent = `Showing ${visible} of ${Object.keys(Store.applicants).length} applicants under first-week monitoring`;
+}
+[searchInput, statusFilterEl].forEach(el => el.addEventListener('input', filterList));
+
+// Cohort-level stat cards (not the currently-selected student).
+function renderStats(applicants) {
+  const list = applicants || Object.values(Store.applicants);
+  const counts = { ready: 0, docs: 0, attendance: 0 };
+  list.forEach(app => {
+    const gate = gateStatus(app.id);
+    if (gate.key === 'ready') counts.ready++;
+    else if (gate.key === 'attendance') counts.attendance++;
+    else counts.docs++; // 'docs' and 'not-started' both mean requirements aren't in yet.
+  });
+  document.querySelector('#st-total').textContent = list.length;
+  document.querySelector('#st-ready').textContent = counts.ready;
+  document.querySelector('#st-docs').textContent = counts.docs;
+  document.querySelector('#st-attn').textContent = counts.attendance;
+}
+
+// Per-student day tally, shown in the detail panel's own header (not the cohort cards).
+function renderDetailTally(data) {
   const present = data.log.filter(d => d.status === 'Present').length;
   const absent = data.log.filter(d => d.status === 'Absent').length;
   const pending = data.log.filter(d => d.status === 'Pending').length;
-  document.querySelector('#st-days').textContent = data.log.length;
-  document.querySelector('#st-present').textContent = present;
-  document.querySelector('#st-absent').textContent = absent;
-  document.querySelector('#st-pending').textContent = pending;
+  document.querySelector('#log-tally').textContent = `${present} present · ${absent} absent · ${pending} pending (of ${data.log.length} days)`;
 }
+
+const STATUS_CYCLE = { Present: 'Absent', Absent: 'Pending', Pending: 'Present' };
+const STATUS_TONE = { Present: 'success', Absent: 'danger', Pending: 'warning' };
 
 let activeApp = null;
 
@@ -62,7 +113,7 @@ function renderLog(appId) {
     // Newly added applicants without a profile get a default log.
     data = { req: 'Pending', log: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map(day => ({ day, date: '', status: 'Pending' })) };
   }
-  updateStats(data);
+  renderDetailTally(data);
 
   const app = Store.applicants[appId];
   document.querySelector('#selected-name').textContent = app ? app.name : '—';
@@ -75,77 +126,60 @@ function renderLog(appId) {
     <div class="att-day-row">
       <span class="day">${d.day}</span>
       <span class="date">${d.date || '—'}</span>
-      <select class="status-select" data-index="${i}" aria-label="${d.day} attendance">
-        <option ${d.status === 'Present' ? 'selected' : ''}>Present</option>
-        <option ${d.status === 'Absent' ? 'selected' : ''}>Absent</option>
-        <option ${d.status === 'Pending' ? 'selected' : ''}>Pending</option>
-      </select>
+      <button type="button" class="status-pill ${STATUS_TONE[d.status]} day-chip" data-index="${i}" aria-label="${d.day} attendance: ${d.status}. Click to change.">${d.status}</button>
     </div>`).join('');
 
-  recomputeGate(data);
+  recomputeGate(appId);
 }
 
-function recomputeGate(data) {
-  const present = data.log.filter(d => d.status === 'Present').length;
-  const attendanceOk = present === data.log.length;
-  const reqOk = data.req === 'Complete';
+function recomputeGate(appId) {
+  const gate = gateStatus(appId);
 
   const setState = (id, ok, label) => {
     const el = document.querySelector('#' + id);
     el.textContent = label;
     el.className = ok ? 'ok' : 'no';
   };
-  setState('gate-req', reqOk, reqOk ? 'Complete' : `${data.req}`);
-  setState('gate-att', attendanceOk, attendanceOk ? 'Verified' : 'Not verified');
-  setState('gate-overall', reqOk && attendanceOk, reqOk && attendanceOk ? 'Both met' : 'Not met');
+  setState('gate-req', gate.reqOk, gate.reqOk ? 'Complete' : gate.reqLabel);
+  setState('gate-att', gate.attendanceOk, gate.attendanceOk ? 'Verified' : 'Not verified');
+  setState('gate-overall', gate.key === 'ready', gate.key === 'ready' ? 'Both met' : 'Not met');
 
-  document.querySelector('#btn-confirm').classList.toggle('disabled', !(reqOk && attendanceOk));
-  document.querySelector('#btn-keep-tracking').disabled = reqOk && attendanceOk;
+  document.querySelector('#btn-confirm').classList.toggle('disabled', gate.key !== 'ready');
+  document.querySelector('#btn-keep-tracking').disabled = gate.key === 'ready';
 }
 
 // Pick a student from the monitoring list.
 tbody.addEventListener('click', event => {
   const row = event.target.closest('tr');
   if (!row) return;
-  [...tbody.querySelectorAll('tr')].forEach(r => r.style.background = '');
-  row.style.background = '#eaf3f8';
   renderLog(row.dataset.app);
+  highlightActiveRow();
 });
 
-// Editing a day's status persists to the store and re-runs the gate live.
-document.querySelector('#att-log').addEventListener('change', event => {
-  if (!event.target.classList.contains('status-select')) return;
-  const idx = Number(event.target.dataset.index);
+// Clicking a day chip cycles Present -> Absent -> Pending -> Present, persists to the
+// store, and refreshes BOTH the detail panel and the master list (fixes the staleness
+// bug where the master row used to go stale until some other event refreshed it).
+document.querySelector('#att-log').addEventListener('click', event => {
+  const chip = event.target.closest('.day-chip');
+  if (!chip) return;
+  const idx = Number(chip.dataset.index);
   const data = Store.getAttendance(activeApp);
   if (!data) return;
-  Store.setAttendance(activeApp, idx, event.target.value);
-  updateStats(data);
-  recomputeGate(data);
+  const day = data.log[idx].day;
+  const next = STATUS_CYCLE[data.log[idx].status] || 'Present';
+  Store.setAttendance(activeApp, idx, next);
 
-  const present = data.log.filter(d => d.status === 'Present').length;
-  showToast('Attendance updated', `${Store.applicants[activeApp].name} — ${event.target.value} for ${data.log[idx].day}. ${present} of ${data.log.length} days present.`);
+  renderLog(activeApp);
+  renderList();
+
+  const gate = gateStatus(activeApp);
+  showToast('Attendance updated', `${Store.applicants[activeApp].name} — ${next} for ${day}. ${gate.present} of ${gate.total} days present.`);
 });
 
 // "Not met — keep tracking" (disabled when the gate is met).
 document.querySelector('#btn-keep-tracking').addEventListener('click', () => {
   if (!activeApp) { showToast('Select a student', 'Choose an applicant from the monitoring list first.'); return; }
-  const data = Store.getAttendance(activeApp);
   showToast('Still tracking', `${Store.applicants[activeApp].name} — requirements and attendance will keep being monitored until both conditions are met.`);
-});
-
-// Verify week 1 (simulate) — marks all five days present for the active
-// journey student (or whatever student is selected).
-document.querySelector('#btn-sim').addEventListener('click', () => {
-  if (!activeApp) { showToast('Select a student', 'Choose an applicant from the monitoring list first.'); return; }
-  const j = Store.getJourney();
-  if (j && j.active && j.appId === activeApp) {
-    Sim.runStage(5);
-  } else {
-    Store.completeWeekAttendance(activeApp);
-  }
-  renderLog(activeApp);
-  renderList();
-  showToast('Week 1 verified', `${Store.applicants[activeApp].name} — 5 of 5 days present. Gate: both met.`);
 });
 
 // Prevent navigation when the confirm gate is not met.
@@ -155,11 +189,8 @@ document.querySelector('#btn-confirm').addEventListener('click', event => {
     showToast('Select a student', 'Choose an applicant from the monitoring list first.');
     return;
   }
-  const data = Store.getAttendance(activeApp);
-  const present = data.log.filter(d => d.status === 'Present').length;
-  const reqOk = data.req === 'Complete';
-  const attOk = present === data.log.length;
-  if (!(reqOk && attOk)) {
+  const gate = gateStatus(activeApp);
+  if (gate.key !== 'ready') {
     event.preventDefault();
     showToast('Gate not met', `${Store.applicants[activeApp].name} — complete requirements and attendance first, or keep tracking.`);
   }
@@ -172,9 +203,8 @@ renderList();
 function selectById(id) {
   const row = [...tbody.querySelectorAll('tr')].find(r => r.dataset.app === id);
   if (!row) return false;
-  [...tbody.querySelectorAll('tr')].forEach(r => r.style.background = '');
-  row.style.background = '#eaf3f8';
   renderLog(row.dataset.app);
+  highlightActiveRow();
   return true;
 }
 

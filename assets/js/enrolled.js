@@ -1,6 +1,6 @@
 // Enrolled & Assigned (Enrollment 9) — end of the enrollment journey.
 // Reads ?app=<APP-ID> and renders the officially-enrolled student record,
-// section assignment, confirmation stamp, and the journey timeline recap.
+// section assignment, and confirmation stamp.
 const toast = document.querySelector('#toast');
 let timer;
 function showToast(title, detail) {
@@ -27,7 +27,6 @@ function render() {
   const sid = Store.recordByApp(appId);
   const rec = sid ? Store.getRecord(sid) : null;
   const section = (sid && Store.sections[sid]) || '—';
-  const journey = Store.getJourney();
 
   document.querySelector('#done-sub').textContent =
     `${app.name} (${appId}) is now Enrolled${section && section !== '—' ? ` in section ${section}` : ''}. Confirmation and section change have been logged.`;
@@ -40,25 +39,8 @@ function render() {
   document.querySelector('#enr-ref').textContent = rec ? rec.ref : '—';
   document.querySelector('#enr-confirmed').textContent = (rec && rec.confirmedAt) || '—';
   document.querySelector('#enr-registrar').textContent = (rec && rec.confirmedBy) || '—';
-
-  const timeline = document.querySelector('#enr-timeline');
-  const entries = (journey && journey.timeline) ? journey.timeline : [];
-  const persona = journey ? Store.getPersona(journey.persona) : null;
-  if (entries.length) {
-    timeline.innerHTML = Store.JOURNEY_STAGES.map(s => {
-      const skipped = s.n === 3 && persona && !persona.dup;
-      const entry = entries.find(e => e.stage === s.n);
-      if (skipped) {
-        return `<li class="tl-item skip"><span class="tl-dot">·</span><span class="tl-label">${s.label}</span><span class="tl-when">—</span></li>`;
-      }
-      if (!entry) {
-        return `<li class="tl-item"><span class="tl-dot">○</span><span class="tl-label">${s.label}</span><span class="tl-when">—</span></li>`;
-      }
-      return `<li class="tl-item done"><span class="tl-dot">•</span><span class="tl-label">${entry.label || s.label}</span><span class="tl-when">${entry.at}</span></li>`;
-    }).join('');
-  } else {
-    timeline.innerHTML = `<li class="tl-item done"><span class="tl-dot">•</span><span class="tl-label">Enrollment confirmed</span><span class="tl-when">${(rec && rec.confirmedAt) || '—'}</span></li>`;
-  }
+  document.querySelector('#enr-confirm-line').textContent =
+    `By ${(rec && rec.confirmedBy) || '—'} on ${(rec && rec.confirmedAt) || '—'}`;
 
   if (rec && rec.status === 'enrolled') {
     showToast('Enrollment complete', `${app.name} is officially enrolled and assigned to a section.`);

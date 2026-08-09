@@ -76,28 +76,70 @@
         enrolled: 'No', school: '', schoolAddress: '', schoolId: '',
         father: 'Eduardo Abad', mother: 'Marites Mercado Abad', guardian: 'Eduardo Abad',
         guardianContact: '0921 555 0152', regDate: '08/03/2026', referred: 'ENGLISH'
+      },
+      'APP-2026-0156': {
+        name: 'Cruz, Bianca', lrn: '117744552201', category: 'Continuing', programLabel: 'STEM · Grade 12', program: 'shs',
+        submittedAt: 'Aug 9, 2026',
+        campus: 'Main — Iligan', campusKey: 'main',
+        queueStatus: 'pre-enlisted', evalStatus: 'review', flag: '',
+        grade: 'Grade 12', track: 'ACADEMIC', strand: 'STEM', delivery: ['Online'], deliveryOther: '',
+        lrnStatus: 'With LRN', psa: 'PSA-2021-004477', last: 'Cruz', first: 'Bianca', middle: 'Ochoa', ext: '',
+        dob: '02/10/2008', sex: 'Female', age: '18', contact: '0917 555 0164', email: 'bianca.cruz@email.com',
+        ip: 'No', ipOther: '', motherTongue: 'Bisaya/Cebuano', honors: 'With Honors (Grade 11)',
+        house: 'Purok 6, Villa Verde', province: 'Lanao del Norte', city: 'Iligan City', barangay: 'Tibanga',
+        enrolled: 'No', school: '', schoolAddress: '', schoolId: '',
+        father: 'Reynaldo Cruz', mother: 'Estrella Ochoa Cruz', guardian: 'Reynaldo Cruz',
+        guardianContact: '0917 555 0164', regDate: '08/09/2026', referred: 'STAFF',
+        continuing: false, priorStudentId: ''
+      },
+      'APP-2026-0153': {
+        name: 'Bautista, Carlo', lrn: '121456789012', category: 'Transferee', programLabel: 'TVL-Culinary Arts · Grade 11', program: 'shs',
+        submittedAt: 'Aug 4, 2026',
+        campus: 'Bugo — CDO', campusKey: 'bugo',
+        queueStatus: 'review', evalStatus: 'flag', flag: 'dup',
+        grade: 'Grade 11', track: 'TVL', strand: 'CA', delivery: ['Online'], deliveryOther: '',
+        lrnStatus: 'With LRN', psa: 'PSA-2024-002091', last: 'Bautista', first: 'Carlo', middle: 'Ramirez', ext: '',
+        dob: '03/09/2009', sex: 'Male', age: '17', contact: '0922 555 0554', email: 'carlo.bautista@email.com',
+        ip: 'No', ipOther: '', motherTongue: 'Bisaya/Cebuano', honors: '',
+        house: 'Purok 3, Brgy. Bugo', province: 'Misamis Oriental', city: 'Cagayan de Oro', barangay: 'Bugo',
+        enrolled: 'Yes', school: 'Iligan City National High School', schoolAddress: 'Iligan City', schoolId: '',
+        father: 'Edwin Bautista', mother: '', guardian: 'Edwin Bautista',
+        guardianContact: '0922 555 0153', regDate: '08/04/2026', referred: 'TVL'
+      }
+    },
+    priorStudents: {
+      'STU-2025-0301': {
+        name: 'Cruz, Bianca', lrn: '117744552201', lastGradeLevel: 'Grade 11', lastSchoolYear: '2025–2026',
+        track: 'ACADEMIC', strand: 'STEM', campus: 'Main — Iligan',
+        docs: { 'PSA Birth Certificate': 'submitted', 'Form 137': 'submitted', 'Certificate of Completion': 'submitted', 'Good Moral Certificate': 'submitted' }
       }
     },
     requirements: {
       'APP-2026-0148': { docs: { 'PSA Birth Certificate': 'submitted', 'Form 137': 'pending', 'Certificate of Completion': 'missing', 'Good Moral Certificate': 'missing' }, contact: '0917 555 0148', email: 'juan.delacruz@email.com' },
       'APP-2026-0149': { docs: { 'PSA Birth Certificate': 'submitted', 'Form 137': 'pending', 'Certificate of Completion': 'submitted', 'Good Moral Certificate': 'missing' }, contact: '0918 555 0149', email: 'maria.santos@email.com' },
-      'APP-2026-0150': { docs: { 'PSA Birth Certificate': 'pending', 'Form 137': 'pending', 'Certificate of Completion': 'pending', 'Good Moral Certificate': 'pending' }, contact: '0919 555 0150', email: 'pedro.reyes@email.com' },
+      'APP-2026-0150': { docs: { 'PSA Birth Certificate': 'submitted', 'Form 137': 'submitted', 'Certificate of Completion': 'submitted', 'Good Moral Certificate': 'submitted' }, contact: '0919 555 0150', email: 'pedro.reyes@email.com' },
       'APP-2026-0151': { docs: { 'PSA Birth Certificate': 'submitted', 'Form 137': 'submitted', 'Certificate of Completion': 'submitted', 'Good Moral Certificate': 'submitted' }, contact: '0920 555 0151', email: 'angela.lim@email.com' },
-      'APP-2026-0152': { docs: { 'PSA Birth Certificate': 'submitted', 'Form 137': 'submitted', 'Certificate of Completion': 'submitted', 'Good Moral Certificate': 'submitted' }, contact: '0921 555 0152', email: 'carla.abad@email.com' }
+      'APP-2026-0152': { docs: { 'PSA Birth Certificate': 'submitted', 'Form 137': 'submitted', 'Certificate of Completion': 'submitted', 'Good Moral Certificate': 'submitted' }, contact: '0921 555 0152', email: 'carla.abad@email.com' },
+      'APP-2026-0156': { docs: { 'PSA Birth Certificate': 'pending', 'Form 137': 'pending', 'Certificate of Completion': 'pending', 'Good Moral Certificate': 'pending' }, contact: '0917 555 0164', email: 'bianca.cruz@email.com' },
+      'APP-2026-0153': { docs: { 'PSA Birth Certificate': 'pending', 'Form 137': 'pending', 'Certificate of Completion': 'pending', 'Good Moral Certificate': 'pending' }, contact: '0922 555 0554', email: 'carlo.bautista@email.com' }
     },
     audits: {
       'APP-2026-0148': ['Certificate of Completion marked Missing by R. Santos — Aug 3, 2026 04:19 PM', 'PSA Birth Certificate marked Submitted by R. Santos — Aug 3, 2026 09:58 AM'],
       'APP-2026-0149': ['Form 137 marked Pending by R. Santos — Aug 5, 2026 09:14 AM', 'PSA Birth Certificate marked Submitted by R. Santos — Aug 3, 2026 02:41 PM', 'Application created by R. Santos — Aug 2, 2026 10:05 AM'],
-      'APP-2026-0150': ['Good Moral Certificate still Pending — last checked by R. Santos — Aug 4, 2026 11:22 AM', 'Application created by R. Santos — Aug 2, 2026 01:18 PM'],
+      'APP-2026-0150': ['All documents verified by R. Santos — Aug 5, 2026 08:10 AM', 'Application created by R. Santos — Aug 2, 2026 01:18 PM'],
       'APP-2026-0151': ['All documents verified by R. Santos — Aug 6, 2026 08:37 AM', 'Form 137 marked Submitted by R. Santos — Aug 5, 2026 03:02 PM'],
-      'APP-2026-0152': ['All documents verified by R. Santos — Aug 6, 2026 10:44 AM', 'Application created by R. Santos — Aug 3, 2026 02:30 PM']
+      'APP-2026-0152': ['All documents verified by R. Santos — Aug 6, 2026 10:44 AM', 'Application created by R. Santos — Aug 3, 2026 02:30 PM'],
+      'APP-2026-0156': ['Application created by R. Santos — Aug 9, 2026 09:00 AM'],
+      'APP-2026-0153': ['Application created by R. Santos — Aug 4, 2026 10:15 AM']
     },
     attendance: {
-      'APP-2026-0148': { req: 'Incomplete', log: [{ day: 'Mon', date: 'Aug 3', status: 'Present' }, { day: 'Tue', date: 'Aug 4', status: 'Present' }, { day: 'Wed', date: 'Aug 5', status: 'Present' }, { day: 'Thu', date: 'Aug 6', status: 'Pending' }, { day: 'Fri', date: 'Aug 7', status: 'Pending' }] },
+      'APP-2026-0148': { req: 'Incomplete', log: [{ day: 'Mon', date: 'Aug 3', status: 'Present' }, { day: 'Tue', date: 'Aug 4', status: 'Present' }, { day: 'Wed', date: 'Aug 5', status: 'Present' }, { day: 'Thu', date: 'Aug 6', status: 'Present' }, { day: 'Fri', date: 'Aug 7', status: 'Present' }] },
       'APP-2026-0149': { req: 'Incomplete', log: [{ day: 'Mon', date: 'Aug 3', status: 'Present' }, { day: 'Tue', date: 'Aug 4', status: 'Present' }, { day: 'Wed', date: 'Aug 5', status: 'Present' }, { day: 'Thu', date: 'Aug 6', status: 'Present' }, { day: 'Fri', date: 'Aug 7', status: 'Pending' }] },
-      'APP-2026-0150': { req: 'Incomplete', log: [{ day: 'Mon', date: 'Aug 3', status: 'Present' }, { day: 'Tue', date: 'Aug 4', status: 'Present' }, { day: 'Wed', date: 'Aug 5', status: 'Absent' }, { day: 'Thu', date: 'Aug 6', status: 'Present' }, { day: 'Fri', date: 'Aug 7', status: 'Pending' }] },
+      'APP-2026-0150': { req: 'Complete', log: [{ day: 'Mon', date: 'Aug 3', status: 'Present' }, { day: 'Tue', date: 'Aug 4', status: 'Present' }, { day: 'Wed', date: 'Aug 5', status: 'Absent' }, { day: 'Thu', date: 'Aug 6', status: 'Present' }, { day: 'Fri', date: 'Aug 7', status: 'Present' }] },
       'APP-2026-0151': { req: 'Complete', log: [{ day: 'Mon', date: 'Aug 3', status: 'Present' }, { day: 'Tue', date: 'Aug 4', status: 'Present' }, { day: 'Wed', date: 'Aug 5', status: 'Present' }, { day: 'Thu', date: 'Aug 6', status: 'Present' }, { day: 'Fri', date: 'Aug 7', status: 'Present' }] },
-      'APP-2026-0152': { req: 'Complete', log: [{ day: 'Mon', date: 'Aug 3', status: 'Present' }, { day: 'Tue', date: 'Aug 4', status: 'Present' }, { day: 'Wed', date: 'Aug 5', status: 'Present' }, { day: 'Thu', date: 'Aug 6', status: 'Present' }, { day: 'Fri', date: 'Aug 7', status: 'Present' }] }
+      'APP-2026-0152': { req: 'Complete', log: [{ day: 'Mon', date: 'Aug 3', status: 'Present' }, { day: 'Tue', date: 'Aug 4', status: 'Present' }, { day: 'Wed', date: 'Aug 5', status: 'Present' }, { day: 'Thu', date: 'Aug 6', status: 'Present' }, { day: 'Fri', date: 'Aug 7', status: 'Present' }] },
+      'APP-2026-0156': { req: 'Pending', log: [{ day: 'Mon', date: 'Aug 10', status: 'Pending' }, { day: 'Tue', date: 'Aug 11', status: 'Pending' }, { day: 'Wed', date: 'Aug 12', status: 'Pending' }, { day: 'Thu', date: 'Aug 13', status: 'Pending' }, { day: 'Fri', date: 'Aug 14', status: 'Pending' }] },
+      'APP-2026-0153': { req: 'Pending', log: [{ day: 'Mon', date: 'Aug 4', status: 'Pending' }, { day: 'Tue', date: 'Aug 5', status: 'Pending' }, { day: 'Wed', date: 'Aug 6', status: 'Pending' }, { day: 'Thu', date: 'Aug 7', status: 'Pending' }, { day: 'Fri', date: 'Aug 8', status: 'Pending' }] }
     },
     pairs: {
       'APP-2026-0149': {
@@ -109,14 +151,18 @@
         meter: '81% match confidence',
         incoming: { sub: 'Returnee · APP-2026-0140 · Submitted Jul 28, 2026', fields: [['Full name', 'Garcia, Ana', true], ['Date of birth', '01/15/2008', true], ['Sex', 'Female', true], ['LRN', '112377981523', true], ['Previous school', 'St. Michael Academy', false], ['Guardian contact', '0923 555 0140', false], ['Status', 'Pending Requirements', false]] },
         existing: { sub: 'Student STU-2022-0503 · Record since 2022', fields: [['Full name', 'Garcia, Ana Marie', true], ['Date of birth', '01/15/2008', true], ['Sex', 'Female', true], ['LRN', '112377981523', true], ['Previous school', 'Tambo Central School', false], ['Guardian contact', '0923 555 0140', false], ['Status', 'Enrolled', false]] }
-      }
+      },
+      'APP-2026-0153': {
+        meter: '78% match confidence',
+        incoming: { sub: 'Transferee · APP-2026-0153 · Submitted Aug 4, 2026', fields: [['Full name', 'Bautista, Carlo', false], ['Date of birth', '03/09/2009', true], ['Sex', 'Male', true], ['LRN', '121456789012', false], ['Previous school', 'Iligan City NHS', true], ['Guardian contact', '0922 555 0153', true], ['Status', 'Pre-Enlisted', false]] },
+        existing: { sub: 'Student STU-2023-1210 · Record since 2023', fields: [['Full name', 'Bautista, Carlos D.', false], ['Date of birth', '03/09/2009', true], ['Sex', 'Male', true], ['LRN', '120987654321', false], ['Previous school', 'Iligan City NHS', true], ['Guardian contact', '0922 555 0153', true], ['Status', 'Active', false]] }      }
     },
-    pairStatus: { 'APP-2026-0140': 'merged' },
+    pairStatus: {},
     records: {
       'STU-2026-0452': { app: 'APP-2026-0152', name: 'Abad, Carla', initials: 'CA', meta: 'Grade 11 · ABM · Main — Iligan', status: 'pending', category: 'New Student — Regular', ref: 'CSH-0096', bracket: 'Bracket A', req: ['Complete', 'success'], reqDate: 'Aug 6, 2026', attend: ['present', 'present', 'present', 'present', 'present'], attendStatus: 'Verified', confirmable: true, confirmHint: 'Requirements complete AND attendance verified. Ready to confirm enrollment.' },
-      'STU-2026-0453': { app: 'APP-2026-0148', name: 'Dela Cruz, Juan', initials: 'JD', meta: 'Grade 11 · HUMSS · Main — Iligan', status: 'pending', category: 'New Student — Regular', ref: 'CSH-0089', bracket: 'Bracket A', req: ['Incomplete', 'danger'], reqDate: 'Aug 3, 2026', attend: ['present', 'present', 'absent', 'present', 'pending'], attendStatus: 'Not yet verified', confirmable: false, confirmHint: 'Cannot confirm yet — requirements are incomplete and attendance is not fully verified.' },
-      'STU-2026-0454': { app: 'APP-2026-0149', name: 'Santos, Maria A.', initials: 'MS', meta: 'Grade 11 · STEM · Main — Iligan', status: 'enrolled', category: 'Transferee — Voucher (ESC)', ref: 'CSH-0091', bracket: 'Bracket B', req: ['Complete', 'success'], reqDate: 'Aug 6, 2026', attend: ['present', 'present', 'present', 'present', 'present'], attendStatus: 'Verified', confirmable: false, confirmHint: 'Student is already officially enrolled.' },
-      'STU-2026-0455': { app: 'APP-2026-0150', name: 'Reyes, Pedro', initials: 'PR', meta: 'Grade 11 · TVL-Cookery · Bugo — CDO', status: 'enrolled', category: 'New Student — Regular', ref: 'CSH-0093', bracket: 'Bracket A', req: ['Complete', 'success'], reqDate: 'Aug 5, 2026', attend: ['present', 'present', 'present', 'absent', 'present'], attendStatus: 'Verified', confirmable: false, confirmHint: 'Student is already officially enrolled.' },
+      'STU-2026-0453': { app: 'APP-2026-0148', name: 'Dela Cruz, Juan', initials: 'JD', meta: 'Grade 11 · HUMSS · Main — Iligan', status: 'pending', category: 'New Student — Regular', ref: 'CSH-0089', bracket: 'Bracket A', req: ['Incomplete', 'danger'], reqDate: 'Aug 3, 2026', attend: ['present', 'present', 'present', 'present', 'present'], attendStatus: 'Verified', confirmable: false, confirmHint: 'Cannot confirm yet — requirements are still incomplete. Attendance is fully verified.' },
+      'STU-2026-0454': { app: 'APP-2026-0149', name: 'Santos, Maria A.', initials: 'MS', meta: 'Grade 11 · STEM · Main — Iligan', status: 'pending', category: 'Transferee — Voucher (ESC)', ref: 'CSH-0091', bracket: 'Bracket B', req: ['Incomplete', 'danger'], reqDate: 'Aug 5, 2026', attend: ['present', 'present', 'present', 'present', 'pending'], attendStatus: 'Not yet verified', confirmable: false, confirmHint: 'Cannot confirm yet — requirements are incomplete and attendance is not fully verified.' },
+      'STU-2026-0455': { app: 'APP-2026-0150', name: 'Reyes, Pedro', initials: 'PR', meta: 'Grade 11 · TVL-Cookery · Bugo — CDO', status: 'pending', category: 'New Student — Regular', ref: 'CSH-0093', bracket: 'Bracket A', req: ['Complete', 'success'], reqDate: 'Aug 5, 2026', attend: ['present', 'present', 'absent', 'present', 'present'], attendStatus: 'Not yet verified', confirmable: false, confirmHint: 'Requirements complete — attendance is not yet fully verified.' },
       'STU-2026-0451': { app: 'APP-2026-0151', name: 'Lim, Angela', initials: 'AL', meta: '1st Year · BSOA · Kapatagan', status: 'enrolled', category: 'Returnee — Regular', ref: 'CSH-0095', bracket: 'Bracket B', req: ['Complete', 'success'], reqDate: 'Aug 6, 2026', attend: ['present', 'present', 'present', 'present', 'present'], attendStatus: 'Verified', confirmable: false, confirmHint: 'Student is already officially enrolled. Assign a section to complete sectioning.' }
     },
     sections: { 'STU-2026-0454': 'STEM-B', 'STU-2026-0455': 'Cookery-1' },
@@ -128,8 +174,7 @@
         by: '',
         when: ''
       }
-    },
-    reportLog: [
+    },    reportLog: [
       { when: 'Aug 7, 2026 10:42 AM', title: 'Enrollment Summary', criteria: 'Enrollment Summary · 2026-2027 · First Semester · Main Campus · All Tracks · Aug 01, 2026 - Aug 31, 2026', by: 'R. Santos', format: 'PDF' },
       { when: 'Aug 6, 2026 03:20 PM', title: 'Missing Requirements', criteria: 'Missing Requirements · 2026-2027 · First Semester · All Campuses · All Tracks · Jul 01, 2026 - Aug 31, 2026', by: 'R. Santos', format: 'CSV' }
     ],
@@ -213,6 +258,20 @@
     }
   };
 
+  // Section catalog — real capacity/building/room data, replacing the old
+  // decorative hardcoded table. `baseline` represents seats already used by
+  // other cohorts/programs this prototype doesn't model (kept so the demo
+  // still has a genuinely full section to show the capacity block).
+  const SECTIONS = {
+    'STEM-A': { track: 'ACADEMIC', strand: 'STEM', campus: 'Main — Iligan', building: 'Iligan Main — Bldg. A (Senior High Wing)', room: 'Room 201', capacity: 40, baseline: 40 },
+    'STEM-B': { track: 'ACADEMIC', strand: 'STEM', campus: 'Main — Iligan', building: 'Iligan Main — Bldg. A (Senior High Wing)', room: 'Room 202', capacity: 40, baseline: 35 },
+    'STEM-C': { track: 'ACADEMIC', strand: 'STEM', campus: 'Main — Iligan', building: 'Iligan Main — Bldg. A (Senior High Wing)', room: 'Room 203', capacity: 40, baseline: 22 },
+    'HUMSS-1': { track: 'ACADEMIC', strand: 'HUMSS', campus: 'Main — Iligan', building: 'Iligan Main — Bldg. B (Annex, rented)', room: 'Room 105', capacity: 40, baseline: 0 },
+    'ABM-1': { track: 'ACADEMIC', strand: 'ABM', campus: 'Main — Iligan', building: 'Iligan Main — Bldg. B (Annex, rented)', room: 'Room 106', capacity: 40, baseline: 0 },
+    'GAS-1': { track: 'ACADEMIC', strand: 'GAS', campus: 'Kapatagan', building: 'Kapatagan Campus — Main Building', room: 'Room 3', capacity: 35, baseline: 0 },
+    'Cookery-1': { track: 'TVL', strand: 'CA', campus: 'Bugo — CDO', building: 'Bugo Campus — TVL Workshop Building', room: 'Culinary Lab 1', capacity: 25, baseline: 18 }
+  };
+
   let data = null;
 
   function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
@@ -244,7 +303,8 @@
     else mergeMissing(data.academic, SEED.academic);
     if (!data.monitoring) data.monitoring = clone(SEED.monitoring);
     else mergeMissing(data.monitoring, SEED.monitoring);
-    persist(false);
+    if (!data.priorStudents) data.priorStudents = clone(SEED.priorStudents);
+    recomputeAllPairs();    persist(false);
   }
 
   function persist(emit = true) {
@@ -275,7 +335,7 @@
       house: '', province: 'Lanao del Norte', city: '', barangay: '',
       enrolled: 'No', school: '', schoolAddress: '', schoolId: '',
       father: '', mother: '', guardian: '', guardianContact: '', regDate: '', referred: 'STAFF',
-      uploads: {}
+      uploads: {}, continuing: false, priorStudentId: ''
     }, partial, { id });
     // Stamp the submission date for any new application (keeps the queue sortable).
     if (!data.applicants[id].submittedAt) data.applicants[id].submittedAt = stampDate();
@@ -342,6 +402,135 @@
     persist();
   }
 
+  // ---- name-similarity matching (replaces hand-authored match flags) ----
+  // Simple, explainable Levenshtein-ratio on the normalized full name, with
+  // exact-match bonuses for DOB/LRN (less error-prone identifiers than a
+  // typed name) — no external library, deliberately easy to defend live.
+  function normalizeName(s) {
+    return String(s || '').toLowerCase().replace(/[^a-z\s]/g, '').replace(/\s+/g, ' ').trim();
+  }
+
+  function levenshtein(a, b) {
+    const m = a.length, n = b.length;
+    if (!m) return n;
+    if (!n) return m;
+    let prev = Array.from({ length: n + 1 }, (_, j) => j);
+    for (let i = 1; i <= m; i++) {
+      const row = [i];
+      for (let j = 1; j <= n; j++) {
+        row[j] = a[i - 1] === b[j - 1] ? prev[j - 1] : 1 + Math.min(prev[j - 1], prev[j], row[j - 1]);
+      }
+      prev = row;
+    }
+    return prev[n];
+  }
+
+  function nameSimilarity(a, b) {
+    const x = normalizeName(a), y = normalizeName(b);
+    if (!x || !y) return 0;
+    const dist = levenshtein(x, y);
+    const maxLen = Math.max(x.length, y.length);
+    return maxLen ? Math.max(0, 1 - dist / maxLen) : 0;
+  }
+
+  // Full-name fields use fuzzy similarity; every other identifying field
+  // ("Status" excluded — it's contextual, not identity) requires an exact match.
+  function deriveFieldMatch(label, a, b) {
+    if (label === 'Status') return false;
+    if (label === 'Full name') return nameSimilarity(a, b) >= 0.7;
+    const la = String(a || '').trim().toLowerCase();
+    const lb = String(b || '').trim().toLowerCase();
+    return Boolean(la) && la === lb;
+  }
+
+  // Composite confidence score for two {name, dob, lrn} identities.
+  function computeMatch(a, b) {
+    const nameSim = nameSimilarity(a.name, b.name);
+    let score = nameSim;
+    const dobMatch = Boolean(a.dob) && a.dob === b.dob;
+    const lrnMatch = Boolean(a.lrn) && a.lrn === b.lrn;
+    if (dobMatch) score += (1 - score) * 0.5;
+    if (lrnMatch) score += (1 - score) * 0.6;
+    return { score: Math.min(0.99, score), nameSim, dobMatch, lrnMatch };
+  }
+
+  function getFieldValue(sub, label) {
+    const row = (sub && sub.fields || []).find(f => f[0] === label);
+    return row ? row[1] : '';
+  }
+
+  // Recomputes a pair's per-field match flags + overall meter from its own
+  // field values — keeps seeded names/values intact, derives the rest honestly.
+  function recomputePair(pair) {
+    if (!pair) return pair;
+    pair.incoming.fields = pair.incoming.fields.map(([label, value]) => [label, value, deriveFieldMatch(label, value, getFieldValue(pair.existing, label))]);
+    pair.existing.fields = pair.existing.fields.map(([label, value]) => [label, value, deriveFieldMatch(label, value, getFieldValue(pair.incoming, label))]);
+    const a = { name: getFieldValue(pair.incoming, 'Full name'), dob: getFieldValue(pair.incoming, 'Date of birth'), lrn: getFieldValue(pair.incoming, 'LRN') };
+    const b = { name: getFieldValue(pair.existing, 'Full name'), dob: getFieldValue(pair.existing, 'Date of birth'), lrn: getFieldValue(pair.existing, 'LRN') };
+    pair.meter = `${Math.round(computeMatch(a, b).score * 100)}% match confidence`;
+    return pair;
+  }
+
+  function recomputeAllPairs() {
+    Object.values(data.pairs).forEach(recomputePair);
+  }
+
+  // Live scan for a possible duplicate against every other applicant + every
+  // existing student record — used by the Encode Profile "as you type" suggestion.
+  function suggestDuplicate(candidate, excludeAppId) {
+    let best = null;
+    Object.values(data.applicants).forEach(app => {
+      if (app.id === excludeAppId) return;
+      const { score } = computeMatch(candidate, { name: app.name, dob: app.dob, lrn: app.lrn });
+      if (score >= 0.55 && (!best || score > best.score)) best = { kind: 'applicant', id: app.id, name: app.name, score };
+    });
+    Object.entries(data.records).forEach(([sid, rec]) => {
+      if (rec.app === excludeAppId) return;
+      const linked = data.applicants[rec.app];
+      const { score } = computeMatch(candidate, { name: rec.name, dob: linked ? linked.dob : '', lrn: linked ? linked.lrn : '' });
+      if (score >= 0.55 && (!best || score > best.score)) best = { kind: 'record', id: sid, name: rec.name, score };
+    });
+    return best;
+  }
+
+  // Builds a real (non-persona) duplicate pair from a live suggestDuplicate() match.
+  function createPairFromMatch(appId, match) {
+    if (data.pairs[appId] || !match) return null;
+    const app = data.applicants[appId];
+    if (!app) return null;
+    let existingDob = '', existingLrn = '', existingSex = app.sex, existingSchool = app.school || '—', existingContact = app.guardianContact || '—', existingStatus = 'Active';
+    if (match.kind === 'record') {
+      const rec = data.records[match.id];
+      const linked = rec ? data.applicants[rec.app] : null;
+      if (linked) { existingDob = linked.dob; existingLrn = linked.lrn; existingSex = linked.sex; existingSchool = linked.school || '—'; existingContact = linked.guardianContact || '—'; }
+      existingStatus = rec && rec.status === 'enrolled' ? 'Active' : 'Inactive';
+    } else {
+      const other = data.applicants[match.id];
+      if (other) { existingDob = other.dob; existingLrn = other.lrn; existingSex = other.sex; existingSchool = other.school || '—'; existingContact = other.guardianContact || '—'; }
+      existingStatus = 'Pre-Enlisted';
+    }
+    data.pairs[appId] = {
+      meter: '',
+      incoming: {
+        sub: `${app.category} · ${appId} · Submitted ${stampDate()}`,
+        fields: [
+          ['Full name', app.name, false], ['Date of birth', app.dob, false], ['Sex', app.sex, false], ['LRN', app.lrn || '—', false],
+          ['Previous school', app.school || '—', false], ['Guardian contact', app.guardianContact || '—', false], ['Status', 'Pre-Enlisted', false]
+        ]
+      },
+      existing: {
+        sub: `${match.kind === 'record' ? 'Student ' + match.id : 'Application ' + match.id} · ${match.name}`,
+        fields: [
+          ['Full name', match.name, false], ['Date of birth', existingDob, false], ['Sex', existingSex, false], ['LRN', existingLrn || '—', false],
+          ['Previous school', existingSchool, false], ['Guardian contact', existingContact, false], ['Status', existingStatus, false]
+        ]
+      }
+    };
+    recomputePair(data.pairs[appId]);
+    persist();
+    return data.pairs[appId];
+  }
+
   // ---- record helpers ----
   function getRecords() { return data.records; }
   function getRecord(id) { return data.records[id]; }
@@ -359,6 +548,7 @@
     rec.attendStatus = 'Verified';
     rec.confirmedAt = nowStamp();
     rec.confirmedBy = 'R. Santos (RS)';
+    rec.confirmHint = 'Student is already officially enrolled.';
     if (data.applicants[rec.app]) {
       data.applicants[rec.app].queueStatus = 'enrolled';
       data.applicants[rec.app].evalStatus = 'ready';
@@ -368,9 +558,27 @@
   }
 
 
+  // Real capacity-validated assignment (was a blind overwrite).
   function assignSection(id, section) {
+    const info = SECTIONS[section];
+    if (info && data.sections[id] !== section) {
+      const live = Object.values(data.sections).filter(s => s === section).length;
+      const enrolled = (info.baseline || 0) + live;
+      if (enrolled >= info.capacity) return false;
+    }
     data.sections[id] = section;
     persist();
+    return true;
+  }
+
+  // Rooms/locations roster — Section | Track/Specialization | Campus | Building | Room | capacity.
+  // Enrolled counts are derived live from data.sections, not hardcoded.
+  function sectionRoster() {
+    return Object.entries(SECTIONS).map(([name, info]) => {
+      const live = Object.values(data.sections).filter(s => s === name).length;
+      const enrolled = Math.min(info.capacity, (info.baseline || 0) + live);
+      return { name, track: info.track, strand: info.strand, campus: info.campus, building: info.building, room: info.room, capacity: info.capacity, enrolled, full: enrolled >= info.capacity };
+    });
   }
   function removeRecord(id) {
     delete data.records[id];
@@ -400,15 +608,6 @@
     const att = data.attendance[id];
     if (!att || !Array.isArray(att.log)) return [];
     return att.log.map(d => d.status === 'Present' ? 'present' : d.status === 'Absent' ? 'absent' : 'pending');
-  }
-
-  function completeWeekAttendance(id) {
-    const att = data.attendance[id];
-    if (!att) return;
-    const dates = ['Aug 3', 'Aug 4', 'Aug 5', 'Aug 6', 'Aug 7'];
-    att.log.forEach((d, i) => { d.status = 'Present'; d.date = dates[i] || d.date; });
-    att.req = deriveRequirements(id);
-    persist();
   }
 
   // ---- student records (created on demand so fresh applicants can be confirmed) ----
@@ -622,18 +821,34 @@
     return null;
   }
 
-  function completeJourney() {
-    if (!data.simulation) return;
-    data.simulation.active = false;
-    data.simulation.stage = 8;
-    logStage(8, 'Student officially enrolled & assigned to a section');
-    persist();
+  // ---- continuing-student lookup (real prior-enrollment linkage, not simulation) ----
+  // A continuing student (e.g. Grade 11 -> Grade 12 at the same school) already has
+  // requirements on file from a prior enrollment; the registrar looks them up by LRN
+  // and links the record instead of collecting the same documents again.
+  function findPriorStudent(lrn) {
+    const clean = String(lrn || '').trim();
+    if (!clean) return null;
+    for (const id of Object.keys(data.priorStudents)) {
+      if (data.priorStudents[id].lrn === clean) return Object.assign({ id }, data.priorStudents[id]);
+    }
+    return null;
   }
 
-  function cancelJourney() {
-    if (!data.simulation) return;
-    data.simulation.active = false;
+  function linkPriorStudent(appId, priorId) {
+    const app = data.applicants[appId];
+    const prior = data.priorStudents[priorId];
+    if (!app || !prior) return false;
+    app.continuing = true;
+    app.priorStudentId = priorId;
+    const req = data.requirements[appId];
+    if (req) {
+      req.docs = clone(prior.docs);
+      if (!data.audits[appId]) data.audits[appId] = [];
+      data.audits[appId].unshift(`Requirements carried over from prior enrollment — ${priorId}, ${prior.lastGradeLevel}, SY ${prior.lastSchoolYear} — no resubmission required — R. Santos — ${stamp()}`);
+      deriveRequirements(appId);
+    }
     persist();
+    return true;
   }
 
   // ---- reporting helpers ----
@@ -935,8 +1150,10 @@
     nextAppId, addApplicant, updateApplicant, removeApplicant,
     getRequirements, setRequirement, getAudits,
     getAttendance, setAttendance,
-    getPair, getPairStatus, resolvePair,
+    startJourney, getJourney, getPersona, flagPair, setStage,
+    getPair, getPairStatus, resolvePair, suggestDuplicate, createPairFromMatch,
     getRecords, getRecord, confirmRecord, assignSection, removeRecord,
+    SECTIONS, sectionRoster,
     getReportLog, addReport, removeReport, getMonitoringCase, recordIntervention,
     getAcademicStudent, getAcademicClass, getAcademicPeriod, getAcademicClasses,
     getCorrections, getIncompleteCases, requirementSummary, calculateAcademicGrade,
@@ -944,9 +1161,7 @@
     getAcademicHistory, addAdviserNote, submitCorrection, reviewCorrection,
     addIncompleteNote, resolveIncomplete, finalizationStatus, finalizeAcademicPeriod,
     deriveRequirements, attendanceVerified, attendanceSummary, createRecord, recordByApp, attachUpload,
-    flagPair, completeWeekAttendance,
-    JOURNEY_STAGES, PERSONAS, getPersona,
-    startJourney, getJourney, setStage, nextJourneyStage, completeJourney, cancelJourney,
+    findPriorStudent, linkPriorStudent,
     resetDemo
   };
 })();

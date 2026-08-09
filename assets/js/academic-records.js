@@ -64,6 +64,80 @@ const confirmBanner = document.querySelector('#rec-confirm');
 let currentRow = null;
 let currentRecord = null;
 
+// Section Assignment — selectable rooms/locations table (replaces the old
+// flat <select> + hardcoded capacity table). Selection state lives here
+// rather than on a form control since rows, not options, are now the input.
+let selectedSection = null;
+const sectionBody = document.querySelector('#rec-section-body');
+const sectionScope = document.querySelector('#rec-section-scope');
+const sectionShowAll = document.querySelector('#rec-section-showall');
+const assignHint = document.querySelector('#rec-section-selected');
+const assignBtn = document.querySelector('#btn-assign');
+
+function updateAssignButton() {
+  if (selectedSection) {
+    assignBtn.disabled = false;
+    assignBtn.textContent = `Assign to ${selectedSection}`;
+    assignHint.textContent = `Selected: ${selectedSection}`;
+  } else {
+    assignBtn.disabled = true;
+    assignBtn.textContent = 'Assign Student';
+    assignHint.textContent = 'No section selected';
+  }
+}
+
+// Renders the rooms/locations table, default-filtered to the student's own
+// track/strand + campus (real sectioning is track + geography first), with a
+// "Show all sections" toggle to reveal the rest. Falls back to showing every
+// section if nothing matches the student's own track/campus (e.g. college
+// programs that don't map to an SHS strand).
+function renderSectionTable() {
+  if (!sectionBody) return;
+  const roster = Store.sectionRoster();
+  const app = currentRecord ? Store.applicants[currentRecord.app] : null;
+  const showAll = sectionShowAll.checked;
+  let list = roster;
+  let scopeText = 'Showing all sections';
+  if (app && !showAll) {
+    const scoped = roster.filter(s => s.strand === app.strand && s.campus === app.campus);
+    if (scoped.length) {
+      list = scoped;
+      scopeText = `Showing ${app.strand} sections at ${app.campus}`;
+    } else {
+      scopeText = "No sections match this student's track/campus — showing all sections";
+    }
+  }
+  sectionScope.textContent = scopeText;
+
+  // Drop the current selection if it scrolled out of the visible (filtered) list.
+  if (selectedSection && !list.some(s => s.name === selectedSection)) selectedSection = null;
+
+  sectionBody.innerHTML = list.length ? list.map(s => `
+    <tr class="sec-row${s.full ? ' is-full' : ''}${s.name === selectedSection ? ' is-selected' : ''}" data-section="${s.name}" tabindex="0">
+      <td>${s.name}</td>
+      <td>${s.track} <small>${s.strand}</small></td>
+      <td>${s.campus}</td>
+      <td>${s.building}</td>
+      <td>${s.room}</td>
+      <td>${s.enrolled}/${s.capacity}</td>
+      <td><span class="status-pill ${s.full ? 'danger' : 'success'}">${s.full ? 'Full' : 'Open'}</span></td>
+    </tr>`).join('') : '<tr><td colspan="7" style="text-align:center;color:#7a8487;padding:14px;">No sections found.</td></tr>';
+
+  updateAssignButton();
+}
+
+sectionBody.addEventListener('click', event => {
+  const row = event.target.closest('.sec-row');
+  if (!row) return;
+  if (row.classList.contains('is-full')) {
+    showToast('Section is full', 'Choose an open section — capacity limits are enforced.');
+    return;
+  }
+  selectedSection = row.dataset.section;
+  renderSectionTable();
+});
+sectionShowAll.addEventListener('change', renderSectionTable);
+
 function openModal() {
   modal.setAttribute('aria-hidden', 'false');
   modal.classList.add('open');
@@ -93,6 +167,13 @@ function openRecord(row) {
     `<span class="attend-chip ${d}">${['Mon', 'Tue', 'Wed', 'Thu', 'Fri'][i]}</span>`).join('');
   document.querySelector('#rec-attend-status').textContent = rec.attendStatus;
 
+  // Section Assignment table — pre-select whatever section the student is
+  // already assigned to (so reopening the record shows it highlighted), and
+  // reset the scope back to the student's own track/campus by default.
+  selectedSection = Store.sections[row.dataset.id] || null;
+  sectionShowAll.checked = false;
+  renderSectionTable();
+
   confirmBanner.className = 'confirm-banner' + (rec.confirmable ? ' good' : '');
   confirmBanner.innerHTML = `<span>${rec.confirmable ? 'OK' : '!'}</span><div><strong>${rec.confirmable ? 'All conditions met.' : 'Action required.'}</strong> ${rec.confirmHint}</div>`;
   confirmBtn.textContent = rec.status === 'enrolled' ? 'Already Enrolled' : 'Confirm Enrollment';
@@ -120,29 +201,20 @@ document.querySelectorAll('.modal-close').forEach(button => button.addEventListe
 modal.addEventListener('click', event => { if (event.target === modal) closeModal(); });
 
 // Section assignment with capacity validation — persists to the store.
-document.querySelector('#btn-assign').addEventListener('click', () => {
-  const select = document.querySelector('#rec-section');
-  const section = select.value;
-  const full = section.includes('Full');
-  if (full) { showToast('Section is full', 'Choose an open section — capacity limits are enforced.'); return; }
-  Store.assignSection(currentRow.dataset.id, section);
-  currentRow.querySelector('td:nth-child(6)').textContent = section;
-  showToast('Student assigned', `${currentRecord.name} assigned to ${section}. Change logged in the audit trail.`);
-});
-
-// Auto section (simulate) — assigns the active journey student to their
-// persona section (or STEM-B for any other record).
-document.querySelector('#btn-sim').addEventListener('click', () => {
-  if (!currentRecord || !currentRow) { showToast('Open a record', 'Open a student record first.'); return; }
-  const j = Store.getJourney();
-  if (j && j.active && currentRecord.app === j.appId) {
-    Sim.runStage(7);
-    currentRow.querySelector('td:nth-child(6)').textContent = Store.sections[currentRow.dataset.id] || '—';
-  } else {
-    Store.assignSection(currentRow.dataset.id, 'STEM-B');
-    currentRow.querySelector('td:nth-child(6)').textContent = 'STEM-B';
+// The dead `.includes('Full')` check is gone: a plain section name like
+// "STEM-A" never contained that string, so it could never fire. Capacity is
+// now enforced by Store.assignSection's own return value.
+assignBtn.addEventListener('click', () => {
+  if (!selectedSection || !currentRow) return;
+  const assigned = Store.assignSection(currentRow.dataset.id, selectedSection);
+  if (!assigned) {
+    showToast('Section is full', 'Choose another section — capacity limits are enforced.');
+    renderSectionTable();
+    return;
   }
-  showToast('Section assigned', `${currentRecord.name} — assigned (simulated), capacity validated.`);
+  currentRow.querySelector('td:nth-child(6)').textContent = selectedSection;
+  showToast('Student assigned', `${currentRecord.name} assigned to ${selectedSection}. Change logged in the audit trail.`);
+  renderSectionTable();
 });
 
 // Confirm enrollment (only when requirements + attendance conditions are met) — persists.

@@ -39,6 +39,16 @@ deliveryChecks.forEach(check => check.addEventListener('change', () => {
   document.querySelector('#s-delivery-other').style.display = otherCheck.checked ? 'inline-block' : 'none';
 }));
 
+// Collects the checked delivery modalities (+ the "Other" free-text field) from
+// the DOM. Shared by the Google-Forms preview and the real Submit handler so
+// the two never drift apart.
+function collectDelivery() {
+  return {
+    delivery: deliveryChecks.filter(c => c.checked).map(c => c.value),
+    deliveryOther: document.querySelector('#s-delivery-other').value.trim()
+  };
+}
+
 // File uploads: show the chosen file name and expose a Remove control that
 // detaches the selection so the document can be re-uploaded.
 document.querySelectorAll('.upload-item').forEach(item => {
@@ -63,9 +73,6 @@ document.querySelectorAll('.upload-item').forEach(item => {
   removeBtn.addEventListener('click', () => {
     input.value = '';
     syncFileState();
-    // Honor the removal for simulated uploads too, so the document is not
-    // silently attached on submit.
-    delete pendingUploads[docName];
     item.querySelector('.pick-label').focus();
     showToast('File removed', `${docName} cleared — no file attached. Choose a file to re-upload.`);
   });
@@ -84,7 +91,7 @@ document.querySelector('#btn-draft').addEventListener('click', () => {
 // Submit Application — validate key fields, then simulate the queue entry.
 document.querySelector('#submission-form').addEventListener('submit', event => {
   event.preventDefault();
-  const required = ['s-last', 's-first', 's-middle', 's-dob', 's-age', 's-contact', 's-house', 's-city', 's-barangay', 's-father', 's-mother', 's-guardian-contact', 's-grade', 's-track', 's-strand', 's-campus'];
+  const required = ['s-last', 's-first', 's-middle', 's-dob', 's-age', 's-contact', 's-house', 's-city', 's-barangay', 's-father', 's-mother', 's-guardian-contact', 's-grade', 's-track', 's-strand', 's-campus', 's-category'];
   // LRN is only required when the applicant indicates they have one.
   const lrnStatus = document.querySelector('#s-lrn-status').value;
   if (lrnStatus === 'With LRN' || lrnStatus === 'Returning (Balik-Aral)') {
@@ -132,6 +139,7 @@ document.querySelector('#submission-form').addEventListener('submit', event => {
     strand: document.querySelector('#s-strand').value, campus: document.querySelector('#s-campus').value,
     campusKey: document.querySelector('#s-campus').value.toLowerCase().startsWith('main') ? 'main' : document.querySelector('#s-campus').value.toLowerCase().startsWith('kapat') ? 'kapatagan' : 'bugo',
     category: (document.querySelector('#s-category')?.value) || 'New',
+    ...collectDelivery(),
     program: document.querySelector('#s-grade').value.includes('11') || document.querySelector('#s-grade').value.includes('12') ? 'shs' : 'college',
     programLabel: `${document.querySelector('#s-strand').value} · ${document.querySelector('#s-grade').value}`,
     queueStatus: 'pre-enlisted'
@@ -170,7 +178,6 @@ const previewBody = document.querySelector('#preview-body');
 const previewStep = document.querySelector('#preview-step');
 const previewProgress = document.querySelector('#preview-progress');
 const previewBack = document.querySelector('#preview-back');
-const previewFill = document.querySelector('#preview-fill');
 const previewNext = document.querySelector('#preview-next');
 const previewNote = document.querySelector('#preview-note');
 
@@ -184,6 +191,7 @@ const PREVIEW_SECTIONS = [
       ['Which Track do you want to Enroll?', '#s-track'],
       ['Strand / Specialization', '#s-strand'],
       ['Preferred campus', '#s-campus'],
+      ['Enrollment Category', '#s-category'],
       ['Preferred distance learning modality/modalities', deliveryPreviewValue]
     ]
   },
@@ -254,9 +262,9 @@ const PREVIEW_SECTIONS = [
 
 const uploadInputs = [...document.querySelectorAll('.upload-item input[type="file"]')];
 function deliveryPreviewValue() {
-  const picked = deliveryChecks.filter(c => c.checked).map(c => c.value);
-  const other = document.querySelector('#s-delivery-other').value.trim();
-  if (other) picked.push('Other: ' + other);
+  const { delivery, deliveryOther } = collectDelivery();
+  const picked = [...delivery];
+  if (deliveryOther) picked.push('Other: ' + deliveryOther);
   return picked.length ? picked.join(', ') : '';
 }
 function ipPreviewValue() {
@@ -269,10 +277,6 @@ function ipPreviewValue() {
 function uploadPreviewValue(i) {
   const input = uploadInputs[i];
   if (input && input.files && input.files[0]) return 'Attached: ' + input.files[0].name;
-  // Simulated attachments (browsers forbid setting file inputs) are tracked in
-  // pendingUploads and rendered here so the student's Google Form view shows them.
-  const docName = ['PSA Birth Certificate', 'Form 137', 'Certificate of Completion', 'Good Moral Certificate'][i];
-  if (pendingUploads[docName]) return 'Attached: ' + pendingUploads[docName] + ' (simulated)';
   return '';
 }
 
@@ -285,7 +289,6 @@ function escapeHtml(text) {
 }
 
 let previewIndex = 0;
-let filledPages = new Set();   // Google Form pages completed via the simulation
 function renderPreviewPage() {
   const section = PREVIEW_SECTIONS[previewIndex];
   previewStep.textContent = `Section ${previewIndex + 1} of ${PREVIEW_SECTIONS.length}`;
@@ -299,32 +302,9 @@ function renderPreviewPage() {
     }).join('');
   previewBack.disabled = previewIndex === 0;
   const isLast = previewIndex === PREVIEW_SECTIONS.length - 1;
-  const allFilled = simulated && filledPages.size === TOTAL_SECTIONS;
-  const pageFilled = filledPages.has(previewIndex);
-  if (previewFill) {
-    previewFill.hidden = !simulated;
-    previewFill.disabled = pageFilled;
-    previewFill.textContent = pageFilled ? 'Filled' : 'Fill this page';
-  }
-  previewNext.textContent = isLast ? (allFilled ? 'Submit Application' : 'Finish Preview') : 'Next →';
-  previewNote.textContent = isLast
-    ? (allFilled ? 'All pages filled — press Submit Application to finish.' : 'This is the final section. The student would press “Submit” here.')
-    : '';
+  previewNext.textContent = isLast ? 'Finish Preview' : 'Next →';
+  previewNote.textContent = isLast ? 'This is the final section. The student would press “Submit” here.' : '';
 }
-
-// The preview's Fill button populates only the Google Form page currently shown.
-previewFill?.addEventListener('click', () => {
-  if (!simulated) {
-    showToast('Start the simulation first', 'Click Start Simulation, then fill each page.');
-    return;
-  }
-  if (filledPages.has(previewIndex)) return;
-  previewFill.disabled = true;
-  previewFill.textContent = 'Filling…';
-  // markSectionFilled re-renders the preview (and resets this button's state)
-  // when the Google Form view is visible, so no extra render is needed here.
-  fillSection(previewIndex).then(() => markSectionFilled(previewIndex));
-});
 
 function showPreview(show) {
   formEl.classList.toggle('hidden', show);
@@ -350,296 +330,10 @@ previewNext.addEventListener('click', () => {
     renderPreviewPage();
     return;
   }
-  if (simulated) {
-    if (filledPages.size !== TOTAL_SECTIONS) {
-      // Stay in the student's view — tell them what's left, don't yank them out.
-      showToast('Not all pages filled yet', `Fill the remaining ${TOTAL_SECTIONS - filledPages.size} page(s) before submitting.`);
-      return;
-    }
-    // All Google Form pages filled — fire the real submit handler.
-    formEl.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    return;
-  }
   showPreview(false);
   showToast('Preview finished', 'Returned to the all-fields view — the form is ready for a real submission.');
 });
 
-// ---- Simulate a Student Submission (click-through) ----
-// The presenter arms the simulation, then fills the application one section at
-// a time — each section header carries a Fill button that populates that
-// section's fields from the chosen persona. After all six sections are filled,
-// the real Submit button fires and the persisted journey starts in the Queue.
-const simStart = document.querySelector('#sim-start');
-const simCancel = document.querySelector('#sim-cancel');
-const simPersona = document.querySelector('#sim-persona');
-const simMode = document.querySelector('#sim-mode');
-const simSpeed = document.querySelector('#sim-speed');
-const simProgress = document.querySelector('#sim-progress');
-const simProgressFill = document.querySelector('#sim-progress-fill');
-const simProgressText = document.querySelector('#sim-progress-text');
-const successLink = document.querySelector('#success-queue-link');
-const formSections = [...document.querySelectorAll('#submission-form .form-section')];
-
-const SPEED = {
-  fast: { char: 5, pause: 20, banner: 400 },
-  normal: { char: 9, pause: 60, banner: 650 },
-  slow: { char: 14, pause: 160, banner: 1000 }
-};
-
-const TOTAL_SECTIONS = 6;
-
-let simulated = false;    // armed once Start Simulation is clicked
-let filledSections = 0;   // sections completed via Fill clicks
-let pendingUploads = {};
-
-const wait = ms => new Promise(res => setTimeout(res, ms));
-
-const S = id => document.querySelector(id);
-
-async function typeInto(el, value, perChar) {
-  if (!el) return;
-  value = String(value || '');
-  el.value = '';
-  if (el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
-    el.value = value;
-  } else {
-    for (let i = 0; i < value.length; i++) {
-      el.value = value.slice(0, i + 1);
-      el.dispatchEvent(new Event('input', { bubbles: true }));
-      await wait(perChar);
-    }
-  }
-  el.dispatchEvent(new Event('change', { bubbles: true }));
-}
-
-function setProgress(pct, text) {
-  simProgress.hidden = false;
-  simProgressFill.style.width = pct + '%';
-  simProgressText.textContent = text;
-}
-
-// One field plan per section (mirrors the Google Form sections 1–6). Each plan
-// returns closures that type the persona's values into that section's inputs.
-const SECTION_PLANS = [
-  { label: '1 · Enrollment Preferences', run: (persona, speed) => [
-      () => typeInto(S('#s-grade'), persona.grade, speed.char),
-      () => typeInto(S('#s-track'), persona.track, speed.char),
-      () => typeInto(S('#s-strand'), persona.strand, speed.char),
-      () => typeInto(S('#s-campus'), persona.campus, speed.char),
-      () => deliveryChecks.forEach(c => { c.checked = persona.delivery.includes(c.value); c.dispatchEvent(new Event('change', { bubbles: true })); }),
-      () => typeInto(S('#s-delivery-other'), persona.deliveryOther, speed.char)
-    ] },
-  { label: '2 · Student Information', run: (persona, speed) => [
-      () => typeInto(S('#s-lrn-status'), persona.lrnStatus, speed.char),
-      () => typeInto(S('#s-psa'), persona.psa, speed.char),
-      () => typeInto(S('#s-lrn'), persona.lrn, speed.char),
-      () => typeInto(S('#s-last'), persona.last, speed.char),
-      () => typeInto(S('#s-first'), persona.first, speed.char),
-      () => typeInto(S('#s-middle'), persona.middle, speed.char),
-      () => typeInto(S('#s-ext'), persona.ext, speed.char),
-      () => typeInto(S('#s-dob'), persona.dob, speed.char),
-      () => typeInto(S('#s-sex'), persona.sex, speed.char),
-      () => typeInto(S('#s-age'), persona.age, speed.char),
-      () => typeInto(S('#s-contact'), persona.contact, speed.char),
-      () => typeInto(S('#s-email'), persona.email, speed.char),
-      () => typeInto(S('#s-ip'), persona.ip, speed.char),
-      () => typeInto(S('#s-ip-other'), persona.ipOther, speed.char),
-      () => typeInto(S('#s-mother-tongue'), persona.motherTongue, speed.char),
-      () => typeInto(S('#s-honors'), persona.honors, speed.char)
-    ] },
-  { label: '3 · Complete Home Address', run: (persona, speed) => [
-      () => typeInto(S('#s-house'), persona.house, speed.char),
-      () => typeInto(S('#s-province'), persona.province, speed.char),
-      () => typeInto(S('#s-city'), persona.city, speed.char),
-      () => typeInto(S('#s-barangay'), persona.barangay, speed.char)
-    ] },
-  { label: '4 · Current School', run: (persona, speed) => [
-      () => typeInto(S('#s-enrolled'), persona.enrolled, speed.char),
-      () => typeInto(S('#s-school'), persona.school, speed.char),
-      () => typeInto(S('#s-school-address'), persona.schoolAddress, speed.char),
-      () => typeInto(S('#s-school-id'), persona.schoolId, speed.char)
-    ] },
-  { label: '5 · Parent / Guardian', run: (persona, speed) => [
-      () => typeInto(S('#s-father'), persona.father, speed.char),
-      () => typeInto(S('#s-mother'), persona.mother, speed.char),
-      () => typeInto(S('#s-guardian'), persona.guardian, speed.char),
-      () => typeInto(S('#s-guardian-contact'), persona.guardianContact, speed.char),
-      () => typeInto(S('#s-regdate'), persona.regDate, speed.char),
-      () => typeInto(S('#s-referred'), persona.referred, speed.char)
-    ] }
-];
-
-// Fill ONE section (0–5) from the selected persona. Section 6 (index 5) is the
-// upload grid — browsers forbid setting file inputs, so we mark documents as
-// "attached (simulated)" instead.
-async function fillSection(idx) {
-  const persona = Store.getPersona(simPersona.value);
-  const speed = SPEED[simSpeed.value] || SPEED.normal;
-  if (idx === 5) {
-    pendingUploads = {};
-    document.querySelectorAll('.upload-item').forEach(item => {
-      const docName = item.querySelector('.name').childNodes[0].textContent.trim();
-      const file = persona.uploads[docName];
-      if (!file) return;
-      pendingUploads[docName] = file;
-      item.querySelector('.pick-label').textContent = 'Attached: ' + file + ' (simulated)';
-      const removeBtn = item.querySelector('.file-remove');
-      if (removeBtn) removeBtn.hidden = false;
-    });
-    showToast('Documents attached', 'All four scanned documents attached (simulated).');
-    return;
-  }
-  const plan = SECTION_PLANS[idx];
-  for (const fn of plan.run(persona, speed)) { await fn(); await wait(speed.pause); }
-}
-
-function markSectionFilled(idx) {
-  filledSections++;
-  filledPages.add(idx);
-  const btn = document.querySelector(`.section-fill[data-section="${idx}"]`);
-  if (btn) { btn.disabled = true; btn.textContent = 'Filled'; btn.classList.add('filled'); }
-  if (filledSections === TOTAL_SECTIONS) {
-    const submitBtn = formEl.querySelector('button[type="submit"]');
-    if (submitBtn) submitBtn.disabled = false;
-    setProgress(100, 'All sections filled — click Submit Application →');
-    showToast('Form complete', 'Every section is filled. Click “Submit Application” to finish.');
-  } else {
-    setProgress(Math.round((filledSections / TOTAL_SECTIONS) * 100), `${filledSections} of ${TOTAL_SECTIONS} sections filled — click the next Fill.`);
-  }
-  // Keep the Google Form view in sync (Fill button state + Submit label).
-  if (previewPanel.classList.contains('show')) renderPreviewPage();
-}
-
-// Arm the simulation: clear the form, unlock the per-section Fill buttons,
-// and lock the real Submit until every section has been filled by hand.
-function cancelSimulation() {
-  simulated = false;
-  filledSections = 0;
-  filledPages = new Set();
-  pendingUploads = {};
-  document.querySelectorAll('.section-fill').forEach(btn => {
-    btn.disabled = true;
-    btn.textContent = 'Fill';
-    btn.classList.remove('filled');
-  });
-  const draftBtn = document.querySelector('#btn-draft');
-  const submitBtn = formEl.querySelector('button[type="submit"]');
-  if (draftBtn) draftBtn.disabled = false;
-  if (submitBtn) submitBtn.disabled = false;
-  simStart.disabled = false;
-  simPersona.disabled = false;
-  simMode.disabled = false;
-  simSpeed.disabled = false;
-  setProgress(0, 'Simulation cancelled — the form is back to manual mode.');
-  if (previewPanel.classList.contains('show')) renderPreviewPage();
-}
-
-// Arm the simulation: clear the form, unlock the per-section Fill buttons,
-// and lock the real Submit until every section has been filled by hand.
-function resetSimulation() {
-  simulated = true;
-  filledSections = 0;
-  filledPages = new Set();
-  pendingUploads = {};
-  formEl.querySelectorAll('input, select').forEach(el => {
-    if (el.type !== 'checkbox' && el.type !== 'file') el.value = '';
-  });
-  deliveryChecks.forEach(c => { c.checked = false; });
-  document.querySelector('#s-delivery-other').style.display = 'none';
-  document.querySelector('#s-ip-other-wrap').classList.add('hidden');
-  renderStrands('');
-  document.querySelectorAll('.upload-item').forEach(item => {
-    item.querySelector('.pick-label').textContent = 'Choose file';
-    const removeBtn = item.querySelector('.file-remove');
-    if (removeBtn) removeBtn.hidden = true;
-  });
-  document.querySelectorAll('.section-fill').forEach(btn => {
-    btn.disabled = false;
-    btn.textContent = 'Fill';
-    btn.classList.remove('filled');
-  });
-  const draftBtn = document.querySelector('#btn-draft');
-  const submitBtn = formEl.querySelector('button[type="submit"]');
-  if (draftBtn) draftBtn.disabled = true;
-  if (submitBtn) submitBtn.disabled = true;
-  if (simCancel) simCancel.hidden = false;
-  setProgress(4, 'Simulation armed — click each page to fill it.');
-}
-
-simCancel?.addEventListener('click', () => {
-  cancelSimulation();
-  if (simCancel) simCancel.hidden = true;
-  showToast('Simulation cancelled', 'The form is back to manual mode — you can edit and submit normally.');
-});
-
-simStart.addEventListener('click', () => {
-  const persona = Store.getPersona(simPersona.value);
-  simStart.disabled = true;
-  simPersona.disabled = true;
-  simMode.disabled = true;
-  simSpeed.disabled = true;
-  resetSimulation();
-  // The applicant completes the form from their own Google Form view.
-  showPreview(true);
-  showToast('Simulation started', `Filling as ${persona.label} — click Fill on each page of the form, then submit.`);
-});
-
-// Each section header's Fill button populates just that section's fields.
-// The whole header is clickable too — the chip is the visible affordance.
-function armSectionFill(btn) {
-  if (!simulated || btn.disabled) {
-    if (!simulated) showToast('Start the simulation first', 'Click Start Simulation, then fill each section.');
-    return;
-  }
-  const idx = Number(btn.dataset.section);
-  btn.disabled = true;
-  btn.textContent = 'Filling…';
-  fillSection(idx).then(() => markSectionFilled(idx));
-}
-
-document.querySelectorAll('.section-fill').forEach(btn => {
-  btn.addEventListener('click', event => {
-    event.stopPropagation();
-    armSectionFill(btn);
-  });
-});
-
-// Clicking anywhere on a section header fills that section (when armed).
-document.querySelectorAll('#submission-form .section-head').forEach(head => {
-  head.addEventListener('click', () => {
-    const btn = head.querySelector('.section-fill');
-    if (btn) armSectionFill(btn);
-  });
-});
-
-// Runs after the main submit handler: attach uploads, start the journey, and
-// re-point the success action at the journey continuation.
-formEl.addEventListener('submit', () => {
-  if (!simulated) return;
-  simulated = false;
-  const draftBtn = document.querySelector('#btn-draft');
-  const submitBtn = formEl.querySelector('button[type="submit"]');
-  if (draftBtn) draftBtn.disabled = false;
-  if (submitBtn) submitBtn.disabled = false;
-  const id = document.querySelector('#success-app').textContent.trim();
-  if (!id) return;
-
-  Object.entries(pendingUploads).forEach(([doc, name]) => Store.attachUpload(id, doc, name));
-  // The form has no category field (Enrollment Details was dissolved) — patch it from the persona.
-  Store.updateApplicant(id, { category: Store.getPersona(simPersona.value).category });
-
-  const mode = simMode.value;
-  const bannerSpeed = (SPEED[simSpeed.value] || SPEED.normal).banner;
-  Store.startJourney({ appId: id, persona: simPersona.value, mode, speed: bannerSpeed });
-
-  const auto = mode === 'auto' ? '&auto=1' : '';
-  successLink.href = `queue.html?journey=${encodeURIComponent(id)}${auto}`;
-  successLink.textContent = mode === 'auto'
-    ? 'Continue journey — watch it reach Officially Enrolled →'
-    : 'Continue journey in the Enrollment Queue →';
-  showToast('Simulation started', `${Store.applicants[id].name} (${id}) — the journey is saved and ready to follow.`);
-});
-
 // The Enrollment Submission screen is the applicant's own screen — open on the
-// Google Form view by default so the simulation reads as the student's POV.
+// Google Form view by default.
 showPreview(true);

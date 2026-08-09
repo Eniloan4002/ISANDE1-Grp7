@@ -16,12 +16,7 @@ const REPORTS = {
   enrollment: {
     title: 'Enrollment Summary', desc: 'Pre-enlisted, pending, and enrolled counts by campus.',
     head: ['Campus', 'Pre-enlisted', 'Pending req.', 'Enrolled', 'Total'],
-    rows: [
-      ['Main — Iligan', '6', '3', '19', '28'],
-      ['Kapatagan', '3', '2', '8', '13'],
-      ['Bugo — CDO', '3', '2', '7', '12'],
-      ['<strong>Total</strong>', '<strong>12</strong>', '<strong>7</strong>', '<strong>34</strong>', '<strong>53</strong>']
-    ]
+    rows: [] // live — see buildEnrollmentRows()
   },
   records: {
     title: 'Student Records', desc: 'Directory of active student records.',
@@ -44,14 +39,9 @@ const REPORTS = {
     ]
   },
   attendance: {
-    title: 'Attendance', desc: 'First-week attendance rates by section.',
-    head: ['Section', 'Students', 'Week 1 present', 'Rate', 'Status'],
-    rows: [
-      ['STEM-A', '40', '38', '95%', '<span class="status-pill success">Good</span>'],
-      ['STEM-B', '36', '35', '97%', '<span class="status-pill success">Good</span>'],
-      ['HUMSS-1', '38', '31', '82%', '<span class="status-pill warning">Monitor</span>'],
-      ['ABM-1', '35', '34', '97%', '<span class="status-pill success">Good</span>']
-    ]
+    title: 'Attendance', desc: 'Per-applicant first-week attendance, derived live from the centralized attendance log.',
+    head: ['Student', 'App ID', 'Present', 'Absent', 'Pending', 'Status'],
+    rows: []
   },
   honor: {
     title: 'Honor Students', desc: 'Top students by general weighted average (GWA).',
@@ -131,6 +121,96 @@ function paramSummary() {
   return selects.map(select => select.options[select.selectedIndex].text).join(' · ');
 }
 
+// The params row is [School year, Grading period, Grade level, Campus, Section] —
+// only Campus and Grade level map cleanly onto applicant fields, so those are the
+// only ones applied to the live reports below (best-effort, not exhaustive).
+function readFilters() {
+  const selects = [...document.querySelectorAll('.params select')];
+  const valueOf = (select) => select ? select.options[select.selectedIndex].text : '';
+  return {
+    grade: valueOf(selects[2]),
+    campus: valueOf(selects[3])
+  };
+}
+
+function matchesFilters(app, filters) {
+  if (filters.campus && filters.campus !== 'All campuses' && app.campus !== filters.campus) return false;
+  if (filters.grade && filters.grade !== 'All levels' && app.grade !== filters.grade) return false;
+  return true;
+}
+
+// Last-update timestamp for an applicant: prefer the most recent audit entry
+// (real change history), fall back to the applicant's own submission date.
+function lastUpdateFor(appId, app) {
+  const audits = Store.getAudits(appId);
+  if (audits && audits.length) {
+    const parts = audits[0].split('—');
+    if (parts.length > 1) return parts[parts.length - 1].trim();
+  }
+  return app.submittedAt || '—';
+}
+
+// "Missing Requirements" — live: any applicant whose derived requirement status
+// isn't Complete, listing the doc names that are not yet submitted.
+function buildMissingRows(filters) {
+  return Object.values(Store.applicants)
+    .filter(app => matchesFilters(app, filters))
+    .filter(app => Store.deriveRequirements(app.id) !== 'Complete')
+    .map(app => {
+      const req = Store.getRequirements(app.id);
+      const docs = (req && req.docs) || {};
+      const missingDocs = Object.entries(docs).filter(([, status]) => status !== 'submitted').map(([doc]) => doc);
+      const missingText = missingDocs.length ? missingDocs.join(', ') : 'All documents pending';
+      const contact = (req && req.contact) || app.contact || '—';
+      return [app.name, app.id, missingText, lastUpdateFor(app.id, app), contact];
+    });
+}
+
+// "Enrollment Summary" — live: pre-enlisted / pending-requirements / enrolled
+// counts per campus, grouped from the applicant queue itself.
+function buildEnrollmentRows(filters) {
+  const applicants = Object.values(Store.applicants).filter(app => matchesFilters(app, filters));
+  const byCampus = {};
+  applicants.forEach(app => {
+    const key = app.campus || 'Unassigned';
+    if (!byCampus[key]) byCampus[key] = { preEnlisted: 0, pending: 0, enrolled: 0, total: 0 };
+    byCampus[key].total += 1;
+    if (app.queueStatus === 'pre-enlisted') byCampus[key].preEnlisted += 1;
+    else if (app.queueStatus === 'pending') byCampus[key].pending += 1;
+    else if (app.queueStatus === 'enrolled') byCampus[key].enrolled += 1;
+  });
+  const rows = Object.entries(byCampus).map(([campus, c]) =>
+    [campus, String(c.preEnlisted), String(c.pending), String(c.enrolled), String(c.total)]);
+  const totals = rows.reduce((acc, row) => ({
+    pre: acc.pre + Number(row[1]), pend: acc.pend + Number(row[2]), enr: acc.enr + Number(row[3]), tot: acc.tot + Number(row[4])
+  }), { pre: 0, pend: 0, enr: 0, tot: 0 });
+  rows.push([
+    '<strong>Total</strong>', `<strong>${totals.pre}</strong>`, `<strong>${totals.pend}</strong>`,
+    `<strong>${totals.enr}</strong>`, `<strong>${totals.tot}</strong>`
+  ]);
+  return rows;
+}
+
+// "Attendance" — live, reshaped to one row per applicant (Store.attendance is
+// applicant-level, not section-level): present/absent/pending day counts plus
+// the same verification gate used elsewhere (Store.attendanceVerified).
+function buildAttendanceRows(filters) {
+  return Object.values(Store.applicants)
+    .filter(app => matchesFilters(app, filters))
+    .map(app => {
+      const att = Store.getAttendance(app.id);
+      if (!att || !Array.isArray(att.log) || !att.log.length) return null;
+      const counts = { Present: 0, Absent: 0, Pending: 0 };
+      att.log.forEach(day => { counts[day.status] = (counts[day.status] || 0) + 1; });
+      const verified = Store.attendanceVerified(app.id);
+      const statusHtml = verified
+        ? '<span class="status-pill success">Verified</span>'
+        : '<span class="status-pill warning">Not yet verified</span>';
+      return [app.name, app.id, String(counts.Present || 0), String(counts.Absent || 0), String(counts.Pending || 0), statusHtml];
+    })
+    .filter(Boolean);
+}
+
 function renderLog() {
   const log = document.querySelector('#log-body');
   const entries = Store.getReportLog();
@@ -144,12 +224,23 @@ function renderLog() {
   if (count) count.textContent = `Showing ${entries.length} of ${entries.length} logged generations`;
 }
 
+// These 3 report types read live Store data at generate-time; the other 3
+// (records/honor/docs) stay on the hardcoded REPORTS rows — see the
+// "(sample data)" badges on their tiles in reporting-monitoring.html.
+const LIVE_ROW_BUILDERS = {
+  missing: buildMissingRows,
+  enrollment: buildEnrollmentRows,
+  attendance: buildAttendanceRows
+};
+
 function generate() {
   syncCarloReports();
   const type = typeButtons.find(button => button.classList.contains('active')).dataset.type;
   const report = REPORTS[type];
+  const builder = LIVE_ROW_BUILDERS[type];
+  const rows = builder ? builder(readFilters()) : report.rows;
   previewTable.querySelector('thead').innerHTML = `<tr>${report.head.map(h => `<th>${h}</th>`).join('')}</tr>`;
-  previewTable.querySelector('tbody').innerHTML = report.rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('');
+  previewTable.querySelector('tbody').innerHTML = rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('');
   const now = 'Aug 7, 2026 10:42 AM';
   previewMeta.innerHTML = `<span><strong>Report:</strong> ${report.title}</span><span><strong>Generated:</strong> ${now}</span><span><strong>Criteria:</strong> ${paramSummary()}</span><span><strong>By:</strong> R. Santos (Registrar Staff)</span>`;
   preview.classList.add('show');
