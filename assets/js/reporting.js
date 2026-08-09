@@ -80,27 +80,36 @@ const preview = document.querySelector('#preview-panel');
 const previewTable = document.querySelector('#preview-table');
 const previewMeta = document.querySelector('#preview-meta');
 
+let syncedScenarioAppId = '';
+let syncedScenarioStudentId = '';
+
 function syncCarloReports() {
-  const appId = 'APP-2026-0153';
-  const studentId = 'STU-2026-0456';
-  const app = Store.applicants[appId];
-  REPORTS.records.rows = REPORTS.records.rows.filter(row => row[1] !== studentId);
-  REPORTS.missing.rows = REPORTS.missing.rows.filter(row => row[1] !== appId);
+  if (syncedScenarioStudentId) REPORTS.records.rows = REPORTS.records.rows.filter(row => row[1] !== syncedScenarioStudentId);
+  if (syncedScenarioAppId) REPORTS.missing.rows = REPORTS.missing.rows.filter(row => row[1] !== syncedScenarioAppId);
+
+  const journey = Store.getJourney();
+  const appId = journey?.persona === 'transferee' ? journey.appId : '';
+  const app = appId ? Store.applicants[appId] : null;
+  syncedScenarioAppId = app ? appId : '';
+  syncedScenarioStudentId = app ? Store.recordByApp(appId) || '' : '';
   if (!app) return;
 
-  REPORTS.records.rows.push([
-    'Bautista, Carlo',
-    studentId,
-    'TVL-Cookery',
-    'Bugo',
-    app.queueStatus === 'enrolled' ? 'Enrolled' : 'Pending confirmation'
-  ]);
+  if (syncedScenarioStudentId) {
+    const record = Store.getRecord(syncedScenarioStudentId);
+    REPORTS.records.rows.push([
+      app.name,
+      syncedScenarioStudentId,
+      String(app.programLabel || '—').split('·')[0].trim(),
+      app.campus || '—',
+      record?.status === 'enrolled' ? 'Enrolled' : 'Pending confirmation'
+    ]);
+  }
 
   const docs = Store.getRequirements(appId)?.docs || {};
   const missing = Object.entries(docs).filter(([, value]) => value !== 'submitted').map(([doc]) => doc);
   if (missing.length) {
     REPORTS.missing.rows.push([
-      'Bautista, Carlo',
+      app.name,
       appId,
       missing.join(', '),
       app.submittedAt || 'Current',

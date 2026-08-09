@@ -115,10 +115,8 @@ function refreshDuplicateSuggestion() {
   const suggest = document.querySelector('#dup-suggest');
   const lastName = document.querySelector('#f-last').value.trim().toLowerCase();
   const journey = Store.getJourney();
-  const persona = activeApp === 'APP-2026-0153'
-    ? Store.getPersona('transferee')
-    : journey && journey.appId === activeApp ? Store.getPersona(journey.persona) : null;
-  const pair = activeApp ? Store.getPair(activeApp) : null;
+  const persona = journey && journey.appId === activeApp ? Store.getPersona(journey.persona) : null;
+  const pair = activeApp && (APPLICANTS[activeApp].flag === 'dup' || persona?.dup) ? Store.getPair(activeApp) : null;
   const flagged = activeApp && (APPLICANTS[activeApp].flag === 'dup' || Boolean(persona && persona.dup));
   const incomingFields = pair?.incoming?.fields || [];
   const existingFields = pair?.existing?.fields || [];
@@ -214,13 +212,14 @@ function saveAndReturn(kind) {
   Store.updateApplicant(activeApp, collectForm());
   if (kind === 'check') {
     const lastName = document.querySelector('#f-last').value.trim().toLowerCase();
-    const carloScenario = activeApp === 'APP-2026-0153';
-    const duplicate = carloScenario || APPLICANTS[activeApp].flag === 'dup' || lastName.includes('santos');
+    const journey = Store.getJourney();
+    const transfereeScenario = journey?.appId === activeApp && journey.persona === 'transferee';
+    const duplicate = transfereeScenario || APPLICANTS[activeApp].flag === 'dup' || lastName.includes('santos');
     if (duplicate) {
-      Store.updateApplicant(activeApp, carloScenario
+      Store.updateApplicant(activeApp, transfereeScenario
         ? { evalStatus: 'flag', queueStatus: 'review', flag: 'dup' }
         : { evalStatus: 'flag' });
-      if (carloScenario) Store.flagPair(activeApp);
+      if (transfereeScenario) Store.flagPair(activeApp);
     } else {
       Store.updateApplicant(activeApp, { evalStatus: 'ready', queueStatus: 'review' });
     }

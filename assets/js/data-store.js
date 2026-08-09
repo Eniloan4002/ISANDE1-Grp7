@@ -105,11 +105,6 @@
         incoming: { sub: 'Transferee · APP-2026-0149 · Submitted Aug 2, 2026', fields: [['Full name', 'Santos, Maria A.', true], ['Date of birth', '07/22/2008', true], ['Sex', 'Female', true], ['LRN', '108517230184', true], ['Previous school', 'Kapatagan National HS', true], ['Guardian contact', '0918 555 0149', false], ['Status', 'Pre-Enlisted', false]] },
         existing: { sub: 'Student STU-2024-0771 · Record since 2024', fields: [['Full name', 'Santos, Maria Ann', true], ['Date of birth', '07/22/2008', true], ['Sex', 'Female', true], ['LRN', '108517230184', true], ['Previous school', 'Kapatagan National HS', true], ['Guardian contact', '0917 555 0991', false], ['Status', 'Inactive (Withdrawn)', false]] }
       },
-      'APP-2026-0153': {
-        meter: '78% match confidence',
-        incoming: { sub: 'Transferee · APP-2026-0153 · Submitted Aug 4, 2026', fields: [['Full name', 'Bautista, Carlo', false], ['Date of birth', '03/09/2009', true], ['Sex', 'Male', true], ['LRN', '121456789012', false], ['Previous school', 'Iligan City NHS', true], ['Guardian contact', '0922 555 0153', true], ['Status', 'Pre-Enlisted', false]] },
-        existing: { sub: 'Student STU-2023-1210 · Record since 2023', fields: [['Full name', 'Bautista, Carlos D.', false], ['Date of birth', '03/09/2009', true], ['Sex', 'Male', true], ['LRN', '120987654321', false], ['Previous school', 'Iligan City NHS', true], ['Guardian contact', '0922 555 0153', true], ['Status', 'Active', false]] }
-      },
       'APP-2026-0140': {
         meter: '81% match confidence',
         incoming: { sub: 'Returnee · APP-2026-0140 · Submitted Jul 28, 2026', fields: [['Full name', 'Garcia, Ana', true], ['Date of birth', '01/15/2008', true], ['Sex', 'Female', true], ['LRN', '112377981523', true], ['Previous school', 'St. Michael Academy', false], ['Guardian contact', '0923 555 0140', false], ['Status', 'Pending Requirements', false]] },
