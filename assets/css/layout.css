@@ -399,7 +399,10 @@
 .topbar {
     height: 76px;
     padding: 0 24px;
-    background: #f7f8f8
+    background: #f7f8f8;
+    position: sticky;
+    top: 0;
+    z-index: 10
 }
 
 .institution {
@@ -462,5 +465,37 @@
 
 .page-heading p:not(.eyebrow) {
     font-size: 12px
+}
+
+/* Shared top-bar navigation controls. */
+.institution {
+    border-left: 0;
+    padding-left: 0
+}
+
+.menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin-right: 14px;
+    padding: 0
+}
+
+.menu-toggle svg {
+    display: block
+}
+
+.app-shell.sidebar-collapsed .sidebar {
+    width: 0;
+    overflow: hidden;
+    border-right-width: 0
+}
+
+@media(max-width:700px) {
+    .menu-toggle {
+        margin-right: 12px
+    }
 }
 
