@@ -3,9 +3,16 @@ const tbody = document.querySelector('#dup-body');
 const resultCount = document.querySelector('#result-count');
 const search = document.querySelector('#dup-search');
 const statusFilter = document.querySelector('#dup-status');
+let renderedPairCount = 0;
 
 function renderPairs() {
-  const pairs = Object.entries(Store.pairs).map(([app, pair]) => {
+  const pairs = Object.entries(Store.pairs).filter(([app, pair]) => {
+    const applicant = Store.applicants[app];
+    const incomingName = pair.incoming.fields[0]?.[1];
+    return !applicant || !incomingName || applicant.name === incomingName;
+  });
+  renderedPairCount = pairs.length;
+  tbody.innerHTML = pairs.map(([app, pair]) => {
     const status = Store.getPairStatus(app);
     const existingId = pair.existing.sub.match(/STU-[\d-]+/);
     const meter = Number(pair.meter.match(/(\d+)%/)?.[1] || 0);
@@ -23,7 +30,6 @@ function renderPairs() {
       <td class="action-cell"><button class="row-action">${status ? 'View' : 'Review'}</button></td>
     </tr>`;
   }).join('');
-  tbody.innerHTML = pairs;
   filterList();
 }
 
@@ -36,7 +42,7 @@ function filterList() {
     row.hidden = !show;
     if (show) visible++;
   });
-  resultCount.textContent = `Showing ${visible} of ${Object.keys(Store.pairs).length} duplicate pairs`;
+  resultCount.textContent = `Showing ${visible} of ${renderedPairCount} duplicate pairs`;
 }
 [search, statusFilter].forEach(item => item.addEventListener('input', filterList));
 

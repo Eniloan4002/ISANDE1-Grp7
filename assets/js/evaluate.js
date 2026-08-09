@@ -114,7 +114,27 @@ function applyApplicant(app) {
 function refreshDuplicateSuggestion() {
   const suggest = document.querySelector('#dup-suggest');
   const lastName = document.querySelector('#f-last').value.trim().toLowerCase();
-  const flagged = activeApp && APPLICANTS[activeApp].flag === 'dup';
+  const journey = Store.getJourney();
+  const persona = journey && journey.appId === activeApp ? Store.getPersona(journey.persona) : null;
+  const pair = activeApp && (APPLICANTS[activeApp].flag === 'dup' || persona?.dup) ? Store.getPair(activeApp) : null;
+  const flagged = activeApp && (APPLICANTS[activeApp].flag === 'dup' || Boolean(persona && persona.dup));
+  const incomingFields = pair?.incoming?.fields || [];
+  const existingFields = pair?.existing?.fields || [];
+  const existingName = existingFields.find(([label]) => label === 'Full name')?.[1] || persona?.existingName || 'Existing student record';
+  const existingId = pair?.existing?.sub?.match(/STU-[\d-]+/)?.[0] || persona?.existingId || '';
+  const matches = incomingFields.filter(([, , match]) => match).map(([label]) => label.toLowerCase());
+  const matchLabels = matches.length
+    ? matches.join(', ')
+    : persona?.dup ? 'date of birth, sex, previous school, guardian contact' : 'identity details';
+  const existingLink = document.querySelector('#dup-existing-link');
+  const matchReason = document.querySelector('#dup-match-reason');
+  if (existingLink) {
+    existingLink.textContent = `${existingName}${existingId ? ` · ${existingId}` : ''}`;
+    existingLink.href = activeApp ? `duplicate.html?app=${encodeURIComponent(activeApp)}` : 'duplicate.html';
+  }
+  if (matchReason) {
+    matchReason.textContent = `Matching fields: ${matchLabels}. Review the incoming and existing records before saving this application.`;
+  }
   suggest.classList.toggle('show', Boolean(flagged || lastName.includes('santos')));
 }
 document.querySelector('#f-last').addEventListener('input', refreshDuplicateSuggestion);
@@ -192,8 +212,17 @@ function saveAndReturn(kind) {
   Store.updateApplicant(activeApp, collectForm());
   if (kind === 'check') {
     const lastName = document.querySelector('#f-last').value.trim().toLowerCase();
-    const duplicate = APPLICANTS[activeApp].flag === 'dup' || lastName.includes('santos');
-    Store.updateApplicant(activeApp, duplicate ? { evalStatus: 'flag' } : { evalStatus: 'ready', queueStatus: 'review' });
+    const journey = Store.getJourney();
+    const transfereeScenario = journey?.appId === activeApp && journey.persona === 'transferee';
+    const duplicate = transfereeScenario || APPLICANTS[activeApp].flag === 'dup' || lastName.includes('santos');
+    if (duplicate) {
+      Store.updateApplicant(activeApp, transfereeScenario
+        ? { evalStatus: 'flag', queueStatus: 'review', flag: 'dup' }
+        : { evalStatus: 'flag' });
+      if (transfereeScenario) Store.flagPair(activeApp);
+    } else {
+      Store.updateApplicant(activeApp, { evalStatus: 'ready', queueStatus: 'review' });
+    }
   }
   location.href = `queue.html?highlight=${encodeURIComponent(activeApp)}&saved=${kind}`;
 }

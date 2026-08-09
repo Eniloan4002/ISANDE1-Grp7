@@ -383,12 +383,14 @@
             <option value="STEM-A">Grade 11 STEM-A</option>
             <option value="HUMSS-A">Grade 11 HUMSS-A</option>
             <option value="ABM-A">Grade 11 ABM-A</option>
+            <option value="Cookery-1">Grade 11 Cookery-1</option>
           </select></label>
         <label class="criteria-field">Adviser<select id="adviser-filter">
             <option value="all">All Advisers</option>
             <option value="Ms. Ramos">Ms. Ramos</option>
             <option value="Mr. Santos">Mr. Santos</option>
             <option value="Ms. Villanueva">Ms. Villanueva</option>
+            <option value="Nicole Chua">Nicole Chua</option>
           </select></label>
         <label class="criteria-field">Risk Type<select id="risk-filter">
             <option value="all">All Risk Types</option>
@@ -508,6 +510,20 @@
                     class="row-action log-case" type="button">Log Intervention</button></div>
               </td>
             </tr>
+            <tr id="carlo-risk-row" data-app="APP-2026-0153" data-grade="11" data-section="Cookery-1"
+              data-adviser="Nicole Chua" data-risk="documentation" data-criterion="missing-requirements"
+              data-priority="2" data-status="Open" data-student="Bautista, Carlo"
+              data-risk-label="Missing Form 137 and Good Moral Certificate">
+              <td><strong>Bautista, Carlo</strong><small>LRN 121456789012</small></td>
+              <td>Grade 11 Cookery-1</td>
+              <td>Missing Form 137 and Good Moral Certificate</td>
+              <td><span class="priority priority-medium">Medium</span></td>
+              <td><span class="case-status status-open">Open</span></td>
+              <td>
+                <div class="case-actions"><button class="row-action view-case" type="button">View</button><button
+                    class="row-action log-case" type="button">Log Intervention</button></div>
+              </td>
+            </tr>
           </tbody>
         </table>
         <p class="report-empty" id="empty-state">No students match the selected report criteria.</p>
@@ -556,6 +572,7 @@
   </div>
   <div class="report-toast" id="report-toast" role="status"></div>
 
+  <script src="../assets/js/data-store.js"></script>
   <script src="../assets/js/portal-shell.js"></script>
   <script src="../assets/js/navigation.js"></script>
   <script>
@@ -578,6 +595,65 @@
       const risk = document.getElementById('risk-filter').value;
       document.getElementById('criterion-filter').innerHTML = criterionOptions[risk].map(([value, label]) => `<option value="${value}">${label}</option>`).join('');
     }
+    function syncCarloRiskRow() {
+      const row = document.getElementById('carlo-risk-row');
+      if (!row) return;
+      const journey = Store.getJourney();
+      const appId = journey?.persona === 'transferee' ? journey.appId : '';
+      const app = appId ? Store.applicants[appId] : null;
+      row.dataset.available = app ? 'true' : 'false';
+      if (!app) return;
+
+      const academicEntry = Object.entries(Store.academic.students).find(([, student]) => student.lrn === app.lrn);
+      const academicStudentId = academicEntry?.[0] || '';
+      const academicStudent = academicEntry?.[1] || null;
+      const enrollmentStudentId = Store.recordByApp(appId);
+      const section = (enrollmentStudentId && Store.sections[enrollmentStudentId]) || academicStudent?.section || 'Cookery-1';
+      const adviser = academicStudent?.adviser || 'Nicole Chua';
+      const standing = academicStudentId ? Store.academicStanding(academicStudentId) : { label: 'Not available' };
+      const monitoring = Store.getMonitoringCase(appId) || {};
+      const docs = Store.requirements[appId]?.docs || {};
+      const docStatuses = Object.values(docs);
+      const requirementsComplete = Boolean(docStatuses.length) && docStatuses.every(value => value === 'submitted');
+      const missingDocs = Object.entries(docs).filter(([, value]) => value !== 'submitted').map(([doc]) => doc);
+      const status = monitoring.status === 'Monitoring' ? 'Monitoring' : 'Open';
+      let riskType = 'documentation';
+      let criterion = 'missing-requirements';
+      let priority = 2;
+      let riskLabel = missingDocs.length ? `Missing ${missingDocs.join(' and ')}` : 'Missing enrollment requirements';
+
+      if (requirementsComplete && standing.label === 'At risk') {
+        riskType = 'academic';
+        criterion = 'below-75';
+        priority = 3;
+        riskLabel = 'Incomplete academic record';
+      } else if (requirementsComplete && standing.label === 'Good standing') {
+        riskType = 'academic';
+        criterion = 'below-75';
+        priority = 1;
+        riskLabel = 'Academic record updated — continue monitoring';
+      }
+
+      row.dataset.app = appId;
+      row.dataset.student = app.name;
+      row.dataset.section = section;
+      row.dataset.adviser = adviser;
+      row.dataset.risk = riskType;
+      row.dataset.criterion = criterion;
+      row.dataset.priority = String(priority);
+      row.dataset.status = status;
+      row.dataset.riskLabel = riskLabel;
+      row.querySelector('td:first-child strong').textContent = app.name;
+      row.querySelector('td:first-child small').textContent = `LRN ${app.lrn || '—'}`;
+      row.querySelector('td:nth-child(2)').textContent = `${app.grade || 'Grade 11'} ${section}`;
+      row.querySelector('td:nth-child(3)').textContent = riskLabel;
+      const priorityEl = row.querySelector('.priority');
+      priorityEl.textContent = priority === 3 ? 'High' : priority === 2 ? 'Medium' : 'Low';
+      priorityEl.className = `priority priority-${priority === 3 ? 'high' : priority === 2 ? 'medium' : 'low'}`;
+      const statusEl = row.querySelector('.case-status');
+      statusEl.textContent = status;
+      statusEl.className = `case-status ${status === 'Monitoring' ? 'status-monitor' : 'status-open'}`;
+    }
     function applyFilters() {
       const grade = document.getElementById('grade-filter').value;
       const section = document.getElementById('section-filter').value;
@@ -585,7 +661,7 @@
       const risk = document.getElementById('risk-filter').value;
       const criterion = document.getElementById('criterion-filter').value;
       const sort = document.getElementById('sort-filter').value;
-      reportRows.forEach(row => { row.hidden = !((grade === 'all' || row.dataset.grade === grade) && (section === 'all' || row.dataset.section === section) && (adviser === 'all' || row.dataset.adviser === adviser) && (risk === 'all' || row.dataset.risk === risk) && (criterion === 'all' || row.dataset.criterion === criterion)); });
+      reportRows.forEach(row => { row.hidden = row.dataset.available === 'false' || !((grade === 'all' || row.dataset.grade === grade) && (section === 'all' || row.dataset.section === section) && (adviser === 'all' || row.dataset.adviser === adviser) && (risk === 'all' || row.dataset.risk === risk) && (criterion === 'all' || row.dataset.criterion === criterion)); });
       const visibleRows = reportRows.filter(row => !row.hidden).sort((a, b) => sort === 'student' ? a.dataset.student.localeCompare(b.dataset.student) : sort === 'status' ? a.dataset.status.localeCompare(b.dataset.status) : Number(b.dataset.priority) - Number(a.dataset.priority));
       visibleRows.forEach(row => tableBody.append(row));
       emptyState.style.display = visibleRows.length ? 'none' : 'block';
@@ -599,12 +675,16 @@
     document.querySelectorAll('.modal-close').forEach(button => button.addEventListener('click', () => closeModal(button.closest('.modal-backdrop'))));
     document.querySelectorAll('.modal-backdrop').forEach(modal => modal.addEventListener('click', event => { if (event.target === modal) closeModal(modal); }));
     reportRows.forEach(row => {
-      row.querySelector('.view-case').addEventListener('click', () => { const values = [['Student', row.dataset.student], ['LRN', row.querySelector('small').textContent], ['Section', row.cells[1].textContent], ['Reported concern', row.dataset.riskLabel], ['Priority', row.cells[3].textContent], ['Case status', row.dataset.status], ['Assigned adviser', row.dataset.adviser]]; document.getElementById('detail-content').innerHTML = values.map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`).join(''); openModal('detail-modal'); });
+      row.querySelector('.view-case').addEventListener('click', () => { const monitoring = row.dataset.app ? Store.getMonitoringCase(row.dataset.app) : null; const values = [['Student', row.dataset.student], ['LRN', row.querySelector('small').textContent], ['Section', row.cells[1].textContent], ['Reported concern', row.dataset.riskLabel], ['Priority', row.cells[3].textContent], ['Case status', row.dataset.status], ['Assigned adviser', row.dataset.adviser], ...(monitoring?.action ? [['Last intervention', `${monitoring.action}${monitoring.notes ? ` — ${monitoring.notes}` : ''}`]] : [])]; document.getElementById('detail-content').innerHTML = values.map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`).join(''); openModal('detail-modal'); });
       row.querySelector('.log-case').addEventListener('click', () => { selectedRow = row; document.getElementById('intervention-student').textContent = `${row.dataset.student} - ${row.dataset.riskLabel}`; openModal('intervention-modal'); });
     });
-    document.getElementById('intervention-form').addEventListener('submit', event => { event.preventDefault(); selectedRow.dataset.status = 'Monitoring'; const status = selectedRow.querySelector('.case-status'); status.textContent = 'Monitoring'; status.className = 'case-status status-monitor'; closeModal(document.getElementById('intervention-modal')); event.target.reset(); showToast('Intervention recorded for ' + selectedRow.dataset.student + '.'); });
+    document.getElementById('intervention-form').addEventListener('submit', event => { event.preventDefault(); const action = event.target.querySelector('select').value; const notes = event.target.querySelector('textarea').value.trim(); if (selectedRow?.dataset.app) Store.recordIntervention(selectedRow.dataset.app, action, notes); else { selectedRow.dataset.status = 'Monitoring'; const status = selectedRow.querySelector('.case-status'); status.textContent = 'Monitoring'; status.className = 'case-status status-monitor'; } closeModal(document.getElementById('intervention-modal')); event.target.reset(); syncCarloRiskRow(); applyFilters(); showToast('Intervention recorded for ' + selectedRow.dataset.student + '.'); });
+    document.addEventListener('store:change', () => { syncCarloRiskRow(); applyFilters(); });
     document.getElementById('print-report').addEventListener('click', () => window.print());
     document.getElementById('export-report').addEventListener('click', () => showToast('At-risk student report prepared for export.'));
+    syncCarloRiskRow();
+    updateCriterionOptions();
+    applyFilters();
   </script>
 </body>
 

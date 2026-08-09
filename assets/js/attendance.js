@@ -11,6 +11,7 @@ function showToast(title, detail) {
 toast.querySelector('button').addEventListener('click', () => toast.classList.remove('show'));
 
 const tbody = document.querySelector('#att-body');
+const confirmLink = document.querySelector('#btn-confirm');
 
 function gateFor(appId) {
   const att = Store.getAttendance(appId);
@@ -55,6 +56,7 @@ let activeApp = null;
 
 function renderLog(appId) {
   activeApp = appId;
+  confirmLink.href = `academic-records.html?app=${encodeURIComponent(appId)}`;
   let data = Store.getAttendance(appId);
   if (!data) {
     // Newly added applicants without a profile get a default log.

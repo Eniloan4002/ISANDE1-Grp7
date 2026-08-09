@@ -80,6 +80,44 @@ const preview = document.querySelector('#preview-panel');
 const previewTable = document.querySelector('#preview-table');
 const previewMeta = document.querySelector('#preview-meta');
 
+let syncedScenarioAppId = '';
+let syncedScenarioStudentId = '';
+
+function syncCarloReports() {
+  if (syncedScenarioStudentId) REPORTS.records.rows = REPORTS.records.rows.filter(row => row[1] !== syncedScenarioStudentId);
+  if (syncedScenarioAppId) REPORTS.missing.rows = REPORTS.missing.rows.filter(row => row[1] !== syncedScenarioAppId);
+
+  const journey = Store.getJourney();
+  const appId = journey?.persona === 'transferee' ? journey.appId : '';
+  const app = appId ? Store.applicants[appId] : null;
+  syncedScenarioAppId = app ? appId : '';
+  syncedScenarioStudentId = app ? Store.recordByApp(appId) || '' : '';
+  if (!app) return;
+
+  if (syncedScenarioStudentId) {
+    const record = Store.getRecord(syncedScenarioStudentId);
+    REPORTS.records.rows.push([
+      app.name,
+      syncedScenarioStudentId,
+      String(app.programLabel || '—').split('·')[0].trim(),
+      app.campus || '—',
+      record?.status === 'enrolled' ? 'Enrolled' : 'Pending confirmation'
+    ]);
+  }
+
+  const docs = Store.getRequirements(appId)?.docs || {};
+  const missing = Object.entries(docs).filter(([, value]) => value !== 'submitted').map(([doc]) => doc);
+  if (missing.length) {
+    REPORTS.missing.rows.push([
+      app.name,
+      appId,
+      missing.join(', '),
+      app.submittedAt || 'Current',
+      app.contact || '—'
+    ]);
+  }
+}
+
 function selectType(type) {
   typeButtons.forEach(button => button.classList.toggle('active', button.dataset.type === type));
   document.querySelector('#gen-title').textContent = REPORTS[type].title;
@@ -107,6 +145,7 @@ function renderLog() {
 }
 
 function generate() {
+  syncCarloReports();
   const type = typeButtons.find(button => button.classList.contains('active')).dataset.type;
   const report = REPORTS[type];
   previewTable.querySelector('thead').innerHTML = `<tr>${report.head.map(h => `<th>${h}</th>`).join('')}</tr>`;
@@ -134,5 +173,6 @@ document.querySelector('#btn-print').addEventListener('click', () => showToast('
 document.querySelectorAll('[data-export]').forEach(button => button.addEventListener('click', () => showToast('Export prepared', 'CSV file downloaded — demonstration prototype.')));
 document.querySelectorAll('[data-export-pdf]').forEach(button => button.addEventListener('click', () => showToast('Export prepared', 'PDF file downloaded — demonstration prototype.')));
 
-document.addEventListener('store:change', renderLog);
+document.addEventListener('store:change', () => { syncCarloReports(); renderLog(); });
+syncCarloReports();
 renderLog();

@@ -46,7 +46,7 @@
   }
   function incompleteFromQuery() {
     const id = params.get('case');
-    return Store.academic.incompleteCases[id] ? id : Object.keys(Store.academic.incompleteCases)[0];
+    return Store.academic.incompleteCases[id] ? id : null;
   }
   function enrollmentStatus(student) {
     const applicant = Store.applicants[student.appId];
@@ -72,6 +72,11 @@
     const atRisk = students.filter(([id]) => standingFor(id).label === 'At risk').length;
     const missing = students.filter(([id]) => requirementFor(id).label !== 'Complete').length;
     const good = students.filter(([id]) => standingFor(id).label === 'Good standing').length;
+    const sections = [...new Set(students.map(([, student]) => student.section))];
+    const advisers = [...new Set(students.map(([, student]) => student.adviser))];
+    const rosterTitle = sections.length === 1 ? `${sections[0]} Student Roster` : 'Assigned Student Roster';
+    const rosterSubtitle = `School Year 2026–2027 · Adviser: ${advisers.join(', ')}`;
+    const sectionSummary = sections.length ? sections.map(section => `Grade 11 · ${section}`).join(' · ') : 'Current roster';
     const rows = students.map(([id, student]) => {
       const req = requirementFor(id);
       const standing = standingFor(id);
@@ -89,9 +94,9 @@
     pageLayout({
       breadcrumb: '<a href="advisory.html">Academic Records</a><span>/</span><span>Advisory Class</span>', eyebrow: 'Teacher Adviser', title: 'Advisory Class', description: 'Monitor synchronized enrollment, requirements, and academic status for your assigned section.', action: '<span class="prototype-label">Policy-dependent demo</span>',
       content: `
-        <section class="academic-stats"><article class="academic-stat"><strong>${students.length}</strong><span>Assigned students</span><small>Grade 11 · STEM A</small></article><article class="academic-stat warning"><strong>${missing}</strong><span>Requirements follow-up</span><small>From enrollment checklists</small></article><article class="academic-stat danger"><strong>${atRisk}</strong><span>At academic risk</span><small>Threshold: ${Store.academic.policy.passingGrade}</small></article><article class="academic-stat success"><strong>${good}</strong><span>Good standing</span><small>Calculated from current grades</small></article></section>
+        <section class="academic-stats"><article class="academic-stat"><strong>${students.length}</strong><span>Assigned students</span><small>${esc(sectionSummary)}</small></article><article class="academic-stat warning"><strong>${missing}</strong><span>Requirements follow-up</span><small>From enrollment checklists</small></article><article class="academic-stat danger"><strong>${atRisk}</strong><span>At academic risk</span><small>Threshold: ${Store.academic.policy.passingGrade}</small></article><article class="academic-stat success"><strong>${good}</strong><span>Good standing</span><small>Calculated from current grades</small></article></section>
         <section class="module-note"><strong>Status sources:</strong> requirements come from Enrollment Management; academic standing is calculated from component scores; adviser flags retain their author and timestamp.</section>
-        <section class="content-panel"><div class="panel-header"><div><h2>STEM A Student Roster</h2><p>School Year 2026–2027 · Adviser: Nicole Chua</p></div></div><div class="toolbar"><label class="search-control"><span>Search</span><input id="advisory-search" type="search" placeholder="Student name / ID"></label></div><div class="table-wrap"><table><thead><tr><th>Student</th><th>Enrollment</th><th>Requirements</th><th>Academic standing</th><th>Latest adviser flag</th><th>Record</th></tr></thead><tbody id="advisory-body">${rows}</tbody></table></div><div class="table-footer"><span>${students.length} assigned students</span><span>Core records remain read-only</span></div></section>`
+        <section class="content-panel"><div class="panel-header"><div><h2>${esc(rosterTitle)}</h2><p>${esc(rosterSubtitle)}</p></div></div><div class="toolbar"><label class="search-control"><span>Search</span><input id="advisory-search" type="search" placeholder="Student name / ID"></label></div><div class="table-wrap"><table><thead><tr><th>Student</th><th>Enrollment</th><th>Requirements</th><th>Academic standing</th><th>Latest adviser flag</th><th>Record</th></tr></thead><tbody id="advisory-body">${rows}</tbody></table></div><div class="table-footer"><span>${students.length} assigned students</span><span>Core records remain read-only</span></div></section>`
     });
     bindTableSearch('#advisory-search', '#advisory-body tr', row => row.dataset.search || '');
   }
@@ -253,36 +258,115 @@
     const students = Object.entries(Store.academic.students);
     const incomplete = Object.values(Store.getIncompleteCases()).filter(item => item.studentId === studentId && item.status !== 'resolved');
     const corrections = Object.values(Store.getCorrections()).filter(item => item.studentId === studentId);
+    const requirements = requirementFor(studentId);
+    const generationDate = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     pageLayout({
-      breadcrumb: '<a href="registrar-records.html">Academic Records</a><span>/</span><span>Academic History</span>', eyebrow: 'Registrar Staff', title: 'Student Academic History', description: 'Search and review consolidated grades, sections, incomplete records, and correction references.', action: '<span class="prototype-label">Module 2 registrar workspace</span>',
-      content: `<div class="academic-grid"><section class="content-panel"><div class="panel-header"><div><h2>Student Directory</h2><p>Select a student to review</p></div></div><div class="toolbar"><label class="search-control"><span>Search</span><input id="registrar-search" type="search" placeholder="Name / student ID"></label></div><div class="table-wrap"><table><thead><tr><th>Student</th><th>Section</th><th>Standing</th><th>Incomplete</th><th>Open</th></tr></thead><tbody id="registrar-students">${students.map(([id, student]) => { const standing = standingFor(id); const count = Object.values(Store.getIncompleteCases()).filter(item => item.studentId === id && item.status !== 'resolved').length; return `<tr data-search="${esc(`${student.name} ${id}`)}"><td>${esc(student.name)}<small>${esc(id)}</small></td><td>${esc(student.section)}</td><td>${status(standing.label, standing.tone)}</td><td>${count}</td><td><a class="row-action" href="registrar-records.html?student=${encodeURIComponent(id)}">View</a></td></tr>`; }).join('')}</tbody></table></div></section><section class="content-panel"><div class="panel-header"><div><h2>${esc(selected.name)}</h2><p>${esc(studentId)} · LRN ${esc(selected.lrn)}</p></div>${status(standingFor(studentId).label, standingFor(studentId).tone)}</div><div class="panel-body"><dl class="definition-grid"><div><dt>Section</dt><dd>${esc(selected.section)}</dd></div><div><dt>Adviser</dt><dd>${esc(selected.adviser)}</dd></div><div><dt>Requirements</dt><dd>${esc(requirementFor(studentId).label)}</dd></div><div><dt>Open incompletes</dt><dd>${incomplete.length}</dd></div><div><dt>Corrections</dt><dd>${corrections.length}</dd></div><div><dt>Campus</dt><dd>${esc(selected.campus)}</dd></div></dl></div></section></div>
-        <section class="content-panel"><div class="panel-header"><div><h2>Quarterly Academic Record</h2><p>Official layout: subject rows and Quarter 1–4 columns</p></div></div>${historyTable(studentId)}</section>
-        <div class="academic-grid equal"><section class="content-panel"><div class="panel-header"><div><h2>Section History</h2><p>Registrar-maintained assignments</p></div></div><div class="panel-body"><ul class="audit-list">${selected.sectionHistory.map(item => `<li><strong>${esc(item.label)}</strong><span>${esc(item.detail)}</span></li>`).join('')}</ul></div></section><section class="content-panel"><div class="panel-header"><div><h2>Record References</h2><p>Incomplete cases and corrections</p></div></div><div class="panel-body"><ul class="audit-list">${incomplete.map(item => `<li><strong>${esc(item.id)} · ${esc(labelize(item.status))}</strong><span>${esc(Store.getAcademicClass(item.classId).subject)}</span></li>`).join('') || '<li><strong>No unresolved incomplete grades</strong></li>'}${corrections.map(item => `<li><strong>${esc(item.id)} · ${esc(correctionStatusLabel(item.status))}</strong><span>${esc(item.subject)} · ${item.currentGrade} → ${item.proposedGrade}</span></li>`).join('')}</ul></div></section></div>`
+      breadcrumb: '<a href="registrar-records.html">Academic Records</a><span>/</span><span>Academic History</span>', eyebrow: 'Registrar Staff', title: 'Student Academic History', description: 'Search and review consolidated grades, sections, incomplete records, and correction references.', action: '<button id="print-history" class="button button-primary" type="button">Print / Save PDF</button>',
+      content: `
+        <div class="academic-history-screen">
+          <div class="academic-grid"><section class="content-panel"><div class="panel-header"><div><h2>Student Directory</h2><p>Select a student to review</p></div></div><div class="toolbar"><label class="search-control"><span>Search</span><input id="registrar-search" type="search" placeholder="Name / student ID"></label></div><div class="table-wrap"><table><thead><tr><th>Student</th><th>Section</th><th>Standing</th><th>Incomplete</th><th>Open</th></tr></thead><tbody id="registrar-students">${students.map(([id, student]) => { const standing = standingFor(id); const count = Object.values(Store.getIncompleteCases()).filter(item => item.studentId === id && item.status !== 'resolved').length; return `<tr data-search="${esc(`${student.name} ${id}`)}"><td>${esc(student.name)}<small>${esc(id)}</small></td><td>${esc(student.section)}</td><td>${status(standing.label, standing.tone)}</td><td>${count}</td><td><a class="row-action" href="registrar-records.html?student=${encodeURIComponent(id)}">View</a></td></tr>`; }).join('')}</tbody></table></div></section><section class="content-panel"><div class="panel-header"><div><h2>${esc(selected.name)}</h2><p>${esc(studentId)} · LRN ${esc(selected.lrn)}</p></div>${status(standingFor(studentId).label, standingFor(studentId).tone)}</div><div class="panel-body"><dl class="definition-grid"><div><dt>Section</dt><dd>${esc(selected.section)}</dd></div><div><dt>Adviser</dt><dd>${esc(selected.adviser)}</dd></div><div><dt>Requirements</dt><dd>${esc(requirements.label)}</dd></div><div><dt>Open incompletes</dt><dd>${incomplete.length}</dd></div><div><dt>Corrections</dt><dd>${corrections.length}</dd></div><div><dt>Campus</dt><dd>${esc(selected.campus)}</dd></div></dl></div></section></div>
+          <section class="content-panel"><div class="panel-header"><div><h2>Quarterly Academic Record</h2><p>Official layout: subject rows and Quarter 1–4 columns</p></div></div>${historyTable(studentId)}</section>
+          <div class="academic-grid equal"><section class="content-panel"><div class="panel-header"><div><h2>Section History</h2><p>Registrar-maintained assignments</p></div></div><div class="panel-body"><ul class="audit-list">${selected.sectionHistory.map(item => `<li><strong>${esc(item.label)}</strong><span>${esc(item.detail)}</span></li>`).join('')}</ul></div></section><section class="content-panel"><div class="panel-header"><div><h2>Record References</h2><p>Incomplete cases and corrections</p></div></div><div class="panel-body"><ul class="audit-list">${incomplete.map(item => `<li><strong>${esc(item.id)} · ${esc(labelize(item.status))}</strong><span>${esc(Store.getAcademicClass(item.classId).subject)}</span></li>`).join('') || '<li><strong>No unresolved incomplete grades</strong></li>'}${corrections.map(item => `<li><strong>${esc(item.id)} · ${esc(correctionStatusLabel(item.status))}</strong><span>${esc(item.subject)} · ${item.currentGrade} → ${item.proposedGrade}</span></li>`).join('')}</ul></div></section></div>
+        </div>
+        <article class="academic-history-print" aria-hidden="true">
+          <header class="academic-history-print-header">
+            <p class="academic-history-institution">Iligan Computer Institute / ICI Local 2.0</p>
+            <h1>Student Academic History</h1>
+            <p><strong>Generation date:</strong> ${esc(generationDate)}</p>
+          </header>
+          <section class="academic-history-print-section">
+            <h2>Student Summary</h2>
+            <dl class="academic-history-print-summary">
+              <div><dt>Student name</dt><dd>${esc(selected.name)}</dd></div>
+              <div><dt>Student ID</dt><dd>${esc(studentId)}</dd></div>
+              <div><dt>LRN</dt><dd>${esc(selected.lrn)}</dd></div>
+              <div><dt>Grade level</dt><dd>${esc(selected.gradeLevel)}</dd></div>
+              <div><dt>Section</dt><dd>${esc(selected.section)}</dd></div>
+              <div><dt>Campus</dt><dd>${esc(selected.campus)}</dd></div>
+              <div><dt>Adviser</dt><dd>${esc(selected.adviser)}</dd></div>
+              <div><dt>Requirements status</dt><dd>${esc(requirements.label)}</dd></div>
+            </dl>
+          </section>
+          <section class="academic-history-print-section">
+            <h2>Quarterly Academic Record</h2>
+            ${historyTable(studentId)}
+          </section>
+        </article>`
     });
     bindTableSearch('#registrar-search', '#registrar-students tr', row => row.dataset.search || '');
+    document.querySelector('#print-history').addEventListener('click', () => window.print());
   }
 
   function renderIncompleteGrades() {
     const cases = Object.values(Store.getIncompleteCases());
     const caseId = incompleteFromQuery();
-    const selected = Store.getIncompleteCases()[caseId] || cases[0];
+    const selected = caseId ? Store.getIncompleteCases()[caseId] : null;
     const selectedStudent = selected ? Store.getAcademicStudent(selected.studentId) : null;
     const selectedClass = selected ? Store.getAcademicClass(selected.classId) : null;
     const assessment = selected ? Store.academic.policy.assessments.find(item => item.key === selected.assessmentKey) : null;
-    const currentScore = selected ? Store.academic.grades[selected.classId][selected.studentId].scores[selected.assessmentKey] : '';
+    const currentScore = selected ? Store.academic.grades[selected.classId]?.[selected.studentId]?.scores[selected.assessmentKey] : '';
+    const caseRows = cases.map(item => {
+      const student = Store.getAcademicStudent(item.studentId) || {};
+      const academicClass = Store.getAcademicClass(item.classId) || {};
+      const period = Store.getAcademicPeriod(item.periodId) || {};
+      const missing = Store.academic.policy.assessments.find(entry => entry.key === item.assessmentKey);
+      const record = {
+        item,
+        student,
+        academicClass,
+        period,
+        missing,
+        schoolYear: period.schoolYear || '',
+        gradingPeriod: period.label || '',
+        gradeLevel: student.gradeLevel || academicClass.gradeLevel || '',
+        section: academicClass.section || student.section || '',
+        subject: academicClass.subject || '',
+        teacher: academicClass.teacher || '',
+        status: item.status || ''
+      };
+      record.search = `${item.id} ${student.name || ''} ${item.studentId} ${record.subject} ${record.section} ${record.teacher} ${record.schoolYear} ${record.gradingPeriod} ${missing?.label || ''} ${labelize(record.status)}`.toLowerCase();
+      return record;
+    });
+    const filterValues = key => [...new Set(caseRows.map(record => record[key]).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+    const filterOptions = (key, placeholder) => `<option value="">${placeholder}</option>${filterValues(key).map(value => `<option value="${esc(value)}">${esc(key === 'status' ? labelize(value) : value)}</option>`).join('')}`;
+    const filterSelect = (id, key, label) => `<label class="select-control"><span>${label}</span><select id="${id}">${filterOptions(key, `All ${label.toLowerCase()}s`)}</select></label>`;
     pageLayout({
       breadcrumb: '<a href="registrar-records.html">Academic Records</a><span>/</span><span>Incomplete Grades</span>', eyebrow: 'Registrar Staff', title: 'Incomplete Grade Monitor', description: 'Filter cases, record follow-ups, verify completed scores, and update academic records.', action: status(`${cases.filter(item => item.status !== 'resolved').length} unresolved`, cases.some(item => item.status !== 'resolved') ? 'warning' : 'success'),
-      content: `<section class="content-panel"><div class="panel-header"><div><h2>Incomplete Grade Cases</h2><p>School Year 2026–2027 · Quarter 1</p></div></div><div class="toolbar"><label class="search-control"><span>Search</span><input id="incomplete-search" type="search" placeholder="Student / subject / case"></label><label class="select-control"><select id="incomplete-status"><option value="">All statuses</option><option value="pending_teacher">Pending teacher</option><option value="for_registrar">For registrar</option><option value="resolved">Resolved</option></select></label></div><div class="table-wrap"><table><thead><tr><th>Case</th><th>Student</th><th>Subject</th><th>Period</th><th>Missing item</th><th>Status</th><th>Open</th></tr></thead><tbody id="incomplete-body">${cases.map(item => { const student = Store.getAcademicStudent(item.studentId); const academicClass = Store.getAcademicClass(item.classId); const period = Store.getAcademicPeriod(item.periodId); const missing = Store.academic.policy.assessments.find(entry => entry.key === item.assessmentKey); return `<tr data-status="${esc(item.status)}" data-search="${esc(`${item.id} ${student.name} ${academicClass.subject}`)}"><td>${esc(item.id)}</td><td>${esc(student.name)}<small>${esc(item.studentId)}</small></td><td>${esc(academicClass.subject)}<small>${esc(academicClass.section)} · ${esc(academicClass.teacher)}</small></td><td>${esc(period.schoolYear)}<small>${esc(period.label)}</small></td><td>${esc(missing?.label || '—')}</td><td>${status(labelize(item.status), item.status === 'resolved' ? 'success' : 'warning')}</td><td><a class="row-action" href="incomplete-grades.html?case=${encodeURIComponent(item.id)}">Review</a></td></tr>`; }).join('')}</tbody></table></div></section>
-        ${selected ? `<div class="academic-grid"><section class="content-panel"><div class="panel-header"><div><h2>${esc(selected.id)}</h2><p>${esc(selectedStudent.name)} · ${esc(selectedClass.subject)}</p></div>${status(labelize(selected.status), selected.status === 'resolved' ? 'success' : 'warning')}</div><div class="panel-body"><dl class="definition-grid"><div><dt>Student</dt><dd>${esc(selectedStudent.name)}</dd></div><div><dt>Section</dt><dd>${esc(selectedClass.section)}</dd></div><div><dt>Teacher</dt><dd>${esc(selectedClass.teacher)}</dd></div><div><dt>Missing assessment</dt><dd>${esc(assessment.label)}</dd></div><div><dt>Maximum score</dt><dd>${assessment.max}</dd></div><div><dt>Current score</dt><dd>${currentScore ?? 'Missing'}</dd></div></dl><ul class="audit-list">${selected.notes.map(note => `<li><strong>${esc(note.text)}</strong><small>${esc(note.by)} · ${esc(note.when)}</small></li>`).join('')}</ul></div></section><section class="content-panel"><div class="panel-header"><div><h2>Registrar Action</h2><p>Follow up or resolve the incomplete grade</p></div></div><div class="panel-body"><form id="incomplete-note-form"><div class="field-grid"><label class="span-two">Follow-up note<textarea id="incomplete-note" required placeholder="Record a follow-up action."></textarea></label></div><div class="modal-actions"><button class="button button-secondary" type="submit">Save note</button></div></form><form id="resolve-form"><div class="field-grid"><label>Completed score<input id="completed-score" type="number" min="0" max="${assessment.max}" value="${currentScore ?? ''}" ${selected.status === 'resolved' ? 'disabled' : ''}></label><label>Verification<input readonly value="Registrar verification"></label></div><div class="modal-actions"><button class="button button-primary" type="submit" ${selected.status === 'resolved' ? 'disabled' : ''}>Resolve and update grade</button></div></form></div></section></div>` : ''}`
+      content: `<section class="content-panel"><div class="panel-header"><div><h2>Incomplete Grade Cases</h2><p>Filter all available academic periods and case records</p></div></div><div class="toolbar incomplete-filters"><label class="search-control"><span>Search</span><input id="incomplete-search" type="search" placeholder="Student / subject / case"></label>${filterSelect('incomplete-school-year', 'schoolYear', 'School year')}${filterSelect('incomplete-grading-period', 'gradingPeriod', 'Grading period')}${filterSelect('incomplete-grade-level', 'gradeLevel', 'Grade level')}${filterSelect('incomplete-section', 'section', 'Section')}${filterSelect('incomplete-subject', 'subject', 'Subject')}${filterSelect('incomplete-teacher', 'teacher', 'Teacher')}${filterSelect('incomplete-status', 'status', 'Status')}<button id="incomplete-reset" class="button button-secondary" type="button">Reset Filters</button></div><div class="incomplete-filter-summary"><p id="incomplete-result-count" role="status" aria-live="polite">Showing ${cases.length} of ${cases.length} cases</p></div><div class="table-wrap"><table><thead><tr><th>Case</th><th>Student</th><th>Subject</th><th>Period</th><th>Missing item</th><th>Status</th><th>Open</th></tr></thead><tbody id="incomplete-body">${caseRows.map(record => `<tr data-case-id="${esc(record.item.id)}"><td>${esc(record.item.id)}</td><td>${esc(record.student.name || '—')}<small>${esc(record.item.studentId)}</small></td><td>${esc(record.subject || '—')}<small>${esc(record.section)} · ${esc(record.teacher)}</small></td><td>${esc(record.schoolYear || '—')}<small>${esc(record.gradingPeriod)}</small></td><td>${esc(record.missing?.label || '—')}</td><td>${status(labelize(record.status), record.status === 'resolved' ? 'success' : 'warning')}</td><td><a class="row-action" href="incomplete-grades.html?case=${encodeURIComponent(record.item.id)}">Review</a></td></tr>`).join('')}</tbody></table></div><div id="incomplete-empty" class="empty-state" hidden><strong>No incomplete-grade cases match these filters.</strong><span>Reset the filters or adjust the search criteria.</span></div></section>
+        ${selected ? `<div id="incomplete-case-detail" class="academic-grid"><section class="content-panel"><div class="panel-header"><div><h2>${esc(selected.id)}</h2><p>${esc(selectedStudent.name)} · ${esc(selectedClass.subject)}</p></div>${status(labelize(selected.status), selected.status === 'resolved' ? 'success' : 'warning')}</div><div class="panel-body"><dl class="definition-grid"><div><dt>Student</dt><dd>${esc(selectedStudent.name)}</dd></div><div><dt>Section</dt><dd>${esc(selectedClass.section)}</dd></div><div><dt>Teacher</dt><dd>${esc(selectedClass.teacher)}</dd></div><div><dt>Missing assessment</dt><dd>${esc(assessment.label)}</dd></div><div><dt>Maximum score</dt><dd>${assessment.max}</dd></div><div><dt>Current score</dt><dd>${currentScore ?? 'Missing'}</dd></div></dl><ul class="audit-list">${selected.notes.map(note => `<li><strong>${esc(note.text)}</strong><small>${esc(note.by)} · ${esc(note.when)}</small></li>`).join('')}</ul><div class="modal-actions"><button id="close-incomplete-case" class="button button-outline" type="button">Close record</button></div></div></section><section class="content-panel"><div class="panel-header"><div><h2>Registrar Action</h2><p>Follow up or resolve the incomplete grade</p></div></div><div class="panel-body"><form id="incomplete-note-form"><div class="field-grid"><label class="span-two">Follow-up note<textarea id="incomplete-note" required placeholder="Record a follow-up action."></textarea></label></div><div class="modal-actions"><button class="button button-secondary" type="submit">Save note</button></div></form><form id="resolve-form"><div class="field-grid"><label>Completed score<input id="completed-score" type="number" min="0" max="${assessment.max}" value="${currentScore ?? ''}" ${selected.status === 'resolved' ? 'disabled' : ''}></label><label>Verification<input readonly value="Registrar verification"></label></div><div class="modal-actions"><button class="button button-primary" type="submit" ${selected.status === 'resolved' ? 'disabled' : ''}>Resolve and update grade</button></div></form></div></section></div>` : ''}`
     });
+    const filterIds = { schoolYear: 'incomplete-school-year', gradingPeriod: 'incomplete-grading-period', gradeLevel: 'incomplete-grade-level', section: 'incomplete-section', subject: 'incomplete-subject', teacher: 'incomplete-teacher', status: 'incomplete-status' };
+    const rowsById = new Map(caseRows.map(record => [record.item.id, record]));
     const filterCases = () => {
       const term = document.querySelector('#incomplete-search').value.trim().toLowerCase();
-      const state = document.querySelector('#incomplete-status').value;
-      document.querySelectorAll('#incomplete-body tr').forEach(row => { row.style.display = (!term || row.dataset.search.toLowerCase().includes(term)) && (!state || row.dataset.status === state) ? '' : 'none'; });
+      const activeFilters = Object.entries(filterIds).reduce((filters, [key, id]) => { filters[key] = document.querySelector(`#${id}`).value; return filters; }, {});
+      let visibleCases = 0;
+      document.querySelectorAll('#incomplete-body tr').forEach(row => {
+        const record = rowsById.get(row.dataset.caseId);
+        const matchesSearch = !term || record.search.includes(term);
+        const matchesFilters = Object.entries(activeFilters).every(([key, value]) => !value || record[key] === value);
+        const matches = matchesSearch && matchesFilters;
+        row.style.display = matches ? '' : 'none';
+        if (matches) visibleCases += 1;
+      });
+      document.querySelector('#incomplete-result-count').textContent = `Showing ${visibleCases} of ${cases.length} cases`;
+      document.querySelector('#incomplete-empty').hidden = visibleCases > 0;
     };
     document.querySelector('#incomplete-search').addEventListener('input', filterCases);
-    document.querySelector('#incomplete-status').addEventListener('change', filterCases);
+    Object.values(filterIds).forEach(id => document.querySelector(`#${id}`).addEventListener('change', filterCases));
+    document.querySelector('#incomplete-reset').addEventListener('click', () => {
+      document.querySelector('#incomplete-search').value = '';
+      Object.values(filterIds).forEach(id => { document.querySelector(`#${id}`).value = ''; });
+      filterCases();
+    });
+    filterCases();
     if (selected) {
+      document.querySelector('#close-incomplete-case').addEventListener('click', () => {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('case');
+        window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+        document.querySelector('#incomplete-case-detail')?.remove();
+      });
       document.querySelector('#incomplete-note-form').addEventListener('submit', event => { event.preventDefault(); if (Store.addIncompleteNote(selected.id, document.querySelector('#incomplete-note').value)) showToast('Follow-up saved', `${selected.id} was updated.`); });
       document.querySelector('#resolve-form').addEventListener('submit', event => { event.preventDefault(); if (!Store.resolveIncomplete(selected.id, document.querySelector('#completed-score').value)) return showToast('Resolution blocked', 'Enter a score within the assessment maximum.'); showToast('Incomplete grade resolved', 'The score and calculated quarter grade were updated.'); });
     }
