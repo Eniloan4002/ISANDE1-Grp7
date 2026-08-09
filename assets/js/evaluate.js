@@ -214,8 +214,16 @@ function saveAndReturn(kind) {
   Store.updateApplicant(activeApp, collectForm());
   if (kind === 'check') {
     const lastName = document.querySelector('#f-last').value.trim().toLowerCase();
-    const duplicate = APPLICANTS[activeApp].flag === 'dup' || lastName.includes('santos');
-    Store.updateApplicant(activeApp, duplicate ? { evalStatus: 'flag' } : { evalStatus: 'ready', queueStatus: 'review' });
+    const carloScenario = activeApp === 'APP-2026-0153';
+    const duplicate = carloScenario || APPLICANTS[activeApp].flag === 'dup' || lastName.includes('santos');
+    if (duplicate) {
+      Store.updateApplicant(activeApp, carloScenario
+        ? { evalStatus: 'flag', queueStatus: 'review', flag: 'dup' }
+        : { evalStatus: 'flag' });
+      if (carloScenario) Store.flagPair(activeApp);
+    } else {
+      Store.updateApplicant(activeApp, { evalStatus: 'ready', queueStatus: 'review' });
+    }
   }
   location.href = `queue.html?highlight=${encodeURIComponent(activeApp)}&saved=${kind}`;
 }
