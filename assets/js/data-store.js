@@ -107,7 +107,7 @@
       },
       'APP-2026-0153': {
         meter: '78% match confidence',
-        incoming: { sub: 'New · APP-2026-0153 · Submitted Aug 4, 2026', fields: [['Full name', 'Bautista, Carlo', false], ['Date of birth', '03/09/2009', true], ['Sex', 'Male', true], ['LRN', '121456789012', false], ['Previous school', 'Iligan City NHS', true], ['Guardian contact', '0922 555 0153', true], ['Status', 'Pre-Enlisted', false]] },
+        incoming: { sub: 'Transferee · APP-2026-0153 · Submitted Aug 4, 2026', fields: [['Full name', 'Bautista, Carlo', false], ['Date of birth', '03/09/2009', true], ['Sex', 'Male', true], ['LRN', '121456789012', false], ['Previous school', 'Iligan City NHS', true], ['Guardian contact', '0922 555 0153', true], ['Status', 'Pre-Enlisted', false]] },
         existing: { sub: 'Student STU-2023-1210 · Record since 2023', fields: [['Full name', 'Bautista, Carlos D.', false], ['Date of birth', '03/09/2009', true], ['Sex', 'Male', true], ['LRN', '120987654321', false], ['Previous school', 'Iligan City NHS', true], ['Guardian contact', '0922 555 0153', true], ['Status', 'Active', false]] }
       },
       'APP-2026-0140': {
@@ -125,6 +125,15 @@
       'STU-2026-0451': { app: 'APP-2026-0151', name: 'Lim, Angela', initials: 'AL', meta: '1st Year · BSOA · Kapatagan', status: 'enrolled', category: 'Returnee — Regular', ref: 'CSH-0095', bracket: 'Bracket B', req: ['Complete', 'success'], reqDate: 'Aug 6, 2026', attend: ['present', 'present', 'present', 'present', 'present'], attendStatus: 'Verified', confirmable: false, confirmHint: 'Student is already officially enrolled. Assign a section to complete sectioning.' }
     },
     sections: { 'STU-2026-0454': 'STEM-B', 'STU-2026-0455': 'Cookery-1' },
+    monitoring: {
+      'APP-2026-0153': {
+        status: 'Open',
+        action: '',
+        notes: '',
+        by: '',
+        when: ''
+      }
+    },
     reportLog: [
       { when: 'Aug 7, 2026 10:42 AM', title: 'Enrollment Summary', criteria: 'Enrollment Summary · 2026-2027 · First Semester · Main Campus · All Tracks · Aug 01, 2026 - Aug 31, 2026', by: 'R. Santos', format: 'PDF' },
       { when: 'Aug 6, 2026 03:20 PM', title: 'Missing Requirements', criteria: 'Missing Requirements · 2026-2027 · First Semester · All Campuses · All Tracks · Jul 01, 2026 - Aug 31, 2026', by: 'R. Santos', format: 'CSV' }
@@ -154,12 +163,14 @@
         'STU-2026-0184': { appId: 'APP-2026-0148', name: 'Dela Cruz, Juan', initials: 'JD', lrn: '119270140008', gradeLevel: 'Grade 11', section: 'STEM A', campus: 'Iligan Main Campus', adviser: 'Nicole Chua', sectionHistory: [{ label: 'Grade 11 · STEM A', detail: 'SY 2026–2027 · Iligan Main Campus' }, { label: 'Grade 10 · Rizal', detail: 'SY 2025–2026 · Previous school' }] },
         'STU-2026-0185': { appId: 'APP-2026-0149', name: 'Santos, Maria', initials: 'MS', lrn: '108517230184', gradeLevel: 'Grade 11', section: 'STEM A', campus: 'Iligan Main Campus', adviser: 'Nicole Chua', sectionHistory: [{ label: 'Grade 11 · STEM A', detail: 'SY 2026–2027 · Iligan Main Campus' }, { label: 'Grade 10 · STEM', detail: 'SY 2025–2026 · Kapatagan NHS' }] },
         'STU-2026-0186': { appId: 'APP-2026-0150', name: 'Reyes, Pedro', initials: 'PR', lrn: '120381650117', gradeLevel: 'Grade 11', section: 'STEM A', campus: 'Iligan Main Campus', adviser: 'Nicole Chua', sectionHistory: [{ label: 'Grade 11 · STEM A', detail: 'SY 2026–2027 · Iligan Main Campus' }, { label: 'Grade 10 · Mabini', detail: 'SY 2025–2026 · Previous school' }] },
-        'STU-2026-0187': { appId: 'APP-2026-0151', name: 'Lim, Angela', initials: 'AL', lrn: '112500710292', gradeLevel: 'Grade 11', section: 'STEM A', campus: 'Iligan Main Campus', adviser: 'Nicole Chua', sectionHistory: [{ label: 'Grade 11 · STEM A', detail: 'SY 2026–2027 · Iligan Main Campus' }, { label: 'Grade 10 · Bonifacio', detail: 'SY 2025–2026 · Previous school' }] }
+        'STU-2026-0187': { appId: 'APP-2026-0151', name: 'Lim, Angela', initials: 'AL', lrn: '112500710292', gradeLevel: 'Grade 11', section: 'STEM A', campus: 'Iligan Main Campus', adviser: 'Nicole Chua', sectionHistory: [{ label: 'Grade 11 · STEM A', detail: 'SY 2026–2027 · Iligan Main Campus' }, { label: 'Grade 10 · Bonifacio', detail: 'SY 2025–2026 · Previous school' }] },
+        'STU-2026-0456': { appId: 'APP-2026-0153', name: 'Bautista, Carlo', initials: 'CB', lrn: '121456789012', gradeLevel: 'Grade 11', section: 'Cookery-1', campus: 'Bugo — CDO', adviser: 'Nicole Chua', sectionHistory: [{ label: 'Grade 11 · Cookery-1', detail: 'SY 2026–2027 · Bugo — CDO' }, { label: 'Grade 10 · Iligan City NHS', detail: 'SY 2025–2026 · Previous school' }] }
       },
       classes: {
         'CLS-GM-STEMA': { id: 'CLS-GM-STEMA', subject: 'General Mathematics', section: 'STEM A', gradeLevel: 'Grade 11', room: 'Room 204', teacher: 'Michael Reyes', periodId: 'SY2026-Q1', studentIds: ['STU-2026-0184', 'STU-2026-0185', 'STU-2026-0186', 'STU-2026-0187'], status: 'draft', submittedBy: '', submittedAt: '' },
         'CLS-STAT-ABMA': { id: 'CLS-STAT-ABMA', subject: 'Statistics and Probability', section: 'ABM A', gradeLevel: 'Grade 11', room: 'Room 301', teacher: 'Michael Reyes', periodId: 'SY2026-Q1', studentIds: ['STU-2026-0185', 'STU-2026-0187'], status: 'submitted', submittedBy: 'Michael Reyes', submittedAt: 'Aug 4, 2026 11:05 AM' },
-        'CLS-OC-STEMA': { id: 'CLS-OC-STEMA', subject: 'Oral Communication', section: 'STEM A', gradeLevel: 'Grade 11', room: 'Room 202', teacher: 'Michael Reyes', periodId: 'SY2026-Q1', studentIds: ['STU-2026-0184', 'STU-2026-0185', 'STU-2026-0186', 'STU-2026-0187'], status: 'submitted', submittedBy: 'Michael Reyes', submittedAt: 'Aug 4, 2026 9:30 AM' }
+        'CLS-OC-STEMA': { id: 'CLS-OC-STEMA', subject: 'Oral Communication', section: 'STEM A', gradeLevel: 'Grade 11', room: 'Room 202', teacher: 'Michael Reyes', periodId: 'SY2026-Q1', studentIds: ['STU-2026-0184', 'STU-2026-0185', 'STU-2026-0186', 'STU-2026-0187'], status: 'submitted', submittedBy: 'Michael Reyes', submittedAt: 'Aug 4, 2026 9:30 AM' },
+        'CLS-CA-COOKERY1': { id: 'CLS-CA-COOKERY1', subject: 'Cookery Fundamentals', section: 'Cookery-1', gradeLevel: 'Grade 11', room: 'Cookery Lab 1', teacher: 'Michael Reyes', periodId: 'SY2026-Q1', studentIds: ['STU-2026-0456'], status: 'draft', submittedBy: '', submittedAt: '' }
       },
       grades: {
         'CLS-GM-STEMA': {
@@ -177,22 +188,28 @@
           'STU-2026-0185': { scores: { ww1: 19, ww2: 45, pt1: 93, other1: 10 }, quarterGrade: 93, status: 'submitted', updatedAt: 'Aug 4, 2026 9:30 AM' },
           'STU-2026-0186': { scores: { ww1: 15, ww2: 38, pt1: 79, other1: 8 }, quarterGrade: 79, status: 'submitted', updatedAt: 'Aug 4, 2026 9:30 AM' },
           'STU-2026-0187': { scores: { ww1: 17, ww2: 42, pt1: 86, other1: 9 }, quarterGrade: 86, status: 'submitted', updatedAt: 'Aug 4, 2026 9:30 AM' }
+        },
+        'CLS-CA-COOKERY1': {
+          'STU-2026-0456': { scores: { ww1: 17, ww2: 38, pt1: null, other1: 8 }, quarterGrade: null, status: 'incomplete', updatedAt: 'Aug 7, 2026 9:15 AM' }
         }
       },
       history: {
         'STU-2026-0184': [{ subject: 'Oral Communication', schoolYear: '2026–2027', quarters: { q1: 89, q2: null, q3: null, q4: null }, finalGrade: null }, { subject: 'General Mathematics', schoolYear: '2026–2027', quarters: { q1: 87, q2: null, q3: null, q4: null }, finalGrade: null }, { subject: 'Earth Science', schoolYear: '2026–2027', quarters: { q1: 86, q2: null, q3: null, q4: null }, finalGrade: null }],
         'STU-2026-0185': [{ subject: 'Oral Communication', schoolYear: '2026–2027', quarters: { q1: 93, q2: null, q3: null, q4: null }, finalGrade: null }, { subject: 'General Mathematics', schoolYear: '2026–2027', quarters: { q1: 94, q2: null, q3: null, q4: null }, finalGrade: null }, { subject: 'Statistics and Probability', schoolYear: '2026–2027', quarters: { q1: 91, q2: null, q3: null, q4: null }, finalGrade: null }],
         'STU-2026-0186': [{ subject: 'Oral Communication', schoolYear: '2026–2027', quarters: { q1: 79, q2: null, q3: null, q4: null }, finalGrade: null }, { subject: 'General Mathematics', schoolYear: '2025–2026', quarters: { q1: 76, q2: 75, q3: 74, q4: 74 }, finalGrade: 75 }, { subject: 'Earth Science', schoolYear: '2026–2027', quarters: { q1: 78, q2: null, q3: null, q4: null }, finalGrade: null }],
-        'STU-2026-0187': [{ subject: 'Oral Communication', schoolYear: '2026–2027', quarters: { q1: 86, q2: null, q3: null, q4: null }, finalGrade: null }, { subject: 'General Mathematics', schoolYear: '2026–2027', quarters: { q1: 84, q2: null, q3: null, q4: null }, finalGrade: null }, { subject: 'Statistics and Probability', schoolYear: '2026–2027', quarters: { q1: 84, q2: null, q3: null, q4: null }, finalGrade: null }]
+        'STU-2026-0187': [{ subject: 'Oral Communication', schoolYear: '2026–2027', quarters: { q1: 86, q2: null, q3: null, q4: null }, finalGrade: null }, { subject: 'General Mathematics', schoolYear: '2026–2027', quarters: { q1: 84, q2: null, q3: null, q4: null }, finalGrade: null }, { subject: 'Statistics and Probability', schoolYear: '2026–2027', quarters: { q1: 84, q2: null, q3: null, q4: null }, finalGrade: null }],
+        'STU-2026-0456': [{ subject: 'Cookery Fundamentals', schoolYear: '2026–2027', quarters: { q1: null, q2: null, q3: null, q4: null }, finalGrade: null }]
       },
       adviserNotes: {
         'STU-2026-0184': [{ type: 'Attendance follow-up', priority: 'Standard', text: 'Student recorded three absences this period. Coordinate with subject teachers before parent follow-up.', status: 'Active', adviser: 'Nicole Chua', when: 'Aug 4, 2026 2:20 PM' }, { type: 'Parent contacted', priority: 'Standard', text: 'Attendance concern discussed by phone; guardian acknowledged the notice.', status: 'Resolved', adviser: 'Nicole Chua', when: 'Aug 4, 2026 1:45 PM' }],
         'STU-2026-0185': [],
         'STU-2026-0186': [{ type: 'Academic follow-up', priority: 'High', text: 'Missing Written Work 2 score requires completion.', status: 'Active', adviser: 'Nicole Chua', when: 'Aug 4, 2026 1:25 PM' }],
-        'STU-2026-0187': [{ type: 'Requirements reminder', priority: 'Standard', text: 'Pending enrollment document follow-up.', status: 'Active', adviser: 'Nicole Chua', when: 'Aug 4, 2026 2:05 PM' }]
+        'STU-2026-0187': [{ type: 'Requirements reminder', priority: 'Standard', text: 'Pending enrollment document follow-up.', status: 'Active', adviser: 'Nicole Chua', when: 'Aug 4, 2026 2:05 PM' }],
+        'STU-2026-0456': []
       },
       incompleteCases: {
-        'INC-2026-001': { id: 'INC-2026-001', studentId: 'STU-2026-0186', classId: 'CLS-GM-STEMA', periodId: 'SY2026-Q1', assessmentKey: 'ww2', status: 'pending_teacher', notes: [{ text: 'Teacher notified about the missing Written Work 2 score.', by: 'R. Santos', when: 'Aug 5, 2026 9:15 AM' }], resolvedAt: '', resolvedBy: '' }
+        'INC-2026-001': { id: 'INC-2026-001', studentId: 'STU-2026-0186', classId: 'CLS-GM-STEMA', periodId: 'SY2026-Q1', assessmentKey: 'ww2', status: 'pending_teacher', notes: [{ text: 'Teacher notified about the missing Written Work 2 score.', by: 'R. Santos', when: 'Aug 5, 2026 9:15 AM' }], resolvedAt: '', resolvedBy: '' },
+        'INC-2026-002': { id: 'INC-2026-002', studentId: 'STU-2026-0456', classId: 'CLS-CA-COOKERY1', periodId: 'SY2026-Q1', assessmentKey: 'pt1', status: 'pending_teacher', notes: [{ text: 'Performance Task 1 score is pending after the transferee’s first practical assessment.', by: 'R. Santos', when: 'Aug 7, 2026 9:15 AM' }], resolvedAt: '', resolvedBy: '' }
       },
       corrections: {
         'GCR-2026-004': { id: 'GCR-2026-004', studentId: 'STU-2026-0186', subject: 'General Mathematics', schoolYear: '2025–2026', quarterKey: 'q4', periodId: 'SY2025-Q4', currentGrade: 74, proposedGrade: 78, reason: 'Completed requirement', explanation: 'Student completed the documented missing performance task within the authorized completion period.', attachment: { name: 'completion-evidence.pdf', type: 'application/pdf', size: 184320 }, status: 'principal_review', submittedBy: 'Michael Reyes', submittedAt: 'Aug 4, 2026 10:32 AM', audit: [{ action: 'Submitted by subject teacher', by: 'Michael Reyes', when: 'Aug 4, 2026 10:32 AM' }] }
@@ -230,6 +247,8 @@
     Object.keys(data.applicants).forEach(key => { data.applicants[key].id = key; });
     if (!data.academic) data.academic = clone(SEED.academic);
     else mergeMissing(data.academic, SEED.academic);
+    if (!data.monitoring) data.monitoring = clone(SEED.monitoring);
+    else mergeMissing(data.monitoring, SEED.monitoring);
     persist(false);
   }
 
@@ -538,12 +557,12 @@
       campus: 'Bugo — CDO', campusKey: 'bugo', program: 'shs',
       last: 'Bautista', first: 'Carlo', middle: 'Dizon', ext: '',
       lrnStatus: 'With LRN', lrn: '121456789012', psa: 'PSA-2024-003182',
-      dob: '03/09/2009', sex: 'Male', age: '17', contact: '0922 555 0157', email: 'carlo.bautista@email.com',
+      dob: '03/09/2009', sex: 'Male', age: '17', contact: '0922 555 0153', email: 'carlo.bautista@email.com',
       ip: 'No', ipOther: '', motherTongue: 'Hiligaynon', honors: '',
       house: 'Purok 2, Brgy. Bugo', province: 'Misamis Oriental', city: 'Cagayan de Oro', barangay: 'Bugo',
       enrolled: 'Yes', school: 'Iligan City National High School', schoolAddress: 'Pala-o, Iligan City', schoolId: 'ICN-2023-221',
       father: 'Edwin Bautista', mother: 'Marilou Dizon Bautista', guardian: 'Edwin Bautista',
-      guardianContact: '0922 555 0157', regDate: '08/07/2026', referred: 'GUIDANCE',
+      guardianContact: '0922 555 0153', regDate: '08/07/2026', referred: 'GUIDANCE',
       delivery: ['Online'], deliveryOther: '',
       uploads: { 'PSA Birth Certificate': 'PSA-Bautista.pdf', 'Form 137': 'Form137-Bautista.pdf', 'Certificate of Completion': 'Completion-Bautista.pdf', 'Good Moral Certificate': 'GoodMoral-Bautista.pdf' }
     },
@@ -631,6 +650,21 @@
   function removeReport(idx) {
     data.reportLog.splice(idx, 1);
     persist();
+  }
+
+  // ---- reporting and intervention helpers ----
+  function getMonitoringCase(appId) { return data.monitoring[appId] || null; }
+  function recordIntervention(appId, action, notes) {
+    if (!data.monitoring[appId]) {
+      data.monitoring[appId] = { status: 'Open', action: '', notes: '', by: '', when: '' };
+    }
+    data.monitoring[appId].status = 'Monitoring';
+    data.monitoring[appId].action = action;
+    data.monitoring[appId].notes = notes;
+    data.monitoring[appId].by = 'Angela Cruz';
+    data.monitoring[appId].when = nowStamp();
+    persist();
+    return true;
   }
 
   // ---- academic records helpers ----
@@ -908,7 +942,7 @@
     getAttendance, setAttendance,
     getPair, getPairStatus, resolvePair,
     getRecords, getRecord, confirmRecord, assignSection, removeRecord,
-    getReportLog, addReport, removeReport,
+    getReportLog, addReport, removeReport, getMonitoringCase, recordIntervention,
     getAcademicStudent, getAcademicClass, getAcademicPeriod, getAcademicClasses,
     getCorrections, getIncompleteCases, requirementSummary, calculateAcademicGrade,
     updateAcademicPolicy, saveClassScores, submitClassGrades, academicStanding,

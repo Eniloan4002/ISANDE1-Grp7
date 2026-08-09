@@ -80,6 +80,35 @@ const preview = document.querySelector('#preview-panel');
 const previewTable = document.querySelector('#preview-table');
 const previewMeta = document.querySelector('#preview-meta');
 
+function syncCarloReports() {
+  const appId = 'APP-2026-0153';
+  const studentId = 'STU-2026-0456';
+  const app = Store.applicants[appId];
+  REPORTS.records.rows = REPORTS.records.rows.filter(row => row[1] !== studentId);
+  REPORTS.missing.rows = REPORTS.missing.rows.filter(row => row[1] !== appId);
+  if (!app) return;
+
+  REPORTS.records.rows.push([
+    'Bautista, Carlo',
+    studentId,
+    'TVL-Cookery',
+    'Bugo',
+    app.queueStatus === 'enrolled' ? 'Enrolled' : 'Pending confirmation'
+  ]);
+
+  const docs = Store.getRequirements(appId)?.docs || {};
+  const missing = Object.entries(docs).filter(([, value]) => value !== 'submitted').map(([doc]) => doc);
+  if (missing.length) {
+    REPORTS.missing.rows.push([
+      'Bautista, Carlo',
+      appId,
+      missing.join(', '),
+      app.submittedAt || 'Current',
+      app.contact || '—'
+    ]);
+  }
+}
+
 function selectType(type) {
   typeButtons.forEach(button => button.classList.toggle('active', button.dataset.type === type));
   document.querySelector('#gen-title').textContent = REPORTS[type].title;
@@ -107,6 +136,7 @@ function renderLog() {
 }
 
 function generate() {
+  syncCarloReports();
   const type = typeButtons.find(button => button.classList.contains('active')).dataset.type;
   const report = REPORTS[type];
   previewTable.querySelector('thead').innerHTML = `<tr>${report.head.map(h => `<th>${h}</th>`).join('')}</tr>`;
@@ -134,5 +164,6 @@ document.querySelector('#btn-print').addEventListener('click', () => showToast('
 document.querySelectorAll('[data-export]').forEach(button => button.addEventListener('click', () => showToast('Export prepared', 'CSV file downloaded — demonstration prototype.')));
 document.querySelectorAll('[data-export-pdf]').forEach(button => button.addEventListener('click', () => showToast('Export prepared', 'PDF file downloaded — demonstration prototype.')));
 
-document.addEventListener('store:change', renderLog);
+document.addEventListener('store:change', () => { syncCarloReports(); renderLog(); });
+syncCarloReports();
 renderLog();

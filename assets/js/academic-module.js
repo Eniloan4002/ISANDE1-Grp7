@@ -72,6 +72,11 @@
     const atRisk = students.filter(([id]) => standingFor(id).label === 'At risk').length;
     const missing = students.filter(([id]) => requirementFor(id).label !== 'Complete').length;
     const good = students.filter(([id]) => standingFor(id).label === 'Good standing').length;
+    const sections = [...new Set(students.map(([, student]) => student.section))];
+    const advisers = [...new Set(students.map(([, student]) => student.adviser))];
+    const rosterTitle = sections.length === 1 ? `${sections[0]} Student Roster` : 'Assigned Student Roster';
+    const rosterSubtitle = `School Year 2026–2027 · Adviser: ${advisers.join(', ')}`;
+    const sectionSummary = sections.length ? sections.map(section => `Grade 11 · ${section}`).join(' · ') : 'Current roster';
     const rows = students.map(([id, student]) => {
       const req = requirementFor(id);
       const standing = standingFor(id);
@@ -89,9 +94,9 @@
     pageLayout({
       breadcrumb: '<a href="advisory.html">Academic Records</a><span>/</span><span>Advisory Class</span>', eyebrow: 'Teacher Adviser', title: 'Advisory Class', description: 'Monitor synchronized enrollment, requirements, and academic status for your assigned section.', action: '<span class="prototype-label">Policy-dependent demo</span>',
       content: `
-        <section class="academic-stats"><article class="academic-stat"><strong>${students.length}</strong><span>Assigned students</span><small>Grade 11 · STEM A</small></article><article class="academic-stat warning"><strong>${missing}</strong><span>Requirements follow-up</span><small>From enrollment checklists</small></article><article class="academic-stat danger"><strong>${atRisk}</strong><span>At academic risk</span><small>Threshold: ${Store.academic.policy.passingGrade}</small></article><article class="academic-stat success"><strong>${good}</strong><span>Good standing</span><small>Calculated from current grades</small></article></section>
+        <section class="academic-stats"><article class="academic-stat"><strong>${students.length}</strong><span>Assigned students</span><small>${esc(sectionSummary)}</small></article><article class="academic-stat warning"><strong>${missing}</strong><span>Requirements follow-up</span><small>From enrollment checklists</small></article><article class="academic-stat danger"><strong>${atRisk}</strong><span>At academic risk</span><small>Threshold: ${Store.academic.policy.passingGrade}</small></article><article class="academic-stat success"><strong>${good}</strong><span>Good standing</span><small>Calculated from current grades</small></article></section>
         <section class="module-note"><strong>Status sources:</strong> requirements come from Enrollment Management; academic standing is calculated from component scores; adviser flags retain their author and timestamp.</section>
-        <section class="content-panel"><div class="panel-header"><div><h2>STEM A Student Roster</h2><p>School Year 2026–2027 · Adviser: Nicole Chua</p></div></div><div class="toolbar"><label class="search-control"><span>Search</span><input id="advisory-search" type="search" placeholder="Student name / ID"></label></div><div class="table-wrap"><table><thead><tr><th>Student</th><th>Enrollment</th><th>Requirements</th><th>Academic standing</th><th>Latest adviser flag</th><th>Record</th></tr></thead><tbody id="advisory-body">${rows}</tbody></table></div><div class="table-footer"><span>${students.length} assigned students</span><span>Core records remain read-only</span></div></section>`
+        <section class="content-panel"><div class="panel-header"><div><h2>${esc(rosterTitle)}</h2><p>${esc(rosterSubtitle)}</p></div></div><div class="toolbar"><label class="search-control"><span>Search</span><input id="advisory-search" type="search" placeholder="Student name / ID"></label></div><div class="table-wrap"><table><thead><tr><th>Student</th><th>Enrollment</th><th>Requirements</th><th>Academic standing</th><th>Latest adviser flag</th><th>Record</th></tr></thead><tbody id="advisory-body">${rows}</tbody></table></div><div class="table-footer"><span>${students.length} assigned students</span><span>Core records remain read-only</span></div></section>`
     });
     bindTableSearch('#advisory-search', '#advisory-body tr', row => row.dataset.search || '');
   }
