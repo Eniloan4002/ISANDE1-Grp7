@@ -1,1 +1,3 @@
 /CONTEXT
+# Local editor / tooling configuration (not part of the project)
+.claude/
