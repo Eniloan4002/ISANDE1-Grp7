@@ -80,6 +80,42 @@ document.querySelectorAll('.upload-item').forEach(item => {
 
 const successBox = document.querySelector('#submit-success');
 
+// ---- Demo-only autofill: Carlo Bautista (transferee scenario) ----
+// Scoped to this one character on purpose — not a general persona engine.
+// Fills every text/select field instantly (no typing animation) so the
+// presenter isn't hand-typing ~30 fields live; the real Submit button still
+// has to be clicked, and the resulting applicant keeps the same App ID
+// (APP-2026-0153) that the rest of the demo's seeded data — the duplicate
+// pair, the Cookery-1 capacity numbers — already assumes.
+const CARLO_DEMO_ID = 'APP-2026-0153';
+let demoOverrideId = null;
+// Keys match each field's real id suffix exactly (e.g. 'lrn-status' -> #s-lrn-status)
+// so the fill loop below needs no per-field special-casing.
+const CARLO_DEMO_DATA = {
+  grade: 'Grade 11', track: 'TVL', strand: 'CA', campus: 'Bugo — CDO', category: 'Transferee',
+  'lrn-status': 'With LRN', psa: 'PSA-2024-002091', lrn: '121456789012',
+  last: 'Bautista', first: 'Carlo', middle: 'Ramirez', ext: '',
+  dob: '03/09/2009', sex: 'Male', age: '17', contact: '0922 555 0554', email: 'carlo.bautista@email.com',
+  ip: 'No', 'mother-tongue': 'Bisaya/Cebuano', honors: '',
+  house: 'Purok 3, Brgy. Bugo', province: 'Misamis Oriental', city: 'Cagayan de Oro', barangay: 'Bugo',
+  enrolled: 'Yes', school: 'Iligan City National High School', 'school-address': 'Iligan City', 'school-id': '',
+  father: 'Edwin Bautista', mother: 'Elena Ramirez Bautista', guardian: 'Edwin Bautista', 'guardian-contact': '0922 555 0153',
+  regdate: '08/04/2026', referred: 'TVL'
+};
+const CARLO_DEMO_DELIVERY = ['Online'];
+document.querySelector('#btn-fill-carlo').addEventListener('click', () => {
+  showPreview(false); // autofill only touches the real form, switch out of the read-only preview
+  renderStrands(CARLO_DEMO_DATA.track); // rebuilds #s-strand's options before the loop sets its value
+  Object.entries(CARLO_DEMO_DATA).forEach(([key, value]) => {
+    const el = document.querySelector('#s-' + key);
+    if (el) el.value = value;
+  });
+  deliveryChecks.forEach(c => { c.checked = CARLO_DEMO_DELIVERY.includes(c.value); });
+  document.querySelector('#s-ip').dispatchEvent(new Event('change'));
+  demoOverrideId = CARLO_DEMO_ID;
+  showToast('Carlo Bautista filled', 'Demo data loaded — review and click Submit Application to continue the scenario.');
+});
+
 // Save Draft — store nothing, just confirm the action.
 document.querySelector('#btn-draft').addEventListener('click', () => {
   const last = document.querySelector('#s-last').value.trim();
@@ -110,8 +146,12 @@ document.querySelector('#submission-form').addEventListener('submit', event => {
     return;
   }
 
-  // Actually create the record in the shared store so it appears in the Queue.
-  const id = Store.addApplicant({
+  // Carlo's demo record already exists fully seeded (requirements, attendance,
+  // the duplicate pair) — re-creating him here would reset his flagged/review
+  // state back to a plain fresh applicant, breaking the rest of the scenario.
+  // So the demo path just reuses his existing App ID instead of calling
+  // Store.addApplicant again; every other (real) submission works as before.
+  const id = demoOverrideId || Store.addApplicant({
     last: document.querySelector('#s-last').value.trim(),
     first: document.querySelector('#s-first').value.trim(),
     middle: document.querySelector('#s-middle').value.trim(),
@@ -152,6 +192,7 @@ document.querySelector('#submission-form').addEventListener('submit', event => {
   previewPanel.classList.remove('show');
   previewPanel.setAttribute('aria-hidden', 'true');
   showToast('Application submitted', `${id} — entered the Enrollment Queue as Pre-Enlisted.`);
+  demoOverrideId = null;
 });
 
 // Clear the error highlight once the user edits a field again.

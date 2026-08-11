@@ -103,7 +103,7 @@
         ip: 'No', ipOther: '', motherTongue: 'Bisaya/Cebuano', honors: '',
         house: 'Purok 3, Brgy. Bugo', province: 'Misamis Oriental', city: 'Cagayan de Oro', barangay: 'Bugo',
         enrolled: 'Yes', school: 'Iligan City National High School', schoolAddress: 'Iligan City', schoolId: '',
-        father: 'Edwin Bautista', mother: '', guardian: 'Edwin Bautista',
+        father: 'Edwin Bautista', mother: 'Elena Ramirez Bautista', guardian: 'Edwin Bautista',
         guardianContact: '0922 555 0153', regDate: '08/04/2026', referred: 'TVL'
       }
     },
