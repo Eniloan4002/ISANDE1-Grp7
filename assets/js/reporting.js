@@ -21,13 +21,7 @@ const REPORTS = {
   records: {
     title: 'Student Records', desc: 'Directory of active student records.',
     head: ['Student', 'Student ID', 'Track', 'Campus', 'Status'],
-    rows: [
-      ['Abad, Carla', 'STU-2026-0452', 'ABM', 'Main', 'Pending confirmation'],
-      ['Dela Cruz, Juan', 'STU-2026-0453', 'HUMSS', 'Main', 'Pending confirmation'],
-      ['Lim, Angela', 'STU-2026-0451', 'BSOA', 'Kapatagan', 'Enrolled'],
-      ['Reyes, Pedro', 'STU-2026-0455', 'TVL-Cookery', 'Bugo', 'Enrolled'],
-      ['Santos, Maria A.', 'STU-2026-0454', 'STEM', 'Main', 'Enrolled']
-    ]
+    rows: [] // live — see buildRecordsRows()
   },
   missing: {
     title: 'Missing Requirements', desc: 'Students with incomplete or pending credentials.',
@@ -46,22 +40,12 @@ const REPORTS = {
   honor: {
     title: 'Honor Students', desc: 'Top students by general weighted average (GWA).',
     head: ['Rank', 'Student', 'Section', 'GWA', 'Honor'],
-    rows: [
-      ['1', 'Ramos, Sofia', 'STEM-B', '96.4', '<span class="status-pill success">With Highest Honors</span>'],
-      ['2', 'Ong, Matthew', 'STEM-A', '95.1', '<span class="status-pill success">With Highest Honors</span>'],
-      ['3', 'Villanueva, Bea', 'ABM-1', '93.8', '<span class="status-pill success">With High Honors</span>'],
-      ['4', 'Cruz, Andrei', 'HUMSS-1', '92.0', '<span class="status-pill success">With High Honors</span>']
-    ]
+    rows: [] // live — see buildHonorRows()
   },
   docs: {
     title: 'Registrar Documents', desc: 'Form 137 / 138 / TOR requests issued by the registrar.',
     head: ['Request ID', 'Student', 'Document', 'Status', 'Released'],
-    rows: [
-      ['DOC-2026-0011', 'Ramos, Sofia', 'Form 138 (Report Card)', '<span class="status-pill success">Issued</span>', 'Aug 6, 2026'],
-      ['DOC-2026-0012', 'Ong, Matthew', 'Form 137 (Transcript)', '<span class="status-pill warning">For review</span>', '—'],
-      ['DOC-2026-0013', 'Villanueva, Bea', 'TOR', '<span class="status-pill success">Issued</span>', 'Aug 5, 2026'],
-      ['DOC-2026-0014', 'Cruz, Andrei', 'Form 138 (Report Card)', '<span class="status-pill warning">Pending docs</span>', '—']
-    ]
+    rows: [] // live — see buildDocsRows()
   }
 };
 
@@ -211,6 +195,80 @@ function buildAttendanceRows(filters) {
     .filter(Boolean);
 }
 
+// "Student Records" — live: the confirmed/pending student directory, read from
+// the same records the Enrollment Records screen uses.
+function buildRecordsRows(filters) {
+  return Object.entries(Store.getRecords())
+    .map(([studentId, record]) => {
+      const app = record.app ? Store.applicants[record.app] : null;
+      if (app && !matchesFilters(app, filters)) return null;
+      // record.meta reads "Grade 11 · TVL-Cookery · Bugo — CDO"; the middle
+      // segment is the track, the last is the campus.
+      const parts = String(record.meta || '').split('·').map(part => part.trim());
+      return [
+        record.name,
+        studentId,
+        parts[1] || '—',
+        parts[2] || (app && app.campus) || '—',
+        record.status === 'enrolled' ? 'Enrolled' : 'Pending confirmation'
+      ];
+    })
+    .filter(Boolean)
+    .sort((a, b) => a[0].localeCompare(b[0]));
+}
+
+// Quarter-1 average for an academic student, using the same component
+// calculation the Academic Records module uses. Null when nothing is complete.
+function averageFor(studentId) {
+  const grades = [];
+  Object.entries(Store.getAcademicClasses()).forEach(([classId, academicClass]) => {
+    if (!academicClass.studentIds.includes(studentId) || academicClass.periodId !== 'SY2026-Q1') return;
+    const result = Store.calculateAcademicGrade(classId, studentId);
+    if (result.complete) grades.push(result.grade);
+  });
+  return grades.length ? Math.round(grades.reduce((sum, grade) => sum + grade, 0) / grades.length) : null;
+}
+
+// "Honor Students" — live: ranked by the computed general weighted average.
+// Students with an incomplete record have no average and are excluded, which is
+// the same rule that keeps them off a real honor roll.
+const HONOR_TIERS = [
+  { min: 95, label: 'With Highest Honors' },
+  { min: 90, label: 'With High Honors' },
+  { min: 85, label: 'With Honors' }
+];
+function buildHonorRows() {
+  return Object.entries(Store.academic.students)
+    .map(([studentId, student]) => {
+      const average = averageFor(studentId);
+      if (average === null) return null;
+      const tier = HONOR_TIERS.find(candidate => average >= candidate.min);
+      if (!tier) return null;
+      return { name: student.name, section: student.section || '—', average, honor: tier.label };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.average - a.average)
+    .map((entry, index) => [
+      String(index + 1),
+      entry.name,
+      entry.section,
+      entry.average.toFixed(1),
+      `<span class="status-pill success">${entry.honor}</span>`
+    ]);
+}
+
+// "Registrar Documents" — live: Form 137 / 138 / TOR requests from the store.
+const DOC_STATUS_TONE = { Issued: 'success', 'For review': 'warning', 'Pending docs': 'attention' };
+function buildDocsRows() {
+  return Store.documentRequests.map(request => [
+    request.id,
+    request.student,
+    request.document,
+    `<span class="status-pill ${DOC_STATUS_TONE[request.status] || 'neutral'}">${request.status}</span>`,
+    request.released || '—'
+  ]);
+}
+
 function renderLog() {
   const log = document.querySelector('#log-body');
   const entries = Store.getReportLog();
@@ -224,13 +282,15 @@ function renderLog() {
   if (count) count.textContent = `Showing ${entries.length} of ${entries.length} logged generations`;
 }
 
-// These 3 report types read live Store data at generate-time; the other 3
-// (records/honor/docs) stay on the hardcoded REPORTS rows — see the
-// "(sample data)" badges on their tiles in reporting-monitoring.html.
+// Every report type now reads live Store data at generate-time — there are no
+// hardcoded preview rows left.
 const LIVE_ROW_BUILDERS = {
   missing: buildMissingRows,
   enrollment: buildEnrollmentRows,
-  attendance: buildAttendanceRows
+  attendance: buildAttendanceRows,
+  records: buildRecordsRows,
+  honor: buildHonorRows,
+  docs: buildDocsRows
 };
 
 function generate() {

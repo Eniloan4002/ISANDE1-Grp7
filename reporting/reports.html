@@ -433,7 +433,7 @@
           </thead>
           <tbody id="risk-table-body">
             <tr data-grade="11" data-section="STEM-B" data-adviser="Ms. Ramos" data-risk="attendance"
-              data-criterion="absence-5" data-priority="3" data-status="Open" data-student="Dela Cruz, Juan"
+              data-criterion="absence-5" data-priority="3" data-status="Open" data-app="APP-2026-0148" data-student="Dela Cruz, Juan"
               data-risk-label="Five Consecutive Absences">
               <td><strong>Dela Cruz, Juan</strong><small>LRN 119270140008</small></td>
               <td>Grade 11 STEM-B</td>
@@ -447,7 +447,7 @@
             </tr>
             <tr data-grade="11" data-section="STEM-A" data-adviser="Mr. Santos" data-risk="documentation"
               data-criterion="incomplete-credentials" data-priority="2" data-status="Follow-up"
-              data-student="Santos, Maria" data-risk-label="Missing Form 137">
+              data-app="APP-2026-0149" data-student="Santos, Maria" data-risk-label="Missing Form 137">
               <td><strong>Santos, Maria</strong><small>LRN 108517230184</small></td>
               <td>Grade 11 STEM-A</td>
               <td>Missing Form 137</td>
@@ -459,7 +459,7 @@
               </td>
             </tr>
             <tr data-grade="11" data-section="HUMSS-A" data-adviser="Ms. Villanueva" data-risk="academic"
-              data-criterion="below-75" data-priority="3" data-status="Open" data-student="Reyes, Pedro"
+              data-criterion="below-75" data-priority="3" data-status="Open" data-app="APP-2026-0150" data-student="Reyes, Pedro"
               data-risk-label="Failing Grades">
               <td><strong>Reyes, Pedro</strong><small>LRN 120381650117</small></td>
               <td>Grade 11 HUMSS-A</td>
@@ -472,7 +472,7 @@
               </td>
             </tr>
             <tr data-grade="11" data-section="STEM-B" data-adviser="Ms. Ramos" data-risk="attendance"
-              data-criterion="low-attendance" data-priority="1" data-status="Monitoring" data-student="Garcia, Anne"
+              data-criterion="low-attendance" data-priority="1" data-status="Monitoring" data-app="APP-2026-0155" data-student="Garcia, Anne"
               data-risk-label="Low Attendance">
               <td><strong>Garcia, Anne</strong><small>LRN 118270140264</small></td>
               <td>Grade 11 STEM-B</td>
@@ -485,7 +485,7 @@
               </td>
             </tr>
             <tr data-grade="11" data-section="STEM-B" data-adviser="Ms. Ramos" data-risk="documentation"
-              data-criterion="missing-requirements" data-priority="2" data-status="Open" data-student="Lim, Angela"
+              data-criterion="missing-requirements" data-priority="2" data-status="Open" data-app="APP-2026-0151" data-student="Lim, Angela"
               data-risk-label="Pending Requirements">
               <td><strong>Lim, Angela</strong><small>LRN 112500710292</small></td>
               <td>Grade 11 STEM-B</td>
@@ -499,7 +499,7 @@
             </tr>
             <tr data-grade="11" data-section="ABM-A" data-adviser="Mr. Santos" data-risk="documentation"
               data-criterion="incomplete-credentials" data-priority="2" data-status="Follow-up"
-              data-student="Villanueva, Carlo" data-risk-label="Missing PSA Birth Certificate">
+              data-app="APP-2026-0154" data-student="Villanueva, Carlo" data-risk-label="Missing PSA Birth Certificate">
               <td><strong>Villanueva, Carlo</strong><small>LRN 116481720635</small></td>
               <td>Grade 11 ABM-A</td>
               <td>Missing PSA Birth Certificate</td>
@@ -541,7 +541,7 @@
         <div>
           <h2 id="detail-title">Student Risk Details</h2>
           <p>At-risk student monitoring record</p>
-        </div><button class="modal-close" type="button" aria-label="Close">X</button>
+        </div><button class="modal-close" type="button" aria-label="Close">&#10005;</button>
       </header>
       <div class="report-modal-body">
         <dl class="detail-grid" id="detail-content"></dl>
@@ -554,7 +554,7 @@
         <div>
           <h2 id="intervention-title">Log Intervention</h2>
           <p id="intervention-student">Student follow-up record</p>
-        </div><button class="modal-close" type="button" aria-label="Close">X</button>
+        </div><button class="modal-close" type="button" aria-label="Close">&#10005;</button>
       </header>
       <form class="report-modal-body intervention-form" id="intervention-form"><label>Follow-up action<select required>
             <option value="">Select action</option>
@@ -677,11 +677,27 @@
       row.querySelector('.view-case').addEventListener('click', () => { const monitoring = row.dataset.app ? Store.getMonitoringCase(row.dataset.app) : null; const values = [['Student', row.dataset.student], ['LRN', row.querySelector('small').textContent], ['Section', row.cells[1].textContent], ['Reported concern', row.dataset.riskLabel], ['Priority', row.cells[3].textContent], ['Case status', row.dataset.status], ['Assigned adviser', row.dataset.adviser], ...(monitoring?.action ? [['Last intervention', `${monitoring.action}${monitoring.notes ? ` — ${monitoring.notes}` : ''}`], ['Logged by', `${monitoring.by}${monitoring.when ? ` — ${monitoring.when}` : ''}`]] : [])]; document.getElementById('detail-content').innerHTML = values.map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`).join(''); openModal('detail-modal'); });
       row.querySelector('.log-case').addEventListener('click', () => { selectedRow = row; document.getElementById('intervention-student').textContent = `${row.dataset.student} - ${row.dataset.riskLabel}`; openModal('intervention-modal'); });
     });
-    document.getElementById('intervention-form').addEventListener('submit', event => { event.preventDefault(); const action = event.target.querySelector('select').value; const notes = event.target.querySelector('textarea').value.trim(); if (selectedRow?.dataset.app) Store.recordIntervention(selectedRow.dataset.app, action, notes); else { selectedRow.dataset.status = 'Monitoring'; const status = selectedRow.querySelector('.case-status'); status.textContent = 'Monitoring'; status.className = 'case-status status-monitor'; } closeModal(document.getElementById('intervention-modal')); event.target.reset(); syncCarloRiskRow(); applyFilters(); showToast('Intervention recorded for ' + selectedRow.dataset.student + '.'); });
-    document.addEventListener('store:change', () => { syncCarloRiskRow(); applyFilters(); });
+    // Paint each row from whatever the store has logged for it. Every row is
+    // backed by a real applicant id, so an intervention logged here survives a
+    // reload instead of living only in the DOM until the next refresh.
+    function restoreCaseStatuses() {
+      reportRows.forEach(row => {
+        const appId = row.dataset.app;
+        if (!appId) return;
+        const monitoring = Store.getMonitoringCase(appId);
+        if (!monitoring?.status) return;
+        row.dataset.status = monitoring.status;
+        const statusEl = row.querySelector('.case-status');
+        statusEl.textContent = monitoring.status;
+        statusEl.className = `case-status ${monitoring.status === 'Monitoring' ? 'status-monitor' : monitoring.status === 'Follow-up' ? 'status-follow' : 'status-open'}`;
+      });
+    }
+    document.getElementById('intervention-form').addEventListener('submit', event => { event.preventDefault(); const action = event.target.querySelector('select').value; const notes = event.target.querySelector('textarea').value.trim(); Store.recordIntervention(selectedRow.dataset.app, action, notes); closeModal(document.getElementById('intervention-modal')); event.target.reset(); syncCarloRiskRow(); restoreCaseStatuses(); applyFilters(); showToast('Intervention recorded for ' + selectedRow.dataset.student + '.'); });
+    document.addEventListener('store:change', () => { syncCarloRiskRow(); restoreCaseStatuses(); applyFilters(); });
     document.getElementById('print-report').addEventListener('click', () => window.print());
     document.getElementById('export-report').addEventListener('click', () => showToast('At-risk student report prepared for export.'));
     syncCarloRiskRow();
+    restoreCaseStatuses();
     updateCriterionOptions();
     applyFilters();
   </script>

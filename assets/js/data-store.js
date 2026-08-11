@@ -105,6 +105,90 @@
         enrolled: 'Yes', school: 'Iligan City National High School', schoolAddress: 'Iligan City', schoolId: '',
         father: 'Edwin Bautista', mother: 'Elena Ramirez Bautista', guardian: 'Edwin Bautista',
         guardianContact: '0922 555 0153', regDate: '08/04/2026', referred: 'TVL'
+      },
+      'APP-2026-0154': {
+        name: 'Villanueva, Carlo', lrn: '116481720635', category: 'New', programLabel: 'ABM · Grade 11', program: 'shs',
+        submittedAt: 'Aug 5, 2026',
+        campus: 'Main — Iligan', campusKey: 'main',
+        queueStatus: 'pending', evalStatus: 'review', flag: '',
+        grade: 'Grade 11', track: 'ACADEMIC', strand: 'ABM', delivery: ['Online'], deliveryOther: '',
+        lrnStatus: 'With LRN', psa: '', last: 'Villanueva', first: 'Carlo', middle: 'Bautista', ext: '',
+        dob: '05/17/2009', sex: 'Male', age: '17', contact: '0917 555 0154', email: 'carlo.villanueva@email.com',
+        ip: 'No', ipOther: '', motherTongue: 'Bisaya/Cebuano', honors: '',
+        house: 'Blk 12, Villa Verde', province: 'Lanao del Norte', city: 'Iligan City', barangay: 'Tibanga',
+        enrolled: 'No', school: '', schoolAddress: '', schoolId: '',
+        father: 'Noel Villanueva', mother: 'Grace Bautista Villanueva', guardian: 'Noel Villanueva',
+        guardianContact: '0917 555 0154', regDate: '08/02/2026', referred: 'HUMSS/ABM'
+      },
+      'APP-2026-0155': {
+        name: 'Garcia, Anne', lrn: '118270140264', category: 'New', programLabel: 'STEM · Grade 11', program: 'shs',
+        submittedAt: 'Aug 5, 2026',
+        campus: 'Main — Iligan', campusKey: 'main',
+        queueStatus: 'pending', evalStatus: 'ready', flag: '',
+        grade: 'Grade 11', track: 'ACADEMIC', strand: 'STEM', delivery: ['Modular (Digital)'], deliveryOther: '',
+        lrnStatus: 'With LRN', psa: 'PSA-2023-004417', last: 'Garcia', first: 'Anne', middle: 'Reyes', ext: '',
+        dob: '09/28/2009', sex: 'Female', age: '17', contact: '0918 555 0155', email: 'anne.garcia@email.com',
+        ip: 'No', ipOther: '', motherTongue: 'Bisaya/Cebuano', honors: 'With Honors (Grade 10)',
+        house: 'Purok 6, Sitio Bagong Silang', province: 'Lanao del Norte', city: 'Iligan City', barangay: 'Hinaplanon',
+        enrolled: 'No', school: '', schoolAddress: '', schoolId: '',
+        father: 'Rolando Garcia', mother: 'Mila Reyes Garcia', guardian: 'Mila Reyes Garcia',
+        guardianContact: '0918 555 0155', regDate: '08/02/2026', referred: 'STEM'
+      },
+      'APP-2026-0157': {
+        name: 'Tan, Reggie', lrn: '119830246571', category: 'Transferee', programLabel: 'TVL-IT · Grade 12', program: 'shs',
+        submittedAt: 'Aug 6, 2026',
+        campus: 'Bugo — CDO', campusKey: 'bugo',
+        queueStatus: 'enrolled', evalStatus: 'ready', flag: '',
+        grade: 'Grade 12', track: 'TVL', strand: 'IT', delivery: ['Online'], deliveryOther: '',
+        lrnStatus: 'With LRN', psa: 'PSA-2021-008812', last: 'Tan', first: 'Reggie', middle: 'Uy', ext: '',
+        dob: '02/11/2008', sex: 'Male', age: '18', contact: '0919 555 0157', email: 'reggie.tan@email.com',
+        ip: 'No', ipOther: '', motherTongue: 'Bisaya/Cebuano', honors: '',
+        house: 'Door 4, Gusa Road', province: 'Misamis Oriental', city: 'Cagayan de Oro', barangay: 'Gusa',
+        enrolled: 'Yes', school: 'Gusa Regional Science High School', schoolAddress: 'Gusa, Cagayan de Oro', schoolId: 'GRS-2023-441',
+        father: 'Wilson Tan', mother: 'Rosa Uy Tan', guardian: 'Wilson Tan',
+        guardianContact: '0919 555 0157', regDate: '08/03/2026', referred: 'TVL'
+      },
+      'APP-2026-0158': {
+        name: 'Mabini, Joy', lrn: '113920557744', category: 'Returnee', programLabel: 'HUMSS · Grade 12', program: 'shs',
+        submittedAt: 'Aug 7, 2026',
+        campus: 'Kapatagan', campusKey: 'kapatagan',
+        queueStatus: 'review', evalStatus: 'review', flag: '',
+        grade: 'Grade 12', track: 'ACADEMIC', strand: 'HUMSS', delivery: ['Modular (Print)', 'Radio-based Instruction'], deliveryOther: '',
+        lrnStatus: 'Returning (Balik-Aral)', psa: 'PSA-2020-006190', last: 'Mabini', first: 'Joy', middle: 'Sarmiento', ext: '',
+        dob: '12/03/2007', sex: 'Female', age: '18', contact: '0920 555 0158', email: 'joy.mabini@email.com',
+        ip: 'No', ipOther: '', motherTongue: 'Ilonggo', honors: '',
+        house: 'Purok 1, Poblacion', province: 'Lanao del Norte', city: 'Kapatagan', barangay: 'Poblacion',
+        enrolled: 'No', school: 'Kapatagan National High School', schoolAddress: 'Poblacion, Kapatagan', schoolId: 'KNH-2022-077',
+        father: 'Efren Mabini', mother: 'Dolores Sarmiento Mabini', guardian: 'Dolores Sarmiento Mabini',
+        guardianContact: '0920 555 0158', regDate: '08/04/2026', referred: 'GUIDANCE'
+      },
+      'APP-2026-0159': {
+        name: 'Ocampo, Liza', lrn: '121077340915', category: 'New', programLabel: 'TVL-HRM · Grade 11', program: 'shs',
+        submittedAt: 'Aug 8, 2026',
+        campus: 'Bugo — CDO', campusKey: 'bugo',
+        queueStatus: 'pre-enlisted', evalStatus: 'review', flag: '',
+        grade: 'Grade 11', track: 'TVL', strand: 'HRM', delivery: ['Online', 'Modular (Digital)'], deliveryOther: '',
+        lrnStatus: 'With LRN', psa: 'PSA-2024-001177', last: 'Ocampo', first: 'Liza', middle: 'Padilla', ext: '',
+        dob: '06/21/2009', sex: 'Female', age: '17', contact: '0921 555 0159', email: 'liza.ocampo@email.com',
+        ip: 'No', ipOther: '', motherTongue: 'Tagalog', honors: '',
+        house: 'Purok 8, Brgy. Puerto', province: 'Misamis Oriental', city: 'Cagayan de Oro', barangay: 'Puerto',
+        enrolled: 'No', school: '', schoolAddress: '', schoolId: '',
+        father: 'Arnel Ocampo', mother: 'Vilma Padilla Ocampo', guardian: 'Arnel Ocampo',
+        guardianContact: '0921 555 0159', regDate: '08/05/2026', referred: 'TVL'
+      },
+      'APP-2026-0160': {
+        name: 'Fernandez, Miguel', lrn: '110455829063', category: 'Returnee', programLabel: 'STEM · Grade 12', program: 'shs',
+        submittedAt: 'Aug 9, 2026',
+        campus: 'Main — Iligan', campusKey: 'main',
+        queueStatus: 'pre-enlisted', evalStatus: 'review', flag: '',
+        grade: 'Grade 12', track: 'ACADEMIC', strand: 'STEM', delivery: ['Online'], deliveryOther: '',
+        lrnStatus: 'Returning (Balik-Aral)', psa: 'PSA-2019-003355', last: 'Fernandez', first: 'Miguel', middle: 'Cortez', ext: 'III',
+        dob: '04/08/2007', sex: 'Male', age: '19', contact: '0922 555 0160', email: 'miguel.fernandez@email.com',
+        ip: 'No', ipOther: '', motherTongue: 'Bisaya/Cebuano', honors: '',
+        house: 'Unit 3, Mahogany St.', province: 'Lanao del Norte', city: 'Iligan City', barangay: 'Pala-o',
+        enrolled: 'No', school: 'Iligan City National High School', schoolAddress: 'Iligan City', schoolId: 'ICN-2021-902',
+        father: 'Miguel Fernandez Jr.', mother: 'Teresa Cortez Fernandez', guardian: 'Teresa Cortez Fernandez',
+        guardianContact: '0922 555 0160', regDate: '08/06/2026', referred: 'STEM'
       }
     },
     priorStudents: {
@@ -121,7 +205,13 @@
       'APP-2026-0151': { docs: { 'PSA Birth Certificate': 'submitted', 'Form 137': 'submitted', 'Certificate of Completion': 'submitted', 'Good Moral Certificate': 'submitted' }, contact: '0920 555 0151', email: 'angela.lim@email.com' },
       'APP-2026-0152': { docs: { 'PSA Birth Certificate': 'submitted', 'Form 137': 'submitted', 'Certificate of Completion': 'submitted', 'Good Moral Certificate': 'submitted' }, contact: '0921 555 0152', email: 'carla.abad@email.com' },
       'APP-2026-0156': { docs: { 'PSA Birth Certificate': 'pending', 'Form 137': 'pending', 'Certificate of Completion': 'pending', 'Good Moral Certificate': 'pending' }, contact: '0917 555 0164', email: 'bianca.cruz@email.com' },
-      'APP-2026-0153': { docs: { 'PSA Birth Certificate': 'pending', 'Form 137': 'pending', 'Certificate of Completion': 'pending', 'Good Moral Certificate': 'pending' }, contact: '0922 555 0554', email: 'carlo.bautista@email.com' }
+      'APP-2026-0153': { docs: { 'PSA Birth Certificate': 'pending', 'Form 137': 'pending', 'Certificate of Completion': 'pending', 'Good Moral Certificate': 'pending' }, contact: '0922 555 0554', email: 'carlo.bautista@email.com' },
+      'APP-2026-0154': { docs: { 'PSA Birth Certificate': 'missing', 'Form 137': 'submitted', 'Certificate of Completion': 'submitted', 'Good Moral Certificate': 'submitted' }, contact: '0917 555 0154', email: 'carlo.villanueva@email.com' },
+      'APP-2026-0155': { docs: { 'PSA Birth Certificate': 'submitted', 'Form 137': 'submitted', 'Certificate of Completion': 'submitted', 'Good Moral Certificate': 'submitted' }, contact: '0918 555 0155', email: 'anne.garcia@email.com' },
+      'APP-2026-0157': { docs: { 'PSA Birth Certificate': 'submitted', 'Form 137': 'submitted', 'Certificate of Completion': 'submitted', 'Good Moral Certificate': 'submitted' }, contact: '0919 555 0157', email: 'reggie.tan@email.com' },
+      'APP-2026-0158': { docs: { 'PSA Birth Certificate': 'submitted', 'Form 137': 'pending', 'Certificate of Completion': 'submitted', 'Good Moral Certificate': 'missing' }, contact: '0920 555 0158', email: 'joy.mabini@email.com' },
+      'APP-2026-0159': { docs: { 'PSA Birth Certificate': 'pending', 'Form 137': 'pending', 'Certificate of Completion': 'pending', 'Good Moral Certificate': 'pending' }, contact: '0921 555 0159', email: 'liza.ocampo@email.com' },
+      'APP-2026-0160': { docs: { 'PSA Birth Certificate': 'submitted', 'Form 137': 'pending', 'Certificate of Completion': 'missing', 'Good Moral Certificate': 'pending' }, contact: '0922 555 0160', email: 'miguel.fernandez@email.com' }
     },
     audits: {
       'APP-2026-0148': ['Certificate of Completion marked Missing by R. Santos — Aug 3, 2026 04:19 PM', 'PSA Birth Certificate marked Submitted by R. Santos — Aug 3, 2026 09:58 AM'],
@@ -130,7 +220,13 @@
       'APP-2026-0151': ['All documents verified by R. Santos — Aug 6, 2026 08:37 AM', 'Form 137 marked Submitted by R. Santos — Aug 5, 2026 03:02 PM'],
       'APP-2026-0152': ['All documents verified by R. Santos — Aug 6, 2026 10:44 AM', 'Application created by R. Santos — Aug 3, 2026 02:30 PM'],
       'APP-2026-0156': ['Application created by R. Santos — Aug 9, 2026 09:00 AM'],
-      'APP-2026-0153': ['Application created by R. Santos — Aug 4, 2026 10:15 AM']
+      'APP-2026-0153': ['Application created by R. Santos — Aug 4, 2026 10:15 AM'],
+      'APP-2026-0154': ['PSA Birth Certificate marked Missing by R. Santos — Aug 6, 2026 11:20 AM', 'Application created by R. Santos — Aug 5, 2026 09:40 AM'],
+      'APP-2026-0155': ['All documents verified by R. Santos — Aug 6, 2026 02:15 PM', 'Application created by R. Santos — Aug 5, 2026 10:05 AM'],
+      'APP-2026-0157': ['Enrollment confirmed by R. Santos — Aug 7, 2026 09:30 AM', 'All documents verified by R. Santos — Aug 6, 2026 04:50 PM'],
+      'APP-2026-0158': ['Good Moral Certificate marked Missing by R. Santos — Aug 8, 2026 10:12 AM', 'Application created by R. Santos — Aug 7, 2026 01:35 PM'],
+      'APP-2026-0159': ['Application created by R. Santos — Aug 8, 2026 08:55 AM'],
+      'APP-2026-0160': ['Certificate of Completion marked Missing by R. Santos — Aug 9, 2026 03:05 PM', 'Application created by R. Santos — Aug 9, 2026 09:20 AM']
     },
     attendance: {
       'APP-2026-0148': { req: 'Incomplete', log: [{ day: 'Mon', date: 'Aug 3', status: 'Present' }, { day: 'Tue', date: 'Aug 4', status: 'Present' }, { day: 'Wed', date: 'Aug 5', status: 'Present' }, { day: 'Thu', date: 'Aug 6', status: 'Present' }, { day: 'Fri', date: 'Aug 7', status: 'Present' }] },
@@ -139,7 +235,13 @@
       'APP-2026-0151': { req: 'Complete', log: [{ day: 'Mon', date: 'Aug 3', status: 'Present' }, { day: 'Tue', date: 'Aug 4', status: 'Present' }, { day: 'Wed', date: 'Aug 5', status: 'Present' }, { day: 'Thu', date: 'Aug 6', status: 'Present' }, { day: 'Fri', date: 'Aug 7', status: 'Present' }] },
       'APP-2026-0152': { req: 'Complete', log: [{ day: 'Mon', date: 'Aug 3', status: 'Present' }, { day: 'Tue', date: 'Aug 4', status: 'Present' }, { day: 'Wed', date: 'Aug 5', status: 'Present' }, { day: 'Thu', date: 'Aug 6', status: 'Present' }, { day: 'Fri', date: 'Aug 7', status: 'Present' }] },
       'APP-2026-0156': { req: 'Pending', log: [{ day: 'Mon', date: 'Aug 10', status: 'Pending' }, { day: 'Tue', date: 'Aug 11', status: 'Pending' }, { day: 'Wed', date: 'Aug 12', status: 'Pending' }, { day: 'Thu', date: 'Aug 13', status: 'Pending' }, { day: 'Fri', date: 'Aug 14', status: 'Pending' }] },
-      'APP-2026-0153': { req: 'Pending', log: [{ day: 'Mon', date: 'Aug 4', status: 'Pending' }, { day: 'Tue', date: 'Aug 5', status: 'Pending' }, { day: 'Wed', date: 'Aug 6', status: 'Pending' }, { day: 'Thu', date: 'Aug 7', status: 'Pending' }, { day: 'Fri', date: 'Aug 8', status: 'Pending' }] }
+      'APP-2026-0153': { req: 'Pending', log: [{ day: 'Mon', date: 'Aug 4', status: 'Pending' }, { day: 'Tue', date: 'Aug 5', status: 'Pending' }, { day: 'Wed', date: 'Aug 6', status: 'Pending' }, { day: 'Thu', date: 'Aug 7', status: 'Pending' }, { day: 'Fri', date: 'Aug 8', status: 'Pending' }] },
+      'APP-2026-0154': { req: 'Incomplete', log: [{ day: 'Mon', date: 'Aug 3', status: 'Present' }, { day: 'Tue', date: 'Aug 4', status: 'Present' }, { day: 'Wed', date: 'Aug 5', status: 'Present' }, { day: 'Thu', date: 'Aug 6', status: 'Present' }, { day: 'Fri', date: 'Aug 7', status: 'Present' }] },
+      'APP-2026-0155': { req: 'Complete', log: [{ day: 'Mon', date: 'Aug 3', status: 'Absent' }, { day: 'Tue', date: 'Aug 4', status: 'Absent' }, { day: 'Wed', date: 'Aug 5', status: 'Present' }, { day: 'Thu', date: 'Aug 6', status: 'Absent' }, { day: 'Fri', date: 'Aug 7', status: 'Present' }] },
+      'APP-2026-0157': { req: 'Complete', log: [{ day: 'Mon', date: 'Aug 3', status: 'Present' }, { day: 'Tue', date: 'Aug 4', status: 'Present' }, { day: 'Wed', date: 'Aug 5', status: 'Present' }, { day: 'Thu', date: 'Aug 6', status: 'Present' }, { day: 'Fri', date: 'Aug 7', status: 'Present' }] },
+      'APP-2026-0158': { req: 'Incomplete', log: [{ day: 'Mon', date: 'Aug 3', status: 'Present' }, { day: 'Tue', date: 'Aug 4', status: 'Absent' }, { day: 'Wed', date: 'Aug 5', status: 'Present' }, { day: 'Thu', date: 'Aug 6', status: 'Present' }, { day: 'Fri', date: 'Aug 7', status: 'Pending' }] },
+      'APP-2026-0159': { req: 'Pending', log: [{ day: 'Mon', date: 'Aug 10', status: 'Pending' }, { day: 'Tue', date: 'Aug 11', status: 'Pending' }, { day: 'Wed', date: 'Aug 12', status: 'Pending' }, { day: 'Thu', date: 'Aug 13', status: 'Pending' }, { day: 'Fri', date: 'Aug 14', status: 'Pending' }] },
+      'APP-2026-0160': { req: 'Incomplete', log: [{ day: 'Mon', date: 'Aug 3', status: 'Present' }, { day: 'Tue', date: 'Aug 4', status: 'Present' }, { day: 'Wed', date: 'Aug 5', status: 'Pending' }, { day: 'Thu', date: 'Aug 6', status: 'Pending' }, { day: 'Fri', date: 'Aug 7', status: 'Pending' }] }
     },
     pairs: {
       'APP-2026-0149': {
@@ -163,9 +265,12 @@
       'STU-2026-0453': { app: 'APP-2026-0148', name: 'Dela Cruz, Juan', initials: 'JD', meta: 'Grade 11 · HUMSS · Main — Iligan', status: 'pending', category: 'New Student — Regular', ref: 'CSH-0089', bracket: 'Bracket A', req: ['Incomplete', 'danger'], reqDate: 'Aug 3, 2026', attend: ['present', 'present', 'present', 'present', 'present'], attendStatus: 'Verified', confirmable: false, confirmHint: 'Cannot confirm yet — requirements are still incomplete. Attendance is fully verified.' },
       'STU-2026-0454': { app: 'APP-2026-0149', name: 'Santos, Maria A.', initials: 'MS', meta: 'Grade 11 · STEM · Main — Iligan', status: 'pending', category: 'Transferee — Voucher (ESC)', ref: 'CSH-0091', bracket: 'Bracket B', req: ['Incomplete', 'danger'], reqDate: 'Aug 5, 2026', attend: ['present', 'present', 'present', 'present', 'pending'], attendStatus: 'Not yet verified', confirmable: false, confirmHint: 'Cannot confirm yet — requirements are incomplete and attendance is not fully verified.' },
       'STU-2026-0455': { app: 'APP-2026-0150', name: 'Reyes, Pedro', initials: 'PR', meta: 'Grade 11 · TVL-Cookery · Bugo — CDO', status: 'pending', category: 'New Student — Regular', ref: 'CSH-0093', bracket: 'Bracket A', req: ['Complete', 'success'], reqDate: 'Aug 5, 2026', attend: ['present', 'present', 'absent', 'present', 'present'], attendStatus: 'Not yet verified', confirmable: false, confirmHint: 'Requirements complete — attendance is not yet fully verified.' },
-      'STU-2026-0451': { app: 'APP-2026-0151', name: 'Lim, Angela', initials: 'AL', meta: '1st Year · BSOA · Kapatagan', status: 'enrolled', category: 'Returnee — Regular', ref: 'CSH-0095', bracket: 'Bracket B', req: ['Complete', 'success'], reqDate: 'Aug 6, 2026', attend: ['present', 'present', 'present', 'present', 'present'], attendStatus: 'Verified', confirmable: false, confirmHint: 'Student is already officially enrolled. Assign a section to complete sectioning.' }
+      'STU-2026-0451': { app: 'APP-2026-0151', name: 'Lim, Angela', initials: 'AL', meta: '1st Year · BSOA · Kapatagan', status: 'enrolled', category: 'Returnee — Regular', ref: 'CSH-0095', bracket: 'Bracket B', req: ['Complete', 'success'], reqDate: 'Aug 6, 2026', attend: ['present', 'present', 'present', 'present', 'present'], attendStatus: 'Verified', confirmable: false, confirmHint: 'Student is already officially enrolled. Assign a section to complete sectioning.' },
+      'STU-2026-0457': { app: 'APP-2026-0157', name: 'Tan, Reggie', initials: 'RT', meta: 'Grade 12 · TVL-IT · Bugo — CDO', status: 'enrolled', category: 'Transferee — Regular', ref: 'CSH-0098', bracket: 'Bracket A', req: ['Complete', 'success'], reqDate: 'Aug 6, 2026', attend: ['present', 'present', 'present', 'present', 'present'], attendStatus: 'Verified', confirmable: false, confirmHint: 'Student is already officially enrolled and assigned to a section.' },
+      'STU-2026-0458': { app: 'APP-2026-0154', name: 'Villanueva, Carlo', initials: 'CV', meta: 'Grade 11 · ABM · Main — Iligan', status: 'pending', category: 'New Student — Regular', ref: 'CSH-0099', bracket: 'Bracket A', req: ['Incomplete', 'danger'], reqDate: 'Aug 6, 2026', attend: ['present', 'present', 'present', 'present', 'present'], attendStatus: 'Verified', confirmable: false, confirmHint: 'Cannot confirm yet — the PSA Birth Certificate is still missing.' },
+      'STU-2026-0459': { app: 'APP-2026-0155', name: 'Garcia, Anne', initials: 'AG', meta: 'Grade 11 · STEM · Main — Iligan', status: 'pending', category: 'New Student — Regular', ref: 'CSH-0100', bracket: 'Bracket B', req: ['Complete', 'success'], reqDate: 'Aug 6, 2026', attend: ['absent', 'absent', 'present', 'absent', 'present'], attendStatus: 'Not yet verified', confirmable: false, confirmHint: 'Requirements complete — attendance is below the first-week threshold.' }
     },
-    sections: { 'STU-2026-0454': 'STEM-B', 'STU-2026-0455': 'Cookery-1' },
+    sections: { 'STU-2026-0454': 'STEM-B', 'STU-2026-0455': 'Cookery-1', 'STU-2026-0457': 'ICT-2' },
     monitoring: {
       'APP-2026-0153': {
         status: 'Open',
@@ -177,6 +282,16 @@
     },    reportLog: [
       { when: 'Aug 7, 2026 10:42 AM', title: 'Enrollment Summary', criteria: 'Enrollment Summary · 2026-2027 · First Semester · Main Campus · All Tracks · Aug 01, 2026 - Aug 31, 2026', by: 'R. Santos', format: 'PDF' },
       { when: 'Aug 6, 2026 03:20 PM', title: 'Missing Requirements', criteria: 'Missing Requirements · 2026-2027 · First Semester · All Campuses · All Tracks · Jul 01, 2026 - Aug 31, 2026', by: 'R. Santos', format: 'CSV' }
+    ],
+    // Form 137 / 138 / TOR requests handled by the registrar. Backs the
+    // "Registrar Documents" report so it reads from the store like the rest.
+    documentRequests: [
+      { id: 'DOC-2026-0011', studentId: 'STU-2026-0187', student: 'Lim, Angela', document: 'Form 138 (Report Card)', status: 'Issued', released: 'Aug 6, 2026', requestedBy: 'Guardian' },
+      { id: 'DOC-2026-0012', studentId: 'STU-2026-0185', student: 'Santos, Maria', document: 'Form 137 (Transcript)', status: 'For review', released: '', requestedBy: 'Receiving school' },
+      { id: 'DOC-2026-0013', studentId: 'STU-2026-0184', student: 'Dela Cruz, Juan', document: 'Certificate of Enrolment', status: 'Issued', released: 'Aug 5, 2026', requestedBy: 'Student' },
+      { id: 'DOC-2026-0014', studentId: 'STU-2026-0186', student: 'Reyes, Pedro', document: 'Form 138 (Report Card)', status: 'Pending docs', released: '', requestedBy: 'Guardian' },
+      { id: 'DOC-2026-0015', studentId: 'STU-2026-0456', student: 'Bautista, Carlo', document: 'Form 137 (Transcript)', status: 'For review', released: '', requestedBy: 'Registrar (transferee intake)' },
+      { id: 'DOC-2026-0016', studentId: 'STU-2026-0457', student: 'Tan, Reggie', document: 'TOR', status: 'Issued', released: 'Aug 8, 2026', requestedBy: 'Student' }
     ],
     academic: {
       schemaVersion: 2,
@@ -269,7 +384,9 @@
     'HUMSS-1': { track: 'ACADEMIC', strand: 'HUMSS', campus: 'Main — Iligan', building: 'Iligan Main — Bldg. B (Annex, rented)', room: 'Room 105', capacity: 40, baseline: 0 },
     'ABM-1': { track: 'ACADEMIC', strand: 'ABM', campus: 'Main — Iligan', building: 'Iligan Main — Bldg. B (Annex, rented)', room: 'Room 106', capacity: 40, baseline: 0 },
     'GAS-1': { track: 'ACADEMIC', strand: 'GAS', campus: 'Kapatagan', building: 'Kapatagan Campus — Main Building', room: 'Room 3', capacity: 35, baseline: 0 },
-    'Cookery-1': { track: 'TVL', strand: 'CA', campus: 'Bugo — CDO', building: 'Bugo Campus — TVL Workshop Building', room: 'Culinary Lab 1', capacity: 25, baseline: 18 }
+    'Cookery-1': { track: 'TVL', strand: 'CA', campus: 'Bugo — CDO', building: 'Bugo Campus — TVL Workshop Building', room: 'Culinary Lab 1', capacity: 25, baseline: 18 },
+    'ICT-2': { track: 'TVL', strand: 'IT', campus: 'Bugo — CDO', building: 'Bugo Campus — TVL Workshop Building', room: 'Computer Lab 2', capacity: 30, baseline: 24 },
+    'HRM-1': { track: 'TVL', strand: 'HRM', campus: 'Bugo — CDO', building: 'Bugo Campus — TVL Workshop Building', room: 'Hospitality Lab', capacity: 30, baseline: 12 }
   };
 
   let data = null;
@@ -1167,6 +1284,7 @@
     get records() { return data.records; },
     get sections() { return data.sections; },
     get reportLog() { return data.reportLog; },
+    get documentRequests() { return data.documentRequests || []; },
     get academic() { return data.academic; },
     nextAppId, addApplicant, upsertApplicant, updateApplicant, removeApplicant,
     getRequirements, setRequirement, getAudits,

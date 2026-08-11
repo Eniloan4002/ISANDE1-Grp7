@@ -24,12 +24,25 @@
     border-left: 4px solid #006889
 }
 
+/* Amber and red cards are the outstanding-work counters. They carry a tint and a
+   coloured figure so a reader can spot what still needs action without reading
+   every label — the informational cards (blue/green) stay deliberately quiet. */
 .stat-card.accent-amber {
-    border-left: 4px solid #c7952f
+    border-left: 4px solid #c7952f;
+    background: #fdf8ee
+}
+
+.stat-card.accent-amber strong {
+    color: #8a6714
 }
 
 .stat-card.accent-red {
-    border-left: 4px solid #b04343
+    border-left: 4px solid #b04343;
+    background: #fdf1f1
+}
+
+.stat-card.accent-red strong {
+    color: #8f3535
 }
 
 .stat-card.accent-green {

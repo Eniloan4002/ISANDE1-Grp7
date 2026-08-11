@@ -12,11 +12,21 @@ const STATUS_BADGE = {
   enrolled: ['Enrolled', 'blue-badge']
 };
 
+// Requirements state per row. Label and tone are paired here on purpose: they
+// used to be derived separately, which rendered an outstanding "Pending" in the
+// same green as a finished "Complete".
+const REQUIREMENT_STATE = {
+  'pre-enlisted': ['Pending', 'attention'],
+  pending: ['Incomplete', 'warning'],
+  review: ['Incomplete', 'warning'],
+  enrolled: ['Complete', 'success']
+};
+
 function renderQueue() {
   const applicants = Object.values(Store.applicants);
   tbody.innerHTML = applicants.map(app => {
     const [label, tone] = STATUS_BADGE[app.queueStatus] || STATUS_BADGE['pre-enlisted'];
-    const reqClass = app.queueStatus === 'pending' || app.queueStatus === 'review' ? 'warning' : 'success';
+    const [reqLabel, reqClass] = REQUIREMENT_STATE[app.queueStatus] || REQUIREMENT_STATE['pre-enlisted'];
     return `<tr data-status="${app.queueStatus}" data-program="${app.program}" data-app="${app.id}" title="Click to open in Evaluate Applications">
       <td>
         <div class="student-cell">
@@ -27,7 +37,7 @@ function renderQueue() {
       <td>${app.submittedAt || '—'}</td>
       <td>${app.programLabel}</td>
       <td>${app.category}</td>
-      <td><span class="status-pill ${reqClass}">${app.queueStatus === 'enrolled' ? 'Complete' : app.queueStatus === 'pre-enlisted' ? 'Pending' : 'Incomplete'}</span></td>
+      <td><span class="status-pill ${reqClass}">${reqLabel}</span></td>
       <td><span class="badge ${tone}">${label}</span></td>
       <td class="action-cell">
         <button class="row-action" data-go="requirements.html?app=${encodeURIComponent(app.id)}" title="Open requirements checklist">Req</button>

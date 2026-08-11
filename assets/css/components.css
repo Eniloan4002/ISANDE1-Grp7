@@ -51,19 +51,53 @@
     color: #50585a
 }
 
+/* Status pills carry a leading dot so a status reads as a status at a glance,
+   never as something to click. Tones are strong enough to scan down a column. */
+.status-pill {
+    font-weight: 600
+}
+
+.status-pill::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    vertical-align: middle
+}
+
 .status-pill.warning {
-    background: #fffdf7;
-    color: #79601d
+    background: #fdf2d9;
+    border-color: #bb9526;
+    color: #6b5310
 }
 
 .status-pill.danger {
-    background: #fff7f7;
-    color: #854343
+    background: #fadedd;
+    border-color: #b05050;
+    color: #7c2f2f
 }
 
 .status-pill.success {
-    background: #f1f8f3;
-    color: #286445
+    background: #dcefe3;
+    border-color: #4a8c66;
+    color: #1f5133
+}
+
+.status-pill.neutral {
+    background: #e6e9ea;
+    border-color: #808a8d;
+    color: #454d50
+}
+
+/* Outstanding work the user still has to act on. Loud on purpose — this is the
+   one tone that means "nothing happens until someone does something". */
+.status-pill.attention {
+    background: #fde3cb;
+    border-color: #b3641b;
+    color: #7d3f07
 }
 
 .content-panel {
@@ -247,9 +281,22 @@ td small {
     display: flex
 }
 
-.toast>span {
-    color: #227450;
-    font-size: 18px
+/* Status glyph, NOT a control. It used to read "OK", which looked like a button
+   and did nothing when clicked. It is now a plain badge and hidden from screen
+   readers, so the dismiss button is the only thing here that can be pressed. */
+.toast>span,
+.toast-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #dcefe3;
+    color: #1f5133;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: default
 }
 
 .toast strong,
@@ -262,10 +309,77 @@ td small {
     color: #697478
 }
 
-.toast button {
-    border: 0;
-    background: transparent;
-    font-size: 18px
+/* The only actionable element in the toast — given a real button affordance so
+   it is visibly distinct from the status glyph on the other side. */
+.toast button,
+.toast-dismiss {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border: 1px solid #97a0a3;
+    border-radius: 1px;
+    background: #f4f4f4;
+    color: #3c4447;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer
+}
+
+.toast button:hover,
+.toast-dismiss:hover {
+    background: #e4e7e8;
+    border-color: #6f787b
+}
+
+/* ---- actionable vs. inert ----------------------------------------------
+   Every control that can be pressed gets a pointer cursor; anything blocked
+   is visibly greyed instead of looking identical to a live control. */
+.button,
+.row-action,
+.pagination button,
+.modal-close {
+    cursor: pointer
+}
+
+.button.disabled,
+.button[disabled],
+.row-action.disabled,
+.row-action[disabled],
+button[disabled] {
+    background: #ededed;
+    border-color: #b9bfc1;
+    color: #939b9e;
+    cursor: not-allowed;
+    box-shadow: none
+}
+
+.button.disabled:hover,
+.button[disabled]:hover,
+.row-action.disabled:hover,
+button[disabled]:hover {
+    background: #ededed;
+    border-color: #b9bfc1
+}
+
+/* Pills that are genuinely clickable (e.g. the attendance day chips) need to
+   look pressable, since by default a pill means "read only status". */
+button.status-pill {
+    cursor: pointer;
+    border-style: dashed
+}
+
+button.status-pill:hover {
+    filter: brightness(.96);
+    border-style: solid
+}
+
+.button:focus-visible,
+.row-action:focus-visible,
+button.status-pill:focus-visible,
+.toast-dismiss:focus-visible,
+.modal-close:focus-visible {
+    outline: 2px solid #006889;
+    outline-offset: 1px
 }
 
 .modal-backdrop {

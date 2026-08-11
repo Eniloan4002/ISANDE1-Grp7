@@ -42,12 +42,25 @@ body[data-role="registrar"] .main-content:before {
     border-top: 3px solid #006c9c
 }
 
+/* Follow-up and at-risk counters get a tint and coloured figure — the same
+   emphasis rule used for the enrollment stat cards, so "needs action" reads
+   identically across modules. */
 .academic-stat.warning {
-    border-top-color: #b17d24
+    border-top-color: #b17d24;
+    background: #fdf8ee
+}
+
+.academic-stat.warning strong {
+    color: #8a6714
 }
 
 .academic-stat.danger {
-    border-top-color: #a04b4b
+    border-top-color: #a04b4b;
+    background: #fdf1f1
+}
+
+.academic-stat.danger strong {
+    color: #8f3535
 }
 
 .academic-stat.success {

@@ -166,9 +166,8 @@
       </div>
     </section>
   </main>
-  <div class="toast" id="toast" role="status"><span>OK</span>
-    <div><strong>Export prepared</strong><small>This is a demonstration prototype.</small></div><button
-      aria-label="Dismiss notification">X</button>
+  <div class="toast" id="toast" role="status"><span class="toast-icon" aria-hidden="true">&#10003;</span>
+    <div><strong>Export prepared</strong><small>This is a demonstration prototype.</small></div><button class="toast-dismiss" type="button" aria-label="Dismiss notification">&#10005;</button>
   </div>
   <div class="modal-backdrop" id="walkin-modal" aria-hidden="true">
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
@@ -176,7 +175,7 @@
         <div>
           <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
           <h2 id="modal-title">New Walk-in Application</h2>
-        </div><button class="modal-close" aria-label="Close">X</button>
+        </div><button class="modal-close" type="button" aria-label="Close">&#10005;</button>
       </div>
       <form class="application-form" id="walkin-form">
         <div class="form-grid">

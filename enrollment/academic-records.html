@@ -390,7 +390,7 @@
         <div>
           <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
           <h2 id="record-modal-title">Student Academic Record</h2>
-        </div><button class="modal-close" aria-label="Close">X</button>
+        </div><button class="modal-close" type="button" aria-label="Close">&#10005;</button>
       </div>
       <div class="record-body">
         <div class="record-header">
@@ -464,9 +464,8 @@
     </section>
   </div>
 
-  <div class="toast" id="toast" role="status"><span>OK</span>
-    <div><strong>Updated</strong><small>Student record updated.</small></div><button
-      aria-label="Dismiss notification">X</button>
+  <div class="toast" id="toast" role="status"><span class="toast-icon" aria-hidden="true">&#10003;</span>
+    <div><strong>Updated</strong><small>Student record updated.</small></div><button class="toast-dismiss" type="button" aria-label="Dismiss notification">&#10005;</button>
   </div>
 
   <script src="../assets/js/data-store.js"></script>
