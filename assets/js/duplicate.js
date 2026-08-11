@@ -128,15 +128,16 @@ rejectBtn.addEventListener('click', () => resolve('reject'));
 document.addEventListener('store:change', renderPairs);
 renderPairs();
 
-// Deep-link support: when arriving from the Enrollment Queue (?app=<ID>), open
-// that flagged pair's side-by-side comparison automatically.
+// Deep-link support (?app=<ID>) — arrives from either the Enrollment Queue's
+// row action or straight from Evaluate Applications' "Save & Run Duplicate
+// Check" when it finds a match — opens that flagged pair's comparison automatically.
 function openById(id) {
   const row = [...tbody.querySelectorAll('tr')].find(r => r.dataset.app === id);
   if (!row || !Store.getPair(id)) return false;
   [...tbody.querySelectorAll('tr')].forEach(r => r.style.background = '');
   row.style.background = '#eaf3f8';
   openPair(row);
-  showToast('Duplicate review opened', `${row.dataset.name} (${id}) — side-by-side comparison loaded from the Enrollment Queue.`);
+  showToast('Duplicate review opened', `${row.dataset.name} (${id}) — side-by-side comparison ready for review.`);
   panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
   return true;
 }

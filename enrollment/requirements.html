@@ -125,6 +125,15 @@
       color: #5c6669
     }
 
+    /* Caps the log's own height instead of letting it keep stretching the
+       modal taller with every status change — the modal's footprint stays
+       fixed, only this list scrolls once it has more entries than fit. */
+    #audit-list {
+      max-height: 160px;
+      overflow-y: auto;
+      padding-right: 4px
+    }
+
     .audit-item {
       display: flex;
       gap: 9px;

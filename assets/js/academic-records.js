@@ -61,6 +61,7 @@ toast.querySelector('button').addEventListener('click', () => toast.classList.re
 const modal = document.querySelector('#record-modal');
 const confirmBtn = document.querySelector('#btn-confirm');
 const confirmBanner = document.querySelector('#rec-confirm');
+const viewEnrolledLink = document.querySelector('#rec-view-enrolled');
 let currentRow = null;
 let currentRecord = null;
 
@@ -178,6 +179,8 @@ function openRecord(row) {
   confirmBanner.innerHTML = `<span>${rec.confirmable ? 'OK' : '!'}</span><div><strong>${rec.confirmable ? 'All conditions met.' : 'Action required.'}</strong> ${rec.confirmHint}</div>`;
   confirmBtn.textContent = rec.status === 'enrolled' ? 'Already Enrolled' : 'Confirm Enrollment';
   confirmBtn.disabled = rec.status === 'enrolled';
+  viewEnrolledLink.hidden = rec.status !== 'enrolled';
+  viewEnrolledLink.href = `enrolled.html?app=${encodeURIComponent(rec.app)}`;
   openModal();
 }
 
@@ -228,6 +231,8 @@ confirmBtn.addEventListener('click', () => {
   currentRow.dataset.status = 'enrolled';
   confirmBtn.textContent = 'Already Enrolled';
   confirmBtn.disabled = true;
+  viewEnrolledLink.hidden = false;
+  viewEnrolledLink.href = `enrolled.html?app=${encodeURIComponent(currentRecord.app)}`;
   showToast('Enrollment confirmed', `${currentRecord.name} is now officially enrolled.`);
 });
 

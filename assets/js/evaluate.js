@@ -217,6 +217,7 @@ function collectForm() {
 function saveAndReturn(kind) {
   if (!activeApp) { showToast('No application selected', 'Select an application from the list first.'); return; }
   Store.updateApplicant(activeApp, collectForm());
+  let duplicate = false;
   if (kind === 'check') {
     const seedFlag = APPLICANTS[activeApp].flag === 'dup';
     const candidate = currentCandidate();
@@ -224,8 +225,15 @@ function saveAndReturn(kind) {
     if (match && match.score >= 0.75 && !Store.getPair(activeApp)) {
       Store.createPairFromMatch(activeApp, match);
     }
-    const duplicate = Boolean(seedFlag || match);
+    duplicate = Boolean(seedFlag || match);
     Store.updateApplicant(activeApp, duplicate ? { evalStatus: 'flag' } : { evalStatus: 'ready', queueStatus: 'review' });  }
+  // A flagged duplicate needs a decision before anything else can proceed —
+  // send the registrar straight to the comparison instead of back to the
+  // queue, so they don't have to find their way there themselves.
+  if (kind === 'check' && duplicate) {
+    location.href = `duplicate.html?app=${encodeURIComponent(activeApp)}`;
+    return;
+  }
   location.href = `queue.html?highlight=${encodeURIComponent(activeApp)}&saved=${kind}`;
 }
 
