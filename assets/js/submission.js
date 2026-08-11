@@ -146,12 +146,7 @@ document.querySelector('#submission-form').addEventListener('submit', event => {
     return;
   }
 
-  // Carlo's demo record already exists fully seeded (requirements, attendance,
-  // the duplicate pair) — re-creating him here would reset his flagged/review
-  // state back to a plain fresh applicant, breaking the rest of the scenario.
-  // So the demo path just reuses his existing App ID instead of calling
-  // Store.addApplicant again; every other (real) submission works as before.
-  const id = demoOverrideId || Store.addApplicant({
+  const applicantData = {
     last: document.querySelector('#s-last').value.trim(),
     first: document.querySelector('#s-first').value.trim(),
     middle: document.querySelector('#s-middle').value.trim(),
@@ -181,9 +176,15 @@ document.querySelector('#submission-form').addEventListener('submit', event => {
     category: (document.querySelector('#s-category')?.value) || 'New',
     ...collectDelivery(),
     program: document.querySelector('#s-grade').value.includes('11') || document.querySelector('#s-grade').value.includes('12') ? 'shs' : 'college',
-    programLabel: `${document.querySelector('#s-strand').value} · ${document.querySelector('#s-grade').value}`,
-    queueStatus: 'pre-enlisted'
-  });
+    programLabel: `${document.querySelector('#s-strand').value} · ${document.querySelector('#s-grade').value}`
+  };
+
+  // Carlo uses a fixed ID shared by the reporting walkthrough. Upserting makes
+  // the submission real for older persisted stores while preserving any seeded
+  // requirements, duplicate-review, enrollment, and monitoring progress.
+  const id = demoOverrideId
+    ? Store.upsertApplicant({ ...applicantData, id: demoOverrideId })
+    : Store.addApplicant(applicantData);
   document.querySelector('#success-app').textContent = id;
   successBox.classList.add('show');
   successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });

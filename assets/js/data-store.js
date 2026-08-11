@@ -351,6 +351,27 @@
     return id;
   }
 
+  // Save a submitted profile without resetting any workflow state already
+  // attached to the applicant. This is especially useful for fixed-ID demo
+  // submissions opened with an older persisted store that lacks newer seed
+  // records.
+  function upsertApplicant(partial) {
+    const id = partial.id || nextAppId();
+    if (!data.applicants[id]) return addApplicant(Object.assign({}, partial, { id }));
+
+    data.applicants[id] = Object.assign(data.applicants[id], partial, { id });
+    if (!data.applicants[id].submittedAt) data.applicants[id].submittedAt = stampDate();
+    if (!data.requirements[id]) {
+      data.requirements[id] = { docs: { 'PSA Birth Certificate': 'pending', 'Form 137': 'pending', 'Certificate of Completion': 'pending', 'Good Moral Certificate': 'pending' }, contact: partial.contact || '—', email: partial.email || '' };
+    }
+    if (!data.audits[id]) data.audits[id] = ['Application created by R. Santos — ' + stamp()];
+    if (!data.attendance[id]) {
+      data.attendance[id] = { req: 'Pending', log: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map(day => ({ day, date: '', status: 'Pending' })) };
+    }
+    persist();
+    return id;
+  }
+
   function updateApplicant(id, patch) {
     if (!data.applicants[id]) return;
     data.applicants[id] = Object.assign(data.applicants[id], patch);
@@ -1147,7 +1168,7 @@
     get sections() { return data.sections; },
     get reportLog() { return data.reportLog; },
     get academic() { return data.academic; },
-    nextAppId, addApplicant, updateApplicant, removeApplicant,
+    nextAppId, addApplicant, upsertApplicant, updateApplicant, removeApplicant,
     getRequirements, setRequirement, getAudits,
     getAttendance, setAttendance,
     startJourney, getJourney, getPersona, flagPair, setStage,

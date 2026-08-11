@@ -598,8 +598,7 @@
     function syncCarloRiskRow() {
       const row = document.getElementById('carlo-risk-row');
       if (!row) return;
-      const journey = Store.getJourney();
-      const appId = journey?.persona === 'transferee' ? journey.appId : '';
+      const appId = row.dataset.app;
       const app = appId ? Store.applicants[appId] : null;
       row.dataset.available = app ? 'true' : 'false';
       if (!app) return;
