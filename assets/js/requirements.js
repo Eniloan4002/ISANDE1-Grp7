@@ -73,6 +73,30 @@ const STATUS_PILL = { submitted: 'success', missing: 'danger', pending: 'warning
 
 function stateFor(id) { return Store.getRequirements(id) || { docs: {}, contact: '—', email: '' }; }
 
+// ---- Contact Details popup: student's own info + parent/guardian info,
+// so the registrar can see who's actually reachable before following up. ----
+const contactModal = document.querySelector('#contact-modal');
+function openContactModal() { contactModal.setAttribute('aria-hidden', 'false'); contactModal.classList.add('open'); }
+function closeContactModal() { contactModal.setAttribute('aria-hidden', 'true'); contactModal.classList.remove('open'); }
+
+function showContactDetails(appId) {
+  const app = Store.applicants[appId];
+  if (!app) return;
+  document.querySelector('#cd-student-meta').innerHTML =
+    `<span><strong>Name:</strong> ${app.name}</span><span><strong>Contact No.:</strong> ${app.contact || '—'}</span><span><strong>Email:</strong> ${app.email || '—'}</span>`;
+  document.querySelector('#cd-guardian-meta').innerHTML =
+    `<span><strong>Father:</strong> ${app.father || '—'}</span><span><strong>Mother:</strong> ${app.mother || '—'}</span><span><strong>Guardian:</strong> ${app.guardian || '—'}</span><span><strong>Guardian Contact No.:</strong> ${app.guardianContact || '—'}</span>`;
+  document.querySelector('#cd-call-student').href = app.contact ? `tel:${app.contact}` : '#';
+  document.querySelector('#cd-call-guardian').href = app.guardianContact ? `tel:${app.guardianContact}` : '#';
+  openContactModal();
+}
+document.querySelectorAll('.cd-modal-close').forEach(button => button.addEventListener('click', closeContactModal));
+contactModal.addEventListener('click', event => { if (event.target === contactModal) closeContactModal(); });
+document.querySelector('#btn-confirm-followup').addEventListener('click', () => {
+  showToast('Follow-up notice sent', `Reminder sent regarding ${Store.applicants[currentApp]?.name || currentApp}.`);
+  closeContactModal();
+});
+
 function overallStatus(appId) {
   const docs = stateFor(appId).docs;
   const values = Object.values(docs);
@@ -111,7 +135,7 @@ function showRequirements(row) {
       <select class="status-select" data-doc="${doc}" aria-label="${doc} status">
         ${Object.entries(STATUS_LABEL).map(([k, v]) => `<option value="${k}" ${k === value ? 'selected' : ''}>${v}</option>`).join('')}
       </select>
-      <a class="followup" href="tel:${student.contact}" data-followup>Follow up</a></div>`;
+      <button type="button" class="followup" data-followup>Follow up</button></div>`;
   }).join('');
 
   renderOverall();
@@ -156,14 +180,15 @@ document.querySelector('#doc-list').addEventListener('change', event => {
   }
 });
 
-// Follow-up: registrar contacts the student or parent via phone or email.
+// Follow-up: show contact details (student + parent/guardian) so the
+// registrar can see who's actually reachable before calling or emailing.
 document.querySelector('#doc-list').addEventListener('click', event => {
   const link = event.target.closest('[data-followup]');
-  if (link) showToast('Follow-up sent', `Contacting ${currentApp} via SMS / call.`);
+  if (link) showContactDetails(currentApp);
 });
 
 document.querySelector('#btn-send-followup').addEventListener('click', () => {
-  showToast('Follow-up notice sent', `Reminder emailed to ${stateFor(currentApp).email}`);
+  showContactDetails(currentApp);
 });
 
 // Keep the list in sync with the shared store (e.g. after a removal elsewhere).

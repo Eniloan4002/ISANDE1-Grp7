@@ -97,8 +97,10 @@
       color: #175e80;
       font-size: 10px;
       font-weight: 600;
+      font-family: inherit;
       text-decoration: none;
-      white-space: nowrap
+      white-space: nowrap;
+      cursor: pointer
     }
 
     .doc-row .followup:hover {
@@ -123,6 +125,15 @@
       letter-spacing: .6px;
       text-transform: uppercase;
       color: #5c6669
+    }
+
+    /* Deliberately not .modal-close — this page's #req-modal has its own
+       global .modal-close handler, and re-using that class here would also
+       close the Requirements Checklist modal sitting behind this popup. */
+    .cd-modal-close {
+      border: 0;
+      background: transparent;
+      font-size: 22px
     }
 
     /* Caps the log's own height instead of letting it keep stretching the
@@ -331,6 +342,33 @@
         <div class="modal-actions">
           <button class="button button-secondary modal-close" type="button">Close</button>
           <button class="button button-primary" type="button" id="btn-send-followup">Send Follow-up Notice</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="contact-modal" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
+          <h2 id="contact-modal-title">Contact Details</h2>
+        </div><button class="cd-modal-close" aria-label="Close">X</button>
+      </div>
+      <div class="req-body">
+        <p class="audit-title">Student</p>
+        <div class="req-meta" id="cd-student-meta"></div>
+
+        <p class="audit-title">Parent / Guardian</p>
+        <div class="req-meta" id="cd-guardian-meta"></div>
+
+        <div class="overall-note"><span>i</span><div>Phone contact is preferred over email for this demographic — call the guardian first if the student can't be reached directly.</div></div>
+
+        <div class="modal-actions">
+          <a class="button button-secondary" id="cd-call-student" href="#">Call Student</a>
+          <a class="button button-secondary" id="cd-call-guardian" href="#">Call Guardian</a>
+          <button class="button button-secondary cd-modal-close" type="button">Close</button>
+          <button class="button button-primary" type="button" id="btn-confirm-followup">Send Follow-up Notice</button>
         </div>
       </div>
     </section>
