@@ -10,8 +10,22 @@ const EVAL_BADGE = {
   flag: ['For review', 'neutral-badge']
 };
 
+// Headline counters, derived from the evaluation queue rather than fixed in the
+// markup, so they stay truthful as the cohort changes.
+function renderEvalStats(applicants) {
+  const counts = { review: 0, ready: 0, flag: 0 };
+  applicants.forEach(app => { if (counts[app.evalStatus] !== undefined) counts[app.evalStatus] += 1; });
+  const set = (id, value) => { const el = document.querySelector(id); if (el) el.textContent = String(value); };
+  set('#st-review', counts.review);
+  set('#st-ready', counts.ready);
+  set('#st-flag', counts.flag);
+  // "Encoded" = profiles that have moved past evaluation into a student record.
+  set('#st-encoded', Object.keys(Store.getRecords()).length);
+}
+
 function renderList() {
   const applicants = Object.values(Store.applicants);
+  renderEvalStats(applicants);
   tbody.innerHTML = applicants.map(app => {
     const [label, tone] = EVAL_BADGE[app.evalStatus] || EVAL_BADGE.ready;
     return `<tr data-app="${app.id}" data-status="${app.evalStatus}">

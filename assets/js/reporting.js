@@ -269,7 +269,21 @@ function buildDocsRows() {
   ]);
 }
 
+// Headline counters, derived from the store. The old "128 reports / SY 2025-2026"
+// figures were fixed in the markup and could not respond to anything the
+// registrar actually did on this screen.
+function renderReportingStats() {
+  const applicants = Object.values(Store.applicants);
+  const followUp = applicants.filter(app => Store.deriveRequirements(app.id) !== 'Complete').length;
+  const set = (selector, value) => { const el = document.querySelector(selector); if (el) el.textContent = String(value); };
+  set('#st-reports', Store.getReportLog().length);
+  set('#st-students', applicants.length);
+  set('#st-docreq', Store.documentRequests.length);
+  set('#st-followup', followUp);
+}
+
 function renderLog() {
+  renderReportingStats();
   const log = document.querySelector('#log-body');
   const entries = Store.getReportLog();
   log.innerHTML = entries.map((entry, idx) =>

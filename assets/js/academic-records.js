@@ -7,8 +7,26 @@ const campusFilter = document.querySelector('#ar-campus');
 
 const CAMPUS_KEY = { main: 'main', kapatagan: 'kapatagan', bugo: 'bugo' };
 
+// Headline counters, derived from the records themselves. "Needs sectioning"
+// counts only confirmed students — an unconfirmed one has nothing to section yet.
+function renderRecordStats(records) {
+  let enrolled = 0, pending = 0, sectioned = 0, unsectioned = 0;
+  records.forEach(([id, rec]) => {
+    const hasSection = !!Store.sections[id];
+    if (rec.status === 'enrolled') enrolled += 1; else pending += 1;
+    if (hasSection) sectioned += 1;
+    else if (rec.status === 'enrolled') unsectioned += 1;
+  });
+  const set = (selector, value) => { const el = document.querySelector(selector); if (el) el.textContent = String(value); };
+  set('#st-enrolled', enrolled);
+  set('#st-pending', pending);
+  set('#st-sectioned', sectioned);
+  set('#st-unsectioned', unsectioned);
+}
+
 function renderRows() {
   const records = Object.entries(Store.records);
+  renderRecordStats(records);
   tbody.innerHTML = records.map(([id, rec]) => {
     const campusKey = CAMPUS_KEY[rec.meta.includes('Bugo') ? 'bugo' : rec.meta.includes('Kapatagan') ? 'kapatagan' : 'main'];
     const program = rec.meta.split('·')[1] ? rec.meta.split('·')[1].trim() : '—';

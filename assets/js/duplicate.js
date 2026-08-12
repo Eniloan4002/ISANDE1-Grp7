@@ -5,6 +5,22 @@ const search = document.querySelector('#dup-search');
 const statusFilter = document.querySelector('#dup-status');
 let renderedPairCount = 0;
 
+// Headline counters, derived from the flagged pairs. There is deliberately no
+// "unresolved > 7 days" figure: pairs carry no raised-on timestamp, so any
+// ageing number would be invented rather than measured.
+function renderDuplicateStats(pairs) {
+  let active = 0, resolved = 0, highConfidence = 0;
+  pairs.forEach(([app, pair]) => {
+    if (Store.getPairStatus(app)) resolved += 1; else active += 1;
+    if (Number(pair.meter.match(/(\d+)%/)?.[1] || 0) >= 90) highConfidence += 1;
+  });
+  const set = (id, value) => { const el = document.querySelector(id); if (el) el.textContent = String(value); };
+  set('#st-active', active);
+  set('#st-resolved', resolved);
+  set('#st-highconf', highConfidence);
+  set('#st-total-pairs', pairs.length);
+}
+
 function renderPairs() {
   const pairs = Object.entries(Store.pairs).filter(([app, pair]) => {
     const applicant = Store.applicants[app];
@@ -12,6 +28,7 @@ function renderPairs() {
     return !applicant || !incomingName || applicant.name === incomingName;
   });
   renderedPairCount = pairs.length;
+  renderDuplicateStats(pairs);
   tbody.innerHTML = pairs.map(([app, pair]) => {
     const status = Store.getPairStatus(app);
     const existingId = pair.existing.sub.match(/STU-[\d-]+/);

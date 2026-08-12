@@ -18,8 +18,25 @@ function docPills(docs) {
   return order.map(doc => `<span class="doc-chip ${chips[docs[doc]] || 'pend'}">${doc === 'PSA Birth Certificate' ? 'PSA Birth Cert' : doc === 'Certificate of Completion' ? 'Completion' : doc}</span>`).join('');
 }
 
+// Headline counters, derived from the checklists themselves so they cannot
+// drift away from the table underneath them.
+function renderRequirementStats(applicants) {
+  const counts = { Complete: 0, Incomplete: 0, Pending: 0 };
+  applicants.forEach(app => {
+    const overall = Store.deriveRequirements(app.id);
+    if (counts[overall] !== undefined) counts[overall] += 1;
+  });
+  const set = (id, value) => { const el = document.querySelector(id); if (el) el.textContent = String(value); };
+  set('#st-complete', counts.Complete);
+  set('#st-incomplete', counts.Incomplete);
+  set('#st-pending', counts.Pending);
+  // Anything short of Complete is still a follow-up the registrar owes someone.
+  set('#st-followup', counts.Incomplete + counts.Pending);
+}
+
 function renderRows() {
   const applicants = Object.values(Store.applicants);
+  renderRequirementStats(applicants);
   tbody.innerHTML = applicants.map(app => {
     const req = Store.getRequirements(app.id) || { docs: {}, contact: '—', email: '' };
     const [label, tone] = overallStatus(app.id);
