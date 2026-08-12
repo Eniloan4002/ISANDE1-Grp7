@@ -361,16 +361,26 @@ button[disabled]:hover {
     border-color: #b9bfc1
 }
 
-/* Pills that are genuinely clickable (e.g. the attendance day chips) need to
-   look pressable, since by default a pill means "read only status". */
-button.status-pill {
+/* Pills that are genuinely clickable (the attendance day chips, or a status
+   that doubles as a shortcut) need to look pressable, since by default a pill
+   means "read only status". */
+button.status-pill,
+a.status-pill {
     cursor: pointer;
-    border-style: dashed
+    border-style: dashed;
+    text-decoration: none
 }
 
-button.status-pill:hover {
+button.status-pill:hover,
+a.status-pill:hover {
     filter: brightness(.96);
     border-style: solid
+}
+
+/* The trailing chevron marks a pill that navigates somewhere. */
+a.status-pill .go {
+    margin-left: 4px;
+    font-weight: 700
 }
 
 .button:focus-visible,

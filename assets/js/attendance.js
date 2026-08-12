@@ -50,11 +50,17 @@ function renderList() {
   tbody.innerHTML = applicants.map(app => {
     const gate = gateStatus(app.id);
     const toneClass = gate.tone === 'neutral' ? 'status-pill' : `status-pill ${gate.tone}`;
+    // "Needs documents" is the one status a registrar can act on from another
+    // screen, so it doubles as a shortcut into that student's checklist rather
+    // than making them go to Requirements and search for the name again.
+    const statusPill = gate.key === 'docs'
+      ? `<a class="${toneClass}" href="requirements.html?app=${encodeURIComponent(app.id)}" title="Open ${app.name}'s requirements checklist">${gate.label}<span class="go" aria-hidden="true">&rsaquo;</span></a>`
+      : `<span class="${toneClass}">${gate.label}</span>`;
     return `<tr data-app="${app.id}" data-status="${gate.key}">
       <td><strong>${app.name}</strong></td>
       <td>${app.id}</td>
       <td>${app.category}</td>
-      <td><span class="${toneClass}">${gate.label}</span> <small>${gate.present}/${gate.total} present</small></td>
+      <td>${statusPill} <small>${gate.present}/${gate.total} present</small></td>
       <td class="action-cell"><button class="row-action">Monitor</button></td>
     </tr>`;
   }).join('');
@@ -158,6 +164,9 @@ function recomputeGate(appId) {
 
 // Pick a student from the monitoring list.
 tbody.addEventListener('click', event => {
+  // The "Needs documents" pill is a link out to Requirements; selecting the row
+  // underneath it would just repaint the log on a page we are leaving.
+  if (event.target.closest('a.status-pill')) return;
   const row = event.target.closest('tr');
   if (!row) return;
   renderLog(row.dataset.app);
