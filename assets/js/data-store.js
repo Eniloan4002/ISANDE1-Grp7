@@ -386,8 +386,337 @@
     'GAS-1': { track: 'ACADEMIC', strand: 'GAS', campus: 'Kapatagan', building: 'Kapatagan Campus — Main Building', room: 'Room 3', capacity: 35, baseline: 0 },
     'Cookery-1': { track: 'TVL', strand: 'CA', campus: 'Bugo — CDO', building: 'Bugo Campus — TVL Workshop Building', room: 'Culinary Lab 1', capacity: 25, baseline: 18 },
     'ICT-2': { track: 'TVL', strand: 'IT', campus: 'Bugo — CDO', building: 'Bugo Campus — TVL Workshop Building', room: 'Computer Lab 2', capacity: 30, baseline: 24 },
-    'HRM-1': { track: 'TVL', strand: 'HRM', campus: 'Bugo — CDO', building: 'Bugo Campus — TVL Workshop Building', room: 'Hospitality Lab', capacity: 30, baseline: 12 }
+    'HRM-1': { track: 'TVL', strand: 'HRM', campus: 'Bugo — CDO', building: 'Bugo Campus — TVL Workshop Building', room: 'Hospitality Lab', capacity: 30, baseline: 12 },
+    // Kapatagan and the remaining TVL specialisations, so every campus can
+    // actually place the strands it accepts applications for.
+    'STEM-K1': { track: 'ACADEMIC', strand: 'STEM', campus: 'Kapatagan', building: 'Kapatagan Campus — Main Building', room: 'Room 5', capacity: 35, baseline: 9 },
+    'HUMSS-K1': { track: 'ACADEMIC', strand: 'HUMSS', campus: 'Kapatagan', building: 'Kapatagan Campus — Main Building', room: 'Room 6', capacity: 35, baseline: 6 },
+    'ABM-K1': { track: 'ACADEMIC', strand: 'ABM', campus: 'Kapatagan', building: 'Kapatagan Campus — Annex', room: 'Room 8', capacity: 35, baseline: 4 },
+    'EIM-1': { track: 'TVL', strand: 'EIM', campus: 'Bugo — CDO', building: 'Bugo Campus — TVL Workshop Building', room: 'Electrical Shop', capacity: 30, baseline: 10 },
+    'OM-1': { track: 'TVL', strand: 'OM', campus: 'Main — Iligan', building: 'Iligan Main — Bldg. B (Annex, rented)', room: 'Room 108', capacity: 30, baseline: 7 },
+    'PN-1': { track: 'TVL', strand: 'PN', campus: 'Main — Iligan', building: 'Iligan Main — Bldg. C (Health Sciences)', room: 'Nursing Skills Lab', capacity: 30, baseline: 11 },
+    'CE-1': { track: 'TVL', strand: 'CE', campus: 'Bugo — CDO', building: 'Bugo Campus — TVL Workshop Building', room: 'Computer Lab 1', capacity: 30, baseline: 15 }
   };
+
+  // ---------------------------------------------------------------------------
+  // Bulk demo cohort.
+  //
+  // The handwritten records in SEED are the ones the scripted walkthroughs
+  // depend on; they are never touched here. The reports, though, only mean
+  // something with a real cohort behind them, so the rest of the student body is
+  // generated below from regional name and address pools (Iligan City, Cagayan
+  // de Oro, Lanao del Norte, Misamis Occidental).
+  //
+  // Generation is deterministic — a fixed-seed PRNG, never Math.random() — so
+  // the same cohort appears on every load and after "Reset Demo". A rehearsed
+  // demo therefore shows exactly the same figures as the live one.
+  // ---------------------------------------------------------------------------
+  const BULK_COUNT = 100;
+  const BULK_FIRST_APP = 161;   // APP-2026-0161 onward; below that is handwritten
+  const BULK_FIRST_STU = 500;   // STU-2026-0500 onward, clear of the seeded IDs
+
+  function makeRng(seed) {
+    let t = seed >>> 0;
+    return function rng() {
+      t = (t + 0x6D2B79F5) >>> 0;
+      let x = Math.imul(t ^ (t >>> 15), 1 | t);
+      x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x;
+      return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  const SURNAMES = ['Abella', 'Acosta', 'Alcantara', 'Amper', 'Aquino', 'Baguio', 'Bacus', 'Balacuit', 'Bello', 'Cabalhin', 'Cabrera', 'Cagampang', 'Calderon', 'Canoy', 'Capistrano', 'Carbonell', 'Chavez', 'Cortes', 'Dagondon', 'Daligdig', 'Deloso', 'Dumaguing', 'Echavez', 'Emano', 'Enriquez', 'Escalante', 'Espina', 'Fernandez', 'Flores', 'Fuentes', 'Gabuya', 'Gamboa', 'Gaviola', 'Gerona', 'Gonzaga', 'Gutierrez', 'Hinlo', 'Jamisola', 'Labadan', 'Lagrosas', 'Limbaga', 'Lopez', 'Lumapas', 'Macasero', 'Maglangit', 'Mangubat', 'Maslog', 'Melendez', 'Montalban', 'Nacua', 'Neri', 'Obsioma', 'Olvido', 'Pacana', 'Padayhag', 'Pagayon', 'Palma', 'Quijano', 'Ramiro', 'Rodriguez', 'Roa', 'Sabuero', 'Salvana', 'Sanchez', 'Seno', 'Sudaria', 'Tagalog', 'Tenorio', 'Ubaldo', 'Uy', 'Valmores', 'Velez', 'Yap', 'Zamora', 'Alonto', 'Balindong', 'Dimaporo', 'Lucman', 'Macarambon', 'Maruhom', 'Pangandaman', 'Sarip', 'Tomawis'];
+  const NAMES_M = ['Aljun', 'Angelo', 'Benjie', 'Carlito', 'Christian', 'Dexter', 'Edgar', 'Emmanuel', 'Francis', 'Gerald', 'Harold', 'Ian', 'Jayson', 'Jerome', 'Joemar', 'Jomari', 'Kenneth', 'Kevin', 'Lloyd', 'Marlon', 'Nathaniel', 'Nico', 'Oliver', 'Patrick', 'Rafael', 'Randy', 'Renz', 'Rico', 'Rodel', 'Ryan', 'Samuel', 'Sherwin', 'Vincent', 'Abdul', 'Ahmad', 'Alinader', 'Faisal', 'Norodin', 'Saidamen'];
+  const NAMES_F = ['Aiza', 'Alexa', 'Angelica', 'Bea', 'Camille', 'Charmaine', 'Cherry', 'Cristina', 'Daisy', 'Danica', 'Divine', 'Ellaine', 'Erika', 'Fatima', 'Gemma', 'Grace', 'Hazel', 'Ivy', 'Jamaica', 'Jenny', 'Jessa', 'Joan', 'Kimberly', 'Kristine', 'Lorena', 'Maricar', 'Marijoy', 'Melody', 'Nica', 'Princess', 'Rhea', 'Roselle', 'Sheila', 'Trisha', 'Yvonne', 'Ainah', 'Farhana', 'Johaira', 'Norhana', 'Sittie'];
+
+  // weight = roughly how many of the cohort come from each locality, so the
+  // campus split in the Enrollment Summary looks like a real catchment area.
+  const LOCALITIES = [
+    { weight: 34, city: 'Iligan City', province: 'Lanao del Norte', campus: 'Main — Iligan', campusKey: 'main', barangays: ['Pala-o', 'Tibanga', 'Hinaplanon', 'Tubod', 'Saray', 'Mahayahay', 'San Miguel', 'Villa Verde', 'Santiago', 'Bara-as', 'Buru-un', 'Dalipuga', 'Kiwalan', 'Maria Cristina', 'Suarez', 'Ubaldo Laya', 'Acmac', 'Poblacion'], schools: ['Iligan City National High School', 'Iligan City East National High School', 'Lanao del Norte National High School', 'MSU-IIT Integrated Developmental School', 'Saint Peter College'] },
+    { weight: 3, city: 'Tubod', province: 'Lanao del Norte', campus: 'Kapatagan', campusKey: 'kapatagan', barangays: ['Poblacion', 'Baroy Daku', 'Dalama', 'Pinilingan'], schools: ['Tubod National High School', 'Lanao del Norte National High School'] },
+    { weight: 3, city: 'Lala', province: 'Lanao del Norte', campus: 'Kapatagan', campusKey: 'kapatagan', barangays: ['Maranding', 'Poblacion', 'Darumawang Bucana', 'Tenazas'], schools: ['Maranding National High School', 'Lala National High School'] },
+    { weight: 5, city: 'Kapatagan', province: 'Lanao del Norte', campus: 'Kapatagan', campusKey: 'kapatagan', barangays: ['Poblacion', 'Bansarvil', 'Buenavista', 'Malinas', 'Taguitic', 'Butadon'], schools: ['Kapatagan National High School', 'Bansarvil National High School'] },
+    { weight: 2, city: 'Baroy', province: 'Lanao del Norte', campus: 'Kapatagan', campusKey: 'kapatagan', barangays: ['Poblacion', 'Andil', 'Bagong Bayan'], schools: ['Baroy National High School'] },
+    { weight: 2, city: 'Kolambugan', province: 'Lanao del Norte', campus: 'Kapatagan', campusKey: 'kapatagan', barangays: ['Poblacion', 'Inudaran', 'Muntay'], schools: ['Kolambugan National High School'] },
+    { weight: 2, city: 'Sultan Naga Dimaporo', province: 'Lanao del Norte', campus: 'Kapatagan', campusKey: 'kapatagan', barangays: ['Payong', 'Pandanan', 'Karim'], schools: ['Sultan Naga Dimaporo National High School'] },
+    { weight: 2, city: 'Linamon', province: 'Lanao del Norte', campus: 'Main — Iligan', campusKey: 'main', barangays: ['Poblacion', 'Larapan', 'Samburon'], schools: ['Linamon National High School'] },
+    { weight: 2, city: 'Bacolod', province: 'Lanao del Norte', campus: 'Main — Iligan', campusKey: 'main', barangays: ['Poblacion', 'Delabayan', 'Esperanza'], schools: ['Bacolod National High School'] },
+    { weight: 2, city: 'Maigo', province: 'Lanao del Norte', campus: 'Main — Iligan', campusKey: 'main', barangays: ['Poblacion', 'Balagatasa', 'Inoboran'], schools: ['Maigo National High School'] },
+    { weight: 26, city: 'Cagayan de Oro', province: 'Misamis Oriental', campus: 'Bugo — CDO', campusKey: 'bugo', barangays: ['Bugo', 'Puerto', 'Gusa', 'Lapasan', 'Carmen', 'Nazareth', 'Kauswagan', 'Balulang', 'Macasandig', 'Agusan', 'Tablon', 'Bulua', 'Patag', 'Camaman-an'], schools: ['Cagayan de Oro City National High School', 'Gusa Regional Science High School', 'Bugo National High School', 'Misamis Oriental General Comprehensive High School'] },
+    { weight: 6, city: 'Ozamiz City', province: 'Misamis Occidental', campus: 'Kapatagan', campusKey: 'kapatagan', barangays: ['Aguada', 'Carangan', 'Catadman-Manabay', 'Lam-an', 'Tinago', 'Banadero'], schools: ['Ozamiz City National High School', 'La Salle University Integrated School'] },
+    { weight: 4, city: 'Oroquieta City', province: 'Misamis Occidental', campus: 'Kapatagan', campusKey: 'kapatagan', barangays: ['Poblacion I', 'Layawan', 'Taboc Norte', 'Mobod'], schools: ['Oroquieta City National High School', 'Misamis Occidental National High School'] },
+    { weight: 3, city: 'Tangub City', province: 'Misamis Occidental', campus: 'Kapatagan', campusKey: 'kapatagan', barangays: ['Maloro', 'Poblacion', 'Migpange'], schools: ['Tangub City National High School'] },
+    { weight: 2, city: 'Clarin', province: 'Misamis Occidental', campus: 'Kapatagan', campusKey: 'kapatagan', barangays: ['Poblacion', 'Lupagan'], schools: ['Clarin National High School'] },
+    { weight: 2, city: 'Jimenez', province: 'Misamis Occidental', campus: 'Kapatagan', campusKey: 'kapatagan', barangays: ['Poblacion', 'Naga', 'Taraka'], schools: ['Jimenez National High School'] },
+    { weight: 1, city: 'Plaridel', province: 'Misamis Occidental', campus: 'Kapatagan', campusKey: 'kapatagan', barangays: ['Poblacion', 'Lao Proper'], schools: ['Plaridel National High School'] },
+    { weight: 1, city: 'Tudela', province: 'Misamis Occidental', campus: 'Kapatagan', campusKey: 'kapatagan', barangays: ['Poblacion', 'Barra'], schools: ['Tudela National High School'] }
+  ];
+  const LOCALITY_PICKS = LOCALITIES.flatMap(place => Array(place.weight).fill(place));
+
+  const STRAND_POOL = [
+    { track: 'ACADEMIC', strand: 'STEM' }, { track: 'ACADEMIC', strand: 'STEM' },
+    { track: 'ACADEMIC', strand: 'HUMSS' }, { track: 'ACADEMIC', strand: 'HUMSS' },
+    { track: 'ACADEMIC', strand: 'ABM' }, { track: 'ACADEMIC', strand: 'GAS' },
+    { track: 'TVL', strand: 'CA' }, { track: 'TVL', strand: 'IT' },
+    { track: 'TVL', strand: 'HRM' }, { track: 'TVL', strand: 'EIM' },
+    { track: 'TVL', strand: 'CE' }, { track: 'TVL', strand: 'OM' }, { track: 'TVL', strand: 'PN' }
+  ];
+  const CATEGORY_POOL = ['New', 'New', 'New', 'New', 'Transferee', 'Transferee', 'Returnee'];
+  const QUEUE_POOL = ['pre-enlisted', 'pre-enlisted', 'pre-enlisted', 'pending', 'pending', 'review', 'review', 'enrolled', 'enrolled', 'enrolled'];
+  const MOTHER_TONGUES = ['Bisaya/Cebuano', 'Bisaya/Cebuano', 'Bisaya/Cebuano', 'Maranao', 'Ilonggo', 'Hiligaynon', 'Tagalog'];
+  const DELIVERY_POOL = [['Online'], ['Modular (Print)'], ['Modular (Digital)'], ['Online', 'Modular (Digital)'], ['Educational TV'], ['Modular (Print)', 'Radio-based Instruction']];
+  const REFERRERS = ['STEM', 'HUMSS/ABM', 'TVL', 'PE/FILIPINO', 'ENGLISH', 'STAFF', 'GUIDANCE'];
+  const DOC_NAMES = ['PSA Birth Certificate', 'Form 137', 'Certificate of Completion', 'Good Moral Certificate'];
+
+  // Requirement mixes, weighted so roughly half the cohort is complete and the
+  // rest gives the Missing Requirements report something to list.
+  const DOC_MIXES = [
+    ['submitted', 'submitted', 'submitted', 'submitted'],
+    ['submitted', 'submitted', 'submitted', 'submitted'],
+    ['submitted', 'submitted', 'submitted', 'submitted'],
+    ['submitted', 'pending', 'submitted', 'submitted'],
+    ['submitted', 'submitted', 'submitted', 'missing'],
+    ['submitted', 'pending', 'submitted', 'missing'],
+    ['submitted', 'missing', 'pending', 'missing'],
+    ['pending', 'pending', 'pending', 'pending'],
+    ['submitted', 'submitted', 'pending', 'pending'],
+    ['missing', 'submitted', 'submitted', 'submitted']
+  ];
+  const ATTENDANCE_MIXES = [
+    ['Present', 'Present', 'Present', 'Present', 'Present'],
+    ['Present', 'Present', 'Present', 'Present', 'Present'],
+    ['Present', 'Present', 'Present', 'Present', 'Present'],
+    ['Present', 'Present', 'Absent', 'Present', 'Present'],
+    ['Present', 'Absent', 'Present', 'Present', 'Pending'],
+    ['Present', 'Present', 'Present', 'Present', 'Pending'],
+    ['Absent', 'Absent', 'Present', 'Absent', 'Present'],
+    ['Pending', 'Pending', 'Pending', 'Pending', 'Pending'],
+    ['Present', 'Present', 'Pending', 'Pending', 'Pending']
+  ];
+  const WEEK_DAYS = [['Mon', 'Aug 3'], ['Tue', 'Aug 4'], ['Wed', 'Aug 5'], ['Thu', 'Aug 6'], ['Fri', 'Aug 7']];
+
+  function buildBulkCohort(seed) {
+    const rng = makeRng(seed);
+    const pick = list => list[Math.floor(rng() * list.length)];
+    const between = (lo, hi) => lo + Math.floor(rng() * (hi - lo + 1));
+    const pad = (value, size) => String(value).padStart(size, '0');
+    const emailSeen = {};
+    // Seats left per section, so generated students never overfill a room.
+    const seatsLeft = {};
+    Object.entries(SECTIONS).forEach(([name, info]) => { seatsLeft[name] = info.capacity - info.baseline; });
+    Object.values(SEED.sections).forEach(name => { if (seatsLeft[name] !== undefined) seatsLeft[name] -= 1; });
+
+    const out = {
+      applicants: {}, requirements: {}, audits: {}, attendance: {}, records: {}, sections: {}, documentRequests: [],
+      academic: { students: {}, classes: {}, grades: {}, history: {}, adviserNotes: {} }
+    };
+    let studentSeq = BULK_FIRST_STU;
+
+    for (let i = 0; i < BULK_COUNT; i += 1) {
+      const appId = `APP-2026-${pad(BULK_FIRST_APP + i, 4)}`;
+      const place = pick(LOCALITY_PICKS);
+      const female = rng() < 0.5;
+      const first = pick(female ? NAMES_F : NAMES_M);
+      const last = pick(SURNAMES);
+      const middle = pick(SURNAMES);
+      const { track, strand } = pick(STRAND_POOL);
+      const category = pick(CATEGORY_POOL);
+      const queueStatus = pick(QUEUE_POOL);
+      const grade = rng() < 0.62 ? 'Grade 11' : 'Grade 12';
+      const age = grade === 'Grade 11' ? between(16, 18) : between(17, 19);
+      const birthYear = 2026 - age;
+      const name = `${last}, ${first}`;
+
+      let emailBase = `${first}.${last}`.toLowerCase();
+      emailSeen[emailBase] = (emailSeen[emailBase] || 0) + 1;
+      if (emailSeen[emailBase] > 1) emailBase += emailSeen[emailBase];
+
+      const fromSchool = category !== 'New';
+      const school = fromSchool ? pick(place.schools) : '';
+      const submittedDay = between(1, 10);
+      const submittedAt = `Aug ${submittedDay}, 2026`;
+      const guardianIsMother = rng() < 0.45;
+      const fatherName = `${pick(NAMES_M)} ${last}`;
+      const motherName = `${pick(NAMES_F)} ${middle} ${last}`;
+      const contact = `09${between(15, 99)} ${pad(between(0, 999), 3)} ${pad(between(0, 9999), 4)}`;
+      const guardianContact = `09${between(15, 99)} ${pad(between(0, 999), 3)} ${pad(between(0, 9999), 4)}`;
+
+      out.applicants[appId] = {
+        name, lrn: `1${pad(between(0, 99999999999), 11)}`, category,
+        programLabel: `${strand} · ${grade}`, program: 'shs',
+        submittedAt,
+        campus: place.campus, campusKey: place.campusKey,
+        queueStatus, evalStatus: queueStatus === 'enrolled' ? 'ready' : queueStatus === 'review' ? 'review' : 'review', flag: '',
+        grade, track, strand, delivery: pick(DELIVERY_POOL), deliveryOther: '',
+        lrnStatus: category === 'Returnee' ? 'Returning (Balik-Aral)' : 'With LRN',
+        psa: rng() < 0.85 ? `PSA-${between(2019, 2024)}-${pad(between(1, 9999), 6)}` : '',
+        last, first, middle, ext: '',
+        dob: `${pad(between(1, 12), 2)}/${pad(between(1, 28), 2)}/${birthYear}`,
+        sex: female ? 'Female' : 'Male', age: String(age),
+        contact, email: `${emailBase}@email.com`,
+        ip: rng() < 0.12 ? 'Yes' : 'No', ipOther: '', motherTongue: pick(MOTHER_TONGUES), honors: rng() < 0.18 ? 'With Honors (Grade 10)' : '',
+        house: `${pick(['Purok', 'Zone', 'Sitio'])} ${between(1, 8)}, ${place.barangays[0] === 'Poblacion' ? 'Poblacion' : pick(place.barangays)}`,
+        province: place.province, city: place.city, barangay: pick(place.barangays),
+        enrolled: fromSchool ? 'Yes' : 'No', school, schoolAddress: fromSchool ? `${place.city}, ${place.province}` : '', schoolId: '',
+        father: fatherName, mother: motherName, guardian: guardianIsMother ? motherName : fatherName,
+        guardianContact, regDate: `08/${pad(Math.max(1, submittedDay - 2), 2)}/2026`, referred: pick(REFERRERS)
+      };
+
+      const mix = pick(DOC_MIXES);
+      const docs = {};
+      DOC_NAMES.forEach((doc, idx) => { docs[doc] = mix[idx]; });
+      out.requirements[appId] = { docs, contact, email: `${emailBase}@email.com` };
+
+      const audit = [`Application created by R. Santos — ${submittedAt} ${pad(between(8, 11), 2)}:${pad(between(0, 59), 2)} AM`];
+      const flagged = DOC_NAMES.filter(doc => docs[doc] === 'missing');
+      if (flagged.length) audit.unshift(`${flagged[0]} marked Missing by R. Santos — Aug ${Math.min(11, submittedDay + 1)}, 2026 ${pad(between(1, 4), 2)}:${pad(between(0, 59), 2)} PM`);
+      if (mix.every(status => status === 'submitted')) audit.unshift(`All documents verified by R. Santos — Aug ${Math.min(11, submittedDay + 2)}, 2026 ${pad(between(8, 11), 2)}:${pad(between(0, 59), 2)} AM`);
+      out.audits[appId] = audit;
+
+      const attendanceMix = pick(ATTENDANCE_MIXES);
+      const complete = mix.every(status => status === 'submitted');
+      out.attendance[appId] = {
+        req: complete ? 'Complete' : attendanceMix.every(day => day === 'Pending') ? 'Pending' : 'Incomplete',
+        log: WEEK_DAYS.map(([day, date], idx) => ({ day, date, status: attendanceMix[idx] }))
+      };
+
+      // Confirmed and near-confirmed applicants get a student record, which is
+      // what the Student Records report and Enrollment Records screen read.
+      if (queueStatus === 'enrolled' || queueStatus === 'pending') {
+        const studentId = `STU-2026-${pad(studentSeq, 4)}`;
+        studentSeq += 1;
+        const enrolledNow = queueStatus === 'enrolled';
+        out.records[studentId] = {
+          app: appId, name, initials: `${first[0]}${last[0]}`,
+          meta: `${grade} · ${strand} · ${place.campus}`,
+          status: enrolledNow ? 'enrolled' : 'pending',
+          category: `${category} Student — Regular`,
+          ref: `CSH-${pad(200 + i, 4)}`, bracket: pick(['Bracket A', 'Bracket B', 'Bracket C']),
+          req: complete ? ['Complete', 'success'] : ['Incomplete', 'danger'],
+          reqDate: submittedAt,
+          attend: attendanceMix.map(status => status.toLowerCase()),
+          attendStatus: attendanceMix.every(day => day === 'Present') ? 'Verified' : 'Not yet verified',
+          confirmable: !enrolledNow && complete && attendanceMix.every(day => day === 'Present'),
+          confirmHint: enrolledNow
+            ? 'Student is already officially enrolled.'
+            : complete ? 'Requirements complete — check attendance before confirming.' : 'Cannot confirm yet — requirements are still incomplete.'
+        };
+
+        if (enrolledNow) {
+          const match = Object.keys(SECTIONS).find(sectionName =>
+            SECTIONS[sectionName].strand === strand && SECTIONS[sectionName].campus === place.campus && seatsLeft[sectionName] > 0);
+          if (match) { out.sections[studentId] = match; seatsLeft[match] -= 1; }
+          if (rng() < 0.22) {
+            out.documentRequests.push({
+              id: `DOC-2026-${pad(100 + out.documentRequests.length, 4)}`,
+              studentId, student: name,
+              document: pick(['Form 137 (Transcript)', 'Form 138 (Report Card)', 'TOR', 'Certificate of Enrolment', 'Good Moral Certificate']),
+              status: pick(['Issued', 'Issued', 'For review', 'Pending docs']),
+              released: '', requestedBy: pick(['Student', 'Guardian', 'Receiving school'])
+            });
+          }
+        }
+      }
+    }
+
+    out.documentRequests.forEach(request => {
+      if (request.status === 'Issued') request.released = `Aug ${6 + (Number(request.id.slice(-2)) % 5)}, 2026`;
+    });
+
+    // ---- academic side -----------------------------------------------------
+    // Sectioned students carry the SAME student id into Academic Records, which
+    // is the "one verified record across modules" claim the demo makes. Their
+    // grades give the Honor Students report a genuine ranked list.
+    const SUBJECT_BY_STRAND = {
+      STEM: 'Earth Science', HUMSS: 'Philippine Politics', ABM: 'Business Mathematics', GAS: 'Applied Economics',
+      CA: 'Cookery Fundamentals', IT: 'Computer Systems Servicing', HRM: 'Food and Beverage Services',
+      EIM: 'Electrical Installation', OM: 'Records Management', PN: 'Nursing Fundamentals', CE: 'Computer Programming'
+    };
+    const TEACHERS = ['Ernesto Villar', 'Grace Sabandal', 'Jomar Tuban', 'Lorna Bacareza', 'Rey Anthony Ong'];
+    // Generated students report to advisers other than Nicole Chua, so her
+    // advisory class stays the small scripted roster used in the walkthrough.
+    const ADVISERS = ['Maria Lopez', 'Ernesto Villar', 'Grace Sabandal', 'Jomar Tuban'];
+
+    const bySection = {};
+    Object.entries(out.records).forEach(([studentId, record]) => {
+      const section = out.sections[studentId];
+      if (!section || record.status !== 'enrolled') return;
+      (bySection[section] = bySection[section] || []).push({ studentId, record });
+    });
+
+    Object.entries(bySection).forEach(([section, members], sectionIdx) => {
+      const info = SECTIONS[section];
+      const adviser = ADVISERS[sectionIdx % ADVISERS.length];
+      const subjects = ['General Mathematics', 'Oral Communication', SUBJECT_BY_STRAND[info.strand] || 'Research Methods'];
+      const studentIds = members.map(member => member.studentId);
+
+      members.forEach(({ studentId, record }) => {
+        const app = out.applicants[record.app];
+        out.academic.students[studentId] = {
+          appId: record.app, name: record.name, initials: record.initials, lrn: app.lrn,
+          gradeLevel: app.grade, section, campus: info.campus, adviser,
+          sectionHistory: [
+            { label: `${app.grade} · ${section}`, detail: `SY 2026–2027 · ${info.campus}` },
+            { label: `${app.grade === 'Grade 12' ? 'Grade 11' : 'Grade 10'} · ${app.strand}`, detail: `SY 2025–2026 · ${app.school || 'Previous school'}` }
+          ]
+        };
+        out.academic.adviserNotes[studentId] = [];
+        out.academic.history[studentId] = [];
+      });
+
+      subjects.forEach((subject, subjectIdx) => {
+        const classId = `CLS-BULK-${section.toUpperCase().replace(/[^A-Z0-9]/g, '')}-${subjectIdx + 1}`;
+        out.academic.classes[classId] = {
+          id: classId, subject, section, gradeLevel: members[0].record.meta.split('·')[0].trim(),
+          room: info.room, teacher: TEACHERS[(sectionIdx + subjectIdx) % TEACHERS.length],
+          periodId: 'SY2026-Q1', studentIds,
+          status: 'submitted', submittedBy: TEACHERS[(sectionIdx + subjectIdx) % TEACHERS.length], submittedAt: 'Aug 6, 2026 10:00 AM'
+        };
+        out.academic.grades[classId] = {};
+
+        members.forEach(({ studentId }) => {
+          // Per-student ability, nudged per subject, gives a believable spread
+          // of averages rather than everyone landing on the same grade.
+          const ability = 70 + Math.floor(rng() * 29);
+          const target = Math.max(65, Math.min(99, ability + between(-4, 4)));
+          const ratio = target / 100;
+          const scores = {
+            ww1: Math.round(20 * ratio), ww2: Math.round(50 * ratio),
+            pt1: Math.round(100 * ratio), other1: Math.round(10 * ratio)
+          };
+          // A few unfinished assessments so the Incomplete Grades monitor and
+          // the at-risk view have real cases to work with.
+          if (rng() < 0.06) scores.pt1 = null;
+          const complete = scores.pt1 !== null;
+          const quarterGrade = complete
+            ? Math.round(((scores.ww1 + scores.ww2) / 70) * 40 + (scores.pt1 / 100) * 50 + (scores.other1 / 10) * 10)
+            : null;
+          out.academic.grades[classId][studentId] = {
+            scores, quarterGrade, status: complete ? 'submitted' : 'incomplete', updatedAt: 'Aug 6, 2026 10:00 AM'
+          };
+          out.academic.history[studentId].push({
+            subject, schoolYear: '2026–2027',
+            quarters: { q1: quarterGrade, q2: null, q3: null, q4: null }, finalGrade: null
+          });
+        });
+      });
+    });
+
+    return out;
+  }
+
+  // Fold the generated cohort into SEED. Handwritten entries win on any key
+  // clash, so the walkthrough records can never be overwritten by generated ones.
+  (function applyBulkCohort() {
+    const bulk = buildBulkCohort(20262027);
+    ['applicants', 'requirements', 'audits', 'attendance', 'records', 'sections'].forEach(key => {
+      SEED[key] = Object.assign({}, bulk[key], SEED[key]);
+    });
+    ['students', 'classes', 'grades', 'history', 'adviserNotes'].forEach(key => {
+      SEED.academic[key] = Object.assign({}, bulk.academic[key], SEED.academic[key]);
+    });
+    SEED.documentRequests = SEED.documentRequests.concat(bulk.documentRequests);
+  })();
 
   let data = null;
 

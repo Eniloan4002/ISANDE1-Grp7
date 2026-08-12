@@ -22,8 +22,25 @@ const REQUIREMENT_STATE = {
   enrolled: ['Complete', 'success']
 };
 
+// Headline counters, derived from the queue itself. They used to be fixed
+// numbers in the markup, which read as obviously wrong once the cohort grew.
+function renderQueueStats(applicants) {
+  const counts = { 'pre-enlisted': 0, pending: 0, review: 0, enrolled: 0 };
+  let duplicates = 0;
+  applicants.forEach(app => {
+    if (counts[app.queueStatus] !== undefined) counts[app.queueStatus] += 1;
+    if (Store.getPair(app.id) && Store.getPairStatus(app.id) !== 'merge') duplicates += 1;
+  });
+  const set = (id, value) => { const el = document.querySelector(id); if (el) el.textContent = String(value); };
+  set('#st-pre', counts['pre-enlisted']);
+  set('#st-pending', counts.pending + counts.review);
+  set('#st-dup', duplicates);
+  set('#st-enrolled', counts.enrolled);
+}
+
 function renderQueue() {
   const applicants = Object.values(Store.applicants);
+  renderQueueStats(applicants);
   tbody.innerHTML = applicants.map(app => {
     const [label, tone] = STATUS_BADGE[app.queueStatus] || STATUS_BADGE['pre-enlisted'];
     const [reqLabel, reqClass] = REQUIREMENT_STATE[app.queueStatus] || REQUIREMENT_STATE['pre-enlisted'];

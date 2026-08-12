@@ -67,8 +67,14 @@
     });
   }
 
+  // The adviser portal is signed in as Nicole Chua, so the roster is limited to
+  // her own advisory students. Without this the page would list the whole
+  // school and title itself with every adviser's name at once.
+  const SIGNED_IN_ADVISER = 'Nicole Chua';
+
   function renderAdvisory() {
-    const students = Object.entries(Store.academic.students);
+    const students = Object.entries(Store.academic.students)
+      .filter(([, student]) => student.adviser === SIGNED_IN_ADVISER);
     const atRisk = students.filter(([id]) => standingFor(id).label === 'At risk').length;
     const missing = students.filter(([id]) => requirementFor(id).label !== 'Complete').length;
     const good = students.filter(([id]) => standingFor(id).label === 'Good standing').length;
