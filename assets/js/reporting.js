@@ -321,6 +321,21 @@ const LIVE_ROW_BUILDERS = {
   docs: buildDocsRows
 };
 
+// The preview is paged for reading only. Print and export still cover the whole
+// report — the print stylesheet reveals the rows this hides.
+const previewPager = Pagination.attach({ controls: '#preview-pager' });
+previewPager.setOnChange(() => paintPreviewPage());
+
+function paintPreviewPage() {
+  const rows = [...previewTable.querySelectorAll('tbody tr')];
+  const view = previewPager.render(rows);
+  const label = document.querySelector('#preview-count');
+  if (!label) return;
+  label.textContent = view.total
+    ? `Showing ${view.from}-${view.to} of ${view.total} rows${view.pageCount > 1 ? ' — the full report is printed and exported' : ''}`
+    : 'This report returned no rows for the selected criteria.';
+}
+
 function generate() {
   syncCarloReports();
   const type = typeButtons.find(button => button.classList.contains('active')).dataset.type;
@@ -329,6 +344,9 @@ function generate() {
   const rows = builder ? builder(readFilters()) : report.rows;
   previewTable.querySelector('thead').innerHTML = `<tr>${report.head.map(h => `<th>${h}</th>`).join('')}</tr>`;
   previewTable.querySelector('tbody').innerHTML = rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('');
+  // A freshly generated report always starts at its first page.
+  previewPager.reset();
+  paintPreviewPage();
   const now = 'Aug 7, 2026 10:42 AM';
   previewMeta.innerHTML = `<span><strong>Report:</strong> ${report.title}</span><span><strong>Generated:</strong> ${now}</span><span><strong>Criteria:</strong> ${paramSummary()}</span><span><strong>By:</strong> R. Santos (Registrar Staff)</span>`;
   preview.classList.add('show');

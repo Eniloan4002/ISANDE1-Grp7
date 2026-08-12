@@ -154,6 +154,20 @@
       overflow-x: auto
     }
 
+    /* The preview is paged for reading, but a printed report must be the whole
+       report — reveal every row and drop the on-screen paging furniture. */
+    @media print {
+      #preview-table tbody tr[hidden] {
+        display: table-row !important
+      }
+
+      .pagination,
+      .table-footer,
+      .report-actions {
+        display: none !important
+      }
+    }
+
     @media(max-width:1000px) {
       .gen-grid {
         grid-template-columns: 1fr
@@ -244,8 +258,12 @@
           <tbody></tbody>
         </table>
       </div>
+      <div class="table-footer"><span id="preview-count">No report generated yet.</span>
+        <div class="pagination" id="preview-pager"></div>
+      </div>
       <div class="report-actions">
-        <span class="hint">Prepared by the registrar — verified against the centralized database.</span>
+        <span class="hint">Prepared by the registrar — verified against the centralized database. Printing and export
+          cover the whole report, not just the page on screen.</span>
         <div class="spacer"></div>
         <button class="button button-outline" data-export>Export CSV</button>
         <button class="button button-secondary" data-export-pdf>Export PDF</button>
