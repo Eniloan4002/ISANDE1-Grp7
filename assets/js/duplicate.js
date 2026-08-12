@@ -50,18 +50,25 @@ function renderPairs() {
   filterList();
 }
 
-function filterList() {
-  let visible = 0;
+const pager = Pagination.attach({ controls: '#pager' });
+pager.setOnChange(() => filterList({ keepPage: true }));
+
+function filterList(options) {
+  if (!options || !options.keepPage) pager.reset();
   const term = search.value.toLowerCase();
+  const matched = [];
   [...tbody.querySelectorAll('tr')].forEach(row => {
     const show = row.textContent.toLowerCase().includes(term) &&
       (statusFilter.value === 'all' || row.dataset.status === statusFilter.value);
     row.hidden = !show;
-    if (show) visible++;
+    if (show) matched.push(row);
   });
-  resultCount.textContent = `Showing ${visible} of ${renderedPairCount} duplicate pairs`;
+  const view = pager.render(matched);
+  resultCount.textContent = view.total
+    ? `Showing ${view.from}-${view.to} of ${view.total} duplicate pairs${view.total === renderedPairCount ? '' : ` (filtered from ${renderedPairCount})`}`
+    : `No duplicate pairs match the current filters (${renderedPairCount} total)`;
 }
-[search, statusFilter].forEach(item => item.addEventListener('input', filterList));
+[search, statusFilter].forEach(item => item.addEventListener('input', () => filterList()));
 
 // Toast helper (shared by all enrollment screens).
 const toast = document.querySelector('#toast');

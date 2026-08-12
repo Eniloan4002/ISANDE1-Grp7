@@ -63,18 +63,26 @@ function renderList() {
   renderStats(applicants);
 }
 
-function filterList() {
-  let visible = 0;
+const pager = Pagination.attach({ controls: '#pager' });
+pager.setOnChange(() => filterList({ keepPage: true }));
+
+function filterList(options) {
+  if (!options || !options.keepPage) pager.reset();
   const term = searchInput.value.toLowerCase();
+  const matched = [];
   [...tbody.querySelectorAll('tr')].forEach(row => {
     const show = row.textContent.toLowerCase().includes(term) &&
       (statusFilterEl.value === 'all' || row.dataset.status === statusFilterEl.value);
     row.hidden = !show;
-    if (show) visible++;
+    if (show) matched.push(row);
   });
-  resultCountEl.textContent = `Showing ${visible} of ${Object.keys(Store.applicants).length} applicants under first-week monitoring`;
+  const view = pager.render(matched);
+  const total = Object.keys(Store.applicants).length;
+  resultCountEl.textContent = view.total
+    ? `Showing ${view.from}-${view.to} of ${view.total} applicants under first-week monitoring${view.total === total ? '' : ` (filtered from ${total})`}`
+    : `No applicants match the current filters (${total} total)`;
 }
-[searchInput, statusFilterEl].forEach(el => el.addEventListener('input', filterList));
+[searchInput, statusFilterEl].forEach(el => el.addEventListener('input', () => filterList()));
 
 // Cohort-level stat cards (not the currently-selected student).
 function renderStats(applicants) {

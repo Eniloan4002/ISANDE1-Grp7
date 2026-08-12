@@ -67,19 +67,28 @@ function renderQueue() {
   filterQueue();
 }
 
-function filterQueue() {
-  let visible = 0;
+const pager = Pagination.attach({ controls: '#pager' });
+pager.setOnChange(() => filterQueue({ keepPage: true }));
+
+function filterQueue(options) {
+  if (!options || !options.keepPage) pager.reset();
   const term = search.value.toLowerCase();
+  const matched = [];
   [...tbody.querySelectorAll('tr')].forEach(row => {
     const show = row.textContent.toLowerCase().includes(term) &&
       (status.value === 'all' || row.dataset.status === status.value) &&
       (program.value === 'all' || row.dataset.program === program.value);
     row.hidden = !show;
-    if (show) visible++;
+    if (show) matched.push(row);
   });
-  resultCount.textContent = `Showing ${visible} of ${Object.keys(Store.applicants).length} applicants`;
+  const view = pager.render(matched);
+  const total = Object.keys(Store.applicants).length;
+  resultCount.textContent = view.total
+    ? `Showing ${view.from}-${view.to} of ${view.total} applicants${view.total === total ? '' : ` (filtered from ${total})`}`
+    : `No applicants match the current filters (${total} total)`;
 }
-[search, status, program].forEach(item => item.addEventListener('input', filterQueue));
+// A changed filter should drop the reader back to page 1.
+[search, status, program].forEach(item => item.addEventListener('input', () => filterQueue()));
 
 // Toast helper.
 const toast = document.querySelector('#toast');

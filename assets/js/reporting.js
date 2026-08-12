@@ -282,6 +282,21 @@ function renderReportingStats() {
   set('#st-followup', followUp);
 }
 
+const logPager = Pagination.attach({ controls: '#pager' });
+// Paging the log only re-slices what is already rendered — no re-render needed.
+logPager.setOnChange(() => paintLogPage());
+
+function paintLogPage() {
+  const rows = [...document.querySelectorAll('#log-body tr')];
+  const view = logPager.render(rows);
+  const count = document.querySelector('#log-count');
+  if (count) {
+    count.textContent = view.total
+      ? `Showing ${view.from}-${view.to} of ${view.total} logged generations`
+      : 'No report generations logged yet';
+  }
+}
+
 function renderLog() {
   renderReportingStats();
   const log = document.querySelector('#log-body');
@@ -292,8 +307,7 @@ function renderLog() {
       <td class="action-cell"><button class="row-action" data-del-log="${idx}" title="Remove log entry">Remove</button></td>
     </tr>`
   ).join('');
-  const count = document.querySelector('#log-count');
-  if (count) count.textContent = `Showing ${entries.length} of ${entries.length} logged generations`;
+  paintLogPage();
 }
 
 // Every report type now reads live Store data at generate-time — there are no

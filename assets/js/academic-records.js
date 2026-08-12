@@ -49,19 +49,27 @@ function renderRows() {
   filterList();
 }
 
-function filterList() {
-  let visible = 0;
+const pager = Pagination.attach({ controls: '#pager' });
+pager.setOnChange(() => filterList({ keepPage: true }));
+
+function filterList(options) {
+  if (!options || !options.keepPage) pager.reset();
   const term = search.value.toLowerCase();
+  const matched = [];
   [...tbody.querySelectorAll('tr')].forEach(row => {
     const show = row.textContent.toLowerCase().includes(term) &&
       (statusFilter.value === 'all' || row.dataset.status === statusFilter.value) &&
       (campusFilter.value === 'all' || row.dataset.campus === campusFilter.value);
     row.hidden = !show;
-    if (show) visible++;
+    if (show) matched.push(row);
   });
-  resultCount.textContent = `Showing ${visible} of ${Object.keys(Store.records).length} records`;
+  const view = pager.render(matched);
+  const total = Object.keys(Store.records).length;
+  resultCount.textContent = view.total
+    ? `Showing ${view.from}-${view.to} of ${view.total} records${view.total === total ? '' : ` (filtered from ${total})`}`
+    : `No records match the current filters (${total} total)`;
 }
-[search, statusFilter, campusFilter].forEach(item => item.addEventListener('input', filterList));
+[search, statusFilter, campusFilter].forEach(item => item.addEventListener('input', () => filterList()));
 
 // Toast helper (shared by all enrollment screens).
 const toast = document.querySelector('#toast');
