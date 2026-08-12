@@ -6,14 +6,67 @@ const currentFolder = pathParts[pathParts.length - 2] || '';
 const routeTo = (folder, file) => currentFolder === folder ? file : `../${folder}/${file}`;
 const roleConfig = {
   student: { label: 'Prospective Student', office: 'Student Portal', initials: 'PS', items: [[routeTo('enrollment', 'submission.html'), 'Enrollment Submission', 'submission.html']] },
-  registrar: { label: 'Registrar Staff', office: "Registrar's Office", initials: 'RS', items: [[routeTo('enrollment', 'queue.html'), 'Enrollment Queue', 'queue.html'], [routeTo('enrollment', 'evaluate.html'), 'Evaluate Applications', 'evaluate.html'], [routeTo('enrollment', 'requirements.html'), 'Requirements', 'requirements.html'], [routeTo('enrollment', 'attendance.html'), 'First-Week Attendance', 'attendance.html'], [routeTo('enrollment', 'duplicate.html'), 'Duplicate Records', 'duplicate.html'], [routeTo('enrollment', 'academic-records.html'), 'Enrollment Records', 'academic-records.html'], [routeTo('enrollment', 'enrolled.html'), 'Enrolled & Assigned', 'enrolled.html'], [routeTo('academic', 'registrar-records.html'), 'Academic History', 'registrar-records.html'], [routeTo('academic', 'incomplete-grades.html'), 'Incomplete Grades', 'incomplete-grades.html'], [routeTo('academic', 'grade-approvals.html'), 'Grade Approvals', 'grade-approvals.html'], [routeTo('academic', 'finalize-grades.html'), 'Grade Finalization', 'finalize-grades.html'], [routeTo('enrollment', 'reporting-monitoring.html'), 'Reporting & Monitoring', 'reporting-monitoring.html']] },
+  // The registrar reaches twelve screens — too many to scan as one list, so they
+  // are grouped in the order the work actually happens: an application arrives,
+  // is validated, becomes an enrolment, then feeds academic records and reports.
+  registrar: {
+    label: 'Registrar Staff', office: "Registrar's Office", initials: 'RS',
+    groups: [
+      ['Applications', [
+        [routeTo('enrollment', 'queue.html'), 'Enrollment Queue', 'queue.html'],
+        [routeTo('enrollment', 'evaluate.html'), 'Evaluate Applications', 'evaluate.html'],
+        [routeTo('enrollment', 'duplicate.html'), 'Duplicate Records', 'duplicate.html']
+      ]],
+      ['Validation', [
+        [routeTo('enrollment', 'requirements.html'), 'Requirements', 'requirements.html'],
+        [routeTo('enrollment', 'attendance.html'), 'First-Week Attendance', 'attendance.html']
+      ]],
+      ['Enrollment', [
+        [routeTo('enrollment', 'academic-records.html'), 'Enrollment Records', 'academic-records.html'],
+        [routeTo('enrollment', 'enrolled.html'), 'Enrolled & Assigned', 'enrolled.html']
+      ]],
+      ['Academic Records', [
+        [routeTo('academic', 'registrar-records.html'), 'Academic History', 'registrar-records.html'],
+        [routeTo('academic', 'incomplete-grades.html'), 'Incomplete Grades', 'incomplete-grades.html'],
+        [routeTo('academic', 'grade-approvals.html'), 'Grade Approvals', 'grade-approvals.html'],
+        [routeTo('academic', 'finalize-grades.html'), 'Grade Finalization', 'finalize-grades.html']
+      ]],
+      ['Reporting', [
+        [routeTo('enrollment', 'reporting-monitoring.html'), 'Reporting & Monitoring', 'reporting-monitoring.html']
+      ]]
+    ]
+  },
   adviser: { label: 'Teacher Adviser', office: 'Teacher Adviser Portal', initials: 'TA', items: [[routeTo('academic', 'advisory.html'), 'Advisory Class', 'advisory.html'], [routeTo('academic', 'class-records.html'), 'Class Records', 'class-records.html'], [routeTo('academic', 'student-monitoring.html'), 'Student Monitoring', 'student-monitoring.html']] },
   teacher: { label: 'Subject Teacher', office: 'Subject Teacher Portal', initials: 'ST', items: [[routeTo('academic', 'grade-entry.html'), 'Grade Entry', 'grade-entry.html'], [routeTo('academic', 'class-list.html'), 'Assigned Classes', 'class-list.html'], [routeTo('academic', 'progress-reports.html'), 'Grade Corrections', 'progress-reports.html']] },
   guidance: { label: 'Guidance Staff', office: 'Guidance Office', initials: 'GS', items: [[routeTo('reporting', 'guidance.html'), 'Guidance Records', 'guidance.html'], [routeTo('reporting', 'student-profiles.html'), 'Student Profiles', 'student-profiles.html'], [routeTo('reporting', 'reports.html'), 'Reports', 'reports.html']] },
   admin: { label: 'System Administrator', office: 'System Administration', initials: 'SA', items: [[routeTo('administration', 'users.html'), 'User Accounts', 'users.html'], [routeTo('administration', 'system-settings.html'), 'System Settings', 'system-settings.html'], [routeTo('administration', 'audit-log.html'), 'Audit Log', 'audit-log.html']] }
 };
 const config = roleConfig[portal];
-const navItems = config.items.map(([href, label, key]) => `<a class="nav-item ${(key || href) === page ? 'active' : ''}" href="${href}">${label}</a>`).join('');
+const NAV_STATE_KEY = 'ici_nav_groups';
+const caretIcon = '<svg class="nav-caret" width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+const isCurrent = ([href, , key]) => (key || href) === page;
+const navLink = ([href, label, key]) => `<a class="nav-item ${(key || href) === page ? 'active' : ''}" href="${href}">${label}</a>`;
+
+function readNavState() {
+  try { return JSON.parse(localStorage.getItem(NAV_STATE_KEY)) || {}; } catch (error) { return {}; }
+}
+
+// A group opens when it holds the current page — you should never land on a
+// screen you cannot see in the sidebar — otherwise it remembers how the user
+// last left it.
+const navState = readNavState();
+const navItems = config.groups
+  ? config.groups.map(([groupLabel, items]) => {
+    const open = items.some(isCurrent) || navState[groupLabel] === true;
+    return `<div class="nav-group">
+        <button class="nav-group-toggle" type="button" aria-expanded="${open}" data-group="${groupLabel}">
+          <span>${groupLabel}</span>${caretIcon}
+        </button>
+        <div class="nav-group-items"${open ? '' : ' hidden'}>${items.map(navLink).join('')}</div>
+      </div>`;
+  }).join('')
+  : config.items.map(navLink).join('');
 const alertIcon = '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const menuIcon = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
 const main = document.querySelector('.main-content');
@@ -22,3 +75,15 @@ shell.className = 'app-shell';
 shell.innerHTML = `<aside class="sidebar" aria-label="${config.label} navigation"><a class="brand" href="../index.html"><span class="brand-mark">ICI</span><span class="brand-copy"><strong>ICI Local</strong><small>Student Information System</small></span></a><nav class="sidebar-nav"><p class="nav-label">${config.label}</p>${navItems}</nav></aside><div class="main-frame"><header class="topbar"><button class="icon-button menu-toggle" aria-label="Toggle navigation" aria-expanded="true">${menuIcon}</button><div class="institution"><span>ILIGAN COMPUTER INSTITUTE</span><small>${config.office}</small></div><div class="topbar-actions"><button class="icon-button notification" aria-label="Alerts">${alertIcon}<span>3</span></button><button class="profile-button" aria-label="Current role"><span class="avatar">${config.initials}</span><span class="profile-name">${config.label}</span></button></div></header></div>`;
 shell.querySelector('.main-frame').append(main);
 document.body.append(shell);
+
+// Expand/collapse a nav group, remembering the choice across screens.
+shell.querySelectorAll('.nav-group-toggle').forEach(toggle => {
+  toggle.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!open));
+    toggle.parentElement.querySelector('.nav-group-items').hidden = open;
+    const state = readNavState();
+    state[toggle.dataset.group] = !open;
+    try { localStorage.setItem(NAV_STATE_KEY, JSON.stringify(state)); } catch (error) { /* storage unavailable — the nav still works */ }
+  });
+});

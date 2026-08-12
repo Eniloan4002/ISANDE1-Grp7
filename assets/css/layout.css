@@ -69,6 +69,53 @@
     margin-top: 22px
 }
 
+/* Collapsible nav sections. The toggle keeps the same uppercase treatment as
+   .nav-label, so a closed group still reads as a heading rather than as a
+   dead link, while the caret marks it as something you can open. */
+.nav-group {
+    margin-bottom: 3px
+}
+
+.nav-group-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    padding: 9px 11px;
+    border: 0;
+    background: transparent;
+    color: #c6e0eb;
+    font: 700 10px 'Open Sans', sans-serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-align: left;
+    cursor: pointer
+}
+
+.nav-group-toggle:hover {
+    background: #0d719c;
+    color: #fff
+}
+
+.nav-group-toggle:focus-visible {
+    outline: 2px solid #f2d658;
+    outline-offset: -2px
+}
+
+.nav-caret {
+    flex: none;
+    transition: transform .15s ease
+}
+
+.nav-group-toggle[aria-expanded="true"] .nav-caret {
+    transform: rotate(90deg)
+}
+
+.nav-group-items {
+    padding-left: 7px
+}
+
 .nav-item {
     display: flex;
     align-items: center;
@@ -357,6 +404,15 @@
 
 .nav-label-bottom {
     margin-top: 18px
+}
+
+.nav-group-toggle {
+    padding: 7px 10px;
+    font-size: 9px
+}
+
+.nav-group-items {
+    padding-left: 6px
 }
 
 .nav-item {
