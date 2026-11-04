@@ -2,7 +2,8 @@
 
 | Board task | Implementation status | Delivered |
 | --- | --- | --- |
-| ICI2-5 Database foundation | Complete; ready for team review | PostgreSQL tables, Flyway V1–V5, audit fields/history, reference data, relational/date constraints, real PostgreSQL upgrade/startup/concurrency tests |
+| ICI2-5 Database foundation | Complete; ready for team review | PostgreSQL tables, Flyway V1–V6, audit fields/history, reference data, relational/date constraints, real PostgreSQL upgrade/startup/concurrency tests |
+| ICI2-15 Requirement tracking backend & audit logger | Complete locally; ready for review | Checklist API, four document states, completeness calculation, attributed immutable audit history, campus checks and optimistic concurrency |
 | ICI2-12 Student master record API | Complete; ready for review | Persistent profile/guardian CRUD, directory search, validation, campus guard, audit history, safe archiving and real PostgreSQL tests |
 | ICI2-6 Authentication & JWT | Complete; ready for team review | BCrypt, login, signed role/campus JWTs, token authentication, inactive-account rejection, persistent logout revocation, React sign-in/session restoration/sign-out and opt-in administrator bootstrap |
 | NEW SETUP Subjects, years & grading periods | Complete; ready for team review | CRUD APIs/forms, scoped codes, parent/date validation, optimistic versions, safe deletion and attributed audits |
@@ -14,3 +15,5 @@ PR #5 was reviewed and integrated into one ICILocal2.0 workspace with collaborat
 ICI2-7 full module/campus RBAC and ICI2-9 user-account management remain open. Authentication includes baseline endpoint protection and setup-role checks, not completion of every role's business permissions. Enrollment/grade/reporting production workflows remain separate tasks; the student master API is implemented.
 
 The 50-file high-fidelity prototype remains byte-for-byte preserved in archive/high-fidelity-2026-11-02/. Its demo role switcher remains part of that frozen reference. New work is in ICILocal2.0/frontend/ and ICILocal2.0/backend/.
+
+ICI2-15 is implemented and committed locally; ready for team review. The ICI2-16 checklist UI and ICI2-17 enrollment-confirmation API remain separate tasks. See requirement-tracking-api.md for their integration contract.

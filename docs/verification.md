@@ -22,3 +22,7 @@ These checks complete the requested database/authentication foundation, not prod
 ## PR #5 integration
 
 Unified the application under ICILocal2.0/ while preserving the collaborator's shell/routes. Final merged checks: 35 frontend unit tests, 15 archive/schema checks, 17 backend integration tests and 5 real-browser tests, all passing. See pr-5-integration-review.md for conflicts and resolutions.
+
+## ICI2-15 verification — 2026-11-04
+
+All 26 backend tests passed on real PostgreSQL 17.6, including 9 new requirement-tracking tests and 17 existing foundation/auth/student regressions. Backend verify/package passed with Flyway V1–V6; V2-to-V6 upgrade retained existing data. The 15 archive/PGlite checks passed. No checklist UI is claimed: ICI2-16 remains separate. The archive check was decoupled from changing prototype source while retaining all frozen checksum checks.
