@@ -1,6 +1,8 @@
 import React,{createContext,useContext,useEffect,useState} from 'react';
 import {Navigate,useLocation,useNavigate} from 'react-router';
-import {apiRequest,hasAccessToken,setAccessToken} from './api.js';
+import {apiRequest,hasAccessToken,setAccessToken,getAccessToken} from './api.js';
+import {readClaims,rolesFromClaims} from './auth/jwt.js';
+import {firstAllowedPath,pages} from './routes/routeConfig.js';
 const AuthContext=createContext(null);
 export const useAuth=()=>useContext(AuthContext);
 export function AuthProvider({children}) {
@@ -14,6 +16,12 @@ export function AuthProvider({children}) {
     if(hasAccessToken())apiRequest('/api/auth/me').then(profile=>{if(active)setUser(profile);}).catch(()=>{if(active)expired();}).finally(()=>{if(active)setLoading(false);});
     return()=>{active=false;window.removeEventListener('auth:expired',expired);};
   },[]);
+  useEffect(()=>{
+    if(!user)return;
+    const claims=readClaims(getAccessToken());
+    if(!claims){window.dispatchEvent(new Event('auth:expired'));return;}
+    let timer;const schedule=()=>{const remaining=claims.exp*1000-Date.now();if(remaining<=0)window.dispatchEvent(new Event('auth:expired'));else timer=setTimeout(schedule,Math.min(remaining,2147483647));};schedule();return()=>clearTimeout(timer);
+  },[user]);
   async function signIn(username,password) {
     const result=await apiRequest('/api/auth/login',{method:'POST',body:JSON.stringify({username,password})});
     setAccessToken(result.accessToken);setUser(result.user);setSessionMessage('');
@@ -23,7 +31,8 @@ export function AuthProvider({children}) {
     await apiRequest('/api/auth/logout',{method:'POST'});
     setAccessToken('');setUser(null);setSessionMessage('You have signed out.');
   }
-  return <AuthContext.Provider value={{user,loading,signIn,signOut,sessionMessage}}>{children}</AuthContext.Provider>;
+  const roles=rolesFromClaims({roles:user?.grants.map(grant=>grant.role)||[]});
+  return <AuthContext.Provider value={{user,loading,signIn,signOut,sessionMessage,roles,isAuthenticated:Boolean(user),logout:signOut}}>{children}</AuthContext.Provider>;
 }
 export function RequireSetupStaff({children}) {
   const {user,loading}=useAuth();const location=useLocation();
@@ -36,8 +45,10 @@ export function LoginPage() {
   const {user,loading,signIn,sessionMessage}=useAuth();
   const [username,setUsername]=useState(''),[password,setPassword]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false);
   const location=useLocation(),navigate=useNavigate();
-  const destination=location.state?.from==='/setup'?'/setup':'/';
+  const requested=typeof location.state?.from==='string'?location.state.from:location.state?.from?.pathname;
+  const roles=rolesFromClaims({roles:user?.grants.map(grant=>grant.role)||[]});
+  const destination=pages.some(page=>page.path===requested&&page.allowedRoles.some(role=>roles.includes(role)))?requested:firstAllowedPath(roles);
   if(user&&!loading)return <Navigate to={destination} replace/>;
-  async function submit(event){event.preventDefault();setBusy(true);setError('');try{await signIn(username.trim(),password);setPassword('');navigate(destination,{replace:true});}catch(error){setError(error.message);setPassword('');}finally{setBusy(false);}}
+  async function submit(event){event.preventDefault();setBusy(true);setError('');try{await signIn(username.trim(),password);setPassword('');navigate(pages.some(page=>page.path===requested)?requested:'/',{replace:true});}catch(error){setError(error.message);setPassword('');}finally{setBusy(false);}}
   return <div className="login-page"><section className="login-brand"><div className="brand"><span className="brand-mark">ICI</span><strong>ICI Local 2.0</strong></div><h1>Iligan Computer Institute</h1><p>Student records and enrollment management</p><small>Iligan Main · Kapatagan · Bugo</small></section><main className="login-panel"><h2>Staff sign in</h2><p>Use your school personnel account to continue.</p>{sessionMessage&&<p role="status">{sessionMessage}</p>}{error&&<div role="alert" className="notice notice-error">{error}</div>}<form onSubmit={submit}><label htmlFor="login-username">Username</label><input id="login-username" autoComplete="username" maxLength={100} required value={username} disabled={busy||loading} onChange={event=>setUsername(event.target.value)}/><label htmlFor="login-password">Password</label><input id="login-password" type="password" autoComplete="current-password" required maxLength={72} value={password} disabled={busy||loading} onChange={event=>setPassword(event.target.value)}/><button className="button" disabled={busy||loading}>{busy?'Signing in…':'Sign in'}</button></form></main></div>;
 }

@@ -10,6 +10,8 @@ Student information and enrollment management for Iligan Computer Institute: Ili
 - NEW SETUP: subject, academic-year, term and grading-period management APIs and React forms, validation, safe deletion and optimistic updates.
 - React shell/design system and the checksum-verified 50-file high-fidelity archive.
 
+PR #5’s shell and route/navigation structure are retained as the single frontend.
+
 Full module workflows, campus-specific RBAC (ICI2-7), account-management screens (ICI2-9) and honor policies remain separate tasks. No production data or default passwords are included.
 
 ## Repository map
@@ -17,8 +19,8 @@ Full module workflows, campus-specific RBAC (ICI2-7), account-management screens
 | Location | Purpose |
 | --- | --- |
 | archive/high-fidelity-2026-11-02/ | Frozen runnable mockup, demo guide and checksums |
-| frontend/ | React/Vite shell, staff authentication and academic setup |
-| backend/ | Spring Boot, security, setup APIs, migrations and tests |
+| ICILocal2.0/frontend/ | React/Vite shell, staff authentication and academic setup |
+| ICILocal2.0/backend/ | Spring Boot, security, setup APIs, migrations and tests |
 | docs/database-schema.md | Schema and remaining business-service boundaries |
 | docs/authentication.md | Token lifecycle, configuration and initial administrator |
 | docs/setup-api.md | Academic setup endpoint contract |
@@ -27,7 +29,7 @@ Full module workflows, campus-specific RBAC (ICI2-7), account-management screens
 
 ## Persistent local database and backend
 
-Requires Java 21+, Docker Compose and Node 22.12+ (Node 24 recommended). Maven is provided by backend/mvnw (Windows: mvnw.cmd).
+Requires Java 21+, Docker Compose and Node 22.12+ (Node 24 recommended). Maven is provided by ICILocal2.0/backend/mvnw (Windows: mvnw.cmd).
 
 1. Copy .env.example to .env. Choose DB_PASSWORD and replace JWT_SECRET with output from openssl rand -base64 32. Keep .env out of Git.
 2. In the root, run docker compose up -d database.
@@ -36,7 +38,7 @@ Requires Java 21+, Docker Compose and Node 22.12+ (Node 24 recommended). Maven i
 5. Start the backend:
 
 ```sh
-cd backend
+cd ICILocal2.0/backend
 ./mvnw spring-boot:run
 ```
 
@@ -47,19 +49,19 @@ Flyway applies migrations automatically. The backend binds to localhost:8081. Af
 In another terminal:
 
 ```sh
-cd frontend
+cd ICILocal2.0/frontend
 npm ci
 npm run dev
 ```
 
-Open http://localhost:5173/login. Sign in with your provisioned account. Academic setup is at /setup. Vite proxies /api to localhost:8081; ICI_API_URL overrides that target. For deployment, configure /api to the backend on the same origin and serve index.html for client-side frontend routes.
+Open http://localhost:5173/sign-in. Sign in with your provisioned account. Academic setup is at /setup. Vite proxies /api to localhost:8081; ICI_API_URL overrides that target. For deployment, configure /api to the backend on the same origin and serve index.html for client-side frontend routes.
 
 ## Disposable PostgreSQL alternative
 
-If Docker is unavailable, backend/run-local-postgres.sh starts a real PostgreSQL 17 database and backend using test-only infrastructure. Export your chosen BOOTSTRAP_ADMIN_* values as above, then:
+If Docker is unavailable, ICILocal2.0/backend/run-local-postgres.sh starts a real PostgreSQL 17 database and backend using test-only infrastructure. Export your chosen BOOTSTRAP_ADMIN_* values as above, then:
 
 ```sh
-cd backend
+cd ICILocal2.0/backend
 ./run-local-postgres.sh
 ```
 
@@ -68,14 +70,14 @@ This database is temporary and disappears on shutdown. The launcher uses a test 
 ## Verification
 
 ```sh
-cd backend
+cd ICILocal2.0/backend
 ./mvnw verify
 ```
 
 Backend tests run against a temporary native PostgreSQL 17 server, including migration upgrade, HTTP authentication, logout and multi-connection capacity checks. No Docker daemon is required. Native binaries cover Linux/Windows x86-64 and macOS x86-64/Apple Silicon; other architectures need matching test-binary dependencies. Run as a normal user, not root.
 
 ```sh
-cd frontend
+cd ICILocal2.0/frontend
 npm test
 npm run build
 npx playwright test

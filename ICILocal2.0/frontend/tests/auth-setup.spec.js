@@ -69,6 +69,6 @@ test.describe('staff authentication and PostgreSQL setup',()=>{
     await page.screenshot({path:'test-results/academic-setup-desktop.png',fullPage:true});
     await page.setViewportSize({width:390,height:844});
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-    await page.screenshot({path:'test-results/academic-setup-mobile.png',fullPage:true});
+    await page.screenshot({path:'test-results/academic-setup-mobile.png',fullPage:true,animations:'disabled'});
   });
 });

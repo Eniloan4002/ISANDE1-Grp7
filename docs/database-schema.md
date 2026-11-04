@@ -1,6 +1,6 @@
 # Database foundation (ICI2-5)
 
-Implemented PostgreSQL 17 foundation, with versioned Flyway migrations V1–V5 in backend/src/main/resources/db/migration/. See verification.md for executed checks.
+Implemented PostgreSQL 17 foundation, with versioned Flyway migrations V1–V5 in ICILocal2.0/backend/src/main/resources/db/migration/. See verification.md for executed checks.
 
 ## Entity map
 
@@ -46,7 +46,7 @@ Also outstanding: institution-specific requirement catalogs, assessment-componen
 
 Use new V6__description.sql and later migrations once this baseline is shared. Never edit previously applied migrations or use Hibernate ddl-auto=update. Flyway validates checksums at startup. Do not manually apply SQL against a Flyway-managed database.
 
-Tests apply all four migrations in PGlite and in real native PostgreSQL 17.6. The backend suite verifies clean startup, V2-to-V4 upgrade, Flyway checksum validation/restart, attributed audits and simultaneous section reservations. Docker itself returned a daemon error in the verification environment; native PostgreSQL supplied the real database checks.
+Tests apply all five migrations in PGlite and in real native PostgreSQL 17.6. The backend suite verifies clean startup, V2-to-V5 upgrade, Flyway checksum validation/restart, attributed audits and simultaneous section reservations. Docker itself returned a daemon error in the verification environment; native PostgreSQL supplied the real database checks.
 
 Sources: [PostgreSQL constraints](https://www.postgresql.org/docs/current/ddl-constraints.html), [Flyway naming](https://www.red-gate.com/blog/database-devops/flyway-naming-patterns-matter/).
 
