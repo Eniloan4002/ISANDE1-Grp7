@@ -29,7 +29,7 @@ function renderQueueStats(applicants) {
   let duplicates = 0;
   applicants.forEach(app => {
     if (counts[app.queueStatus] !== undefined) counts[app.queueStatus] += 1;
-    if (Store.getPair(app.id) && Store.getPairStatus(app.id) !== 'merge') duplicates += 1;
+    if (Store.getPair(app.id) && !Store.getPairStatus(app.id)) duplicates += 1;
   });
   const set = (id, value) => { const el = document.querySelector(id); if (el) el.textContent = String(value); };
   set('#st-pre', counts['pre-enlisted']);
