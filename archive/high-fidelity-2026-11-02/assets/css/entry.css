@@ -1,0 +1,192 @@
+.entry-page {
+    min-height: 100vh;
+    background: #edf1f2;
+    font-family: 'Open Sans', Arial, sans-serif
+}
+
+.entry-layout {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: minmax(420px, 1.1fr) minmax(370px, .9fr)
+}
+
+.entry-branding {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 44px 56px;
+    color: #fff;
+    background: linear-gradient(135deg, #08799f 0%, #00698e 58%, #00506c 58%);
+    border-right: 5px solid #d1e2e8;
+    overflow: hidden
+}
+
+.entry-branding:after {
+    content: '';
+    position: absolute;
+    inset: auto -20% -35% auto;
+    width: 480px;
+    height: 480px;
+    border: 45px solid rgba(255, 255, 255, .07);
+    transform: rotate(45deg)
+}
+
+.entry-brand {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    position: relative;
+    z-index: 1
+}
+
+.entry-mark {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 2px solid #fff;
+    background: #f8f8f8;
+    color: #005171;
+    font: bold 14px Arial
+}
+
+.entry-brand strong {
+    display: block;
+    font: 600 18px Montserrat, Arial, sans-serif
+}
+
+.entry-brand small {
+    display: block;
+    margin-top: 3px;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase
+}
+
+.institution-copy {
+    position: relative;
+    z-index: 1;
+    margin: auto 0
+}
+
+.institution-copy h1 {
+    margin: 0 0 9px;
+    font: 600 34px Montserrat, Arial, sans-serif;
+    line-height: 1.18
+}
+
+.institution-copy p {
+    margin: 0;
+    font-size: 15px;
+    color: #dceef4
+}
+
+.entry-footer {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    font-size: 11px;
+    color: #d1e8f0
+}
+
+.role-panel {
+    align-self: center;
+    width: min(390px, calc(100% - 48px));
+    margin: auto;
+    background: #fff;
+    border: 1px solid #8c979a;
+    box-shadow: 2px 3px 9px rgba(0, 0, 0, .13)
+}
+
+.panel-title {
+    padding: 23px 25px 17px;
+    border-bottom: 3px solid #006889
+}
+
+.panel-title p {
+    margin: 0 0 5px;
+    color: #59727d;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px
+}
+
+.panel-title h2 {
+    margin: 0 0 6px;
+    font: 700 22px Roboto, Arial, sans-serif
+}
+
+.panel-title span {
+    font-size: 12px;
+    color: #687377
+}
+
+.role-panel form {
+    padding: 20px 25px 12px
+}
+
+.role-panel label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 700
+}
+
+.role-panel select {
+    display: block;
+    width: 100%;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid #7f898c;
+    border-radius: 1px;
+    background: #fff;
+    color: #303638;
+    font-size: 13px
+}
+
+.entry-button {
+    width: 100%;
+    margin-top: 16px;
+    min-height: 36px;
+    border: 1px solid #004e68;
+    border-radius: 1px;
+    background: #006889;
+    color: #fff;
+    font: 600 13px 'Segoe UI', Arial, sans-serif
+}
+
+.demo-note {
+    margin: 5px 25px 20px;
+    padding-top: 13px;
+    border-top: 1px solid #d2d7d8;
+    color: #737d80;
+    font-size: 10px;
+    line-height: 1.5
+}
+
+@media(max-width:760px) {
+    .entry-layout {
+        grid-template-columns: 1fr
+    }
+
+    .entry-branding {
+        min-height: 290px;
+        padding: 28px
+    }
+
+    .institution-copy {
+        margin: auto 0 24px
+    }
+
+    .institution-copy h1 {
+        font-size: 26px
+    }
+
+    .role-panel {
+        margin: 28px auto
+    }
+
+    .entry-footer {
+        display: none
+    }
+}

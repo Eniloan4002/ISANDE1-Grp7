@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ICI Local 2.0 Requirements — track submitted enrollment credentials per student.">
+  <title>ICI Local 2.0 | Requirements</title>
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/enrollment.css">
+  <style>
+    .doc-chip {
+      display: inline-block;
+      margin-right: 4px;
+      margin-bottom: 3px;
+      border: 1px solid #aab2b4;
+      border-radius: 9px;
+      padding: 1px 7px;
+      font-size: 9px;
+      color: #5a6467
+    }
+
+    .doc-chip.done {
+      background: #eef7f1;
+      border-color: #6fae89;
+      color: #286445
+    }
+
+    .doc-chip.miss {
+      background: #fff3f3;
+      border-color: #cf9a9a;
+      color: #854343
+    }
+
+    .doc-chip.pend {
+      background: #fffaf0;
+      border-color: #d3b878;
+      color: #765918
+    }
+
+    .modal.wide {
+      width: min(640px, 100%)
+    }
+
+    .req-body {
+      padding: 16px 18px
+    }
+
+    .req-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      margin-bottom: 14px;
+      color: #5c6669;
+      font-size: 12px
+    }
+
+    .req-meta strong {
+      color: #2b3437
+    }
+
+    .doc-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 4px;
+      border-bottom: 1px dashed #c3c9cb
+    }
+
+    .doc-row:last-child {
+      border-bottom: 0
+    }
+
+    .doc-row .name {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 600;
+      color: #2f383b
+    }
+
+    .doc-row .status-select {
+      height: 28px;
+      border: 1px solid #8d9597;
+      border-radius: 1px;
+      padding: 0 5px;
+      font-size: 11px;
+      background: #fff
+    }
+
+    .doc-row .followup {
+      border: 1px solid #5f7e8e;
+      background: #f4fafc;
+      border-radius: 1px;
+      padding: 4px 9px;
+      color: #175e80;
+      font-size: 10px;
+      font-weight: 600;
+      font-family: inherit;
+      text-decoration: none;
+      white-space: nowrap;
+      cursor: pointer
+    }
+
+    .doc-row .followup:hover {
+      background: #e6f2f7
+    }
+
+    .overall-note {
+      display: flex;
+      gap: 8px;
+      margin: 14px 0 4px;
+      padding: 9px 11px;
+      border: 1px solid #c9b78a;
+      background: #fdfaf1;
+      color: #6b5c2f;
+      font-size: 11px;
+      line-height: 1.5
+    }
+
+    .audit-title {
+      margin: 16px 0 6px;
+      font: 700 11px Roboto, Arial, sans-serif;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      color: #5c6669
+    }
+
+    /* Deliberately not .modal-close — this page's #req-modal has its own
+       global .modal-close handler, and re-using that class here would also
+       close the Requirements Checklist modal sitting behind this popup. */
+    .cd-modal-close {
+      border: 0;
+      background: transparent;
+      font-size: 22px
+    }
+
+    /* Caps the log's own height instead of letting it keep stretching the
+       modal taller with every status change — the modal's footprint stays
+       fixed, only this list scrolls once it has more entries than fit. */
+    #audit-list {
+      max-height: 160px;
+      overflow-y: auto;
+      padding-right: 4px
+    }
+
+    .audit-item {
+      display: flex;
+      gap: 9px;
+      padding: 6px 0;
+      border-bottom: 1px dotted #d4d9db;
+      font-size: 11px;
+      color: #4d575a
+    }
+
+    .audit-item:last-child {
+      border-bottom: 0
+    }
+
+    .audit-item .dot {
+      width: 7px;
+      height: 7px;
+      flex: 0 0 7px;
+      margin-top: 5px;
+      border-radius: 50%;
+      background: #2e7aa0
+    }
+
+    .audit-item .when {
+      margin-left: auto;
+      white-space: nowrap;
+      color: #7a8487
+    }
+  </style>
+</head>
+
+<body data-role="registrar" data-page="requirements.html">
+  <main class="main-content">
+    <div class="breadcrumb"><a href="queue.html">Enrollment</a><span>/</span><span>Requirements</span></div>
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
+        <h1>Requirements Checklist</h1>
+        <p>Track submitted credentials per student. The system computes the overall status — Complete, Incomplete, or Pending — and flags records needing follow-up.</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;"><a class="button button-secondary" href="queue.html">← Back to Queue</a></div>
+    </section>
+
+    <section class="stats-grid" aria-label="Requirement statistics">
+      <article class="stat-card accent-green">
+        <div><strong id="st-complete">0</strong><span>Complete</span><small>All documents submitted</small></div>
+      </article>
+      <article class="stat-card accent-red">
+        <div><strong id="st-incomplete">0</strong><span>Incomplete</span><small>Missing documents</small></div>
+      </article>
+      <article class="stat-card accent-amber">
+        <div><strong id="st-pending">0</strong><span>Pending</span><small>Awaiting submission</small></div>
+      </article>
+      <article class="stat-card accent-blue">
+        <div><strong id="st-followup">0</strong><span>For follow-up</span><small>Needs contact</small></div>
+      </article>
+    </section>
+
+    <section class="content-panel" aria-labelledby="req-table-title">
+      <div class="panel-header">
+        <div>
+          <h2 id="req-table-title">Student Requirements</h2>
+          <p>Click a student to open their full checklist and follow-up actions.</p>
+        </div>
+      </div>
+      <div class="toolbar">
+        <label class="search-control"><span>Search</span><input id="req-search" type="search" placeholder="Filter by name / ID..."></label>
+        <label class="select-control"><span class="sr-only">Filter by status</span><select id="req-status">
+            <option value="all">Status: All</option>
+            <option value="complete">Complete</option>
+            <option value="incomplete">Incomplete</option>
+            <option value="pending">Pending</option>
+          </select></label>
+        <label class="select-control program-filter"><span class="sr-only">Filter by program</span><select id="req-program">
+            <option value="all">All programs</option>
+            <option value="shs">Senior High School</option>
+            <option value="college">College</option>
+          </select></label>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>App ID</th>
+              <th>Category</th>
+              <th>Documents</th>
+              <th>Overall status</th>
+              <th>Last updated</th>
+              <th class="action-cell">Action</th>
+            </tr>
+          </thead>
+          <tbody id="req-body">
+            <tr data-status="incomplete" data-program="shs" data-name="Santos, Maria A." data-app="APP-2026-0149" data-category="Transferee">
+              <td>
+                <div class="student-cell">
+                  <div><strong>Santos, Maria A.</strong><small>LRN 108517230184</small></div>
+                </div>
+              </td>
+              <td>APP-2026-0149</td>
+              <td>Transferee</td>
+              <td>
+                <span class="doc-chip done">PSA Birth Cert</span><span class="doc-chip done">Completion</span><span class="doc-chip pend">Form 137</span><span class="doc-chip miss">Good Moral</span>
+              </td>
+              <td><span class="status-pill danger">Incomplete</span></td>
+              <td>Aug 5, 2026</td>
+              <td class="action-cell"><button class="row-action">View</button></td>
+            </tr>
+            <tr data-status="pending" data-program="shs" data-name="Reyes, Pedro" data-app="APP-2026-0150" data-category="New">
+              <td>
+                <div class="student-cell">
+                  <div><strong>Reyes, Pedro</strong><small>LRN 120381650117</small></div>
+                </div>
+              </td>
+              <td>APP-2026-0150</td>
+              <td>New</td>
+              <td>
+                <span class="doc-chip pend">PSA Birth Cert</span><span class="doc-chip pend">Completion</span><span class="doc-chip pend">Form 137</span><span class="doc-chip pend">Good Moral</span>
+              </td>
+              <td><span class="status-pill warning">Pending</span></td>
+              <td>Aug 4, 2026</td>
+              <td class="action-cell"><button class="row-action">View</button></td>
+            </tr>
+            <tr data-status="complete" data-program="college" data-name="Lim, Angela" data-app="APP-2026-0151" data-category="Returnee">
+              <td>
+                <div class="student-cell">
+                  <div><strong>Lim, Angela</strong><small>LRN 112500710292</small></div>
+                </div>
+              </td>
+              <td>APP-2026-0151</td>
+              <td>Returnee</td>
+              <td>
+                <span class="doc-chip done">PSA Birth Cert</span><span class="doc-chip done">Completion</span><span class="doc-chip done">Form 137</span><span class="doc-chip done">Good Moral</span>
+              </td>
+              <td><span class="status-pill success">Complete</span></td>
+              <td>Aug 6, 2026</td>
+              <td class="action-cell"><button class="row-action">View</button></td>
+            </tr>
+            <tr data-status="incomplete" data-program="shs" data-name="Dela Cruz, Juan" data-app="APP-2026-0148" data-category="New">
+              <td>
+                <div class="student-cell">
+                  <div><strong>Dela Cruz, Juan</strong><small>LRN 119270140008</small></div>
+                </div>
+              </td>
+              <td>APP-2026-0148</td>
+              <td>New</td>
+              <td>
+                <span class="doc-chip done">PSA Birth Cert</span><span class="doc-chip miss">Completion</span><span class="doc-chip pend">Form 137</span><span class="doc-chip miss">Good Moral</span>
+              </td>
+              <td><span class="status-pill danger">Incomplete</span></td>
+              <td>Aug 3, 2026</td>
+              <td class="action-cell"><button class="row-action">View</button></td>
+            </tr>
+            <tr data-status="complete" data-program="shs" data-name="Abad, Carla" data-app="APP-2026-0152" data-category="New">
+              <td>
+                <div class="student-cell">
+                  <div><strong>Abad, Carla</strong><small>LRN 119770320691</small></div>
+                </div>
+              </td>
+              <td>APP-2026-0152</td>
+              <td>New</td>
+              <td>
+                <span class="doc-chip done">PSA Birth Cert</span><span class="doc-chip done">Completion</span><span class="doc-chip done">Form 137</span><span class="doc-chip done">Good Moral</span>
+              </td>
+              <td><span class="status-pill success">Complete</span></td>
+              <td>Aug 6, 2026</td>
+              <td class="action-cell"><button class="row-action">View</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer"><span id="result-count">Showing 5 of 27 students</span>
+        <div class="pagination" id="pager"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="req-modal" aria-hidden="true">
+    <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="req-modal-title">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
+          <h2 id="req-modal-title">Requirements Checklist</h2>
+        </div><button class="modal-close" type="button" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="req-body">
+        <div class="req-meta" id="req-meta"></div>
+
+        <div id="doc-list"></div>
+
+        <div class="overall-note"><span>Σ</span><div><strong>Computed overall status:</strong> <span id="req-overall"></span> — updated automatically whenever a document status changes.</div></div>
+
+        <p class="audit-title">Update log</p>
+        <div id="audit-list"></div>
+
+        <div class="modal-actions">
+          <button class="button button-secondary modal-close" type="button">Close</button>
+          <button class="button button-primary" type="button" id="btn-send-followup">Send Follow-up Notice</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="contact-modal" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
+          <h2 id="contact-modal-title">Contact Details</h2>
+        </div><button class="cd-modal-close" type="button" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="req-body">
+        <p class="audit-title">Student</p>
+        <div class="req-meta" id="cd-student-meta"></div>
+
+        <p class="audit-title">Parent / Guardian</p>
+        <div class="req-meta" id="cd-guardian-meta"></div>
+
+        <div class="overall-note"><span>i</span><div>Phone contact is preferred over email for this demographic — call the guardian first if the student can't be reached directly.</div></div>
+
+        <div class="modal-actions">
+          <a class="button button-secondary" id="cd-call-student" href="#">Call Student</a>
+          <a class="button button-secondary" id="cd-call-guardian" href="#">Call Guardian</a>
+          <button class="button button-secondary cd-modal-close" type="button">Close</button>
+          <button class="button button-primary" type="button" id="btn-confirm-followup">Send Follow-up Notice</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status"><span class="toast-icon" aria-hidden="true">&#10003;</span>
+    <div><strong>Updated</strong><small>Requirement status recorded.</small></div><button class="toast-dismiss" type="button" aria-label="Dismiss notification">&#10005;</button>
+  </div>
+
+  <script src="../assets/js/data-store.js"></script>
+  <script src="../assets/js/portal-shell.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/pagination.js"></script>
+  <script src="../assets/js/requirements.js"></script>
+</body>
+
+</html>

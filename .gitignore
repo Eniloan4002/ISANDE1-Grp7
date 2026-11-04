@@ -1,3 +1,12 @@
 /CONTEXT
 # Local editor / tooling configuration (not part of the project)
 .claude/
+# Implementation foundation
+.env
+.env.*
+!.env.example
+**/node_modules/
+frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
+backend/target/

@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="ICI Local 2.0 Academic Records — consolidated enrolled student records, enrollment confirmation, and section assignment.">
+  <title>ICI Local 2.0 | Academic Records</title>
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/enrollment.css">
+  <style>
+    .modal.wide {
+      width: min(760px, 100%)
+    }
+
+    .record-body {
+      padding: 16px 18px
+    }
+
+    .record-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 13px;
+      border-bottom: 1px solid #d5d9da
+    }
+
+    .record-avatar {
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      border: 1px solid #3f7d9b;
+      border-radius: 50%;
+      background: #eaf3f8;
+      color: #175e80;
+      font: 700 14px 'Segoe UI', Arial, sans-serif
+    }
+
+    .record-header .who strong {
+      display: block;
+      font-size: 16px;
+      color: #263033
+    }
+
+    .record-header .who small {
+      color: #6d777a;
+      font-size: 11px
+    }
+
+    .record-header .right {
+      margin-left: auto;
+      text-align: right
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px
+    }
+
+    .info-card {
+      border: 1px solid #c9d0d2;
+      border-radius: 2px;
+      padding: 9px 11px;
+      background: #fafbfb
+    }
+
+    .info-card h3 {
+      margin: 0 0 6px;
+      font: 700 10px Roboto, Arial, sans-serif;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      color: #6a7477
+    }
+
+    .info-card .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 4px 0;
+      font-size: 12px
+    }
+
+    .info-card .row span:first-child {
+      color: #7a8487
+    }
+
+    .info-card .row strong {
+      color: #2f383b;
+      font-weight: 600;
+      text-align: right
+    }
+
+    .attend-chips {
+      display: flex;
+      gap: 5px;
+      margin-top: 4px
+    }
+
+    .attend-chip {
+      flex: 1;
+      text-align: center;
+      border: 1px solid #b9c2c4;
+      border-radius: 2px;
+      padding: 3px 0;
+      background: #fff;
+      color: #556064;
+      font-size: 9px;
+      font-weight: 700
+    }
+
+    .attend-chip.present {
+      background: #eef7f1;
+      border-color: #7fae8f;
+      color: #286445
+    }
+
+    .attend-chip.absent {
+      background: #fff3f3;
+      border-color: #cf9a9a;
+      color: #854343
+    }
+
+    .section-box {
+      border: 1px solid #c9d0d2;
+      border-radius: 2px
+    }
+
+    .section-box .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 11px;
+      border-bottom: 1px solid #d5d9da;
+      background: #f4f6f6
+    }
+
+    .section-box .head h3 {
+      margin: 0;
+      font: 700 12px Roboto, Arial, sans-serif
+    }
+
+    .section-box .head small {
+      color: #7a8487;
+      font-size: 10px
+    }
+
+    .section-box table {
+      min-width: 0
+    }
+
+    .section-filter {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 11px;
+      border-bottom: 1px solid #d5d9da;
+      background: #fafbfb;
+      font-size: 11px;
+      color: #6a7477
+    }
+
+    .section-filter .show-all-toggle {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 600;
+      color: #3d4649;
+      white-space: nowrap
+    }
+
+    .sec-row {
+      cursor: pointer
+    }
+
+    .sec-row:hover {
+      background: #f4f6f6
+    }
+
+    .sec-row.is-selected {
+      background: #eaf3f8;
+      box-shadow: inset 3px 0 0 #3f7d9b
+    }
+
+    .sec-row.is-full {
+      cursor: not-allowed;
+      color: #9aa2a4
+    }
+
+    .sec-row.is-full .status-pill {
+      opacity: .85
+    }
+
+    .assign-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 11px;
+      border-top: 1px solid #d5d9da;
+      background: #fafbfb
+    }
+
+    .assign-row .assign-hint {
+      flex: 1;
+      font-size: 12px;
+      font-weight: 600;
+      color: #3d4649
+    }
+
+    .confirm-banner {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 14px 0 4px;
+      padding: 9px 11px;
+      border: 1px solid #c9b78a;
+      background: #fdfaf1;
+      color: #6b5c2f;
+      font-size: 11px
+    }
+
+    .confirm-banner.good {
+      border-color: #7fae8f;
+      background: #eef7f1;
+      color: #286445
+    }
+
+    @media(max-width:760px) {
+      .info-grid {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
+</head>
+
+<body data-role="registrar" data-page="academic-records.html">
+  <main class="main-content">
+    <div class="breadcrumb"><a href="queue.html">Enrollment</a><span>/</span><span>Academic Records</span></div>
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
+        <h1>Academic Records</h1>
+        <p>Consolidated view of enrolled students. Review confirmation, requirements, first-week attendance, and section
+          assignments.</p>
+      </div>
+    </section>
+
+    <section class="stats-grid" aria-label="Enrollment record statistics">
+      <article class="stat-card accent-green">
+        <div><strong id="st-enrolled">0</strong><span>Officially enrolled</span><small>This academic year</small></div>
+      </article>
+      <article class="stat-card accent-amber">
+        <div><strong id="st-pending">0</strong><span>Pending confirmation</span><small>Awaiting final checks</small></div>
+      </article>
+      <article class="stat-card accent-blue">
+        <div><strong id="st-sectioned">0</strong><span>Assigned to section</span><small>Capacity validated</small></div>
+      </article>
+      <article class="stat-card accent-red">
+        <div><strong id="st-unsectioned">0</strong><span>Needs sectioning</span><small>No section yet</small></div>
+      </article>
+    </section>
+
+    <section class="content-panel" aria-labelledby="ar-table-title">
+      <div class="panel-header">
+        <div>
+          <h2 id="ar-table-title">Enrolled Student Records</h2>
+          <p>Click a student to review their consolidated record, confirm enrollment, or assign a section.</p>
+        </div>
+      </div>
+      <div class="toolbar">
+        <label class="search-control"><span>Search</span><input id="ar-search" type="search"
+            placeholder="Filter by name / ID..."></label>
+        <label class="select-control"><span class="sr-only">Filter by status</span><select id="ar-status">
+            <option value="all">Status: All</option>
+            <option value="enrolled">Enrolled</option>
+            <option value="pending">Pending confirmation</option>
+          </select></label>
+        <label class="select-control program-filter"><span class="sr-only">Filter by campus</span><select
+            id="ar-campus">
+            <option value="all">All campuses</option>
+            <option value="main">Main — Iligan</option>
+            <option value="kapatagan">Kapatagan</option>
+            <option value="bugo">Bugo — CDO</option>
+          </select></label>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Student ID</th>
+              <th>Track / Program</th>
+              <th>Campus</th>
+              <th>Status</th>
+              <th>Section</th>
+              <th class="action-cell">Action</th>
+            </tr>
+          </thead>
+          <tbody id="ar-body">
+            <tr data-status="pending" data-campus="main" data-name="Abad, Carla" data-id="STU-2026-0452"
+              data-program="ABM">
+              <td>
+                <div class="student-cell">
+                  <div><strong>Abad, Carla</strong><small>LRN 119770320691</small></div>
+                </div>
+              </td>
+              <td>STU-2026-0452</td>
+              <td>ABM <small>Grade 11</small></td>
+              <td>Main</td>
+              <td><span class="badge amber-badge">Pending confirm.</span></td>
+              <td>—</td>
+              <td class="action-cell"><button class="row-action">View</button></td>
+            </tr>
+            <tr data-status="enrolled" data-campus="main" data-name="Santos, Maria A." data-id="STU-2026-0454"
+              data-program="STEM">
+              <td>
+                <div class="student-cell">
+                  <div><strong>Santos, Maria A.</strong><small>LRN 108517230184</small></div>
+                </div>
+              </td>
+              <td>STU-2026-0454</td>
+              <td>STEM <small>Grade 11</small></td>
+              <td>Main</td>
+              <td><span class="badge blue-badge">Enrolled</span></td>
+              <td>STEM-B</td>
+              <td class="action-cell"><button class="row-action">View</button></td>
+            </tr>
+            <tr data-status="enrolled" data-campus="bugo" data-name="Reyes, Pedro" data-id="STU-2026-0455"
+              data-program="TVL — Cookery">
+              <td>
+                <div class="student-cell">
+                  <div><strong>Reyes, Pedro</strong><small>LRN 120381650117</small></div>
+                </div>
+              </td>
+              <td>STU-2026-0455</td>
+              <td>TVL-Cookery <small>Grade 11</small></td>
+              <td>Bugo</td>
+              <td><span class="badge blue-badge">Enrolled</span></td>
+              <td>Cookery-1</td>
+              <td class="action-cell"><button class="row-action">View</button></td>
+            </tr>
+            <tr data-status="enrolled" data-campus="kapatagan" data-name="Lim, Angela" data-id="STU-2026-0451"
+              data-program="BS Office Admin">
+              <td>
+                <div class="student-cell">
+                  <div><strong>Lim, Angela</strong><small>LRN 112500710292</small></div>
+                </div>
+              </td>
+              <td>STU-2026-0451</td>
+              <td>BSOA <small>1st Year</small></td>
+              <td>Kapatagan</td>
+              <td><span class="badge blue-badge">Enrolled</span></td>
+              <td>—</td>
+              <td class="action-cell"><button class="row-action">View</button></td>
+            </tr>
+            <tr data-status="pending" data-campus="main" data-name="Dela Cruz, Juan" data-id="STU-2026-0453"
+              data-program="HUMSS">
+              <td>
+                <div class="student-cell">
+                  <div><strong>Dela Cruz, Juan</strong><small>LRN 119270140008</small></div>
+                </div>
+              </td>
+              <td>STU-2026-0453</td>
+              <td>HUMSS <small>Grade 11</small></td>
+              <td>Main</td>
+              <td><span class="badge amber-badge">Pending confirm.</span></td>
+              <td>—</td>
+              <td class="action-cell"><button class="row-action">View</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer"><span id="result-count">Showing 5 of 34 records</span>
+        <div class="pagination" id="pager"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="record-modal" aria-hidden="true">
+    <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="record-modal-title">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
+          <h2 id="record-modal-title">Student Academic Record</h2>
+        </div><button class="modal-close" type="button" aria-label="Close">&#10005;</button>
+      </div>
+      <div class="record-body">
+        <div class="record-header">
+          <span class="record-avatar" id="rec-avatar">AL</span>
+          <div class="who"><strong id="rec-name">—</strong><small id="rec-meta">—</small></div>
+          <div class="right"><span id="rec-status"></span></div>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-card">
+            <h3>Enrollment</h3>
+            <div class="row"><span>Category</span><strong id="rec-category">—</strong></div>
+            <div class="row"><span>Assessment ref.</span><strong id="rec-ref">—</strong></div>
+            <div class="row"><span>Bracket</span><strong id="rec-bracket">—</strong></div>
+          </div>
+          <div class="info-card">
+            <h3>Requirements</h3>
+            <div class="row"><span>Overall status</span><strong id="rec-req">—</strong></div>
+            <div class="row"><span>Last update</span><strong id="rec-reqdate">—</strong></div>
+          </div>
+          <div class="info-card">
+            <h3>First-Week Attendance</h3>
+            <div class="attend-chips" id="rec-attend"></div>
+            <div class="row" style="margin-top:8px;"><span>Verification</span><strong id="rec-attend-status">—</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-box">
+          <div class="head">
+            <h3>Section Assignment</h3>
+            <small>Capacity is validated on assign — full sections are blocked.</small>
+          </div>
+          <div class="section-filter">
+            <span id="rec-section-scope">Showing matching sections</span>
+            <label class="show-all-toggle"><input type="checkbox" id="rec-section-showall"> Show all sections</label>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Section</th>
+                  <th>Track / Specialization</th>
+                  <th>Campus</th>
+                  <th>Building</th>
+                  <th>Room</th>
+                  <th>Enrolled / Capacity</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="rec-section-body"></tbody>
+            </table>
+          </div>
+          <div class="assign-row">
+            <span class="assign-hint" id="rec-section-selected">No section selected</span>
+            <button class="button button-secondary" type="button" id="btn-assign" disabled>Assign Student</button>          </div>
+        </div>
+
+        <div class="confirm-banner" id="rec-confirm">
+          <span>i</span>
+          <div>Enrollment confirmation is allowed once <strong>requirements are complete</strong> and <strong>first-week
+              attendance is verified</strong>.</div>
+        </div>
+
+        <div class="modal-actions">
+          <a class="button button-secondary" id="rec-view-enrolled" href="#" hidden>View Enrolled &amp; Assigned record &rarr;</a>
+          <button class="button button-secondary modal-close" type="button">Close</button>
+          <button class="button button-primary" type="button" id="btn-confirm">Confirm Enrollment</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status"><span class="toast-icon" aria-hidden="true">&#10003;</span>
+    <div><strong>Updated</strong><small>Student record updated.</small></div><button class="toast-dismiss" type="button" aria-label="Dismiss notification">&#10005;</button>
+  </div>
+
+  <script src="../assets/js/data-store.js"></script>
+  <script src="../assets/js/portal-shell.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/pagination.js"></script>
+  <script src="../assets/js/academic-records.js"></script>
+</body>
+
+</html>
