@@ -1,6 +1,6 @@
-# ICI Local 2.0
+# ICI Local 2.0 application
 
-- [`frontend/`](frontend/README.md): React application and shared foundation.
-- [`backend/`](backend/README.md): reserved for the API implementation. No backend stack or endpoints have been selected yet.
+- frontend/: the single React application, based on PR #5's shell and routes with integrated authentication/setup.
+- backend/: Spring Boot, Flyway/PostgreSQL, JWT authentication, academic setup and student master APIs.
 
-The earlier static demonstration is kept separately in [`../prototype/`](../prototype/index.html).
+The original static demonstration remains in ../prototype/. The frozen checksum archive remains in ../archive/high-fidelity-2026-11-02/. Follow the repository root README for configuration and startup.

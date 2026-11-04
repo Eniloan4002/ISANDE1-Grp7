@@ -68,9 +68,12 @@ export const roleSections = [
 ];
 
 export const knownRoles = roleSections.map(({ role }) => role);
-export const pages = roleSections.flatMap(({ role, groups }) =>
+const prototypePages = roleSections.flatMap(({ role, groups }) =>
   groups.flatMap(({ pages: groupPages }) => groupPages.map(page => ({ ...page, allowedRoles: [role] }))));
 
+export const pages=[...prototypePages,{path:'/setup',label:'Academic setup',allowedRoles:['admin','registrar']},{path:'/design-system',label:'Interface components',allowedRoles:knownRoles}];
+
 export function firstAllowedPath(roles) {
+  if(roles.some(role=>['admin','registrar'].includes(role)))return '/setup';
   return pages.find(page => page.allowedRoles.some(role => roles.includes(role)))?.path ?? '/access-denied';
 }

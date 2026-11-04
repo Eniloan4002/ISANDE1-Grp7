@@ -16,6 +16,6 @@ api.interceptors.request.use(config => {
 });
 
 api.interceptors.response.use(response => response, error => {
-  if (error.response?.status === 401) onUnauthorized?.();
+  if (error.response?.status === 401 && !error.config?.url?.endsWith('/auth/login')) onUnauthorized?.();
   return Promise.reject(error);
 });

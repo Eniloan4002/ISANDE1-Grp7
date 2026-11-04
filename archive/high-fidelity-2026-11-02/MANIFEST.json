@@ -1,0 +1,256 @@
+{
+  "sourceCommit": "4b8bf3b201b84359575c5dd55d1e0d32ffa6549c",
+  "capturedOn": "2026-11-02",
+  "files": [
+    {
+      "path": "DEMO_SCENARIO.md",
+      "bytes": 18919,
+      "sha256": "ab9a086a3980b63ac4ddc6ff8eccb42efd9390f4a0ea910047312dffa1900664"
+    },
+    {
+      "path": "README.md",
+      "bytes": 14,
+      "sha256": "78c1028b3138bd7d4f2a6fc5c2fbe11f43a4bcee24975a27a658e3ff4cac0257"
+    },
+    {
+      "path": "academic/advisory.html",
+      "bytes": 831,
+      "sha256": "b9cb569ba8f28a06fb89541a89b7e7aea10ff1b3a2d2b892199f2451f394e7b3"
+    },
+    {
+      "path": "academic/class-list.html",
+      "bytes": 837,
+      "sha256": "931d47b051a7101448c34137d5c61bb799e2396668c407d84794f970f56b95ea"
+    },
+    {
+      "path": "academic/class-records.html",
+      "bytes": 847,
+      "sha256": "b7503111c7ae813aae3d0ff89b6684498b50b6f7d74b2ab664529b5413d3a476"
+    },
+    {
+      "path": "academic/finalize-grades.html",
+      "bytes": 839,
+      "sha256": "313eed9176c9d55f9b8810b5610f6ad9b2f0eb6bc0875bd73f1fca5c9714f63b"
+    },
+    {
+      "path": "academic/grade-approvals.html",
+      "bytes": 847,
+      "sha256": "ac842c7dfcea94536318ec031c40fb1980b96aacea1e25ece52fb9ce70824a39"
+    },
+    {
+      "path": "academic/grade-entry.html",
+      "bytes": 833,
+      "sha256": "eedef880db74454478b05c37f26004c7c76b2c3dc0f0ead0887fd930fc7f62f3"
+    },
+    {
+      "path": "academic/incomplete-grades.html",
+      "bytes": 842,
+      "sha256": "2fc2380213298418a6542870b6fd49f6054f08f59488b93d3fd9312c365cd4b1"
+    },
+    {
+      "path": "academic/progress-reports.html",
+      "bytes": 845,
+      "sha256": "cac80ac334411383279003f4fa10b07193fcd164b99013c8ad98ffc7bbd3bb3e"
+    },
+    {
+      "path": "academic/registrar-records.html",
+      "bytes": 850,
+      "sha256": "979c78d8a5ce9e90b31e366f7ab12283c7871b515d3d8c26bf204a6111dc42ce"
+    },
+    {
+      "path": "academic/student-monitoring.html",
+      "bytes": 857,
+      "sha256": "4ab8f1c919266bc5ce9a0a3269c6a3eb74d0895321204c872a4df59fc6c92bc7"
+    },
+    {
+      "path": "administration/audit-log.html",
+      "bytes": 978,
+      "sha256": "226b8502a9461b34fe83d16fe7f42a2679c5d1332da9611cff6f4e8f752590a2"
+    },
+    {
+      "path": "administration/system-settings.html",
+      "bytes": 988,
+      "sha256": "17bbc425f210ce1c3fb8ce0af5cbe92e7b65228c1cb0ab565c22cfaf6896da1f"
+    },
+    {
+      "path": "administration/users.html",
+      "bytes": 14659,
+      "sha256": "395c256f5067ad051e6b91abfec2a923a8a163d101fc0d7577017b8f985a9ce6"
+    },
+    {
+      "path": "assets/css/academic.css",
+      "bytes": 16425,
+      "sha256": "3d082b96cd2e4e4933716e83e3470cedfe9a3f3e212e2b7752af930be86dcc86"
+    },
+    {
+      "path": "assets/css/components.css",
+      "bytes": 8791,
+      "sha256": "75eed77919091de188c187d3b48886c37dbff2eb9b1a119a60cf509030d14142"
+    },
+    {
+      "path": "assets/css/enrollment.css",
+      "bytes": 4231,
+      "sha256": "c5119e5a68b7446b6b48e7f20d2c660ba1305b624d5d6ec4698c03618bc663ec"
+    },
+    {
+      "path": "assets/css/entry.css",
+      "bytes": 3378,
+      "sha256": "abf044d49d9adf03417b767d8d87b66af8d97007cb5738648e443b97cd2ba6d2"
+    },
+    {
+      "path": "assets/css/global.css",
+      "bytes": 1244,
+      "sha256": "dba89102732311c864c31690c9aaa3c3bfc3d4e692c841de02c2d8d200dc3d80"
+    },
+    {
+      "path": "assets/css/layout.css",
+      "bytes": 8548,
+      "sha256": "e0a45fb43913abac29a4145af9efb907f2904f4489ec97313dd8c4227b5523c4"
+    },
+    {
+      "path": "assets/css/placeholder.css",
+      "bytes": 803,
+      "sha256": "b97256e063d89a55dcff745b1597cd2fb00f4fa726dcbb603f74bfceddbca96a"
+    },
+    {
+      "path": "assets/js/academic-module.js",
+      "bytes": 57090,
+      "sha256": "fbe70fe06ec966ca560278f3dd07e2bb515d59678fff7d3a3f6585a0dd59cf86"
+    },
+    {
+      "path": "assets/js/academic-records.js",
+      "bytes": 13327,
+      "sha256": "72e773b4813196249019e12a2115d6be1511b83cf3746f8aaa11862452e67f86"
+    },
+    {
+      "path": "assets/js/app.js",
+      "bytes": 9253,
+      "sha256": "69c11b32b46dca5f181c2b6b57de1dd3b3aa41aa97f65a419871c9585b97830b"
+    },
+    {
+      "path": "assets/js/attendance.js",
+      "bytes": 10930,
+      "sha256": "e561c109b6a7298a984fb375fb3fa9d464ddcd31944d8492e13a63d70604aad2"
+    },
+    {
+      "path": "assets/js/data-store.js",
+      "bytes": 114800,
+      "sha256": "8249c7a9186e24604c5db0a72d8bcaa84f0adc5bdaff53ac9b3aa537010bd0be"
+    },
+    {
+      "path": "assets/js/duplicate.js",
+      "bytes": 8004,
+      "sha256": "ce4d0cebfa8bad91ebb9dd09282a7d98fc48232507279f01103b7f4237e26ee1"
+    },
+    {
+      "path": "assets/js/enrolled.js",
+      "bytes": 2389,
+      "sha256": "c03adb07cda38f9d979d5c2d5296216f9d29e56d5960f5cb0cf0503061b37b79"
+    },
+    {
+      "path": "assets/js/evaluate.js",
+      "bytes": 14832,
+      "sha256": "a98d9eb9a9d656d41f9d77fcd865df697dd0b4949034cf58f0da5132ec40bbcc"
+    },
+    {
+      "path": "assets/js/navigation.js",
+      "bytes": 1136,
+      "sha256": "159fe407a0688b0759b763da20a7cee1a49d6c80c86882e6a464ea547875b8f0"
+    },
+    {
+      "path": "assets/js/pagination.js",
+      "bytes": 3755,
+      "sha256": "8e29ecb7e9af0648ce3dc3592a14a93f2ea265cfad94f7cbef22361b20d7a23e"
+    },
+    {
+      "path": "assets/js/portal-shell.js",
+      "bytes": 7232,
+      "sha256": "a11a8b0dc67251cbb7a28872862f98a0c56a784ad87e4da2b56b079f6c57a4be"
+    },
+    {
+      "path": "assets/js/reporting.js",
+      "bytes": 16855,
+      "sha256": "dd4deffe0f36b9cf72d37dcb0a87603756a95f438384a14c5fee26feaf70926d"
+    },
+    {
+      "path": "assets/js/requirements.js",
+      "bytes": 11481,
+      "sha256": "77098fa391ab1ee610e340dcf829a4b6693622a60792ed85d29abdfb11ff0dd7"
+    },
+    {
+      "path": "assets/js/role-selection.js",
+      "bytes": 303,
+      "sha256": "037a80c123cb5413a10d867320df9bf0819773ac94e02274b6dc9e892c345e75"
+    },
+    {
+      "path": "assets/js/submission.js",
+      "bytes": 18548,
+      "sha256": "0bf276fa654733248373b5ff1e9e9938c7c821ed690c8c01d4c6dd946bc1c91b"
+    },
+    {
+      "path": "enrollment/academic-records.html",
+      "bytes": 15600,
+      "sha256": "cde3e88e743f9f6abc2b51d7304f403b5211a03617b1b87265d4bd862873abc1"
+    },
+    {
+      "path": "enrollment/attendance.html",
+      "bytes": 9352,
+      "sha256": "26e08285439fafad2dc4d327d3c7a61a385a745ca65fd15de96d8d1404588e66"
+    },
+    {
+      "path": "enrollment/duplicate.html",
+      "bytes": 9422,
+      "sha256": "3a266eba5161e4b88b978dc346758db415e6a7b9c430ca15308ea74c17da9f40"
+    },
+    {
+      "path": "enrollment/enrolled.html",
+      "bytes": 6643,
+      "sha256": "769deba6e6ce990132f5bbafff89f3f111091077e0627219b5172bf4455a52a5"
+    },
+    {
+      "path": "enrollment/evaluate.html",
+      "bytes": 20237,
+      "sha256": "e548b70ca4ffb5ce88ecbbabee654bc65db68b1a2adbdcf0bf49ae06431d71a9"
+    },
+    {
+      "path": "enrollment/queue.html",
+      "bytes": 9850,
+      "sha256": "65c386d302d0bf9e9abed9720f62e7c68b55f533ddd5cd1e6ba8288d663c3adf"
+    },
+    {
+      "path": "enrollment/reporting-monitoring.html",
+      "bytes": 10337,
+      "sha256": "b8fbc8b2919e60bda020b7cc72d9e31d9a85678d84857832689cb43ce3bebe31"
+    },
+    {
+      "path": "enrollment/requirements.html",
+      "bytes": 14425,
+      "sha256": "a92bc70c319e5d910b7091d6dbd41c9eae4cf46a021c8fb613d3e1fe767d421e"
+    },
+    {
+      "path": "enrollment/submission.html",
+      "bytes": 23725,
+      "sha256": "45c35b41182e4d8bcadc26d0dac2248ff6b4653ef93ccd39149fd03692ebaff8"
+    },
+    {
+      "path": "index.html",
+      "bytes": 1960,
+      "sha256": "bb0275e06d12b0c6fb81cf69b96d22d253d504c71f2f856d9c223e4c36f94fe0"
+    },
+    {
+      "path": "reporting/guidance.html",
+      "bytes": 1041,
+      "sha256": "b3906af030b114f8da6e64277ab70ee913c32786555f5e725bea8fb9fc2554b2"
+    },
+    {
+      "path": "reporting/reports.html",
+      "bytes": 30010,
+      "sha256": "5a359ba67a2a00fe7bb3adc8ca2825979915b1d2479cb991f6563158e77d4b80"
+    },
+    {
+      "path": "reporting/student-profiles.html",
+      "bytes": 1032,
+      "sha256": "b25e0a85c73aaa8be5e91024c83dcfe15e6cb8e116159a3dd3d93f6dd52511eb"
+    }
+  ]
+}

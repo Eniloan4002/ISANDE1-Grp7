@@ -1,21 +1,9 @@
-# ICI Local 2.0 React foundation
+# ICI Local 2.0 frontend
 
-This app reserves the prototype's screen paths for later React migrations. The previous static site remains in [`../../prototype/`](../../prototype/index.html).
+The single frontend retains PR #5's AppShell, prototype route registry, Axios client and responsive navigation. It now connects to the Spring Boot backend, verifies staff sessions, supports ROLE_* JWT claims, restores tab sessions and calls the logout invalidation endpoint before clearing authentication.
 
-## Run
+Run npm ci, then npm run dev in ICILocal2.0/frontend. Vite proxies /api to localhost:8081; set ICI_API_URL to override. /sign-in is the staff login page; /login is an alias. /setup provides the working academic configuration UI. Other reserved module routes remain placeholders. The backend enforces actual authorization.
 
-```sh
-cd ICILocal2.0/frontend
-npm install
-npm run dev
-```
+npm test runs Vitest and archive/PostgreSQL schema checks. npm run build creates dist. npx playwright test runs browser tests; set ICI_LIVE_API=1 with the backend fixture running to enable the authenticated end-to-end tests. See the root README for bootstrap and test credentials configuration.
 
-Use `npm test` for foundation checks and `npm run build` for a production build. Set `VITE_API_BASE_URL` in `.env.local` if the API is not under `/api`.
-
-## Auth handoff
-
-The sign-in page is a placeholder. When the login screen and backend are ready, call `setAccessToken(jwt)` from `useAuth()` after successful sign-in. The provider keeps it in memory, so refreshing the page requires sign-in again. `logout()` clears it. The shared Axios `api` instance adds `Authorization: Bearer <token>` and clears auth on HTTP 401.
-
-The claims adapter in `src/auth/jwt.js` currently accepts a `roles` array or a single `role` string containing these prototype role keys: `student`, `registrar`, `adviser`, `teacher`, `guidance`, `admin`. Tokens must have a future numeric `exp` claim; `nbf` is respected when present. Confirm the backend's claim names and role values before connecting login, then adjust that one adapter if needed. Client-side claim decoding only drives the interface: the backend must validate JWT signatures and enforce permissions on every protected API endpoint.
-
-Route paths omit `.html`, for example `/enrollment/queue`. The deployment server must serve `ICILocal2.0/frontend/dist/index.html` for unknown paths so direct links resolve through React Router. `src/routes/routeConfig.js` is the shared source for route access and navigation.
+Prototype-role aliases are confined to src/auth/jwt.js. Do not use browser-decoded claims as server authorization. Backend roles and per-campus grants are revalidated server-side on every request. Full module permission mapping for Principal and Cashier Reference remains ICI2-7.

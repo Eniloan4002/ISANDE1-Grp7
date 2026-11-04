@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ICI Local 2.0 Enrollment Submission — applicant submits the full enrollment application form and uploads required documents.">
+  <title>ICI Local 2.0 | Enrollment Submission</title>
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/enrollment.css">
+  <style>
+    .form-section {
+      background: #fff;
+      border: 1px solid #7e878a;
+      border-radius: 1px;
+      margin-bottom: 14px
+    }
+
+    .form-section .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 3px solid var(--primary-color)
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font: 700 15px Roboto, Arial, sans-serif
+    }
+
+    .section-head .hint {
+      color: #6b7679;
+      font-size: 10px;
+      text-align: right;
+      line-height: 1.4
+    }
+
+    .section-head-right {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .form-body {
+      padding: 14px
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px 14px
+    }
+
+    .form-grid label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #3d4649
+    }
+
+    .form-grid label small {
+      display: block;
+      margin-top: 2px;
+      color: #8a9497;
+      font-weight: 400
+    }
+
+    .form-grid input,
+    .form-grid select,
+    .form-grid textarea {
+      width: 100%;
+      height: 33px;
+      margin-top: 4px;
+      border: 1px solid #8d9597;
+      border-radius: 1px;
+      padding: 5px 8px;
+      background: #fff;
+      font-size: 12px;
+      font-family: inherit
+    }
+
+    .form-grid textarea {
+      height: 52px;
+      resize: vertical
+    }
+
+    .form-grid input[readonly] {
+      background: #eef0f0;
+      color: #5d6669
+    }
+
+    .form-grid .full {
+      grid-column: 1 / -1
+    }
+
+    .form-grid .span2 {
+      grid-column: span 2
+    }
+
+    .check-group {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px 14px;
+      margin-top: 6px;
+      padding: 9px 11px;
+      border: 1px solid #c9d0d2;
+      background: #fafbfb;
+      font-size: 12px;
+      color: #333c3f
+    }
+
+    .check-group label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 500
+    }
+
+    .check-group input {
+      width: auto;
+      height: auto;
+      margin: 0
+    }
+
+    .check-group .full {
+      grid-column: 1 / -1
+    }
+
+    .delivery-other {
+      width: 200px;
+      height: 26px;
+      margin-left: 6px;
+      display: none
+    }
+
+    .hidden {
+      display: none !important
+    }
+
+    .upload-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px 14px
+    }
+
+    .upload-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 11px;
+      border: 1px solid #c6ced0;
+      background: #fafbfb
+    }
+
+    .upload-item .name {
+      flex: 1;
+      font-size: 12px;
+      font-weight: 600;
+      color: #2f383b
+    }
+
+    .upload-item .name small {
+      display: block;
+      margin-top: 2px;
+      color: #8a9497;
+      font-weight: 400;
+      font-size: 10px
+    }
+
+    .file-pick {
+      position: relative;
+      overflow: hidden
+    }
+
+    .file-pick input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer
+    }
+
+    .file-pick .pick-label {
+      display: inline-block;
+      border: 1px solid #5f7e8e;
+      background: #eef6f9;
+      color: #175e80;
+      border-radius: 1px;
+      padding: 4px 9px;
+      font-size: 10px;
+      font-weight: 600;
+      white-space: nowrap
+    }
+
+    .file-pick:hover .pick-label {
+      background: #e0eef4
+    }
+
+    .file-remove {
+      border: 1px solid #c48f8f;
+      background: #fdf4f4;
+      color: #7c3f3f;
+      border-radius: 1px;
+      padding: 4px 8px;
+      font-size: 10px;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer
+    }
+
+    .file-remove:hover {
+      background: #f8e5e5
+    }
+
+    .upload-note {
+      margin-top: 10px;
+      color: #7a8487;
+      font-size: 10px;
+      line-height: 1.5
+    }
+
+    /* ---- Editor / preview toolbar ---- */
+    .editor-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+      padding: 8px 10px;
+      border: 1px solid #b9c9cf;
+      background: #eef3f5
+    }
+
+    .editor-tab {
+      border: 1px solid #5f7e8e;
+      background: #fff;
+      color: #175e80;
+      border-radius: 14px;
+      padding: 5px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer
+    }
+
+    .editor-tab:hover {
+      background: #e4f1f7
+    }
+
+    .editor-tab.active {
+      background: #175e80;
+      color: #fff;
+      border-color: #175e80
+    }
+
+    .editor-hint {
+      color: #5c6669;
+      font-size: 10px;
+      line-height: 1.45
+    }
+
+    /* ---- Google-Forms-style preview ---- */
+    .preview-panel {
+      display: none;
+      background: #fff;
+      border: 1px solid #7e878a;
+      border-radius: 1px;
+      margin-bottom: 14px;
+      overflow: hidden
+    }
+
+    .preview-panel.show {
+      display: block
+    }
+
+    .preview-head {
+      padding: 16px 20px 12px;
+      border-bottom: 3px solid var(--primary-color);
+      background: #f2f7f9
+    }
+
+    .preview-title {
+      font: 600 15px Roboto, Arial, sans-serif;
+      color: #1d4e68
+    }
+
+    .preview-subtitle {
+      margin: 3px 0 10px;
+      color: #6b7679;
+      font-size: 11px
+    }
+
+    .preview-step {
+      font-size: 10px;
+      font-weight: 700;
+      color: #175e80;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      margin-bottom: 5px
+    }
+
+    .preview-bar {
+      height: 6px;
+      background: #d5e2e8;
+      border-radius: 3px;
+      overflow: hidden
+    }
+
+    .preview-bar span {
+      display: block;
+      height: 100%;
+      background: #2e7aa0;
+      width: 0;
+      transition: width .25s ease
+    }
+
+    .preview-section-title {
+      margin: 0 0 4px;
+      font: 700 16px Roboto, Arial, sans-serif;
+      color: #2f383b
+    }
+
+    .preview-section-note {
+      margin: 0 0 16px;
+      color: #7a8487;
+      font-size: 11px;
+      border-bottom: 1px dashed #c8d0d2;
+      padding-bottom: 10px
+    }
+
+    .preview-body {
+      padding: 16px 20px 4px
+    }
+
+    .preview-row {
+      padding: 9px 0;
+      border-bottom: 1px dotted #d8dcdd
+    }
+
+    .preview-row:last-child {
+      border-bottom: 0
+    }
+
+    .preview-row .q {
+      font-size: 11px;
+      font-weight: 700;
+      color: #3d4649
+    }
+
+    .preview-row .q small {
+      display: block;
+      margin-top: 2px;
+      color: #8a9497;
+      font-weight: 400
+    }
+
+    .preview-row .a {
+      margin-top: 4px;
+      padding: 7px 10px;
+      border: 1px solid #c6ced0;
+      border-radius: 1px;
+      background: #fafbfb;
+      font-size: 12px;
+      color: #262b2d
+    }
+
+    .preview-row .a.empty {
+      color: #9aa2a4;
+      font-style: italic
+    }
+
+    .preview-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      padding: 12px 20px;
+      border-top: 1px solid #d5d9da;
+      background: #f7f9fa
+    }
+
+    .preview-nav .note {
+      color: #7a8487;
+      font-size: 10px;
+      text-align: right;
+      line-height: 1.45
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #c8cdcf
+    }
+
+    .flow-note {
+      display: flex;
+      gap: 7px;
+      margin: 12px 0 0;
+      padding: 9px 11px;
+      border: 1px solid #b9c9cf;
+      background: #f0f7fa;
+      color: #2f5b6d;
+      font-size: 11px;
+      line-height: 1.5
+    }
+
+    .submit-success {
+      display: none;
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      border: 1px solid #3d8a5f;
+      background: #eef7f1;
+      color: #286445
+    }
+
+    .submit-success.show {
+      display: block
+    }
+
+    .submit-success strong {
+      font-size: 13px
+    }
+
+    .submit-success p {
+      margin: 4px 0 8px;
+      font-size: 11px;
+      line-height: 1.5
+    }
+
+    .submit-success a {
+      color: #175e80;
+      font-weight: 700;
+      text-decoration: none
+    }
+
+    @media(max-width:1000px) {
+      .form-grid {
+        grid-template-columns: 1fr 1fr
+      }
+    }
+
+    @media(max-width:640px) {
+      .form-grid,
+      .check-group,
+      .upload-grid {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
+</head>
+
+<body data-role="student" data-page="submission.html">
+  <main class="main-content">
+    <div class="breadcrumb"><a href="submission.html">Enrollment</a><span>/</span><span>New Application</span></div>
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">PROSPECTIVE STUDENT</p>
+        <h1>Enrollment Submission</h1>
+        <p>Applicant initiates enrollment — submit the full application form, personal information, and required documents.</p>
+      </div>
+    </section>
+
+    <div class="editor-bar" role="tablist" aria-label="View mode">
+      <button class="editor-tab active" id="tab-edit" type="button" role="tab" aria-selected="true">All fields</button>
+      <button class="editor-tab" id="tab-preview" type="button" role="tab" aria-selected="false">Google Form view</button>
+      <span class="editor-hint">The Google Form view shows the application exactly as the student completes it — one section per page.</span>
+      <button class="button button-secondary" id="btn-fill-carlo" type="button" title="Fills the form with Carlo Bautista's demo data — for the transferee scenario walkthrough only" style="margin-left:auto;">Fill Carlo Bautista (Demo)</button>
+    </div>
+
+    <div class="submit-success" id="submit-success">
+      <strong>Application Submitted</strong>
+      <p>Reference <strong id="success-app">APP-2026-0153</strong> — the application has entered the Registrar's <strong>Enrollment Queue</strong> as <strong>Pre-Enlisted</strong>. You will be contacted for the next steps.</p>
+      <a href="queue.html" id="success-queue-link">View the Enrollment Queue →</a>
+    </div>
+
+    <form id="submission-form">
+      <!-- 1. Enrollment preferences -->
+      <div class="form-section">
+        <div class="section-head">
+          <h2>1 · Enrollment Preferences</h2>
+          <div class="section-head-right">
+            <span class="hint">Grade level, track, and preferred<br>campus for SY 2026-2027.</span>
+          </div>
+        </div>
+        <div class="form-body">
+          <div class="form-grid">
+            <label>Grade level to Enroll *<select id="s-grade">
+                <option value="">— select —</option>
+                <option>Grade 11</option>
+                <option>Grade 12</option>
+              </select></label>
+            <label>Which Track do you want to Enroll? *<select id="s-track">
+                <option value="">— select —</option>
+                <option value="ACADEMIC">ACADEMIC</option>
+                <option value="TVL">TVL (Technical-Vocational)</option>
+              </select></label>
+            <label>Strand / Specialization *<select id="s-strand"><option value="">Select a track first</option></select></label>
+            <label>Preferred campus *<select id="s-campus">
+                <option value="">— select —</option>
+                <option>Main — Iligan</option>
+                <option>Kapatagan</option>
+                <option>Bugo — CDO</option>
+              </select></label>
+            <label>Enrollment Category *<select id="s-category">
+                <option value="">— select —</option>
+                <option value="New">New</option>
+                <option value="Transferee">Transferee</option>
+                <option value="Returnee">Returnee</option>
+              </select></label>
+            <label class="full">If classes will not be 100% face to face, what is your preferred distance learning modality/modalities? (Check all that applies) *
+              <div class="check-group" id="delivery-group">
+                <label><input type="checkbox" name="delivery" value="Modular (Print)"> Modular (Print)</label>
+                <label><input type="checkbox" name="delivery" value="Modular (Digital)"> Modular (Digital)</label>
+                <label><input type="checkbox" name="delivery" value="Online"> Online</label>
+                <label><input type="checkbox" name="delivery" value="Educational TV"> Educational TV</label>
+                <label><input type="checkbox" name="delivery" value="Radio-based Instruction"> Radio-based Instruction</label>
+                <div class="full"><label><input type="checkbox" name="delivery" value="Other"> Other:</label> <input id="s-delivery-other" class="delivery-other" type="text" placeholder="Specify" aria-label="Other delivery modality"></div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Student information -->
+      <div class="form-section">
+        <div class="section-head">
+          <h2>2 · Student Information</h2>
+          <div class="section-head-right">
+            <span class="hint">LRN is provided by the previous school (DepEd).<br>Please refrain from using ALL CAPS.</span>
+          </div>
+        </div>
+        <div class="form-body">
+          <div class="form-grid">
+            <label>Check the appropriate box only: *<select id="s-lrn-status">
+                <option>No LRN</option>
+                <option>With LRN</option>
+                <option>Returning (Balik-Aral)</option>
+              </select></label>
+            <label>PSA Birth Certificate No.<small>If available upon registration</small><input id="s-psa"></label>
+            <label>Learner's Reference Number (LRN) *<input id="s-lrn" placeholder="12-digit number"></label>
+            <label>Last Name *<input id="s-last" autocomplete="off" placeholder="e.g., Dela Cruz"></label>
+            <label>First Name *<input id="s-first" autocomplete="off" placeholder="e.g., Juan"></label>
+            <label>Middle Name *<input id="s-middle" placeholder="e.g., Ramon"></label>
+            <label>Extension Name<small>Jr., II., III., if applicable</small><input id="s-ext"></label>
+            <label>Date of Birth *<input id="s-dob" placeholder="mm/dd/yyyy"></label>
+            <label>Sex *<select id="s-sex"><option>Female</option><option>Male</option></select></label>
+            <label>Age *<input id="s-age" type="number" min="10" max="30"></label>
+            <label>Student's Contact Number *<input id="s-contact" placeholder="e.g., 0917 123 4567"></label>
+            <label>Email<small>For enrollment notifications</small><input id="s-email" type="email" placeholder="e.g., juan.delacruz@email.com"></label>
+            <label>Belonging to any Indigenous People (IP)?<select id="s-ip">
+                <option>No</option>
+                <option>Yes</option>
+              </select></label>
+            <label class="hidden" id="s-ip-other-wrap">If YES, please specify<small>In the "Other" section</small><input id="s-ip-other"></label>
+            <label>Mother Tongue *<select id="s-mother-tongue">
+                <option>Bisaya/Cebuano</option>
+                <option>Maranao</option>
+                <option>Ilonggo</option>
+                <option>Hiligaynon</option>
+                <option>Tagalog</option>
+                <option>Other</option>
+              </select></label>
+            <label class="full">Academic Honors Received<small>If there is any</small><input id="s-honors"></label>
+          </div>
+          <p class="upload-note" style="margin-top:12px;">The Registrar runs an automated duplicate check against the centralized student database when your application is encoded.</p>
+        </div>
+      </div>
+
+      <!-- 3. Complete home address -->
+      <div class="form-section">
+        <div class="section-head">
+          <h2>3 · Complete Home Address</h2>
+        </div>
+        <div class="form-body">
+          <div class="form-grid">
+            <label>House Number and Street *<input id="s-house"></label>
+            <label>Province *<select id="s-province">
+                <option>Lanao del Norte</option>
+                <option>Misamis Oriental</option>
+                <option>Lanao del Sur</option>
+                <option>Misamis Occidental</option>
+                <option>Zamboanga del Norte</option>
+                <option>Others</option>
+              </select></label>
+            <label>City / Municipality *<input id="s-city"></label>
+            <label class="full">Barangay *<input id="s-barangay" placeholder="If you are not from Iligan, fill in the barangay you are from"></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Current school -->
+      <div class="form-section">
+        <div class="section-head">
+          <h2>4 · Current School</h2>
+          <div class="section-head-right">
+            <span class="hint">If you are currently enrolled, provide your<br>previous school details.</span>
+          </div>
+        </div>
+        <div class="form-body">
+          <div class="form-grid">
+            <label>Are you currently enrolled? *<select id="s-enrolled">
+                <option>No</option>
+                <option>Yes</option>
+              </select></label>
+            <label class="span2">Name of your School *<input id="s-school"></label>
+            <label>School's Address<small>Barangay, City/Municipality, Province</small><input id="s-school-address"></label>
+            <label>School's ID<input id="s-school-id"></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Parent / guardian -->
+      <div class="form-section">
+        <div class="section-head">
+          <h2>5 · Parent / Guardian</h2>
+          <div class="section-head-right">
+            <span class="hint">Certification consent: information is used for the<br>Learner Information System (DepEd) and is confidential.</span>
+          </div>
+        </div>
+        <div class="form-body">
+          <div class="form-grid">
+            <label>Father's Name *<small>Firstname, Middlename, Lastname</small><input id="s-father"></label>
+            <label>Mother's Name *<small>Firstname, Middlename, Lastname</small><input id="s-mother"></label>
+            <label>Guardian's Name<small>Firstname, Middlename, Lastname</small><input id="s-guardian"></label>
+            <label>Parent's / Guardian's Contact Number *<input id="s-guardian-contact"></label>
+            <label>Date of Registration<input id="s-regdate" placeholder="mm/dd/yyyy"></label>
+            <label>Referred by<small>Enrollment Team</small><select id="s-referred">
+                <option>PE/FILIPINO</option>
+                <option>HUMSS/ABM</option>
+                <option>TVL</option>
+                <option>STEM</option>
+                <option>ENGLISH</option>
+                <option>STAFF</option>
+                <option>GUIDANCE</option>
+              </select></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Upload requirements -->
+      <div class="form-section">
+        <div class="section-head">
+          <h2>6 · Upload Requirements</h2>
+          <div class="section-head-right">
+            <span class="hint">Required for enrollment.<br>Upload a scanned copy of each.</span>
+          </div>
+        </div>
+        <div class="form-body">
+          <div class="upload-grid">
+            <div class="upload-item">
+              <div class="name">PSA Birth Certificate<small>Photo or scan · PDF / JPG</small></div>
+              <span class="file-pick"><span class="pick-label" tabindex="0">Choose file</span><input type="file" accept=".pdf,.jpg,.jpeg,.png" aria-label="Upload PSA Birth Certificate"></span>
+              <button type="button" class="file-remove" hidden aria-label="Remove PSA Birth Certificate">Remove</button>
+            </div>
+            <div class="upload-item">
+              <div class="name">Form 137<small>Previous school records · PDF / JPG</small></div>
+              <span class="file-pick"><span class="pick-label" tabindex="0">Choose file</span><input type="file" accept=".pdf,.jpg,.jpeg,.png" aria-label="Upload Form 137"></span>
+              <button type="button" class="file-remove" hidden aria-label="Remove Form 137">Remove</button>
+            </div>
+            <div class="upload-item">
+              <div class="name">Certificate of Completion<small>If available · PDF / JPG</small></div>
+              <span class="file-pick"><span class="pick-label" tabindex="0">Choose file</span><input type="file" accept=".pdf,.jpg,.jpeg,.png" aria-label="Upload Certificate of Completion"></span>
+              <button type="button" class="file-remove" hidden aria-label="Remove Certificate of Completion">Remove</button>
+            </div>
+            <div class="upload-item">
+              <div class="name">Good Moral Certificate<small>From previous school · PDF / JPG</small></div>
+              <span class="file-pick"><span class="pick-label" tabindex="0">Choose file</span><input type="file" accept=".pdf,.jpg,.jpeg,.png" aria-label="Upload Good Moral Certificate"></span>
+              <button type="button" class="file-remove" hidden aria-label="Remove Good Moral Certificate">Remove</button>
+            </div>
+          </div>
+          <p class="upload-note">Each document is verified by the Registrar during encoding. Missing documents are tracked on the Requirements Checklist and may be followed up.</p>
+        </div>
+      </div>
+
+      <div class="flow-note"><span>→</span><div>On submit, the application enters the Registrar's <strong>Enrollment Queue</strong> as <strong>Pre-Enlisted</strong>.</div></div>
+
+      <div class="btn-row">
+        <button class="button button-secondary" type="button" id="btn-draft">Save Draft</button>
+        <button class="button button-primary" type="submit">Submit Application →</button>
+      </div>
+    </form>
+
+    <section class="preview-panel" id="preview-panel" aria-label="Student preview" aria-hidden="true">
+      <div class="preview-head">
+        <div class="preview-title">ENROLLMENT FORM for SY 2026-2027</div>
+        <p class="preview-subtitle">Iligan Computer Institute · Student Application Form (read-only preview)</p>
+        <div class="preview-step" id="preview-step">Section 1 of 6</div>
+        <div class="preview-bar"><span id="preview-progress"></span></div>
+      </div>
+      <div class="preview-body" id="preview-body"></div>
+      <div class="preview-nav">
+        <button class="button button-secondary" type="button" id="preview-back">&lt; Back</button>
+        <span class="note" id="preview-note"></span>
+        <button class="button button-primary" type="button" id="preview-next">Next →</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status"><span class="toast-icon" aria-hidden="true">&#10003;</span>
+    <div><strong>Draft saved</strong><small>You can resume this application any time.</small></div><button class="toast-dismiss" type="button" aria-label="Dismiss notification">&#10005;</button>
+  </div>
+
+  <script src="../assets/js/data-store.js"></script>
+  <script src="../assets/js/portal-shell.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/submission.js"></script>
+</body>
+
+</html>

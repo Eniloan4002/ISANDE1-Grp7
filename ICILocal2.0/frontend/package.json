@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "npm run test:unit && npm run test:schema",
+    "test:unit": "vitest run",
+    "test:schema": "node --test tests/*.test.mjs"
   },
   "dependencies": {
     "axios": "^1.12.2",
@@ -21,6 +23,11 @@
     "@vitejs/plugin-react": "^5.1.0",
     "jsdom": "^27.0.1",
     "vite": "^7.1.11",
-    "vitest": "^5.0.5"
+    "vitest": "^5.0.5",
+    "@electric-sql/pglite": "^0.3.14",
+    "@playwright/test": "^1.56.0"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

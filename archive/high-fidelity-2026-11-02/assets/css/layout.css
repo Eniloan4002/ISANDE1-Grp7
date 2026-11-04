@@ -1,0 +1,557 @@
+.app-shell {
+    min-height: 100vh;
+    display: flex
+}
+
+.sidebar {
+    width: 238px;
+    flex: none;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
+    overflow-y: auto;
+    background: #00618c;
+    color: #fff;
+    border-right: 3px solid #00496a
+}
+
+.brand {
+    height: 82px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #0078ab 0%, #00628e 60%, #005377 60%);
+    border-bottom: 4px solid #e4eef2;
+    text-decoration: none;
+    color: #fff
+}
+
+.brand-mark {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border: 2px solid #fff;
+    background: #f4f4f4;
+    color: #004f73;
+    font: bold 12px Arial
+}
+
+.brand-copy strong {
+    display: block;
+    font: 600 17px Montserrat, sans-serif
+}
+
+.brand-copy small {
+    display: block;
+    font-size: 9px;
+    letter-spacing: .8px;
+    margin-top: 4px;
+    text-transform: uppercase
+}
+
+.sidebar-nav {
+    padding: 16px 10px
+}
+
+.nav-label {
+    margin: 7px 11px 7px;
+    color: #c6e0eb;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase
+}
+
+.nav-label-bottom {
+    margin-top: 22px
+}
+
+/* Collapsible nav sections. The toggle keeps the same uppercase treatment as
+   .nav-label, so a closed group still reads as a heading rather than as a
+   dead link, while the caret marks it as something you can open. */
+.nav-group {
+    margin-bottom: 3px
+}
+
+.nav-group-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    padding: 9px 11px;
+    border: 0;
+    background: transparent;
+    color: #c6e0eb;
+    font: 700 10px 'Open Sans', sans-serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-align: left;
+    cursor: pointer
+}
+
+.nav-group-toggle:hover {
+    background: #0d719c;
+    color: #fff
+}
+
+.nav-group-toggle:focus-visible {
+    outline: 2px solid #f2d658;
+    outline-offset: -2px
+}
+
+.nav-caret {
+    flex: none;
+    transition: transform .15s ease
+}
+
+.nav-group-toggle[aria-expanded="true"] .nav-caret {
+    transform: rotate(90deg)
+}
+
+.nav-group-items {
+    padding-left: 7px
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 11px;
+    margin-bottom: 2px;
+    color: #fff;
+    text-decoration: none;
+    border: 1px solid transparent;
+    font: 600 13px 'Open Sans', sans-serif
+}
+
+.nav-item:hover {
+    background: #0d719c
+}
+
+.nav-item.active {
+    background: #005277;
+    border-color: #0a80ad;
+    border-left: 4px solid #f2d658;
+    padding-left: 8px
+}
+
+.nav-icon {
+    width: 16px;
+    text-align: center;
+    font-size: 16px
+}
+
+.nav-chevron {
+    margin-left: auto
+}
+
+.nav-submenu {
+    margin-left: 27px;
+    border-left: 1px solid #58a0bd
+}
+
+.nav-submenu a {
+    display: block;
+    padding: 7px 12px;
+    color: #dcf0f7;
+    text-decoration: none;
+    font-size: 12px
+}
+
+.nav-submenu a.active {
+    background: #0b709b;
+    color: #fff;
+    font-weight: 700
+}
+
+.sidebar-footer {
+    margin: 20px 10px 0;
+    padding: 11px;
+    border-top: 1px solid #4594b2;
+    font-size: 11px;
+    color: #d8edf5
+}
+
+.status-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 5px;
+    border-radius: 50%;
+    background: #a9dc63
+}
+
+.main-frame {
+    min-width: 0;
+    flex: 1
+}
+
+.topbar {
+    height: 82px;
+    background: #fff;
+    border-bottom: 3px solid var(--primary-color);
+    display: flex;
+    align-items: center;
+    padding: 0 28px
+}
+
+.institution {
+    border-left: 6px solid var(--primary-color);
+    padding-left: 11px
+}
+
+.institution span {
+    display: block;
+    color: #004d70;
+    font: 600 16px Montserrat, sans-serif
+}
+
+.institution small {
+    font-size: 11px;
+    color: var(--text-secondary)
+}
+
+.topbar-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 17px
+}
+
+.icon-button {
+    border: 0;
+    background: transparent;
+    font-size: 19px;
+    color: #44565d
+}
+
+.menu-toggle {
+    display: none
+}
+
+.notification {
+    position: relative
+}
+
+.notification span {
+    position: absolute;
+    right: -5px;
+    top: -5px;
+    background: #b14343;
+    color: white;
+    border-radius: 10px;
+    padding: 1px 4px;
+    font-size: 9px
+}
+
+.profile-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 0;
+    background: transparent;
+    color: #3e5057;
+    font-size: 12px
+}
+
+.avatar {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid #6f7678;
+    border-radius: 50%;
+    font-size: 10px
+}
+
+.main-content {
+    max-width: 1450px;
+    padding: 22px 28px 36px
+}
+
+.breadcrumb {
+    font-size: 12px;
+    color: var(--text-secondary)
+}
+
+.breadcrumb a {
+    color: #45656f;
+    text-decoration: none
+}
+
+.breadcrumb span {
+    margin: 0 6px
+}
+
+.page-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin: 13px 0 19px
+}
+
+.eyebrow {
+    margin: 0 0 4px;
+    color: #657b84;
+    letter-spacing: 1px;
+    font-size: 10px;
+    font-weight: 700
+}
+
+.page-heading h1 {
+    margin: 0 0 5px;
+    font: 600 25px Montserrat, sans-serif
+}
+
+.page-heading p:not(.eyebrow) {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 13px
+}
+
+.topbar+.main-content {}
+
+@media(max-width:960px) {
+    .sidebar {
+        width: 205px
+    }
+
+    .main-content {
+        padding: 20px
+    }
+
+    .profile-name {
+        display: none
+    }
+}
+
+@media(max-width:700px) {
+    .sidebar {
+        position: fixed;
+        z-index: 20;
+        height: 100vh;
+        transform: translateX(-100%)
+    }
+
+    .sidebar.open {
+        transform: none
+    }
+
+    .topbar {
+        height: 65px;
+        padding: 0 16px
+    }
+
+    .menu-toggle {
+        display: block;
+        margin-right: 12px
+    }
+
+    .institution small {
+        display: none
+    }
+
+    .main-content {
+        padding: 18px 14px
+    }
+
+    .page-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 13px
+    }
+}
+
+/* Compact institutional refinements. */
+.sidebar {
+    background: #076080;
+    border-right-color: #004863
+}
+
+.brand {
+    height: 76px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, #08799f 0%, #076482 62%, #05536e 62%);
+    border-bottom-width: 3px
+}
+
+.brand-mark {
+    width: 40px;
+    height: 40px
+}
+
+.brand-copy strong {
+    font-size: 16px
+}
+
+.brand-copy small {
+    font-size: 8px;
+    margin-top: 3px
+}
+
+.sidebar-nav {
+    padding: 13px 10px
+}
+
+.nav-label {
+    margin: 6px 11px;
+    font-size: 9px
+}
+
+.nav-label-bottom {
+    margin-top: 18px
+}
+
+.nav-group-toggle {
+    padding: 7px 10px;
+    font-size: 9px
+}
+
+.nav-group-items {
+    padding-left: 6px
+}
+
+.nav-item {
+    gap: 8px;
+    padding: 8px 10px;
+    margin-bottom: 1px;
+    font-size: 12px
+}
+
+.nav-item.active {
+    background: #07506d;
+    border-color: #167798;
+    padding-left: 7px
+}
+
+.nav-icon {
+    width: 14px;
+    font-size: 14px
+}
+
+.nav-submenu {
+    margin-left: 25px
+}
+
+.nav-submenu a {
+    padding: 6px 10px;
+    font-size: 11px
+}
+
+.nav-submenu a.active {
+    background: #126a88
+}
+
+.sidebar-footer {
+    margin: 16px 10px 0;
+    padding: 9px;
+    font-size: 10px
+}
+
+.topbar {
+    height: 76px;
+    padding: 0 24px;
+    background: #f7f8f8;
+    position: sticky;
+    top: 0;
+    z-index: 10
+}
+
+.institution {
+    padding-left: 12px;
+    border-left-width: 5px
+}
+
+.institution span {
+    font-size: 15px
+}
+
+.institution small {
+    font-size: 10px
+}
+
+.topbar-actions {
+    gap: 12px
+}
+
+.icon-button {
+    font-size: 16px
+}
+
+.profile-button {
+    gap: 7px;
+    font-size: 11px
+}
+
+.avatar {
+    width: 29px;
+    height: 29px;
+    font-size: 9px
+}
+
+.main-content {
+    padding: 18px 24px 30px
+}
+
+.breadcrumb {
+    font-size: 11px
+}
+
+.breadcrumb span {
+    margin: 0 5px
+}
+
+.page-heading {
+    margin: 10px 0 15px
+}
+
+.eyebrow {
+    margin-bottom: 3px;
+    font-size: 9px
+}
+
+.page-heading h1 {
+    margin-bottom: 3px;
+    font-size: 23px
+}
+
+.page-heading p:not(.eyebrow) {
+    font-size: 12px
+}
+
+/* Shared top-bar navigation controls. */
+.institution {
+    border-left: 0;
+    padding-left: 0
+}
+
+.menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin-right: 14px;
+    padding: 0
+}
+
+.menu-toggle svg {
+    display: block
+}
+
+.app-shell.sidebar-collapsed .sidebar {
+    width: 0;
+    overflow: hidden;
+    border-right-width: 0
+}
+
+@media(max-width:700px) {
+    .menu-toggle {
+        margin-right: 12px
+    }
+}
+

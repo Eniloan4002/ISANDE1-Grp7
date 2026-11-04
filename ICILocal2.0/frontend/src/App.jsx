@@ -1,11 +1,15 @@
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router';
+import AcademicSetup from './AcademicSetup.jsx';
+import DesignSystem from './components/DesignSystem.jsx';
+import { LoginPage } from './Auth.jsx';
 import { useAuth } from './auth/AuthContext.jsx';
 import { AppShell } from './components/AppShell.jsx';
 import { firstAllowedPath, pages } from './routes/routeConfig.js';
 
 function RequireAuth() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated,loading } = useAuth();
   const location = useLocation();
+  if(loading)return <p role="status">Checking staff session…</p>;
   return isAuthenticated ? <Outlet /> : <Navigate to="/sign-in" replace state={{ from: location }} />;
 }
 
@@ -17,26 +21,6 @@ function RoleGate({ allowedRoles, children }) {
 function HomeRedirect() {
   const { roles } = useAuth();
   return <Navigate to={firstAllowedPath(roles)} replace />;
-}
-
-function SignIn() {
-  const { isAuthenticated, roles } = useAuth();
-  const location = useLocation();
-  const requestedPath = location.state?.from?.pathname;
-  const requestedPage = pages.find(page => page.path === requestedPath);
-  const destination = requestedPage?.allowedRoles.some(role => roles.includes(role)) ? requestedPath : firstAllowedPath(roles);
-  if (isAuthenticated) return <Navigate to={destination} replace />;
-  return <main className="entry-layout">
-    <section className="entry-branding">
-      <div className="brand-lockup"><span className="brand-mark">ICI</span><span><strong>ICI Local 2.0</strong><small>Student Information System</small></span></div>
-      <div><h1>Iligan Computer Institute</h1><p>Integrated Student Records and Enrollment Management System</p></div>
-    </section>
-    <section className="entry-panel" aria-labelledby="sign-in-title">
-      <p className="eyebrow">Authentication pending</p>
-      <h2 id="sign-in-title">Sign in to ICI Local</h2>
-      <p>The login screen and backend authentication will connect here in a later task.</p>
-    </section>
-  </main>;
 }
 
 function Placeholder({ page }) {
@@ -57,13 +41,14 @@ function NotFound() {
 
 export default function App() {
   return <Routes>
-    <Route path="/sign-in" element={<SignIn />} />
+    <Route path="/login" element={<Navigate to="/sign-in" replace />} />
+    <Route path="/sign-in" element={<LoginPage />} />
     <Route element={<RequireAuth />}>
       <Route element={<AppShell />}>
         <Route index element={<HomeRedirect />} />
         <Route path="/access-denied" element={<AccessDenied />} />
         {pages.map(page => <Route key={page.path} path={page.path} element={
-          <RoleGate allowedRoles={page.allowedRoles}><Placeholder page={page} /></RoleGate>
+          <RoleGate allowedRoles={page.allowedRoles}>{page.path==='/setup'?<AcademicSetup />:page.path==='/design-system'?<DesignSystem />:<Placeholder page={page} />}</RoleGate>
         } />)}
       </Route>
     </Route>
