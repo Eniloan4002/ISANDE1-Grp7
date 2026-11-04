@@ -133,38 +133,46 @@ function applyApplicant(app) {
   document.querySelector('#f-ip-other-wrap').classList.toggle('hidden', app.ip !== 'Yes');
 }
 
-// Builds the candidate {name, dob, lrn} from the form's own fields, in the
-// same "Last, First" format applicant records already use (see app.name).
+// Candidate identity built from the form's own fields. Carries last/first
+// separately because the duplicate check compares last and first name apart.
 function currentCandidate() {
   const last = document.querySelector('#f-last').value.trim();
   const first = document.querySelector('#f-first').value.trim();
   return {
+    last,
+    first,
     name: (last || first) ? `${last}, ${first}` : '',
     dob: document.querySelector('#f-dob').value.trim(),
     lrn: document.querySelector('#f-lrn').value.trim()
   };
 }
 
+// Live "as you type" suggestion banner. Uses the same rules as the Save & Run
+// Duplicate Check button (exact LRN, or fuzzy name + same DOB).
 function refreshDuplicateSuggestion() {
   const suggest = document.querySelector('#dup-suggest');
   const link = suggest.querySelector('strong a');
   const note = suggest.querySelector('span');
-  const seedFlag = Boolean(activeApp && APPLICANTS[activeApp].flag === 'dup');
   const candidate = currentCandidate();
-  const match = candidate.name ? Store.suggestDuplicate(candidate, activeApp) : null;
-  suggest.classList.toggle('show', Boolean(seedFlag || match));
+  const match = (candidate.last || candidate.lrn) ? Store.findDuplicates(candidate, activeApp)[0] : null;
+  const pair = activeApp ? Store.getPair(activeApp) : null;
+  const openPair = Boolean(pair && !Store.getPairStatus(activeApp));
+  suggest.classList.toggle('show', Boolean(match || openPair));
+  link.href = activeApp ? `duplicate.html?app=${encodeURIComponent(activeApp)}` : 'duplicate.html';
   if (match) {
     const pct = Math.round(match.score * 100);
     link.textContent = match.name;
-    link.href = `duplicate.html?app=${encodeURIComponent(activeApp)}`;
-    note.textContent = `Possible match: ${match.name} — ${pct}% confidence. Review before saving this application.`;
-  } else if (seedFlag) {
-    const seeded = APPLICANTS[activeApp];
-    link.textContent = seeded.name;
-    link.href = `duplicate.html?app=${encodeURIComponent(activeApp)}`;
-    note.textContent = 'Same name and birth date. Review before saving this application.';
-  }}
-document.querySelector('#f-last').addEventListener('input', refreshDuplicateSuggestion);
+    note.textContent = match.type === 'LRN_EXACT'
+      ? `Same LRN as ${match.name} (${match.id}) — ${pct}% confidence. Review before saving this application.`
+      : `Similar name and the same birth date as ${match.name} (${match.id}) — ${pct}% confidence. Review before saving this application.`;
+  } else if (openPair) {
+    link.textContent = pair.existing.fields[0][1];
+    note.textContent = 'This application is already flagged as a possible duplicate. Review before saving.';
+  }
+}
+['#f-last', '#f-first', '#f-dob', '#f-lrn'].forEach(sel => {
+  document.querySelector(sel).addEventListener('input', refreshDuplicateSuggestion);
+});
 
 // Load an application into the encode form, highlight its row, and show the banner.
 function selectApplication(id) {
@@ -231,6 +239,12 @@ function collectForm() {
     if (el) out[key] = el.value;
   });
   out.delivery = deliveryChecks.filter(c => c.checked).map(c => c.value);
+  // Keep the display name in step with the encoded last/first name, but only
+  // when they actually changed (so "Santos, Maria A." isn't rewritten needlessly).
+  const current = APPLICANTS[activeApp];
+  if ((out.last || out.first) && (!current || current.last !== out.last || current.first !== out.first)) {
+    out.name = `${out.last}, ${out.first}`;
+  }
   return out;
 }
 
@@ -239,22 +253,17 @@ function collectForm() {
 function saveAndReturn(kind) {
   if (!activeApp) { showToast('No application selected', 'Select an application from the list first.'); return; }
   Store.updateApplicant(activeApp, collectForm());
-  let duplicate = false;
   if (kind === 'check') {
-    const seedFlag = APPLICANTS[activeApp].flag === 'dup';
-    const candidate = currentCandidate();
-    const match = candidate.name ? Store.suggestDuplicate(candidate, activeApp) : null;
-    if (match && match.score >= 0.75 && !Store.getPair(activeApp)) {
-      Store.createPairFromMatch(activeApp, match);
+    // ICI2-13: exact LRN, or fuzzy name + same DOB, against every student
+    // record, applicant and legacy student across all campuses.
+    const result = Store.runDuplicateCheck(activeApp);
+    // A flagged duplicate needs a decision before anything else can proceed —
+    // send the registrar straight to the side-by-side comparison.
+    if (result && result.flagged) {
+      location.href = `duplicate.html?app=${encodeURIComponent(activeApp)}`;
+      return;
     }
-    duplicate = Boolean(seedFlag || match);
-    Store.updateApplicant(activeApp, duplicate ? { evalStatus: 'flag' } : { evalStatus: 'ready', queueStatus: 'review' });  }
-  // A flagged duplicate needs a decision before anything else can proceed —
-  // send the registrar straight to the comparison instead of back to the
-  // queue, so they don't have to find their way there themselves.
-  if (kind === 'check' && duplicate) {
-    location.href = `duplicate.html?app=${encodeURIComponent(activeApp)}`;
-    return;
+    Store.updateApplicant(activeApp, { evalStatus: 'ready', queueStatus: 'review' });
   }
   location.href = `queue.html?highlight=${encodeURIComponent(activeApp)}&saved=${kind}`;
 }

@@ -198,6 +198,12 @@
         docs: { 'PSA Birth Certificate': 'submitted', 'Form 137': 'submitted', 'Certificate of Completion': 'submitted', 'Good Moral Certificate': 'submitted' }
       }
     },
+
+        legacyStudents: {
+      'STU-2023-1210': { name: 'Bautista, Carlos D.', dob: '03/09/2009', lrn: '120987654321', sex: 'Male', school: 'Iligan City NHS', guardianContact: '0922 555 0153', status: 'Active' },
+      'STU-2024-0771': { name: 'Santos, Maria Ann', dob: '07/22/2008', lrn: '108517230184', sex: 'Female', school: 'Kapatagan National HS', guardianContact: '0917 555 0991', status: 'Inactive (Withdrawn)' },
+      'STU-2022-0503': { name: 'Garcia, Ana Marie', dob: '01/15/2008', lrn: '112377981523', sex: 'Female', school: 'Tambo Central School', guardianContact: '0923 555 0140', status: 'Enrolled' }
+    },
     requirements: {
       'APP-2026-0148': { docs: { 'PSA Birth Certificate': 'submitted', 'Form 137': 'pending', 'Certificate of Completion': 'missing', 'Good Moral Certificate': 'missing' }, contact: '0917 555 0148', email: 'juan.delacruz@email.com' },
       'APP-2026-0149': { docs: { 'PSA Birth Certificate': 'submitted', 'Form 137': 'pending', 'Certificate of Completion': 'submitted', 'Good Moral Certificate': 'missing' }, contact: '0918 555 0149', email: 'maria.santos@email.com' },
@@ -750,6 +756,7 @@
     if (!data.monitoring) data.monitoring = clone(SEED.monitoring);
     else mergeMissing(data.monitoring, SEED.monitoring);
     if (!data.priorStudents) data.priorStudents = clone(SEED.priorStudents);
+    if (!data.legacyStudents) data.legacyStudents = clone(SEED.legacyStudents);
     recomputeAllPairs();    persist(false);
   }
 
@@ -869,12 +876,25 @@
     persist();
   }
 
-  // ---- name-similarity matching (replaces hand-authored match flags) ----
-  // Simple, explainable Levenshtein-ratio on the normalized full name, with
-  // exact-match bonuses for DOB/LRN (less error-prone identifiers than a
-  // typed name) — no external library, deliberately easy to defend live.
+// ============================================================================
+  // ICI2-13 — Duplicate Applicant Detection
+  //
+  // Rules (from the implementation plan, Feature 2.2):
+  //   1. Exact LRN match                          -> LRN_EXACT  (definite)
+  //   2. Fuzzy name (last + first) AND same DOB   -> NAME_DOB   (suspected)
+  //   Anything else (name only, DOB only)         -> no flag
+  // A hit sets the DUPLICATE_FLAG state (flag:'dup', evalStatus:'flag',
+  // queueStatus:'review') and builds a pair for the Duplicate Records screen.
+  //
+  // Scanned: enrolled/pending student records, other applicants, and legacy
+  // students. NOT scanned: priorStudents — a shared LRN there is a continuing
+  // student, handled by findPriorStudent / linkPriorStudent.
+  // ============================================================================
+  const NAME_THRESHOLD = 0.8;
+
   function normalizeName(s) {
-    return String(s || '').toLowerCase().replace(/[^a-z\s]/g, '').replace(/\s+/g, ' ').trim();
+    return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+      .replace(/[^a-z\s]/g, '').replace(/\s+/g, ' ').trim();
   }
 
   function levenshtein(a, b) {
@@ -895,30 +915,62 @@
   function nameSimilarity(a, b) {
     const x = normalizeName(a), y = normalizeName(b);
     if (!x || !y) return 0;
-    const dist = levenshtein(x, y);
     const maxLen = Math.max(x.length, y.length);
-    return maxLen ? Math.max(0, 1 - dist / maxLen) : 0;
+    return maxLen ? Math.max(0, 1 - levenshtein(x, y) / maxLen) : 0;
   }
 
-  // Full-name fields use fuzzy similarity; every other identifying field
-  // ("Status" excluded — it's contextual, not identity) requires an exact match.
+  // 12 digits or nothing — placeholders like '—' or partial typing never match.
+  function normLrn(v) {
+    const d = String(v || '').replace(/\D/g, '');
+    return d.length === 12 ? d : '';
+  }
+
+  // mm/dd/yyyy (tolerates 3/9/2009, 03-09-2009, 03.09.2009) -> yyyy-mm-dd
+  function normDob(v) {
+    const m = String(v || '').trim().match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+    return m ? `${m[3]}-${m[1].padStart(2, '0')}-${m[2].padStart(2, '0')}` : '';
+  }
+
+  // Accepts {last, first} or a "Last, First M." name string.
+  function nameParts(r) {
+    let last = r.last, first = r.first;
+    if ((!last || !first) && r.name) {
+      const [l, ...f] = String(r.name).split(',');
+      last = l;
+      first = f.join(' ');
+    }
+    return { last: normalizeName(last), first: normalizeName(first).split(' ')[0] || '' };
+  }
+
+  // Last AND first name must both be close. Only the first given name is
+  // compared, so "Maria" ~ "Maria Ann" and "Carlo" ~ "Carlos D.".
+  function personNameSimilarity(a, b) {
+    const x = nameParts(a), y = nameParts(b);
+    if (!x.last || !y.last || !x.first || !y.first) return 0;
+    return Math.min(nameSimilarity(x.last, y.last), nameSimilarity(x.first, y.first));
+  }
+
+  // Field-level highlight for the side-by-side screen. Blank/placeholder values
+  // never count as a match.
   function deriveFieldMatch(label, a, b) {
     if (label === 'Status') return false;
-    if (label === 'Full name') return nameSimilarity(a, b) >= 0.7;
+    if (label === 'Full name') return personNameSimilarity({ name: a }, { name: b }) >= NAME_THRESHOLD;
+    if (label === 'LRN') { const x = normLrn(a); return Boolean(x) && x === normLrn(b); }
+    if (label === 'Date of birth') { const x = normDob(a); return Boolean(x) && x === normDob(b); }
     const la = String(a || '').trim().toLowerCase();
     const lb = String(b || '').trim().toLowerCase();
-    return Boolean(la) && la === lb;
+    return Boolean(la) && la !== '—' && la === lb;
   }
 
-  // Composite confidence score for two {name, dob, lrn} identities.
+  // Tiered match of two {name | last+first, dob, lrn} identities.
   function computeMatch(a, b) {
-    const nameSim = nameSimilarity(a.name, b.name);
-    let score = nameSim;
-    const dobMatch = Boolean(a.dob) && a.dob === b.dob;
-    const lrnMatch = Boolean(a.lrn) && a.lrn === b.lrn;
-    if (dobMatch) score += (1 - score) * 0.5;
-    if (lrnMatch) score += (1 - score) * 0.6;
-    return { score: Math.min(0.99, score), nameSim, dobMatch, lrnMatch };
+    const nameSim = personNameSimilarity(a, b);
+    const lrnMatch = Boolean(normLrn(a.lrn)) && normLrn(a.lrn) === normLrn(b.lrn);
+    const dobMatch = Boolean(normDob(a.dob)) && normDob(a.dob) === normDob(b.dob);
+    let type = null, score = 0;
+    if (lrnMatch) { type = 'LRN_EXACT'; score = 0.99; }
+    else if (dobMatch && nameSim >= NAME_THRESHOLD) { type = 'NAME_DOB'; score = Math.min(0.98, 0.5 + 0.5 * nameSim); }
+    return { type, score, nameSim, dobMatch, lrnMatch };
   }
 
   function getFieldValue(sub, label) {
@@ -926,8 +978,7 @@
     return row ? row[1] : '';
   }
 
-  // Recomputes a pair's per-field match flags + overall meter from its own
-  // field values — keeps seeded names/values intact, derives the rest honestly.
+  // Recomputes a pair's per-field match flags + overall meter from its own values.
   function recomputePair(pair) {
     if (!pair) return pair;
     pair.incoming.fields = pair.incoming.fields.map(([label, value]) => [label, value, deriveFieldMatch(label, value, getFieldValue(pair.existing, label))]);
@@ -942,54 +993,90 @@
     Object.values(data.pairs).forEach(recomputePair);
   }
 
-  // Live scan for a possible duplicate against every other applicant + every
-  // existing student record — used by the Encode Profile "as you type" suggestion.
-  function suggestDuplicate(candidate, excludeAppId) {
-    let best = null;
-    Object.values(data.applicants).forEach(app => {
-      if (app.id === excludeAppId) return;
-      const { score } = computeMatch(candidate, { name: app.name, dob: app.dob, lrn: app.lrn });
-      if (score >= 0.55 && (!best || score > best.score)) best = { kind: 'applicant', id: app.id, name: app.name, score };
-    });
+  // Every match for a candidate {last, first, name?, dob, lrn}, best first.
+  // Each: { kind: 'record'|'applicant'|'legacy', id, name, type, score }
+  function findDuplicates(candidate, excludeAppId) {
+    const out = [];
+    const seenApps = new Set();
+    const consider = (kind, id, rec) => {
+      const r = computeMatch(candidate, rec);
+      if (r.type) out.push({ kind, id, name: rec.name, type: r.type, score: r.score });
+    };
+    // Student records first, so an applicant who already has a student ID is
+    // reported once, under the student ID.
     Object.entries(data.records).forEach(([sid, rec]) => {
+      seenApps.add(rec.app);
       if (rec.app === excludeAppId) return;
-      const linked = data.applicants[rec.app];
-      const { score } = computeMatch(candidate, { name: rec.name, dob: linked ? linked.dob : '', lrn: linked ? linked.lrn : '' });
-      if (score >= 0.55 && (!best || score > best.score)) best = { kind: 'record', id: sid, name: rec.name, score };
+      const linked = data.applicants[rec.app] || {};
+      consider('record', sid, { name: rec.name, dob: linked.dob, lrn: linked.lrn });
     });
-    return best;
+    Object.values(data.applicants).forEach(app => {
+      if (app.id === excludeAppId || seenApps.has(app.id)) return;
+      consider('applicant', app.id, app);
+    });
+    Object.entries(data.legacyStudents || {}).forEach(([sid, s]) => consider('legacy', sid, s));
+    return out.sort((x, y) => y.score - x.score);
   }
 
-  // Builds a real (non-persona) duplicate pair from a live suggestDuplicate() match.
-  function createPairFromMatch(appId, match) {
-    if (data.pairs[appId] || !match) return null;
+  // Back-compat wrapper: best single match, or null.
+  function suggestDuplicate(candidate, excludeAppId) {
+    return findDuplicates(candidate, excludeAppId)[0] || null;
+  }
+
+  // ICI2-13 entry point: scan, set DUPLICATE_FLAG, build the review pair.
+  function runDuplicateCheck(appId) {
     const app = data.applicants[appId];
     if (!app) return null;
-    let existingDob = '', existingLrn = '', existingSex = app.sex, existingSchool = app.school || '—', existingContact = app.guardianContact || '—', existingStatus = 'Active';
+    // Already merged/rejected by the registrar — don't re-flag.
+    if (data.pairStatus[appId]) return { flagged: false, resolved: true, matches: [] };
+    const matches = findDuplicates(app, appId);
+    if (!matches.length) {
+      // Data was corrected and no longer matches: drop the stale flag + pair.
+      if (app.flag === 'dup' || data.pairs[appId]) { delete data.pairs[appId]; app.flag = ''; }
+      persist();
+      return { flagged: false, matches };
+    }
+    delete data.pairs[appId];                 // rebuild from the current form data
+    createPairFromMatch(appId, matches[0]);
+    Object.assign(app, { flag: 'dup', evalStatus: 'flag', queueStatus: 'review' });
+    persist();
+    return { flagged: true, matches };
+  }
+
+  // Builds the side-by-side pair for the Duplicate Records screen from a match.
+  function createPairFromMatch(appId, match) {
+    if (!match || data.pairs[appId]) return null;
+    const app = data.applicants[appId];
+    if (!app) return null;
+    const ex = { dob: '', lrn: '', sex: app.sex, school: '—', contact: '—', status: 'Active' };
     if (match.kind === 'record') {
       const rec = data.records[match.id];
       const linked = rec ? data.applicants[rec.app] : null;
-      if (linked) { existingDob = linked.dob; existingLrn = linked.lrn; existingSex = linked.sex; existingSchool = linked.school || '—'; existingContact = linked.guardianContact || '—'; }
-      existingStatus = rec && rec.status === 'enrolled' ? 'Active' : 'Inactive';
+      if (linked) Object.assign(ex, { dob: linked.dob, lrn: linked.lrn, sex: linked.sex, school: linked.school || '—', contact: linked.guardianContact || '—' });
+      ex.status = rec && rec.status === 'enrolled' ? 'Active' : 'Inactive';
+    } else if (match.kind === 'legacy') {
+      const s = data.legacyStudents[match.id];
+      if (s) Object.assign(ex, { dob: s.dob, lrn: s.lrn, sex: s.sex, school: s.school || '—', contact: s.guardianContact || '—', status: s.status || 'Active' });
     } else {
       const other = data.applicants[match.id];
-      if (other) { existingDob = other.dob; existingLrn = other.lrn; existingSex = other.sex; existingSchool = other.school || '—'; existingContact = other.guardianContact || '—'; }
-      existingStatus = 'Pre-Enlisted';
+      if (other) Object.assign(ex, { dob: other.dob, lrn: other.lrn, sex: other.sex, school: other.school || '—', contact: other.guardianContact || '—' });
+      ex.status = 'Pre-Enlisted';
     }
+    const existingLabel = match.kind === 'applicant' ? 'Application ' + match.id : 'Student ' + match.id;
     data.pairs[appId] = {
       meter: '',
       incoming: {
-        sub: `${app.category} · ${appId} · Submitted ${stampDate()}`,
+        sub: `${app.category} · ${appId} · Submitted ${app.submittedAt || stampDate()}`,
         fields: [
           ['Full name', app.name, false], ['Date of birth', app.dob, false], ['Sex', app.sex, false], ['LRN', app.lrn || '—', false],
           ['Previous school', app.school || '—', false], ['Guardian contact', app.guardianContact || '—', false], ['Status', 'Pre-Enlisted', false]
         ]
       },
       existing: {
-        sub: `${match.kind === 'record' ? 'Student ' + match.id : 'Application ' + match.id} · ${match.name}`,
+        sub: `${existingLabel} · ${match.name}`,
         fields: [
-          ['Full name', match.name, false], ['Date of birth', existingDob, false], ['Sex', existingSex, false], ['LRN', existingLrn || '—', false],
-          ['Previous school', existingSchool, false], ['Guardian contact', existingContact, false], ['Status', existingStatus, false]
+          ['Full name', match.name, false], ['Date of birth', ex.dob, false], ['Sex', ex.sex, false], ['LRN', ex.lrn || '—', false],
+          ['Previous school', ex.school, false], ['Guardian contact', ex.contact, false], ['Status', ex.status, false]
         ]
       }
     };
@@ -997,7 +1084,6 @@
     persist();
     return data.pairs[appId];
   }
-
   // ---- record helpers ----
   function getRecords() { return data.records; }
   function getRecord(id) { return data.records[id]; }
@@ -1619,7 +1705,7 @@
     getRequirements, setRequirement, getAudits,
     getAttendance, setAttendance,
     startJourney, getJourney, getPersona, flagPair, setStage,
-    getPair, getPairStatus, resolvePair, suggestDuplicate, createPairFromMatch,
+      getPair, getPairStatus, resolvePair, suggestDuplicate, createPairFromMatch, findDuplicates, runDuplicateCheck,
     getRecords, getRecord, confirmRecord, assignSection, removeRecord,
     SECTIONS, sectionRoster,
     getReportLog, addReport, removeReport, getMonitoringCase, recordIntervention,
