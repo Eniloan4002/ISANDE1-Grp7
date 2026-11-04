@@ -1,0 +1,74 @@
+import {test,expect} from '@playwright/test';
+
+test.describe('staff authentication and PostgreSQL setup',()=>{
+  test.skip(!process.env.ICI_LIVE_API,'Start the disposable PostgreSQL backend and set ICI_LIVE_API=1.');
+  async function signIn(page){
+    await page.goto('/setup');
+    await expect(page.getByRole('heading',{name:'Staff sign in'})).toBeVisible();
+    await page.getByLabel('Username',{exact:true}).fill(process.env.ICI_TEST_USERNAME||'browser-admin');
+    await page.getByLabel('Password',{exact:true}).fill(process.env.ICI_TEST_PASSWORD||'Browser-test-password-123!');
+    await page.getByRole('button',{name:'Sign in',exact:true}).click();
+    await expect(page.getByRole('heading',{name:'Academic setup'})).toBeVisible();
+    await expect(page.getByText('Loading setup records…')).toHaveCount(0);
+  }
+  test('reject bad credentials, sign in, restore session and revoke on logout',async({page})=>{
+    await page.goto('/setup');
+    await page.getByLabel('Username',{exact:true}).fill('browser-admin');
+    await page.getByLabel('Password',{exact:true}).fill('wrong-password');
+    await page.getByRole('button',{name:'Sign in',exact:true}).click();
+    await expect(page.getByRole('alert')).toContainText('Invalid username or password');
+    await signIn(page);
+    const token=await page.evaluate(()=>sessionStorage.getItem('ici_access_token'));
+    await page.reload();await expect(page.getByRole('heading',{name:'Academic setup'})).toBeVisible();
+    await page.getByRole('button',{name:'Sign out',exact:true}).click();
+    await expect(page.getByRole('heading',{name:'Staff sign in'})).toBeVisible();
+    expect(await page.evaluate(()=>sessionStorage.getItem('ici_access_token'))).toBeNull();
+    const response=await page.request.get('/api/auth/me',{headers:{Authorization:`Bearer ${token}`}});
+    expect(response.status()).toBe(401);
+  });
+  test('create the academic calendar and subject; protect parents and edit records',async({page})=>{
+    await signIn(page);const code=`B${Date.now()}`;
+    await page.getByLabel('Subject code',{exact:true}).fill(code);
+    await page.getByLabel('Subject name',{exact:true}).fill('Browser test mathematics');
+    await page.getByLabel('Units',{exact:true}).fill('1');
+    await page.getByRole('button',{name:'Create subject',exact:true}).click();
+    const row=page.getByRole('row').filter({hasText:code});await expect(row).toBeVisible();
+    await row.getByRole('button',{name:'Edit Browser test mathematics',exact:true}).click();
+    await page.getByLabel('Subject name',{exact:true}).fill('Updated browser mathematics');
+    await page.getByRole('button',{name:'Save changes',exact:true}).click();
+    await expect(row).toContainText('Updated browser mathematics');
+    await page.getByRole('tab',{name:/Academic years/}).click();
+    await page.getByLabel('Year label',{exact:true}).fill(code);
+    await page.getByLabel('Start date',{exact:true}).fill('2026-06-01');
+    await page.getByLabel('End date',{exact:true}).fill('2027-04-30');
+    await page.getByRole('button',{name:'Create academic year',exact:true}).click();
+    await expect(page.getByRole('row').filter({hasText:code})).toBeVisible();
+    await page.getByRole('tab',{name:/^Terms/}).click();
+    await page.getByLabel('Academic year',{exact:true}).selectOption({label:code});
+    await page.getByLabel('Term code',{exact:true}).fill('S1');
+    await page.getByLabel('Term name',{exact:true}).fill('First semester');
+    await page.getByLabel('Start date',{exact:true}).fill('2026-06-01');
+    await page.getByLabel('End date',{exact:true}).fill('2026-10-31');
+    await page.getByRole('button',{name:'Create term',exact:true}).click();
+    await expect(page.getByRole('row').filter({hasText:code})).toBeVisible();
+    await page.getByRole('tab',{name:/Grading periods/}).click();
+    await page.getByLabel('Term',{exact:true}).selectOption({label:`${code} / First semester (S1)`});
+    await page.getByLabel('Period code',{exact:true}).fill('Q1');
+    await page.getByLabel('Sequence',{exact:true}).fill('1');
+    await page.getByLabel('Start date',{exact:true}).fill('2026-06-01');
+    await page.getByLabel('End date',{exact:true}).fill('2026-08-31');
+    await page.getByRole('button',{name:'Create grading period',exact:true}).click();
+    await expect(page.getByRole('row').filter({hasText:code})).toBeVisible();
+    await page.getByRole('tab',{name:/Academic years/}).click();
+    await page.getByRole('row').filter({hasText:code}).getByRole('button',{name:`Delete ${code}`,exact:true}).click();
+    await page.getByRole('button',{name:'Confirm deletion',exact:true}).click();
+    await expect(page.getByRole('alert')).toContainText('referenced');
+    await page.reload();await expect(page.getByRole('heading',{name:'Academic setup'})).toBeVisible();
+    await page.getByRole('tab',{name:/Academic years/}).click();
+    await expect(page.getByRole('row').filter({hasText:code})).toBeVisible();
+    await page.screenshot({path:'test-results/academic-setup-desktop.png',fullPage:true});
+    await page.setViewportSize({width:390,height:844});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    await page.screenshot({path:'test-results/academic-setup-mobile.png',fullPage:true,animations:'disabled'});
+  });
+});

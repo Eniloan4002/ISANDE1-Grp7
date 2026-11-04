@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ICI Local 2.0 Evaluate Applications — encode the full enrollment application form and validate enrollment details.">
+  <title>ICI Local 2.0 | Evaluate Applications</title>
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/enrollment.css">
+  <style>
+    .form-section {
+      background: #fff;
+      border: 1px solid #7e878a;
+      border-radius: 1px;
+      margin-bottom: 14px
+    }
+
+    .form-section .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 3px solid var(--primary-color)
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font: 700 15px Roboto, Arial, sans-serif
+    }
+
+    .section-head .hint {
+      color: #6b7679;
+      font-size: 10px;
+      text-align: right;
+      line-height: 1.4
+    }
+
+    .form-body {
+      padding: 14px
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px 14px
+    }
+
+    .form-grid label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #3d4649
+    }
+
+    .form-grid label small {
+      display: block;
+      margin-top: 2px;
+      color: #8a9497;
+      font-weight: 400
+    }
+
+    .form-grid input,
+    .form-grid select {
+      width: 100%;
+      height: 33px;
+      margin-top: 4px;
+      border: 1px solid #8d9597;
+      border-radius: 1px;
+      padding: 5px 8px;
+      background: #fff;
+      font-size: 12px
+    }
+
+    .form-grid input[readonly] {
+      background: #eef0f0;
+      color: #5d6669
+    }
+
+    .form-grid .full {
+      grid-column: 1 / -1
+    }
+
+    .form-grid .span2 {
+      grid-column: span 2
+    }
+
+    .check-group {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px 14px;
+      margin-top: 6px;
+      padding: 9px 11px;
+      border: 1px solid #c9d0d2;
+      background: #fafbfb;
+      font-size: 12px;
+      color: #333c3f
+    }
+
+    .check-group label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 500
+    }
+
+    .check-group input {
+      width: auto;
+      height: auto;
+      margin: 0
+    }
+
+    .check-group .full {
+      grid-column: 1 / -1
+    }
+
+    .delivery-other {
+      width: 200px;
+      height: 26px;
+      margin-left: 6px;
+      display: none
+    }
+
+    .dup-note {
+      display: flex;
+      gap: 7px;
+      margin: 12px 0;
+      padding: 9px 11px;
+      border: 1px solid #c9b78a;
+      background: #fdfaf1;
+      color: #6b5c2f;
+      font-size: 11px;
+      line-height: 1.45
+    }
+
+    .dup-suggest {
+      display: none;
+      margin-top: 10px;
+      padding: 9px 11px;
+      border: 1px solid #c48f8f;
+      background: #fdf4f4;
+      font-size: 11px;
+      color: #7c3f3f
+    }
+
+    .dup-suggest.show {
+      display: block
+    }
+
+    .dup-suggest strong {
+      display: block;
+      margin-bottom: 3px
+    }
+
+    .dup-suggest a {
+      color: #175e80;
+      font-weight: 700;
+      text-decoration: none
+    }
+
+    .prior-banner {
+      display: none;
+      margin-top: 10px;
+      padding: 9px 11px;
+      border: 1px solid #4f9b6d;
+      background: #f1faf4;
+      font-size: 11px;
+      color: #285c3d;
+      line-height: 1.45
+    }
+
+    .prior-banner.show {
+      display: block
+    }
+
+    .prior-banner strong {
+      display: block;
+      margin-bottom: 3px
+    }
+
+    .hidden {
+      display: none !important
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #c8cdcf
+    }
+
+    .selected-banner {
+      display: none;
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      border: 1px solid #3f7d9b;
+      background: #eaf3f8;
+      color: #1d5a76;
+      font-size: 11px
+    }
+
+    .selected-banner.show {
+      display: block
+    }
+
+    .selected-banner strong {
+      color: #12455c
+    }
+
+    .table-wrap {
+      overflow-x: auto
+    }
+
+    @media(max-width:1000px) {
+      .form-grid {
+        grid-template-columns: 1fr 1fr
+      }
+    }
+
+    @media(max-width:640px) {
+      .form-grid,
+      .check-group {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
+</head>
+
+<body data-role="registrar" data-page="evaluate.html">
+  <main class="main-content">
+    <div class="breadcrumb"><a href="queue.html">Enrollment</a><span>/</span><span>Evaluate Applications</span></div>
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">ENROLLMENT MANAGEMENT</p>
+        <h1>Evaluate Applications</h1>
+        <p>Review incoming applications and encode the full enrollment application form. Application data is autofilled — the system runs an automated duplicate check on save.</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;"><a class="button button-secondary" href="queue.html">← Back to Queue</a><button class="button button-primary" id="clear-form">+ New Walk-in</button></div>
+    </section>
+
+    <section class="stats-grid" aria-label="Evaluation statistics">
+      <article class="stat-card accent-blue">
+        <div><strong id="st-review">0</strong><span>Pending review</span><small>Awaiting evaluation</small></div>
+      </article>
+      <article class="stat-card accent-green">
+        <div><strong id="st-ready">0</strong><span>Ready to encode</span><small>Application data complete</small></div>
+      </article>
+      <article class="stat-card accent-red">
+        <div><strong id="st-flag">0</strong><span>Duplicate flags</span><small>For review</small></div>
+      </article>
+      <article class="stat-card accent-amber">
+        <div><strong id="st-encoded">0</strong><span>Encoded</span><small>Profiles saved</small></div>
+      </article>
+    </section>
+
+    <section class="content-panel" aria-labelledby="eval-list-title" style="margin-bottom:14px;">
+      <div class="panel-header">
+        <div>
+          <h2 id="eval-list-title">Applications for Evaluation</h2>
+          <p>Select an application to load its data into the encode form.</p>
+        </div>
+        <button class="button button-outline" data-alert>Export List</button>
+      </div>
+      <div class="toolbar">
+        <label class="search-control"><span>Search</span><input id="app-search" type="search" placeholder="Filter by name / ID..."></label>
+        <label class="select-control"><span class="sr-only">Filter by status</span><select id="app-status">
+            <option value="all">Status: All</option>
+            <option value="review">Pending review</option>
+            <option value="ready">Ready to encode</option>
+            <option value="flag">Duplicate flagged</option>
+          </select></label>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Applicant</th>
+              <th>App ID</th>
+              <th>Category</th>
+              <th>Program</th>
+              <th>Campus</th>
+              <th>Status</th>
+              <th class="action-cell">Action</th>
+            </tr>
+          </thead>
+          <tbody id="app-body">
+            <tr data-app="APP-2026-0148" data-status="review">
+              <td><strong>Dela Cruz, Juan</strong></td>
+              <td>APP-2026-0148</td>
+              <td>New</td>
+              <td>HUMSS <small>Grade 11</small></td>
+              <td>Main</td>
+              <td><span class="badge neutral-badge">Pending review</span></td>
+              <td class="action-cell"><button class="row-action">Select</button></td>
+            </tr>
+            <tr data-app="APP-2026-0149" data-status="flag">
+              <td><strong>Santos, Maria A.</strong></td>
+              <td>APP-2026-0149</td>
+              <td>Transferee</td>
+              <td>STEM <small>Grade 11</small></td>
+              <td>Main</td>
+              <td><span class="badge neutral-badge">For review</span></td>
+              <td class="action-cell"><button class="row-action">Select</button></td>
+            </tr>
+            <tr data-app="APP-2026-0150" data-status="review">
+              <td><strong>Reyes, Pedro</strong></td>
+              <td>APP-2026-0150</td>
+              <td>New</td>
+              <td>TVL-Cookery <small>Grade 11</small></td>
+              <td>Bugo</td>
+              <td><span class="badge neutral-badge">Pending review</span></td>
+              <td class="action-cell"><button class="row-action">Select</button></td>
+            </tr>
+            <tr data-app="APP-2026-0151" data-status="ready">
+              <td><strong>Lim, Angela</strong></td>
+              <td>APP-2026-0151</td>
+              <td>Returnee</td>
+              <td>BSOA <small>1st Year</small></td>
+              <td>Kapatagan</td>
+              <td><span class="badge blue-badge">Ready to encode</span></td>
+              <td class="action-cell"><button class="row-action">Select</button></td>
+            </tr>
+            <tr data-app="APP-2026-0152" data-status="ready">
+              <td><strong>Abad, Carla</strong></td>
+              <td>APP-2026-0152</td>
+              <td>New</td>
+              <td>ABM <small>Grade 11</small></td>
+              <td>Main</td>
+              <td><span class="badge blue-badge">Ready to encode</span></td>
+              <td class="action-cell"><button class="row-action">Select</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer"><span id="result-count">Showing 5 of 5 applicants</span>
+        <div class="pagination" id="pager"></div>
+      </div>
+    </section>
+
+    <section aria-label="Enrollment application form">
+      <div class="selected-banner" id="selected-banner">Encoding: <strong id="selected-name">—</strong> <span id="selected-id"></span></div>
+
+      <form id="profile-form">
+        <!-- 1. Enrollment preferences -->
+        <div class="form-section">
+          <div class="section-head">
+            <h2>1 · Enrollment Preferences</h2>
+            <span class="hint">As indicated in the application form.</span>
+          </div>
+          <div class="form-body">
+            <div class="form-grid">
+              <label>Grade level to Enroll *<select id="f-grade">
+                  <option>Grade 11</option>
+                  <option>Grade 12</option>
+                </select></label>
+              <label>Which Track do you want to Enroll? *<select id="f-track">
+                  <option value="ACADEMIC">ACADEMIC</option>
+                  <option value="TVL">TVL (Technical-Vocational)</option>
+                </select></label>
+              <label>Strand / Specialization *<select id="f-strand"></select></label>
+              <label>Preferred campus<select id="f-campus">
+                  <option>Main — Iligan</option>
+                  <option>Kapatagan</option>
+                  <option>Bugo — CDO</option>
+                </select></label>
+              <label>Enrollment Category<small>As indicated in the application form</small><input id="f-category" readonly></label>
+              <label class="full">If classes will not be 100% face to face, what is your preferred distance learning modality/modalities? (Check all that applies) *
+                <div class="check-group" id="delivery-group">
+                  <label><input type="checkbox" name="delivery" value="Modular (Print)"> Modular (Print)</label>
+                  <label><input type="checkbox" name="delivery" value="Modular (Digital)"> Modular (Digital)</label>
+                  <label><input type="checkbox" name="delivery" value="Online"> Online</label>
+                  <label><input type="checkbox" name="delivery" value="Educational TV"> Educational TV</label>
+                  <label><input type="checkbox" name="delivery" value="Radio-based Instruction"> Radio-based Instruction</label>
+                  <div class="full"><label><input type="checkbox" name="delivery" value="Other"> Other:</label> <input id="f-delivery-other" class="delivery-other" type="text" placeholder="Specify" aria-label="Other delivery modality"></div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Student information -->
+        <div class="form-section">
+          <div class="section-head">
+            <h2>2 · Student Information</h2>
+            <span class="hint">LRN is provided by the previous school (DepEd).<br>Please refrain from using ALL CAPS.</span>
+          </div>
+          <div class="form-body">
+            <div class="form-grid">
+              <label>Check the appropriate box only: *<select id="f-lrn-status">
+                  <option>No LRN</option>
+                  <option>With LRN</option>
+                  <option>Returning (Balik-Aral)</option>
+                </select></label>
+              <label>PSA Birth Certificate No.<small>If available upon registration</small><input id="f-psa"></label>
+              <label>Learner's Reference Number (LRN) *<input id="f-lrn" placeholder="12-digit number"></label>
+              <label>Continuing student check<small>Verify prior ICI enrollment by LRN</small>
+                <button type="button" class="button button-secondary" id="btn-check-prior" style="width:100%;height:33px;margin-top:4px;">Check for prior ICI record</button>
+              </label>
+              <label>Last Name *<input id="f-last" autocomplete="off"></label>
+              <label>First Name *<input id="f-first" autocomplete="off"></label>
+              <label>Middle Name *<input id="f-middle"></label>
+              <label>Extension Name<small>Jr., II., III., if applicable</small><input id="f-ext"></label>
+              <label>Date of Birth *<input id="f-dob" placeholder="mm/dd/yyyy"></label>
+              <label>Sex *<select id="f-sex"><option>Female</option><option>Male</option></select></label>
+              <label>Age *<input id="f-age" type="number" min="10" max="30"></label>
+              <label>Student's Contact Number *<input id="f-contact"></label>
+              <label>Email<small>For enrollment notifications</small><input id="f-email" type="email"></label>
+              <label>Belonging to any Indigenous People (IP)?<select id="f-ip">
+                  <option>No</option>
+                  <option>Yes</option>
+                </select></label>
+              <label class="hidden" id="f-ip-other-wrap">If YES, please specify<small>In the "Other" section</small><input id="f-ip-other"></label>
+              <label>Mother Tongue *<select id="f-mother-tongue">
+                  <option>Bisaya/Cebuano</option>
+                  <option>Maranao</option>
+                  <option>Ilonggo</option>
+                  <option>Hiligaynon</option>
+                  <option>Tagalog</option>
+                  <option>Other</option>
+                </select></label>
+              <label class="full">Academic Honors Received<small>If there is any</small><input id="f-honors"></label>
+            </div>
+            <div class="dup-suggest" id="dup-suggest">Possible duplicate — the system checks existing records as you type.
+              <strong>Existing record found: <a id="dup-existing-link" href="duplicate.html">Existing student record</a></strong>
+              <span id="dup-match-reason">Matching identity details require a side-by-side review before saving this application.</span>
+            </div>
+            <div class="prior-banner" id="prior-banner">
+              <strong>Continuing student — prior ICI record found</strong>
+              <span id="prior-banner-text"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Complete home address -->
+        <div class="form-section">
+          <div class="section-head">
+            <h2>3 · Complete Home Address</h2>
+          </div>
+          <div class="form-body">
+            <div class="form-grid">
+              <label>House Number and Street *<input id="f-house"></label>
+              <label>Province *<select id="f-province">
+                  <option>Lanao del Norte</option>
+                  <option>Misamis Oriental</option>
+                  <option>Lanao del Sur</option>
+                  <option>Misamis Occidental</option>
+                  <option>Zamboanga del Norte</option>
+                  <option>Others</option>
+                </select></label>
+              <label>City / Municipality *<input id="f-city"></label>
+              <label class="full">Barangay *<input id="f-barangay" placeholder="If you are not from Iligan, fill in the barangay you are from"></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Current school -->
+        <div class="form-section">
+          <div class="section-head">
+            <h2>4 · Current School</h2>
+            <span class="hint">If you are currently enrolled, provide your<br>previous school details.</span>
+          </div>
+          <div class="form-body">
+            <div class="form-grid">
+              <label>Are you currently enrolled? *<select id="f-enrolled">
+                  <option>No</option>
+                  <option>Yes</option>
+                </select></label>
+              <label class="span2">Name of your School *<input id="f-school"></label>
+              <label>School's Address<small>Barangay, City/Municipality, Province</small><input id="f-school-address"></label>
+              <label>School's ID<input id="f-school-id"></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Parent / guardian -->
+        <div class="form-section">
+          <div class="section-head">
+            <h2>5 · Parent / Guardian</h2>
+            <span class="hint">Certification consent: information is used for the<br>Learner Information System (DepEd) and is confidential.</span>
+          </div>
+          <div class="form-body">
+            <div class="form-grid">
+              <label>Father's Name *<small>Firstname, Middlename, Lastname</small><input id="f-father"></label>
+              <label>Mother's Name *<small>Firstname, Middlename, Lastname</small><input id="f-mother"></label>
+              <label>Guardian's Name<small>Firstname, Middlename, Lastname</small><input id="f-guardian"></label>
+              <label>Parent's / Guardian's Contact Number *<input id="f-guardian-contact"></label>
+              <label>Date of Registration<input id="f-regdate" placeholder="mm/dd/yyyy"></label>
+              <label>Referred by<small>Enrollment Team</small><select id="f-referred">
+                  <option>PE/FILIPINO</option>
+                  <option>HUMSS/ABM</option>
+                  <option>TVL</option>
+                  <option>STEM</option>
+                  <option>ENGLISH</option>
+                  <option>STAFF</option>
+                  <option>GUIDANCE</option>
+                </select></label>
+            </div>
+            <div class="dup-note"><span>i</span><div>On save, the system runs an <strong>automated duplicate check</strong> against the centralized student database across all three campuses.</div></div>
+            <div class="btn-row">
+              <button class="button button-secondary" type="button" id="btn-draft">Save Draft</button>
+              <button class="button button-primary" type="button" id="btn-check">Save &amp; Run Duplicate Check</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status"><span class="toast-icon" aria-hidden="true">&#10003;</span>
+    <div><strong>Saved</strong><small>Record updated in the enrollment queue.</small></div><button class="toast-dismiss" type="button" aria-label="Dismiss notification">&#10005;</button>
+  </div>
+
+  <script src="../assets/js/data-store.js"></script>
+  <script src="../assets/js/portal-shell.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/pagination.js"></script>
+  <script src="../assets/js/evaluate.js"></script>
+</body>
+
+</html>

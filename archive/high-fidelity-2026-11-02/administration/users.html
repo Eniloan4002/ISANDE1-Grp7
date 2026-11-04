@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="System Administrator user access management">
+  <title>ICI Local 2.0 | User Accounts</title>
+  <link rel="stylesheet" href="../assets/css/global.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <style>
+    /* Page-scoped styles reuse the existing compact MIS component language. */
+    .users-layout {
+      display: grid;
+      grid-template-columns: minmax(320px, .9fr) minmax(510px, 1.35fr);
+      gap: 14px;
+      align-items: start
+    }
+
+    .users-panel {
+      margin-bottom: 14px
+    }
+
+    .users-panel .panel-header {
+      padding: 10px 13px
+    }
+
+    .user-form {
+      padding: 12px 13px
+    }
+
+    .user-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px
+    }
+
+    .user-field {
+      display: block;
+      color: #526065;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .35px;
+      text-transform: uppercase
+    }
+
+    .user-field input,
+    .user-field select {
+      display: block;
+      width: 100%;
+      height: 32px;
+      margin-top: 4px;
+      border: 1px solid #858d90;
+      border-radius: 1px;
+      background: #fff;
+      color: #30383b;
+      padding: 0 7px;
+      font: 12px 'Open Sans', Arial, sans-serif
+    }
+
+    .field-wide {
+      grid-column: 1 / -1
+    }
+
+    .permission-box {
+      margin-top: 12px;
+      padding: 9px 10px;
+      border: 1px solid #aab1b3;
+      background: #f6f8f8
+    }
+
+    .permission-box h3 {
+      margin: 0 0 3px;
+      font: 700 11px Roboto, Arial, sans-serif
+    }
+
+    .permission-box p {
+      margin: 0 0 7px;
+      color: #687479;
+      font-size: 10px;
+      line-height: 1.4
+    }
+
+    .permission-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px
+    }
+
+    .permission-list label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #3f4c50;
+      font: 11px 'Segoe UI', Arial, sans-serif
+    }
+
+    .permission-list input {
+      width: 13px;
+      height: 13px;
+      margin: 0;
+      accent-color: #006889
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 7px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #c8cdcf
+    }
+
+    .form-status {
+      min-height: 15px;
+      margin: 0 0 8px;
+      color: #657176;
+      font-size: 10px
+    }
+
+    .users-table-title {
+      margin: 0;
+      font: 700 14px Roboto, Arial, sans-serif
+    }
+
+    .users-table {
+      min-width: 600px
+    }
+
+    .users-table th:nth-child(1) {
+      width: 31%
+    }
+
+    .users-table th:nth-child(2) {
+      width: 25%
+    }
+
+    .users-table th:nth-child(3) {
+      width: 17%
+    }
+
+    .users-table th:nth-child(4) {
+      width: 12%
+    }
+
+    .users-table th:nth-child(5) {
+      width: 15%
+    }
+
+    .user-name {
+      display: block;
+      color: #26353a;
+      font-weight: 700
+    }
+
+    .user-username {
+      display: block;
+      margin-top: 2px;
+      color: #748085;
+      font-size: 10px
+    }
+
+    .role-label {
+      font-size: 11px
+    }
+
+    .account-status {
+      min-width: 56px;
+      text-align: center
+    }
+
+    .account-active {
+      background: #eff8f2;
+      color: #286445
+    }
+
+    .account-inactive {
+      background: #fff4f4;
+      color: #854343
+    }
+
+    .table-actions {
+      display: flex;
+      justify-content: center;
+      gap: 5px
+    }
+
+    .deactivate-action {
+      color: #7b4a4a
+    }
+
+    .activate-action {
+      color: #286445
+    }
+
+    .table-note {
+      margin-top: 10px;
+      padding: 8px 10px;
+      border: 1px dashed #9ba3a5;
+      background: #fbfbfb;
+      color: #697479;
+      font-size: 10px;
+      line-height: 1.45
+    }
+
+    .user-toast {
+      display: none;
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 50;
+      padding: 10px 12px;
+      background: #fff;
+      border: 1px solid #4e656e;
+      box-shadow: 2px 2px 8px #999;
+      color: #344247;
+      font-size: 11px
+    }
+
+    .user-toast.show {
+      display: block
+    }
+
+    @media(max-width:1050px) {
+      .users-layout {
+        grid-template-columns: 1fr
+      }
+
+      .users-table {
+        min-width: 740px
+      }
+    }
+
+    @media(max-width:560px) {
+      .user-form-grid {
+        grid-template-columns: 1fr
+      }
+
+      .form-actions .button {
+        flex: 1
+      }
+
+      .permission-list {
+        display: grid;
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
+</head>
+
+<body data-role="admin" data-page="users.html">
+  <main class="main-content">
+    <div class="breadcrumb"><a href="users.html">Administration</a><span>/</span><span>User Accounts</span></div>
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">SYSTEM ADMINISTRATOR</p>
+        <h1>User Accounts</h1>
+        <p>Create and maintain user accounts, roles, and authorized module access.</p>
+      </div>
+    </section>
+
+    <div class="users-layout">
+      <section class="content-panel users-panel" aria-labelledby="user-form-title">
+        <header class="panel-header">
+          <div>
+            <h2 id="user-form-title">Create User</h2>
+            <p id="form-subtitle">Add a user account and assign the appropriate access.</p>
+          </div>
+        </header>
+        <form class="user-form" id="user-form">
+          <p class="form-status" id="form-status">Role selection sets the recommended module access. Permissions may be
+            adjusted as needed.</p>
+          <div class="user-form-grid">
+            <label class="user-field field-wide">Full Name<input id="full-name" required
+                placeholder="e.g., Maria C. Santos"></label>
+            <label class="user-field">Username<input id="username" required placeholder="e.g., msantos"></label>
+            <label class="user-field">Email<input id="email" type="email" required
+                placeholder="e.g., msantos@ici.edu.ph"></label>
+            <label class="user-field">Campus<select id="campus">
+                <option>Main Campus</option>
+                <option>Annex Campus</option>
+              </select></label>
+            <label class="user-field">Role<select id="role" required>
+                <option value="Registrar Staff">Registrar Staff</option>
+                <option value="Teacher Adviser">Teacher Adviser</option>
+                <option value="Subject Teacher">Subject Teacher</option>
+                <option value="Guidance Staff">Guidance Staff</option>
+                <option value="Principal / School Administrator">Principal / School Administrator</option>
+                <option value="System Administrator">System Administrator</option>
+              </select></label>
+            <label class="user-field">Account Status<select id="account-status">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select></label>
+          </div>
+          <section class="permission-box" aria-labelledby="permission-title">
+            <h3 id="permission-title">MODULE PERMISSIONS</h3>
+            <p>Role-based access is recommended. Select only the modules required for this user's assigned
+              responsibility.</p>
+            <div class="permission-list"><label><input type="checkbox" value="Enrollment Management">Enrollment
+                Management</label><label><input type="checkbox" value="Academic Records">Academic
+                Records</label><label><input type="checkbox" value="Reporting &amp; Monitoring">Reporting &amp;
+                Monitoring</label></div>
+          </section>
+          <div class="form-actions"><button class="button button-outline" id="clear-form"
+              type="button">Clear</button><button class="button button-primary" id="save-user" type="submit">Save
+              User</button></div>
+        </form>
+      </section>
+
+      <section aria-labelledby="users-table-title">
+        <h2 class="users-table-title" id="users-table-title">System Users</h2>
+        <div class="content-panel table-wrap" style="margin-top:7px">
+          <table class="users-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Campus</th>
+                <th>Status</th>
+                <th class="action-cell">Action</th>
+              </tr>
+            </thead>
+            <tbody id="users-table-body"></tbody>
+          </table>
+        </div>
+        <div class="table-note"><strong>Access control:</strong> The assigned role determines the user's usual access.
+          Module permissions allow the system administrator to review and update the modules available to that account.
+        </div>
+      </section>
+    </div>
+  </main>
+  <div class="user-toast" id="user-toast" role="status"></div>
+
+  <script src="../assets/js/portal-shell.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script>
+    const users = [
+      { id: 1, name: 'Ramon S. Dela Cruz', username: 'rdelacruz', email: 'rdelacruz@ici.edu.ph', campus: 'Main Campus', role: 'Registrar Staff', status: 'Active', permissions: ['Enrollment Management', 'Academic Records', 'Reporting & Monitoring'] },
+      { id: 2, name: 'Maria C. Santos', username: 'msantos', email: 'msantos@ici.edu.ph', campus: 'Main Campus', role: 'Teacher Adviser', status: 'Active', permissions: ['Academic Records', 'Reporting & Monitoring'] },
+      { id: 3, name: 'Pedro R. Reyes', username: 'preyes', email: 'preyes@ici.edu.ph', campus: 'Annex Campus', role: 'Subject Teacher', status: 'Active', permissions: ['Academic Records'] },
+      { id: 4, name: 'Liza M. Garcia', username: 'lgarcia', email: 'lgarcia@ici.edu.ph', campus: 'Main Campus', role: 'Guidance Staff', status: 'Active', permissions: ['Reporting & Monitoring'] },
+      { id: 5, name: 'Carlo T. Villanueva', username: 'cvillanueva', email: 'cvillanueva@ici.edu.ph', campus: 'Main Campus', role: 'Principal / School Administrator', status: 'Inactive', permissions: ['Academic Records', 'Reporting & Monitoring'] }
+    ];
+    const defaults = { 'Registrar Staff': ['Enrollment Management', 'Academic Records', 'Reporting & Monitoring'], 'Teacher Adviser': ['Academic Records'], 'Subject Teacher': ['Academic Records'], 'Guidance Staff': ['Reporting & Monitoring'], 'Principal / School Administrator': ['Academic Records', 'Reporting & Monitoring'], 'System Administrator': ['Enrollment Management', 'Academic Records', 'Reporting & Monitoring'] };
+    const form = document.getElementById('user-form');
+    const body = document.getElementById('users-table-body');
+    const checkboxes = [...document.querySelectorAll('.permission-list input')];
+    const toast = document.getElementById('user-toast');
+    let editingId = null;
+    let toastTimer;
+
+    function showToast(message) { toast.textContent = message; toast.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 3200); }
+    function setPermissions(permissions) { checkboxes.forEach(box => box.checked = permissions.includes(box.value)); }
+    function renderUsers() { body.innerHTML = users.map(user => `<tr><td><span class="user-name">${user.name}</span><span class="user-username">${user.username}</span></td><td><span class="role-label">${user.role}</span></td><td>${user.campus}</td><td><span class="badge account-status ${user.status === 'Active' ? 'account-active' : 'account-inactive'}">${user.status}</span></td><td><div class="table-actions"><button class="row-action edit-user" data-id="${user.id}" type="button">Edit</button><button class="row-action ${user.status === 'Active' ? 'deactivate-action' : 'activate-action'} toggle-user" data-id="${user.id}" type="button">${user.status === 'Active' ? 'Deactivate' : 'Activate'}</button></div></td></tr>`).join(''); }
+    function clearForm() { editingId = null; form.reset(); document.getElementById('role').value = 'Registrar Staff'; setPermissions(defaults['Registrar Staff']); document.getElementById('user-form-title').textContent = 'Create User'; document.getElementById('form-subtitle').textContent = 'Add a user account and assign the appropriate access.'; document.getElementById('save-user').textContent = 'Save User'; }
+    document.getElementById('role').addEventListener('change', event => { setPermissions(defaults[event.target.value]); document.getElementById('form-status').textContent = `Recommended module access applied for ${event.target.value}.`; });
+    body.addEventListener('click', event => {
+      const id = Number(event.target.dataset.id); const user = users.find(item => item.id === id);
+      if (event.target.classList.contains('edit-user')) { editingId = id; document.getElementById('full-name').value = user.name; document.getElementById('username').value = user.username; document.getElementById('email').value = user.email; document.getElementById('campus').value = user.campus; document.getElementById('role').value = user.role; document.getElementById('account-status').value = user.status; setPermissions(user.permissions); document.getElementById('user-form-title').textContent = 'Edit User'; document.getElementById('form-subtitle').textContent = `Updating access for ${user.name}.`; document.getElementById('save-user').textContent = 'Save Changes'; document.getElementById('full-name').focus(); }
+      if (event.target.classList.contains('toggle-user')) { user.status = user.status === 'Active' ? 'Inactive' : 'Active'; renderUsers(); showToast(`${user.name} is now ${user.status.toLowerCase()}.`); }
+    });
+    form.addEventListener('submit', event => { event.preventDefault(); const savedUser = { id: editingId || Date.now(), name: document.getElementById('full-name').value.trim(), username: document.getElementById('username').value.trim(), email: document.getElementById('email').value.trim(), campus: document.getElementById('campus').value, role: document.getElementById('role').value, status: document.getElementById('account-status').value, permissions: checkboxes.filter(box => box.checked).map(box => box.value) }; const existingIndex = users.findIndex(user => user.id === editingId); if (existingIndex >= 0) users[existingIndex] = savedUser; else users.unshift(savedUser); renderUsers(); showToast(editingId ? 'User account updated.' : 'User account created.'); clearForm(); });
+    document.getElementById('clear-form').addEventListener('click', clearForm);
+    renderUsers(); clearForm();
+  </script>
+</body>
+
+</html>
