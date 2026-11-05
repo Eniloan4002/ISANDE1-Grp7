@@ -10,11 +10,17 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -31,6 +37,7 @@ class FoundationAuthenticationTest {
     @Autowired JdbcTemplate jdbc;
     @Autowired PasswordEncoder passwords;
     @Autowired Flyway flyway;
+    @Autowired ph.edu.ici.auth.JwtAuthenticationFilter jwt;
     String username,password="Valid-Test-Password-123!",token;
     long userId;
 
@@ -47,6 +54,11 @@ class FoundationAuthenticationTest {
         HttpHeaders headers=new HttpHeaders();headers.setContentType(MediaType.APPLICATION_JSON);
         if(bearer!=null)headers.setBearerAuth(bearer);
         return rest.exchange(path,method,new HttpEntity<>(body,headers),Map.class);
+    }
+    HttpStatusCode status(HttpMethod method,String path,Object body,String bearer){
+        HttpHeaders headers=new HttpHeaders();headers.setContentType(MediaType.APPLICATION_JSON);
+        if(bearer!=null)headers.setBearerAuth(bearer);
+        return rest.exchange(path,method,new HttpEntity<>(body,headers),String.class).getStatusCode();
     }
     Map create(String path,Map input){var response=call(HttpMethod.POST,"/api/setup/"+path,input,token);assertThat(response.getStatusCode()).describedAs(response.toString()).isEqualTo(HttpStatus.CREATED);return response.getBody();}
     Map year(){return create("academic-years",Map.of("label",UUID.randomUUID().toString().substring(0,20),"startsOn","2026-06-01","endsOn","2027-04-30"));}
@@ -93,10 +105,73 @@ class FoundationAuthenticationTest {
         String forged=Jwts.builder().subject(Long.toString(userId)).expiration(Date.from(Instant.now().plusSeconds(60))).signWith(Jwts.SIG.HS256.key().build()).compact();
         for(String value:List.of(expired,otherIssuer,forged))assertThat(call(HttpMethod.GET,"/api/auth/me",null,value).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
+    @Test void protectedOperationsRejectMissingAuthentication(){
+        assertThat(status(HttpMethod.GET,"/api/auth/me",null,null)).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(status(HttpMethod.POST,"/api/auth/logout",null,null)).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(status(HttpMethod.GET,"/api/setup/subjects",null,null)).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(status(HttpMethod.POST,"/api/setup/subjects",Map.of("code","UNAUTH","name","Denied","units",1,"active",true),null)).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(status(HttpMethod.GET,"/api/students",null,null)).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(status(HttpMethod.POST,"/api/students",Map.of(),null)).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
     @Test void currentRolesAreRecheckedAndSetupRequiresRegistrarOrAdmin(){
         jdbc.update("DELETE FROM user_role_grants WHERE user_id=?",userId);
         assertThat(call(HttpMethod.GET,"/api/setup/subjects",null,token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(call(HttpMethod.GET,"/api/auth/me",null,token).getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+    @Test void setupUsesLiveEnrollmentPermissionInsteadOfRoleNames(){
+        String path="/api/setup/subjects";
+        Map<String,Object> input=Map.of("code","RBAC-"+UUID.randomUUID().toString().substring(0,8),"name","Access test","units",1,"active",true);
+        var created=call(HttpMethod.POST,path,input,token);
+        assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        String item=path+"/"+created.getBody().get("id");
+        assertThat(call(HttpMethod.GET,item,null,token).getStatusCode()).isEqualTo(HttpStatus.OK);
+        jdbc.update("UPDATE user_role_grants SET role_code='ROLE_TEACHER' WHERE user_id=?",userId);
+        assertThat(call(HttpMethod.GET,"/api/auth/me",null,token).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(call(HttpMethod.GET,item,null,token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.POST,path,input,token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        jdbc.update("UPDATE user_role_grants SET role_code='ROLE_ADMIN' WHERE user_id=?",userId);
+        assertThat(call(HttpMethod.GET,item,null,token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.POST,path,Map.of("code","RBAC-"+UUID.randomUUID().toString().substring(0,8),"name","Admin access test","units",1,"active",true),token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+    @ParameterizedTest
+    @ValueSource(strings={"ROLE_ADMIN","ROLE_REGISTRAR","ROLE_PRINCIPAL","ROLE_ADVISER","ROLE_TEACHER","ROLE_GUIDANCE","ROLE_CASHIER_REF"})
+    void everySeededRoleCanManageOnlyItsOwnSessionAndAuthorizedSetup(String role){
+        Map subject=subject();
+        assertThat(jdbc.queryForObject("SELECT EXISTS(SELECT 1 FROM roles WHERE code=?)",Boolean.class,role)).isTrue();
+        jdbc.update("UPDATE user_role_grants SET role_code=? WHERE user_id=?",role,userId);
+        String current=(String)login(username,password).getBody().get("accessToken");
+        var claims=Jwts.parser().verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(PostgresSupport.SECRET))).build().parseSignedClaims(current).getPayload();
+        assertThat(claims.get("roles",List.class)).containsExactly(role);
+        var request=new MockHttpServletRequest();request.setServletPath("/api/auth/me");request.addHeader("Authorization","Bearer "+current);
+        var response=new MockHttpServletResponse();
+        AtomicInteger reached=new AtomicInteger();
+        try{
+            jwt.doFilter(request,response,(servletRequest,servletResponse)->{
+                var authentication=SecurityContextHolder.getContext().getAuthentication();
+                var expectedAuthorities=new ArrayList<String>();expectedAuthorities.add(role);
+                expectedAuthorities.addAll(jdbc.queryForList("SELECT permission_code FROM role_permissions WHERE role_code=?",String.class,role));
+                expectedAuthorities.sort(String::compareTo);
+                assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsExactlyElementsOf(expectedAuthorities);
+                reached.incrementAndGet();
+            });
+        }catch(Exception exception){throw new AssertionError("JWT authority conversion failed for "+role,exception);}
+        finally{SecurityContextHolder.clearContext();}
+        assertThat(reached.get()).isEqualTo(1);
+        assertThat(call(HttpMethod.GET,"/api/auth/me",null,current).getStatusCode()).isEqualTo(HttpStatus.OK);
+        boolean setupRole=jdbc.queryForList("SELECT permission_code FROM role_permissions WHERE role_code=?",String.class,role).contains("enrollment.manage");
+        HttpStatusCode read=setupRole?HttpStatus.OK:HttpStatus.FORBIDDEN;
+        for(String resource:List.of("subjects","academic-years","terms","grading-periods"))
+            assertThat(status(HttpMethod.GET,"/api/setup/"+resource,null,current)).describedAs(role+" reading "+resource).isEqualTo(read);
+        String item="/api/setup/subjects/"+subject.get("id");
+        Map<String,Object> input=Map.of("code",subject.get("code"),"name","Role matrix","units",1,"active",true,"version",0);
+        assertThat(call(HttpMethod.GET,item,null,current).getStatusCode()).isEqualTo(read);
+        assertThat(call(HttpMethod.POST,"/api/setup/subjects",Map.of("code","MATRIX-"+UUID.randomUUID().toString().substring(0,8),"name","Role matrix","units",1,"active",true),current).getStatusCode())
+            .isEqualTo(setupRole?HttpStatus.CREATED:HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.PUT,item,input,current).getStatusCode()).isEqualTo(read);
+        assertThat(call(HttpMethod.DELETE,item+"?version="+(setupRole?1:0),null,current).getStatusCode())
+            .isEqualTo(setupRole?HttpStatus.NO_CONTENT:HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.POST,"/api/auth/logout",null,current).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(call(HttpMethod.GET,"/api/auth/me",null,current).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
     @Test void setupCrudDateValidationAndDuplicateProtection(){
         Map year=year(),term=term(year),subject=subject();

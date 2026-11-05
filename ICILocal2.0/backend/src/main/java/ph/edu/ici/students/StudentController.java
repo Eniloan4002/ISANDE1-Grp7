@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/students")
-@PreAuthorize("hasAnyRole('ADMIN','REGISTRAR')")
+@PreAuthorize("hasAuthority('enrollment.manage')")
 public class StudentController {
     private final StudentService service;
     public StudentController(StudentService service){this.service=service;}

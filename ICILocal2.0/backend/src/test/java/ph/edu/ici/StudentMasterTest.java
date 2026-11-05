@@ -1,7 +1,12 @@
 package ph.edu.ici;
 
+import java.sql.Connection;
 import java.util.*;
+import java.util.concurrent.*;
+import javax.sql.DataSource;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -18,6 +23,7 @@ class StudentMasterTest {
         r.add("spring.datasource.url",()->PostgresSupport.DATABASE.getJdbcUrl("postgres","postgres"));r.add("spring.datasource.username",()->"postgres");r.add("spring.datasource.password",()->"");r.add("ici.auth.secret",()->PostgresSupport.SECRET);r.add("ici.bootstrap.enabled",()->false);
     }
     @Autowired TestRestTemplate rest;@Autowired JdbcTemplate db;@Autowired PasswordEncoder encoder;
+    @Autowired DataSource dataSource;
     String token,otherToken;long user,campus,otherCampus,program;
     @BeforeEach void init(){
         campus=db.queryForObject("SELECT id FROM campuses WHERE code='ILIGAN'",Long.class);otherCampus=db.queryForObject("SELECT id FROM campuses WHERE code='BUGO'",Long.class);program=db.queryForObject("SELECT id FROM programs WHERE code='STEM'",Long.class);
@@ -64,5 +70,90 @@ class StudentMasterTest {
         var refs=call(HttpMethod.GET,"/api/students/reference-data",null);assertThat((List)refs.getBody().get("campuses")).hasSize(1);assertThat((List)refs.getBody().get("vouchers")).hasSize(4);
         db.update("DELETE FROM user_role_grants WHERE user_id=?",user);db.update("INSERT INTO user_role_grants(user_id,role_code,campus_id) VALUES (?,'ROLE_TEACHER',?)",user,campus);
         assertThat(call(HttpMethod.POST,"/api/students",input()).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+    @Test void roleChangesApplyToEveryExistingStudentOperation(){
+        var student=create(input());String path="/api/students/"+student.get("id");
+        var update=input();update.put("version",0);
+        db.update("UPDATE user_role_grants SET role_code='ROLE_TEACHER' WHERE user_id=?",user);
+        assertThat(call(HttpMethod.GET,"/api/students",null).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.GET,path,null).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.POST,"/api/students",input()).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.PUT,path,update).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.DELETE,path+"?version=0",null).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.GET,"/api/students/reference-data",null).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        db.update("UPDATE user_role_grants SET role_code='ROLE_ADMIN' WHERE user_id=?",user);
+        assertThat(call(HttpMethod.GET,path,null).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        db.update("UPDATE user_role_grants SET role_code='ROLE_REGISTRAR' WHERE user_id=?",user);
+        assertThat(call(HttpMethod.GET,path,null).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(call(HttpMethod.PUT,path,update).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(call(HttpMethod.DELETE,path+"?version=1",null).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+    }
+    @Test void campusGrantAppliesToReadsAndFinalMutations(){
+        var student=create(input());long id=((Number)student.get("id")).longValue();String path="/api/students/"+id;
+        var update=input();update.put("version",0);
+        db.update("UPDATE students SET campus_id=? WHERE id=?",otherCampus,id);
+        assertThat(call(HttpMethod.GET,path,null).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(HttpMethod.GET,"/api/students?campusId="+otherCampus,null).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.PUT,path,update).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(HttpMethod.DELETE,path+"?version=0",null).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(db.queryForMap("SELECT campus_id,active,version FROM students WHERE id=?",id)).containsEntry("campus_id",otherCampus).containsEntry("active",true).containsEntry("version",0);
+        db.update("UPDATE user_role_grants SET campus_id=? WHERE user_id=?",otherCampus,user);
+        update.put("campusId",otherCampus);
+        assertThat(call(HttpMethod.GET,path,null).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(call(HttpMethod.PUT,path,update).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(call(HttpMethod.DELETE,path+"?version=1",null).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+    }
+    @ParameterizedTest
+    @ValueSource(strings={"ROLE_ADMIN","ROLE_REGISTRAR","ROLE_PRINCIPAL","ROLE_ADVISER","ROLE_TEACHER","ROLE_GUIDANCE","ROLE_CASHIER_REF"})
+    void everySeededRoleFollowsExistingStudentApiRule(String role){
+        var student=create(input());String path="/api/students/"+student.get("id");
+        var update=input();update.put("version",0);
+        db.update("UPDATE user_role_grants SET role_code=? WHERE user_id=?",role,user);
+        boolean manager="ROLE_REGISTRAR".equals(role);
+        HttpStatusCode read=manager?HttpStatus.OK:HttpStatus.FORBIDDEN;
+        assertThat(call(HttpMethod.GET,"/api/students",null).getStatusCode()).isEqualTo(read);
+        assertThat(call(HttpMethod.GET,path,null).getStatusCode()).isEqualTo(read);
+        assertThat(call(HttpMethod.GET,"/api/students/reference-data",null).getStatusCode()).isEqualTo(read);
+        assertThat(call(HttpMethod.POST,"/api/students",input()).getStatusCode()).isEqualTo(manager?HttpStatus.CREATED:HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.PUT,path,update).getStatusCode()).isEqualTo(read);
+        assertThat(call(HttpMethod.DELETE,path+"?version="+(manager?1:0),null).getStatusCode())
+            .isEqualTo(manager?HttpStatus.NO_CONTENT:HttpStatus.FORBIDDEN);
+        if(manager){
+            var other=input();other.put("campusId",otherCampus);
+            assertThat(call(HttpMethod.GET,"/api/students?campusId="+otherCampus,null).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+            assertThat(call(HttpMethod.POST,"/api/students",other).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        }
+    }
+    @Test void finalStudentWritesRecheckCampusAfterConcurrentTransfer() throws Exception {
+        for(HttpMethod method:List.of(HttpMethod.PUT,HttpMethod.DELETE)){
+            var student=create(input());long id=((Number)student.get("id")).longValue();String path="/api/students/"+id;
+            var update=input();update.put("version",0);
+            ExecutorService executor=Executors.newSingleThreadExecutor();
+            try(Connection locker=dataSource.getConnection()){
+                locker.setAutoCommit(false);
+                try(var lock=locker.prepareStatement("SELECT id FROM students WHERE id=? FOR UPDATE")){
+                    lock.setLong(1,id);try(var rows=lock.executeQuery()){assertThat(rows.next()).isTrue();}
+                }
+                Future<ResponseEntity<Map>> attempt=executor.submit(()->call(method,method==HttpMethod.DELETE?path+"?version=0":path,method==HttpMethod.PUT?update:null));
+                try{
+                    String prefix=method==HttpMethod.PUT?"UPDATE students SET program_id":"UPDATE students SET active=false";
+                    long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(10);
+                    boolean waiting=false;
+                    while(System.nanoTime()<deadline){
+                        waiting=Boolean.TRUE.equals(db.queryForObject("SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock' AND query LIKE ?)",Boolean.class,prefix+"%"));
+                        if(waiting||attempt.isDone())break;
+                        Thread.sleep(20);
+                    }
+                    assertThat(waiting).describedAs(method+" must reach the final write while the student row is locked").isTrue();
+                    try(var move=locker.prepareStatement("UPDATE students SET campus_id=? WHERE id=?")){
+                        move.setLong(1,otherCampus);move.setLong(2,id);assertThat(move.executeUpdate()).isEqualTo(1);
+                    }
+                    locker.commit();
+                    assertThat(attempt.get(10,TimeUnit.SECONDS).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+                    assertThat(db.queryForMap("SELECT campus_id,active,version FROM students WHERE id=?",id))
+                        .containsEntry("campus_id",otherCampus).containsEntry("active",true).containsEntry("version",0);
+                }finally{locker.rollback();}
+            }finally{executor.shutdownNow();}
+        }
     }
 }

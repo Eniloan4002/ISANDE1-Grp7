@@ -6,7 +6,7 @@
 - Successful login returns accessToken, tokenType (Bearer), expiresAt and the staff profile. Signed HS256 JWTs include sub/userId, unique jti, issuer, issued/expiry times, roles and explicit per-campus role grants.
 - GET /api/auth/me verifies the token and returns the current staff profile. All business APIs require a valid token; academic setup currently permits admin/registrar roles.
 - POST /api/auth/logout durably revokes the current token by jti in PostgreSQL. Revocation survives application restarts when the database is retained. Other independent sign-ins stay valid.
-- Every protected request verifies the signature, issuer and expiry, rejects revoked tokens, checks the account is still active and reloads current campus-role grants. Removed permissions do not stay effective until token expiry.
+- Every protected request verifies the signature, issuer and expiry, rejects revoked tokens, checks the account is still active and reloads active campus grants plus current `role_permissions`. Grant and permission changes apply on the next request with the same token.
 - No server login sessions or authentication cookies are created. Bearer headers are explicit, so CSRF cookie authentication is not used. Login/token responses are not cached.
 - React provides a real staff sign-in form, invalid-credential feedback, protected setup route, session restoration, expired-session handling and sign-out. The token is kept in sessionStorage for that browser tab and removed on confirmed logout or a 401. Passwords are never stored in browser storage.
 
@@ -24,10 +24,10 @@ Login JSON: {"username":"your-staff-name","password":"your-password"}
 
 For subsequent calls, send Authorization: Bearer <accessToken>. Logout is POST with that same header and returns 204; token reuse then returns 401.
 
-A missing/invalid/expired token returns 401. A signed-in user without the required setup role receives 403. Validation returns 400 with field errors. The API does not trust caller-supplied actor IDs: setup audit actors come from the verified staff identity in the same database transaction.
+A missing/invalid/expired token returns 401. A signed-in user without the required current role/permission or campus grant receives 403 (resource IDs outside their scope may return 404). Validation returns 400 with field errors. The API does not trust caller-supplied actor IDs: write audit actors come from the verified staff identity in the same database transaction.
 
 ## Task boundary
 
-This completes authentication/token issuance and invalidation. Full module/campus-specific RBAC (ICI2-7), user-account management (ICI2-9), password recovery, refresh tokens and rate-limit infrastructure are separate work. Existing static mockups retain their original demo-only role selector inside the archive.
+Authentication, live permission/campus authorization, staff account management, and the paper workflows supported by the current schema are documented in [rbac-integration.md](rbac-integration.md) and [rbac-implementation-log.md](rbac-implementation-log.md). Password recovery, refresh tokens, and rate-limit infrastructure remain separate work. Existing static mockups retain their original demo-only role selector inside the archive.
 
 Sources: [Spring Security stateless sessions](https://docs.spring.io/spring-security/reference/servlet/authentication/session-management.html), [JJWT signing and verification](https://github.com/jwtk/jjwt).

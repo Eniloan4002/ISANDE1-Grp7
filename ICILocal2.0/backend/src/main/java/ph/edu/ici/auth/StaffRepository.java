@@ -24,6 +24,13 @@ public class StaffRepository {
         return jdbc.query("SELECT g.campus_id,c.code,g.role_code FROM user_role_grants g JOIN campuses c ON c.id=g.campus_id WHERE g.user_id=? AND c.active ORDER BY g.campus_id,g.role_code",
             (rs,row)->new StaffIdentity.Grant(rs.getLong("campus_id"),rs.getString("code"),rs.getString("role_code")),id);
     }
+    public List<String> authorities(long id) {
+        return jdbc.query("SELECT authority FROM ("+
+            "SELECT DISTINCT g.role_code AS authority FROM user_role_grants g JOIN campuses c ON c.id=g.campus_id WHERE g.user_id=? AND c.active " +
+            "UNION SELECT DISTINCT rp.permission_code FROM user_role_grants g JOIN campuses c ON c.id=g.campus_id " +
+            "JOIN role_permissions rp ON rp.role_code=g.role_code WHERE g.user_id=? AND c.active"+
+            ") a ORDER BY authority",(rs,row)->rs.getString("authority"),id,id);
+    }
     public boolean revoked(UUID id) {
         return Boolean.TRUE.equals(jdbc.queryForObject("SELECT EXISTS(SELECT 1 FROM revoked_tokens WHERE token_id=?)",Boolean.class,id));
     }
