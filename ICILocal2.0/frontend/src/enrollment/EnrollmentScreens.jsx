@@ -45,12 +45,65 @@ const initialApplicants = [
   },
 ];
 
+const mockReferenceData = {
+  campuses: [
+    { id: 'demo-campus-iligan-main', name: 'Iligan Main' },
+    { id: 'demo-campus-kapatagan', name: 'Kapatagan' },
+    { id: 'demo-campus-bugo-cdo', name: 'Bugo — CDO' },
+  ],
+  programs: [
+    { id: 'demo-program-shs', name: 'Senior High School' },
+    { id: 'demo-program-tvet', name: 'TVET' },
+  ],
+  tracks: [
+    { code: 'ACADEMIC', name: 'Academic', programId: 'demo-program-shs' },
+    { code: 'TVL', name: 'TVL', programId: 'demo-program-shs' },
+    { code: 'TVET', name: 'TVET', programId: 'demo-program-tvet' },
+  ],
+  specializations: [
+    { code: 'STEM', name: 'STEM', trackCode: 'ACADEMIC' },
+    { code: 'ABM', name: 'ABM', trackCode: 'ACADEMIC' },
+    { code: 'HUMSS', name: 'HUMSS', trackCode: 'ACADEMIC' },
+    { code: 'COOKERY', name: 'Cookery', trackCode: 'TVL' },
+    { code: 'ICT', name: 'ICT', trackCode: 'TVL' },
+    { code: 'TVET', name: 'TVET', trackCode: 'TVET' },
+  ],
+  vouchers: [
+    { code: 'QVR', name: 'Qualified Voucher Recipient (QVR)' },
+    { code: 'ESC', name: 'Education Service Contracting (ESC)' },
+    { code: 'ALS', name: 'Alternative Learning System (ALS)' },
+    { code: 'REGULAR', name: 'Regular / Paying' },
+  ],
+  terms: [{ id: 'demo-term', name: 'Demo term (preview only)' }],
+};
+
+const applicantCategories = [
+  { code: 'new', name: 'New' },
+  { code: 'transferee', name: 'Transferee' },
+  { code: 'returnee', name: 'Returnee' },
+  { code: 'continuing', name: 'Continuing' },
+];
+
 const EnrollmentMockContext = createContext(null);
 
 export function EnrollmentMockProvider({ children }) {
-  const [applicants, setApplicants] = useState(initialApplicants);
+  const [applicants, setApplicants] = useState(() => initialApplicants.map(applicant => ({
+    ...applicant,
+    campusId: mockReferenceData.campuses.find(item => item.name === applicant.campus)?.id,
+    programId: mockReferenceData.programs.find(item => item.name === applicant.program)?.id,
+    termId: 'demo-term',
+    trackCode: applicant.track === 'Academic' ? 'ACADEMIC' : applicant.track === 'TVL' ? 'TVL' : 'TVET',
+    specializationCode: mockReferenceData.specializations.find(item => item.name === applicant.strand)?.code,
+    guardians: applicant.guardianName ? [{
+      fullName: applicant.guardianName,
+      relationship: applicant.guardianRelationship,
+      phone: applicant.guardianPhone,
+      primaryContact: true,
+    }] : [],
+  })));
   const [nextId, setNextId] = useState(153);
-  const addApplicant = values => {
+  const addApplicant = async values => {
+    await Promise.resolve();
     const applicant = {
       ...values,
       id: `APP-${new Date().getFullYear()}-${String(nextId).padStart(4, '0')}`,
@@ -63,7 +116,7 @@ export function EnrollmentMockProvider({ children }) {
     setApplicants(current => [applicant, ...current]);
     return applicant;
   };
-  const value = useMemo(() => ({ applicants, addApplicant }), [applicants, nextId]);
+  const value = useMemo(() => ({ applicants, addApplicant, referenceData: mockReferenceData }), [applicants, nextId]);
   return <EnrollmentMockContext.Provider value={value}>{children}</EnrollmentMockContext.Provider>;
 }
 
@@ -96,6 +149,7 @@ function applicantUrl(basePath, id) {
 }
 
 function EnrollmentQueue({ applicants, basePath, preview }) {
+  const { referenceData } = useEnrollmentMock();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all');
   const [program, setProgram] = useState('all');
@@ -131,8 +185,8 @@ function EnrollmentQueue({ applicants, basePath, preview }) {
       <div className="enrollment-filters">
         <label>Search applicants<input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Name, application ID, or LRN" /></label>
         <label>Status<select value={status} onChange={event => setStatus(event.target.value)}><option value="all">All statuses</option>{statuses.map(value => <option key={value}>{value}</option>)}</select></label>
-        <label>Track<select value={program} onChange={event => setProgram(event.target.value)}><option value="all">All tracks</option><option>Academic</option><option>TVL</option><option>TVET</option></select></label>
-        <label>Campus<select value={campus} onChange={event => setCampus(event.target.value)}><option value="all">All campuses</option><option>Iligan Main</option><option>Kapatagan</option><option>Bugo — CDO</option></select></label>
+        <label>Track<select value={program} onChange={event => setProgram(event.target.value)}><option value="all">All tracks</option>{referenceData.tracks.map(item => <option key={item.code} value={item.name}>{item.name}</option>)}</select></label>
+        <label>Campus<select value={campus} onChange={event => setCampus(event.target.value)}><option value="all">All campuses</option>{referenceData.campuses.map(item => <option key={item.id} value={item.name}>{item.name}</option>)}</select></label>
       </div>
       {filtered.length ? <div className="enrollment-table-wrap"><table className="enrollment-table">
         <thead><tr><th scope="col">Applicant</th><th scope="col">Application ID</th><th scope="col">Submitted</th><th scope="col">Program</th><th scope="col">Campus</th><th scope="col">Requirements</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
@@ -148,64 +202,163 @@ function EnrollmentQueue({ applicants, basePath, preview }) {
   </div>;
 }
 
-const emptyForm = {
-  firstName: '', middleName: '', lastName: '', lrn: '', birthDate: '', sex: '',
-  phone: '', email: '', campus: '', category: '', program: 'Senior High School',
-  track: '', strand: '', voucher: '', previousSchool: '', guardianName: '',
-  guardianRelationship: '', guardianPhone: '', householdIncome: '',
-};
+function emptyGuardian() {
+  return { fullName: '', relationship: '', phone: '', primaryContact: false };
+}
 
-function ApplicantIntake({ addApplicant, navigate, basePath, title }) {
-  const [form, setForm] = useState(emptyForm);
-  const strands = form.track === 'Academic' ? ['STEM', 'ABM', 'HUMSS'] : form.track === 'TVL' ? ['Cookery', 'ICT'] : form.track === 'TVET' ? ['TVET'] : [];
+function createEmptyForm() {
+  return {
+    firstName: '', middleName: '', lastName: '', lrn: '', birthDate: '', sex: '',
+    phone: '', email: '', campusId: '', category: '', programId: '', termId: '',
+    trackCode: '', specializationCode: '', voucher: '', previousSchool: '',
+    householdIncome: '', guardians: [emptyGuardian()],
+  };
+}
+
+function ApplicantIntake({ addApplicant, navigate, basePath, title, referenceData }) {
+  const [form, setForm] = useState(createEmptyForm);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const tracks = referenceData.tracks.filter(item => item.programId === form.programId);
+  const specializations = referenceData.specializations.filter(item => item.trackCode === form.trackCode);
+  const today = new Date().toISOString().slice(0, 10);
+
   function update(event) {
     const { name, value } = event.target;
-    setForm(current => ({ ...current, [name]: value, ...(name === 'track' ? { strand: '' } : {}) }));
+    setForm(current => ({
+      ...current,
+      [name]: value,
+      ...(name === 'programId' ? { trackCode: '', specializationCode: '' } : {}),
+      ...(name === 'trackCode' ? { specializationCode: '' } : {}),
+    }));
+    setSubmitError('');
   }
-  function submit(event) {
+
+  function updateGuardian(index, field, value) {
+    setForm(current => ({
+      ...current,
+      guardians: current.guardians.map((guardian, currentIndex) =>
+        currentIndex === index ? { ...guardian, [field]: value } : guardian),
+    }));
+    setSubmitError('');
+  }
+
+  function addGuardian() {
+    setForm(current => ({ ...current, guardians: [...current.guardians, emptyGuardian()] }));
+    setSubmitError('');
+  }
+
+  function removeGuardian(index) {
+    setForm(current => ({ ...current, guardians: current.guardians.filter((_, currentIndex) => currentIndex !== index) }));
+    setSubmitError('');
+  }
+
+  function setPrimaryGuardian(index) {
+    setForm(current => ({
+      ...current,
+      guardians: current.guardians.map((guardian, currentIndex) => ({ ...guardian, primaryContact: currentIndex === index })),
+    }));
+    setSubmitError('');
+  }
+
+  async function submit(event) {
     event.preventDefault();
-    const applicant = addApplicant({ ...form, middleName: form.middleName.trim() });
-    navigate(applicantUrl(basePath, applicant.id));
+    const guardians = form.guardians.filter(guardian => guardian.fullName.trim() || guardian.relationship || guardian.phone.trim());
+    const incompleteGuardian = guardians.some(guardian => !guardian.fullName.trim() || !guardian.relationship);
+    if (incompleteGuardian) {
+      setSubmitError('Complete the name and relationship for each parent or guardian, or remove the empty contact.');
+      return;
+    }
+
+    setSubmitting(true);
+    setSubmitError('');
+    try {
+      const campus = referenceData.campuses.find(item => item.id === form.campusId);
+      const program = referenceData.programs.find(item => item.id === form.programId);
+      const term = referenceData.terms.find(item => item.id === form.termId);
+      const track = referenceData.tracks.find(item => item.code === form.trackCode);
+      const specialization = referenceData.specializations.find(item => item.code === form.specializationCode);
+      const category = applicantCategories.find(item => item.code === form.category);
+      const applicant = await addApplicant({
+        ...form,
+        guardians: guardians.map(guardian => ({ ...guardian, fullName: guardian.fullName.trim(), phone: guardian.phone.trim() })),
+        firstName: form.firstName.trim(),
+        middleName: form.middleName.trim(),
+        lastName: form.lastName.trim(),
+        campus: campus?.name,
+        program: program?.name,
+        term: term?.name,
+        track: track?.name,
+        strand: specialization?.name,
+        category: category?.name,
+        guardianName: guardians[0]?.fullName.trim() || '',
+        guardianRelationship: guardians[0]?.relationship || '',
+        guardianPhone: guardians[0]?.phone.trim() || '',
+        householdIncome: form.householdIncome.trim(),
+      });
+      navigate(applicantUrl(basePath, applicant.id));
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'The applicant could not be added. Please try again.');
+      setSubmitting(false);
+    }
   }
 
   return <div className="enrollment-workspace">
     <header className="page-heading"><div><p className="eyebrow">ENROLLMENT MANAGEMENT</p><h1>{title}</h1><p>Enter the applicant’s details and enrollment preferences.</p></div></header>
-    <form className="enrollment-form" aria-label="Applicant intake form" onSubmit={submit}>
+    <form className="enrollment-form" aria-label="Applicant intake form" onSubmit={submit} aria-busy={submitting}>
+      {submitError && <p className="notice notice-error enrollment-form-error" role="alert">{submitError}</p>}
       <section className="panel enrollment-panel">
-        <div className="enrollment-panel-heading"><div><h2>Applicant information</h2><p>Fields marked required are needed to add this mock application to the queue.</p></div></div>
+        <div className="enrollment-panel-heading"><div><h2>Applicant information</h2><p>Enter the applicant’s identity and contact information. Required fields are marked with *.</p></div></div>
         <div className="enrollment-form-grid">
           <label htmlFor="applicant-first-name">First name <span aria-hidden="true">*</span><input id="applicant-first-name" name="firstName" required maxLength="150" value={form.firstName} onChange={update} /></label>
           <label htmlFor="applicant-middle-name">Middle name<input id="applicant-middle-name" name="middleName" maxLength="150" value={form.middleName} onChange={update} /></label>
           <label htmlFor="applicant-last-name">Last name <span aria-hidden="true">*</span><input id="applicant-last-name" name="lastName" required maxLength="150" value={form.lastName} onChange={update} /></label>
-          <label htmlFor="applicant-lrn">Learner Reference Number (LRN)<input id="applicant-lrn" name="lrn" inputMode="numeric" pattern="[0-9]{12}" maxLength="12" title="Enter exactly 12 digits, or leave blank if not available." placeholder="12 digits, if available" value={form.lrn} onChange={update} /></label>
-          <label htmlFor="applicant-birth-date">Date of birth<input id="applicant-birth-date" name="birthDate" type="date" value={form.birthDate} onChange={update} /></label>
+          <label htmlFor="applicant-lrn">Learner Reference Number (LRN)<input id="applicant-lrn" name="lrn" inputMode="numeric" pattern="[0-9]{12}" maxLength="12" title="Enter exactly 12 digits, or leave blank if not available." placeholder="12 digits, if available" value={form.lrn} onChange={update} /><small>Optional. If provided, enter 12 digits.</small></label>
+          <label htmlFor="applicant-birth-date">Date of birth <span aria-hidden="true">*</span><input id="applicant-birth-date" name="birthDate" type="date" required max={today} value={form.birthDate} onChange={update} /></label>
           <label htmlFor="applicant-sex">Sex<select id="applicant-sex" name="sex" value={form.sex} onChange={update}><option value="">Select…</option><option>Female</option><option>Male</option><option>Prefer not to say</option></select></label>
-          <label htmlFor="applicant-phone">Contact number<input id="applicant-phone" name="phone" type="tel" maxLength="40" value={form.phone} onChange={update} /></label>
+          <label htmlFor="applicant-phone">Contact number<input id="applicant-phone" name="phone" type="tel" maxLength="40" autoComplete="tel" value={form.phone} onChange={update} /></label>
           <label htmlFor="applicant-email">Email<input id="applicant-email" name="email" type="email" maxLength="254" value={form.email} onChange={update} /></label>
-          <label htmlFor="applicant-category">Applicant category <span aria-hidden="true">*</span><select id="applicant-category" name="category" required value={form.category} onChange={update}><option value="">Select…</option><option>New</option><option>Transferee</option><option>Returnee</option><option>Continuing</option></select></label>
+          <label htmlFor="applicant-category">Applicant category <span aria-hidden="true">*</span><select id="applicant-category" name="category" required value={form.category} onChange={update}><option value="">Select…</option>{applicantCategories.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label>
         </div>
       </section>
       <section className="panel enrollment-panel">
-        <div className="enrollment-panel-heading"><div><h2>Enrollment preferences</h2><p>Choose the applicant’s requested campus, program, track, and voucher classification.</p></div></div>
+        <div className="enrollment-panel-heading"><div><h2>Enrollment preferences</h2><p>Catalog options shown here are mock reference data for preview only.</p></div></div>
         <div className="enrollment-form-grid">
-          <label htmlFor="applicant-campus">Preferred campus <span aria-hidden="true">*</span><select id="applicant-campus" name="campus" required value={form.campus} onChange={update}><option value="">Select…</option><option>Iligan Main</option><option>Kapatagan</option><option>Bugo — CDO</option></select></label>
-          <label htmlFor="applicant-program">Program <span aria-hidden="true">*</span><select id="applicant-program" name="program" required value={form.program} onChange={update}><option>Senior High School</option><option>TVET</option></select></label>
-          <label htmlFor="applicant-track">Track <span aria-hidden="true">*</span><select id="applicant-track" name="track" required value={form.track} onChange={update}><option value="">Select…</option><option>Academic</option><option>TVL</option><option>TVET</option></select></label>
-          <label htmlFor="applicant-strand">Strand / specialization <span aria-hidden="true">*</span><select id="applicant-strand" name="strand" required disabled={!strands.length} value={form.strand} onChange={update}><option value="">{strands.length ? 'Select…' : 'Select a track first'}</option>{strands.map(strand => <option key={strand}>{strand}</option>)}</select></label>
-          <label htmlFor="applicant-voucher">Voucher classification <span aria-hidden="true">*</span><select id="applicant-voucher" name="voucher" required value={form.voucher} onChange={update}><option value="">Select…</option><option value="QVR">Qualified Voucher Recipient (QVR)</option><option value="ESC">Education Service Contracting (ESC)</option><option value="ALS">Alternative Learning System (ALS)</option><option value="REGULAR">Regular / Paying</option></select></label>
+          <label htmlFor="applicant-campus">Preferred campus <span aria-hidden="true">*</span><select id="applicant-campus" name="campusId" required value={form.campusId} onChange={update}><option value="">Select…</option>{referenceData.campuses.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+          <label htmlFor="applicant-term">Academic term <span aria-hidden="true">*</span><select id="applicant-term" name="termId" required value={form.termId} onChange={update}><option value="">Select…</option>{referenceData.terms.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+          <label htmlFor="applicant-program">Program <span aria-hidden="true">*</span><select id="applicant-program" name="programId" required value={form.programId} onChange={update}><option value="">Select…</option>{referenceData.programs.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+          <label htmlFor="applicant-track">Track <span aria-hidden="true">*</span><select id="applicant-track" name="trackCode" required disabled={!tracks.length} value={form.trackCode} onChange={update}><option value="">{tracks.length ? 'Select…' : 'Select a program first'}</option>{tracks.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label>
+          <label htmlFor="applicant-strand">Strand / specialization <span aria-hidden="true">*</span><select id="applicant-strand" name="specializationCode" required disabled={!specializations.length} value={form.specializationCode} onChange={update}><option value="">{specializations.length ? 'Select…' : 'Select a track first'}</option>{specializations.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label>
+          <label htmlFor="applicant-voucher">Voucher classification <span aria-hidden="true">*</span><select id="applicant-voucher" name="voucher" required value={form.voucher} onChange={update}><option value="">Select…</option>{referenceData.vouchers.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label>
         </div>
       </section>
       <section className="panel enrollment-panel">
-        <div className="enrollment-panel-heading"><div><h2>Previous school and family contact</h2><p>Household income is descriptive and uses a school-defined bracket; no bracket values are assumed.</p></div></div>
+        <div className="enrollment-panel-heading"><div><h2>Previous school and household information</h2><p>Use the institution’s defined income description when available; no bracket values are assumed.</p></div></div>
         <div className="enrollment-form-grid">
           <label htmlFor="applicant-previous-school">Junior high / previous school<input id="applicant-previous-school" name="previousSchool" maxLength="250" value={form.previousSchool} onChange={update} /></label>
-          <label htmlFor="applicant-household-income">Household income bracket<input id="applicant-household-income" name="householdIncome" maxLength="100" placeholder="School-defined bracket (optional)" value={form.householdIncome} onChange={update} /></label>
-          <label htmlFor="applicant-guardian-name">Parent / guardian name<input id="applicant-guardian-name" name="guardianName" maxLength="250" value={form.guardianName} onChange={update} /></label>
-          <label htmlFor="applicant-guardian-relationship">Relationship<select id="applicant-guardian-relationship" name="guardianRelationship" value={form.guardianRelationship} onChange={update}><option value="">Select…</option><option>Mother</option><option>Father</option><option>Guardian</option></select></label>
-          <label htmlFor="applicant-guardian-phone">Parent / guardian contact<input id="applicant-guardian-phone" name="guardianPhone" type="tel" maxLength="40" value={form.guardianPhone} onChange={update} /></label>
+          <label htmlFor="applicant-household-income">Household income bracket<input id="applicant-household-income" name="householdIncome" maxLength="100" placeholder="School-defined description (optional)" value={form.householdIncome} onChange={update} /></label>
         </div>
       </section>
-      <div className="enrollment-form-actions"><Link className="button button-outline" to={previewQueuePath(basePath)}>Cancel</Link><button className="button" type="submit">Add applicant to queue</button></div>
+      <section className="panel enrollment-panel" aria-labelledby="applicant-guardians-heading">
+        <div className="enrollment-panel-heading"><div><h2 id="applicant-guardians-heading">Parent / guardian information</h2><p>Add one or more contacts. A name and relationship are needed for any contact you enter; a primary contact is optional.</p></div></div>
+        <div className="enrollment-guardians">
+          {form.guardians.map((guardian, index) => <fieldset className="enrollment-guardian" key={index}>
+            <legend>Contact {index + 1}{guardian.primaryContact ? ' · Primary' : ''}</legend>
+            <div className="enrollment-form-grid">
+              <label htmlFor={`applicant-guardian-name-${index}`}>Full name<input id={`applicant-guardian-name-${index}`} maxLength="250" autoComplete="name" value={guardian.fullName} onChange={event => updateGuardian(index, 'fullName', event.target.value)} /></label>
+              <label htmlFor={`applicant-guardian-relationship-${index}`}>Relationship<select id={`applicant-guardian-relationship-${index}`} value={guardian.relationship} onChange={event => updateGuardian(index, 'relationship', event.target.value)}><option value="">Select…</option><option value="mother">Mother</option><option value="father">Father</option><option value="guardian">Guardian</option></select></label>
+              <label htmlFor={`applicant-guardian-phone-${index}`}>Contact number<input id={`applicant-guardian-phone-${index}`} type="tel" maxLength="40" autoComplete="tel" value={guardian.phone} onChange={event => updateGuardian(index, 'phone', event.target.value)} /></label>
+            </div>
+            <div className="enrollment-guardian-actions">
+              <button className="button button-outline" type="button" onClick={() => setPrimaryGuardian(index)} disabled={guardian.primaryContact}>{guardian.primaryContact ? 'Primary contact' : `Set contact ${index + 1} as primary`}</button>
+              <button className="button button-outline enrollment-remove-guardian" type="button" onClick={() => removeGuardian(index)}>Remove contact</button>
+            </div>
+          </fieldset>)}
+          <button className="button button-outline enrollment-add-guardian" type="button" onClick={addGuardian}>Add another parent / guardian</button>
+        </div>
+      </section>
+      <div className="enrollment-form-actions"><Link className="button button-outline" to={previewQueuePath(basePath)}>Cancel</Link><button className="button" type="submit" disabled={submitting}>{submitting ? 'Adding applicant…' : 'Add applicant to queue'}</button></div>
+      {submitting && <p className="enrollment-submit-status" role="status">Saving applicant to the mock queue…</p>}
     </form>
   </div>;
 }
@@ -220,8 +373,14 @@ function ApplicantDetails({ applicant, basePath, preview }) {
 
   const sections = [
     { title: 'Personal information', fields: [['Full name', fullName(applicant)], ['Application ID', applicant.id], ['LRN', applicant.lrn || 'Not provided'], ['Date of birth', prettyDate(applicant.birthDate)], ['Sex', applicant.sex || 'Not provided'], ['Contact number', applicant.phone || 'Not provided'], ['Email', applicant.email || 'Not provided']] },
-    { title: 'Enrollment preferences', fields: [['Campus', applicant.campus], ['Program', applicant.program], ['Track', applicant.track], ['Strand / specialization', applicant.strand], ['Applicant category', applicant.category], ['Voucher classification', applicant.voucher]] },
-    { title: 'Previous school and family contact', fields: [['Junior high / previous school', applicant.previousSchool || 'Not provided'], ['Parent / guardian', applicant.guardianName || 'Not provided'], ['Relationship', applicant.guardianRelationship || 'Not provided'], ['Guardian contact', applicant.guardianPhone || 'Not provided'], ['Household income bracket', applicant.householdIncome || 'Not provided']] },
+    { title: 'Enrollment preferences', fields: [['Campus', applicant.campus], ['Academic term', applicant.term || 'Not provided'], ['Program', applicant.program], ['Track', applicant.track], ['Strand / specialization', applicant.strand], ['Applicant category', applicant.category], ['Voucher classification', applicant.voucher]] },
+    { title: 'Previous school and family contact', fields: [
+      ['Junior high / previous school', applicant.previousSchool || 'Not provided'],
+      ['Parent / guardian contacts', applicant.guardians?.length
+        ? applicant.guardians.map(guardian => `${guardian.fullName} (${guardian.relationship ? `${guardian.relationship[0].toUpperCase()}${guardian.relationship.slice(1)}` : 'relationship not provided'}${guardian.phone ? `, ${guardian.phone}` : ''}${guardian.primaryContact ? ', primary contact' : ''})`).join('; ')
+        : 'Not provided'],
+      ['Household income bracket', applicant.householdIncome || 'Not provided'],
+    ] },
   ];
   return <div className="enrollment-workspace">
     <header className="page-heading enrollment-heading">
@@ -242,7 +401,7 @@ function ApplicantDetails({ applicant, basePath, preview }) {
 }
 
 export function EnrollmentWorkspace({ preview = false, screen: requestedScreen, title: requestedTitle }) {
-  const { applicants, addApplicant } = useEnrollmentMock();
+  const { applicants, addApplicant, referenceData } = useEnrollmentMock();
   const location = useLocation();
   const navigate = useNavigate();
   const basePath = preview ? '/dev/enrollment' : '/enrollment';
@@ -261,7 +420,7 @@ export function EnrollmentWorkspace({ preview = false, screen: requestedScreen, 
     ? <EnrollmentQueue applicants={applicants} basePath={basePath} preview={preview} />
     : screen === 'details'
       ? <ApplicantDetails applicant={applicant} basePath={basePath} preview={preview} />
-      : <ApplicantIntake addApplicant={addApplicant} navigate={navigate} basePath={basePath} title={title} />;
+      : <ApplicantIntake addApplicant={addApplicant} navigate={navigate} basePath={basePath} title={title} referenceData={referenceData} />;
 
   if (!preview) return content;
   return <main className="enrollment-preview">

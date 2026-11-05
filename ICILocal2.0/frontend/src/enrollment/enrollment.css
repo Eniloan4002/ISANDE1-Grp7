@@ -31,10 +31,20 @@
 .enrollment-form{display:grid;gap:14px}
 .enrollment-form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 14px;padding:14px}
 .enrollment-form-grid label{display:block;min-width:0;color:#3d4649;font-size:11px;font-weight:700}
+.enrollment-form-grid label small{display:block;margin-top:3px;color:var(--text-secondary);font-size:10px;font-weight:400}
 .enrollment-form-grid label span{color:var(--danger-color)}
 .enrollment-form-grid input,.enrollment-form-grid select{display:block;margin-top:4px}
 .enrollment-form-grid input:disabled,.enrollment-form-grid select:disabled{background:var(--surface-muted);color:var(--text-secondary)}
-.enrollment-form-actions{display:flex;justify-content:flex-end;gap:10px;margin-bottom:24px}
+.enrollment-guardians{display:grid;gap:12px;padding:14px}
+.enrollment-guardian{min-width:0;margin:0;padding:12px;border:1px solid var(--border-light);border-radius:2px}
+.enrollment-guardian legend{padding:0 6px;color:var(--primary-dark);font-size:12px;font-weight:700}
+.enrollment-guardian .enrollment-form-grid{padding:4px}
+.enrollment-guardian-actions{display:flex;gap:8px;flex-wrap:wrap;padding:4px}
+.enrollment-add-guardian{justify-self:start}
+.enrollment-remove-guardian{color:var(--danger-color);border-color:var(--danger-color)}
+.enrollment-form-error{margin:0}
+.enrollment-form-actions{display:flex;justify-content:flex-end;gap:10px;margin-bottom:0}
+.enrollment-submit-status{margin:0 0 24px;color:var(--primary-dark);font-size:13px}
 .enrollment-detail-status{display:flex;gap:8px;flex-wrap:wrap;margin:-6px 0 14px}
 .enrollment-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .enrollment-detail-grid .panel{margin:0}
@@ -52,4 +62,4 @@
 .enrollment-preview-nav a:hover{text-decoration:underline}
 @media(max-width:1000px){.enrollment-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.enrollment-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.enrollment-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.enrollment-table{min-width:900px}}
 @media(max-width:760px){.enrollment-detail-grid{grid-template-columns:1fr}.enrollment-detail-grid .panel:last-child{grid-column:auto}.enrollment-preview{padding:14px}}
-@media(max-width:640px){.enrollment-stats{grid-template-columns:1fr}.enrollment-heading{flex-direction:column}.enrollment-heading>.button{width:100%;text-align:center}.enrollment-filters,.enrollment-form-grid,.enrollment-detail-list{grid-template-columns:1fr}.enrollment-preview-banner{align-items:flex-start;flex-direction:column;gap:4px}.enrollment-detail-list{padding:8px 14px}}
+@media(max-width:640px){.enrollment-stats{grid-template-columns:1fr}.enrollment-heading{flex-direction:column}.enrollment-heading>.button{width:100%;text-align:center}.enrollment-filters,.enrollment-form-grid,.enrollment-detail-list{grid-template-columns:1fr}.enrollment-preview-banner{align-items:flex-start;flex-direction:column;gap:4px}.enrollment-detail-list{padding:8px 14px}.enrollment-form-actions{flex-direction:column-reverse}.enrollment-form-actions .button{width:100%;text-align:center}}
