@@ -31,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if(!account.active()||staff.revoked(tokenId))throw new IllegalArgumentException();
                 var grants=staff.grants(account.id());
                 var identity=new StaffIdentity(account.id(),account.username(),account.fullName(),grants,tokenId,claims.getExpiration().toInstant());
-                var authorities=grants.stream().map(StaffIdentity.Grant::role).distinct().map(SimpleGrantedAuthority::new).toList();
+                var authorities=staff.authorities(account.id()).stream().map(SimpleGrantedAuthority::new).toList();
                 SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(identity,null,authorities));
             }catch(JwtException|IllegalArgumentException exception){
                 SecurityContextHolder.clearContext();SecurityConfiguration.unauthorized(response);return;

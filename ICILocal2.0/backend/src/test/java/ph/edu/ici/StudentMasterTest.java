@@ -82,6 +82,8 @@ class StudentMasterTest {
         assertThat(call(HttpMethod.DELETE,path+"?version=0",null).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(call(HttpMethod.GET,"/api/students/reference-data",null).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         db.update("UPDATE user_role_grants SET role_code='ROLE_ADMIN' WHERE user_id=?",user);
+        assertThat(call(HttpMethod.GET,path,null).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        db.update("UPDATE user_role_grants SET role_code='ROLE_REGISTRAR' WHERE user_id=?",user);
         assertThat(call(HttpMethod.GET,path,null).getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(call(HttpMethod.PUT,path,update).getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(call(HttpMethod.DELETE,path+"?version=1",null).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
@@ -107,7 +109,7 @@ class StudentMasterTest {
         var student=create(input());String path="/api/students/"+student.get("id");
         var update=input();update.put("version",0);
         db.update("UPDATE user_role_grants SET role_code=? WHERE user_id=?",role,user);
-        boolean manager=List.of("ROLE_ADMIN","ROLE_REGISTRAR").contains(role);
+        boolean manager="ROLE_REGISTRAR".equals(role);
         HttpStatusCode read=manager?HttpStatus.OK:HttpStatus.FORBIDDEN;
         assertThat(call(HttpMethod.GET,"/api/students",null).getStatusCode()).isEqualTo(read);
         assertThat(call(HttpMethod.GET,path,null).getStatusCode()).isEqualTo(read);

@@ -9,15 +9,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import ph.edu.ici.auth.AccessScope;
 import ph.edu.ici.auth.StaffIdentity;
 
 @Service
 public class StudentService {
     private final NamedParameterJdbcTemplate db;
     private final ObjectMapper json;
-    public StudentService(NamedParameterJdbcTemplate db,ObjectMapper json){this.db=db;this.json=json;}
+    private final AccessScope access;
+    public StudentService(NamedParameterJdbcTemplate db,ObjectMapper json,AccessScope access){this.db=db;this.json=json;this.access=access;}
     private StaffIdentity identity(){return (StaffIdentity)SecurityContextHolder.getContext().getAuthentication().getPrincipal();}
-    private List<Long> campuses(){return identity().grants().stream().filter(g->List.of("ROLE_ADMIN","ROLE_REGISTRAR").contains(g.role())).map(StaffIdentity.Grant::campusId).distinct().toList();}
+    private List<Long> campuses(){return access.campuses(identity(),"enrollment.manage");}
     private void campus(long id){if(!campuses().contains(id))throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Your account cannot manage students at this campus.");}
     private ResponseStatusException invalid(String message){return new ResponseStatusException(HttpStatus.BAD_REQUEST,message);}
     private String text(String value){return value==null||value.isBlank()?null:value.trim();}

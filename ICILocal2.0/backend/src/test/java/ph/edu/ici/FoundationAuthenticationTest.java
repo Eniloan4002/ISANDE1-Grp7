@@ -118,7 +118,7 @@ class FoundationAuthenticationTest {
         assertThat(call(HttpMethod.GET,"/api/setup/subjects",null,token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(call(HttpMethod.GET,"/api/auth/me",null,token).getStatusCode()).isEqualTo(HttpStatus.OK);
     }
-    @Test void setupAllowsCurrentRegistrarOrAdminGrantButDeniesOtherRoles(){
+    @Test void setupUsesLiveEnrollmentPermissionInsteadOfRoleNames(){
         String path="/api/setup/subjects";
         Map<String,Object> input=Map.of("code","RBAC-"+UUID.randomUUID().toString().substring(0,8),"name","Access test","units",1,"active",true);
         var created=call(HttpMethod.POST,path,input,token);
@@ -130,8 +130,8 @@ class FoundationAuthenticationTest {
         assertThat(call(HttpMethod.GET,item,null,token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(call(HttpMethod.POST,path,input,token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         jdbc.update("UPDATE user_role_grants SET role_code='ROLE_ADMIN' WHERE user_id=?",userId);
-        assertThat(call(HttpMethod.GET,item,null,token).getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(call(HttpMethod.POST,path,Map.of("code","RBAC-"+UUID.randomUUID().toString().substring(0,8),"name","Admin access test","units",1,"active",true),token).getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(call(HttpMethod.GET,item,null,token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.POST,path,Map.of("code","RBAC-"+UUID.randomUUID().toString().substring(0,8),"name","Admin access test","units",1,"active",true),token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
     @ParameterizedTest
     @ValueSource(strings={"ROLE_ADMIN","ROLE_REGISTRAR","ROLE_PRINCIPAL","ROLE_ADVISER","ROLE_TEACHER","ROLE_GUIDANCE","ROLE_CASHIER_REF"})
@@ -148,14 +148,17 @@ class FoundationAuthenticationTest {
         try{
             jwt.doFilter(request,response,(servletRequest,servletResponse)->{
                 var authentication=SecurityContextHolder.getContext().getAuthentication();
-                assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsExactly(role);
+                var expectedAuthorities=new ArrayList<String>();expectedAuthorities.add(role);
+                expectedAuthorities.addAll(jdbc.queryForList("SELECT permission_code FROM role_permissions WHERE role_code=?",String.class,role));
+                expectedAuthorities.sort(String::compareTo);
+                assertThat(authentication.getAuthorities()).extracting(GrantedAuthority::getAuthority).containsExactlyElementsOf(expectedAuthorities);
                 reached.incrementAndGet();
             });
         }catch(Exception exception){throw new AssertionError("JWT authority conversion failed for "+role,exception);}
         finally{SecurityContextHolder.clearContext();}
         assertThat(reached.get()).isEqualTo(1);
         assertThat(call(HttpMethod.GET,"/api/auth/me",null,current).getStatusCode()).isEqualTo(HttpStatus.OK);
-        boolean setupRole=List.of("ROLE_ADMIN","ROLE_REGISTRAR").contains(role);
+        boolean setupRole=jdbc.queryForList("SELECT permission_code FROM role_permissions WHERE role_code=?",String.class,role).contains("enrollment.manage");
         HttpStatusCode read=setupRole?HttpStatus.OK:HttpStatus.FORBIDDEN;
         for(String resource:List.of("subjects","academic-years","terms","grading-periods"))
             assertThat(status(HttpMethod.GET,"/api/setup/"+resource,null,current)).describedAs(role+" reading "+resource).isEqualTo(read);
