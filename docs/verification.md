@@ -22,10 +22,3 @@ These checks complete the requested database/authentication foundation, not prod
 ## PR #5 integration
 
 Unified the application under ICILocal2.0/ while preserving the collaborator's shell/routes. Final merged checks: 35 frontend unit tests, 15 archive/schema checks, 17 backend integration tests and 5 real-browser tests, all passing. See pr-5-integration-review.md for conflicts and resolutions.
-
-## ICI2-7 RBAC and paper-workflow APIs — 2026-11-05
-
-- `./mvnw test`: 45 backend integration tests passed against embedded PostgreSQL 17.6 (21 authentication/foundation, 15 student master, 6 workflow, 3 admin).
-- Coverage includes current role-permission reload on existing tokens, campus and assignment limits, denied writes leaving records unchanged, last active Administrator protection, Registrar/Principal/Cashier withdrawal boundaries, pre-enrollment missing-requirement reports and audit attribution, and missing/null/expired/locked grade windows.
-- Flyway validated V1–V5 with no migration changes. No attendance endpoint was added. `git diff --check` passed.
-- This run verifies backend APIs only. React workflow pages, browser flows for the new endpoints, live school database behavior, and external file-storage/PDF integration were not tested.

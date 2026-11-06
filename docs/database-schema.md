@@ -24,7 +24,7 @@ Implemented PostgreSQL 17 foundation, with versioned Flyway migrations V1–V5 i
 
 - Student identity is permanent. Applications capture intake snapshots; enrollments relate a student to a term. Student LRNs are nullable but unique and exactly 12 digits when present. Applicant LRNs are indexed but deliberately not unique: duplicates must enter a review queue.
 - One enrollment per student per term, with one program. Confirm concurrent-program policy before changing this constraint. SHS and TVET are in scope; the archived college example is not added as a supported program.
-- Campus-scoped staff permissions require explicit grants per campus. `role_permissions` contains the current permission mapping; the backend reloads grants and mapped authorities per request and applies campus/resource checks in services. No default staff accounts, passwords or student data are seeded; first-administrator creation is explicit and opt-in.
+- Campus-scoped staff permissions require explicit grants per campus. No default staff accounts, passwords or student data are seeded; first-administrator creation is explicit and opt-in. Authorization is not implemented by these tables alone.
 - Composite foreign keys prevent cross-campus/program/term section assignments and cross-term grade periods. Class memberships bind enrollment to the correct section.
 - Provisional and enrolled records reserve section seats. A trigger locks the target section before counting occupancy. Capacity reductions below occupancy are rejected. Future APIs must use READ COMMITTED transactions, deterministic lock ordering for transfers and deadlock retries. Embedded SQL tests do not prove concurrent multi-connection behavior.
 - Confirmation requires the same student as the linked application, all mandatory credentials submitted, a recorded orientation presence and explicit staff verification stamps. One present entry plus staff verification is an initial gate, not an approved first-week attendance policy. Confirm that policy with ICI.
@@ -34,13 +34,13 @@ Implemented PostgreSQL 17 foundation, with versioned Flyway migrations V1–V5 i
 - Audit records reject UPDATE, DELETE and TRUNCATE. Use a separate runtime database user without DDL or audit-mutation rights; table owners can disable triggers. Docker owner credentials are for local development only.
 - Honor eligibility is deferred at the user's request. Archived honor thresholds are illustrative and not approved policy.
 
-## Service and workflow status
+## Service work still required
 
-The backend implements campus-scoped staff authorization and the paper workflows supported by the current tables: student/application records, duplicate cases, requirements, confirmation, sections and class assignment, grades, corrections, incomplete cases, withdrawals and clearances, credential request status, operational reports, and staff/permission administration. Confirmation still depends on existing mandatory requirement and orientation-presence guards. Teacher grade writes require an existing open grading window; expired or locked windows reject writes.
+Spring Security/JWT, BCrypt, durable logout and the protected academic setup route/API are implemented. Campus/teacher-specific module authorization and the remaining student/grade business APIs are still separate work. No live student records are exposed by the shell.
 
-The current schema does not define every institution-specific policy. Ongoing attendance, honor-student criteria, advisory notes, payment balances, file storage, and configurable reporting criteria remain unsupported. Document approval checks available requirements and academic records; the API tracks an external storage key and does not certify or generate a PDF credential. See [rbac-implementation-log.md](rbac-implementation-log.md) for the exact backend scope and limitations.
+Transactional services must implement grade deadline locks, approved correction application, optimistic grade versions, INC resolution, document release prerequisites, withdrawal office approvals and synchronized application/enrollment states. The schema stores their metadata but does not enforce staff-role authorization or certify document release. Application/student reassignment after enrollment must be restricted to a controlled merge workflow.
 
-Application/student reassignment after enrollment remains restricted to a controlled merge workflow. Legacy row mappings/provenance and reconciliation reporting remain future work; import tables provide initial batch tracking only.
+Also outstanding: institution-specific requirement catalogs, assessment-component storage/calculations, sensitive guidance-note access and retention, legacy row mappings/provenance and reconciliation reporting. Import tables provide initial batch tracking only.
 
 ## Migration workflow
 
