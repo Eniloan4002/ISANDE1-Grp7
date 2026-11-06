@@ -17,7 +17,7 @@ Students represent permanent identities. The program, campus and voucher on the 
 | DELETE | /api/students/{id}?version=N | Archive by setting active=false; identity/history retained; 204 |
 | GET | /api/students/reference-data | Authorized campuses, program catalog and voucher catalog |
 
-All requests require the Bearer token from `/api/auth/login`. Missing/invalid authentication returns 401. Student routes require the live `enrollment.manage` permission and data is limited to campuses where that permission is granted to the current user. Out-of-scope record IDs return 404; an explicit unauthorized campus filter or create returns 403. Permission and campus checks are reloaded for each request, so existing tokens reflect grant changes immediately.
+All requests require the Bearer token from /api/auth/login. Missing/invalid authentication returns 401. Baseline access requires ROLE_ADMIN or ROLE_REGISTRAR **at the requested student's campus**. Grants are read from the verified current identity, not a caller-provided actor header. Out-of-scope record IDs return 404; an explicit unauthorized campus filter or create returns 403. This local guard is the handoff point for ICI2-7; shared authentication/security configuration was not changed.
 
 ## Create request example
 
@@ -44,7 +44,7 @@ All requests require the Bearer token from `/api/auth/login`. Missing/invalid au
 }
 ```
 
-Use IDs from reference-data rather than assuming seed IDs. A nullable LRN must be omitted or null, never an empty string; when present it must have exactly 12 digits. It is unique across permanent student identities. Exact LRN conflicts return a generic 409 without exposing another campus's record. Enrollment applications use the separate duplicate-case workflow documented in [rbac-integration.md](rbac-integration.md); this student endpoint does not merge identities or enrolled records.
+Use IDs from reference-data rather than assuming seed IDs. A nullable LRN must be omitted or null, never an empty string; when present it must have exactly 12 digits. It is unique across permanent student identities. Exact LRN conflicts return a generic 409 without exposing another campus's record. Fuzzy matching, duplicate queues and merging belong to ICI2-13.
 
 Names, birthDate, campusId, programId, voucherCode, track, address, guardians and active are required. Names cannot be blank; birthDate must be in the past; email must be valid when supplied. Optional blank text is normalized to null. Track must match the catalog: academic SHS codes use ACADEMIC, TVL_ codes use TVL, and TVET programs use TVET. Catalog modeling can be extended with the program-configuration task.
 
@@ -64,8 +64,8 @@ Responses use database field names (first_name, campus_id, previous_school_name,
 
 V5 adds master-profile fields, version/active state, name validation and directory indexes without rewriting V1–V4. Existing student identities remain intact. Historical rows with no verified campus are deliberately hidden from this API until their campus is assigned through a controlled migration; the system does not guess ownership. No archive/demo/frontend files are changed.
 
-- ICI2-7: student routes require live `enrollment.manage` and explicit campus grants; the shared RBAC implementation is documented in [rbac-integration.md](rbac-integration.md).
-- Enrollment intake: duplicate detection and resolution operate on application records. Do not weaken the permanent-student LRN uniqueness constraint or merge an enrolled record.
+- ICI2-7: integrate module permission rules using the existing per-campus ADMIN/REGISTRAR guard; do not broaden reads to every role just because it is authenticated.
+- ICI2-13: duplicate detection and resolution must operate on applicant records before issuing/merging a permanent identity. Do not weaken the permanent-student LRN uniqueness constraint.
 - ICI2-14: connect intake/directory UI to this contract; use reference-data and versions, and map camelCase requests to snake_case responses.
 
-The Student Master API is covered by the PostgreSQL integration suite, including profile validation, versioned writes, campus isolation, and live role-permission changes. Enrollment intake and confirmation are separate backend workflows; no React enrollment UI is claimed by this task.
+The backend suite runs against PostgreSQL 17.6: 5 student tests plus 12 foundation/authentication regressions passed. No full enrollment intake UI or enrollment confirmation is claimed by this task.

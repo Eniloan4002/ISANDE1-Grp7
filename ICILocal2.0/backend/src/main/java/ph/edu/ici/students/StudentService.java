@@ -9,17 +9,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import ph.edu.ici.auth.AccessScope;
 import ph.edu.ici.auth.StaffIdentity;
 
 @Service
 public class StudentService {
     private final NamedParameterJdbcTemplate db;
     private final ObjectMapper json;
-    private final AccessScope access;
-    public StudentService(NamedParameterJdbcTemplate db,ObjectMapper json,AccessScope access){this.db=db;this.json=json;this.access=access;}
+    public StudentService(NamedParameterJdbcTemplate db,ObjectMapper json){this.db=db;this.json=json;}
     private StaffIdentity identity(){return (StaffIdentity)SecurityContextHolder.getContext().getAuthentication().getPrincipal();}
-    private List<Long> campuses(){return access.campuses(identity(),"enrollment.manage");}
+    private List<Long> campuses(){return identity().grants().stream().filter(g->List.of("ROLE_ADMIN","ROLE_REGISTRAR").contains(g.role())).map(StaffIdentity.Grant::campusId).distinct().toList();}
     private void campus(long id){if(!campuses().contains(id))throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Your account cannot manage students at this campus.");}
     private ResponseStatusException invalid(String message){return new ResponseStatusException(HttpStatus.BAD_REQUEST,message);}
     private String text(String value){return value==null||value.isBlank()?null:value.trim();}
@@ -81,8 +79,8 @@ public class StudentService {
         if(((Number)existing.get("campus_id")).longValue()!=input.campusId())throw new ResponseStatusException(HttpStatus.CONFLICT,"Use the transfer workflow to change a student's campus.");
         if(input.version()==null)throw invalid("Record version is required for updates.");
         actor();var p=fields(input);p.put("id",id);p.put("version",input.version());
-        int count=db.update("UPDATE students SET program_id=:program,voucher_code=:voucher,track=:track,lrn=:lrn,first_name=:first,middle_name=:middle,last_name=:last,suffix=:suffix,birth_date=:birth,sex=:sex,phone=:phone,email=:email,address=CAST(:address AS jsonb),previous_school_name=:school,previous_school_id=:schoolId,previous_school_address=:schoolAddress,household_income_bracket=:income,active=:active,version=version+1 WHERE id=:id AND campus_id=:campus AND version=:version",p);
-        if(count==0){get(id);throw new ResponseStatusException(HttpStatus.CONFLICT,"This student changed in another session. Reload before saving.");}
+        int count=db.update("UPDATE students SET program_id=:program,voucher_code=:voucher,track=:track,lrn=:lrn,first_name=:first,middle_name=:middle,last_name=:last,suffix=:suffix,birth_date=:birth,sex=:sex,phone=:phone,email=:email,address=CAST(:address AS jsonb),previous_school_name=:school,previous_school_id=:schoolId,previous_school_address=:schoolAddress,household_income_bracket=:income,active=:active,version=version+1 WHERE id=:id AND version=:version",p);
+        if(count==0)throw new ResponseStatusException(HttpStatus.CONFLICT,"This student changed in another session. Reload before saving.");
         db.update("DELETE FROM guardians WHERE student_id=:id",Map.of("id",id));guardians(id,input.guardians());return get(id);
     }
     private void guardians(long id,List<StudentInput.Guardian> guardians){
@@ -91,10 +89,8 @@ public class StudentService {
     }
     @Transactional public void archive(long id,int version){
         get(id);if(version<0)throw invalid("Version cannot be negative.");actor();
-        if(db.update("UPDATE students SET active=false,version=version+1 WHERE id=:id AND campus_id IN (:campuses) AND version=:version",
-            Map.of("id",id,"campuses",campuses(),"version",version))==0){
-            get(id);throw new ResponseStatusException(HttpStatus.CONFLICT,"This student changed in another session. Reload before archiving.");
-        }
+        if(db.update("UPDATE students SET active=false,version=version+1 WHERE id=:id AND version=:version",Map.of("id",id,"version",version))==0)
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"This student changed in another session. Reload before archiving.");
     }
     public Map<String,Object> referenceData(){
         var scope=campuses();return Map.of("campuses",scope.isEmpty()?List.of():db.queryForList("SELECT id,code,name FROM campuses WHERE active AND id IN (:ids) ORDER BY name",Map.of("ids",scope)),
