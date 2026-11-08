@@ -56,7 +56,8 @@ export default function App() {
                 : page.path === '/design-system' ? <DesignSystem />
                   : page.path === '/enrollment/queue' ? <EnrollmentWorkspace screen="queue" />
                     : page.path === '/enrollment/intake' ? <EnrollmentWorkspace screen="intake" />
-                      : <Placeholder page={page} />}
+                        : page.path === '/enrollment/requirements' ? <EnrollmentWorkspace screen="requirements" />
+                        : <Placeholder page={page} />}
             </RoleGate>
           } />)}
           <Route path="/enrollment/applicants/:applicationId" element={
