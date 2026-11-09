@@ -58,6 +58,18 @@ export const roleSections = [
     ] }],
   },
   {
+    role: 'principal', label: 'Principal', office: 'Principal’s Office', initials: 'PR',
+    groups: [{ label: 'Reporting', pages: [
+      { path: '/reporting/operational', label: 'Operational Reports' },
+    ] }],
+  },
+  {
+    role: 'cashier', label: 'Cashiering Reference', office: 'Cashiering', initials: 'CR',
+    groups: [{ label: 'Reporting', pages: [
+      { path: '/reporting/cashier-roster', label: 'Cashiering Roster' },
+    ] }],
+  },
+  {
     role: 'admin', label: 'System Administrator', office: 'System Administration', initials: 'SA',
     groups: [{ label: 'Administration', pages: [
       { path: '/administration/users', label: 'User Accounts' },

@@ -30,6 +30,7 @@ class StudentMasterTest {
         Map<String,Object> p=new HashMap<>();p.put("campusId",campus);p.put("programId",program);p.put("voucherCode","QVR");p.put("track","ACADEMIC");p.put("firstName","Ana");p.put("lastName","Student-"+UUID.randomUUID());p.put("birthDate","2009-01-01");p.put("email","ana@example.invalid");p.put("phone","09171234567");p.put("address",Map.of("city","Iligan","province","Lanao del Norte"));p.put("previousSchoolName","Test Junior High");p.put("householdIncomeBracket","School-defined bracket");p.put("guardians",List.of(Map.of("fullName","Parent Student","relationship","mother","primaryContact",true)));p.put("active",true);return p;
     }
     ResponseEntity<Map> call(HttpMethod method,String path,Object body){HttpHeaders h=new HttpHeaders();h.setBearerAuth(token);h.setContentType(MediaType.APPLICATION_JSON);return rest.exchange(path,method,new HttpEntity<>(body,h),Map.class);}
+    HttpStatusCode setupStatus(){HttpHeaders h=new HttpHeaders();h.setBearerAuth(token);return rest.exchange("/api/setup/subjects",HttpMethod.GET,new HttpEntity<>(h),Object.class).getStatusCode();}
     Map create(Map p){var r=call(HttpMethod.POST,"/api/students",p);assertThat(r.getStatusCode()).describedAs(r.toString()).isEqualTo(HttpStatus.CREATED);return r.getBody();}
     @Test void createsCompleteProfileAndReadsPersistedGuardians(){
         var p=input();p.put("lrn","123456789012");var student=create(p);String path="/api/students/"+student.get("id");
@@ -65,4 +66,32 @@ class StudentMasterTest {
         db.update("DELETE FROM user_role_grants WHERE user_id=?",user);db.update("INSERT INTO user_role_grants(user_id,role_code,campus_id) VALUES (?,'ROLE_TEACHER',?)",user,campus);
         assertThat(call(HttpMethod.POST,"/api/students",input()).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
+    @Test void allSeededRolesRespectStudentAndSetupPermissions(){
+        for(String role:List.of("ROLE_ADMIN","ROLE_REGISTRAR","ROLE_PRINCIPAL","ROLE_ADVISER","ROLE_TEACHER","ROLE_GUIDANCE","ROLE_CASHIER_REF")){
+            db.update("DELETE FROM user_role_grants WHERE user_id=?",user);
+            db.update("INSERT INTO user_role_grants(user_id,role_code,campus_id) VALUES (?,?,?)",user,role,campus);
+            HttpStatus expected=List.of("ROLE_ADMIN","ROLE_REGISTRAR").contains(role)?HttpStatus.OK:HttpStatus.FORBIDDEN;
+            assertThat(call(HttpMethod.GET,"/api/students",null).getStatusCode()).as(role+" students").isEqualTo(expected);
+            assertThat(setupStatus()).as(role+" setup").isEqualTo(expected);
+        }
+    }
+    @Test void permissionAndCampusMustComeFromSameGrant(){
+        db.update("INSERT INTO user_role_grants(user_id,role_code,campus_id) VALUES (?,'ROLE_TEACHER',?)",user,otherCampus);
+        assertThat(call(HttpMethod.GET,"/api/students?campusId="+campus,null).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(call(HttpMethod.GET,"/api/students?campusId="+otherCampus,null).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.POST,"/api/students",input()).getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        db.update("DELETE FROM user_role_grants WHERE user_id=? AND role_code='ROLE_REGISTRAR'",user);
+        assertThat(call(HttpMethod.GET,"/api/students",null).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+    @Test void permissionMappingChangesApplyToExistingToken(){
+        try {
+            db.update("DELETE FROM role_permissions WHERE role_code='ROLE_REGISTRAR' AND permission_code='enrollment.manage'");
+            assertThat(call(HttpMethod.GET,"/api/students",null).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+            assertThat(setupStatus()).isEqualTo(HttpStatus.FORBIDDEN);
+        } finally {
+            db.update("INSERT INTO role_permissions(role_code,permission_code) VALUES ('ROLE_REGISTRAR','enrollment.manage') ON CONFLICT DO NOTHING");
+        }
+        assertThat(call(HttpMethod.GET,"/api/students",null).getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
 }

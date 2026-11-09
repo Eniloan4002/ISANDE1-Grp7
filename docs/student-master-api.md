@@ -17,7 +17,7 @@ Students represent permanent identities. The program, campus and voucher on the 
 | DELETE | /api/students/{id}?version=N | Archive by setting active=false; identity/history retained; 204 |
 | GET | /api/students/reference-data | Authorized campuses, program catalog and voucher catalog |
 
-All requests require the Bearer token from /api/auth/login. Missing/invalid authentication returns 401. Baseline access requires ROLE_ADMIN or ROLE_REGISTRAR **at the requested student's campus**. Grants are read from the verified current identity, not a caller-provided actor header. Out-of-scope record IDs return 404; an explicit unauthorized campus filter or create returns 403. This local guard is the handoff point for ICI2-7; shared authentication/security configuration was not changed.
+All requests require the Bearer token from /api/auth/login. Missing/invalid authentication returns 401. Access requires a role with `enrollment.manage` **at the requested student's campus**. The seeded Administrator and Registrar roles have that permission. Grants are read from the verified current identity, not a caller-provided actor header. Out-of-scope record IDs return 404; an explicit unauthorized campus filter or create returns 403. The shared `AccessPolicy` checks current role-permission mappings and campus grants.
 
 ## Create request example
 
@@ -64,7 +64,7 @@ Responses use database field names (first_name, campus_id, previous_school_name,
 
 V5 adds master-profile fields, version/active state, name validation and directory indexes without rewriting V1–V4. Existing student identities remain intact. Historical rows with no verified campus are deliberately hidden from this API until their campus is assigned through a controlled migration; the system does not guess ownership. No archive/demo/frontend files are changed.
 
-- ICI2-7: integrate module permission rules using the existing per-campus ADMIN/REGISTRAR guard; do not broaden reads to every role just because it is authenticated.
+- Future role-specific workflows must apply their own resource and assignment checks; do not broaden student reads to every authenticated role.
 - ICI2-13: duplicate detection and resolution must operate on applicant records before issuing/merging a permanent identity. Do not weaken the permanent-student LRN uniqueness constraint.
 - ICI2-14: connect intake/directory UI to this contract; use reference-data and versions, and map camelCase requests to snake_case responses.
 

@@ -39,13 +39,13 @@ describe('JWT claims', () => {
 
   it('normalizes only known roles', () => {
     expect(rolesFromClaims(readClaims(tokenFor({ roles: ['registrar', 'admin', 'unknown', 'admin'], exp: future() })))).toEqual(['registrar', 'admin']);
-    expect(rolesFromClaims({roles:['ROLE_ADMIN','ROLE_REGISTRAR','ROLE_TEACHER']})).toEqual(['admin','registrar','teacher']);
+    expect(rolesFromClaims({roles:['ROLE_ADMIN','ROLE_REGISTRAR','ROLE_TEACHER','ROLE_PRINCIPAL','ROLE_CASHIER_REF']})).toEqual(['admin','registrar','teacher','principal','cashier']);
   });
 });
 
 describe('routes', () => {
   it('reserves every prototype page with a unique clean path', () => {
-    expect(pages).toHaveLength(28);
+    expect(pages).toHaveLength(30);
     expect(new Set(pages.map(page => page.path)).size).toBe(pages.length);
     expect(pages.every(page => page.allowedRoles.length > 0 && !page.path.endsWith('.html'))).toBe(true);
   });
