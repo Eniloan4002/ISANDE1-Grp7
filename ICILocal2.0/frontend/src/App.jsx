@@ -1,5 +1,6 @@
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router';
 import AcademicSetup from './AcademicSetup.jsx';
+import DuplicateRecords from './DuplicateRecords.jsx';
 import DesignSystem from './components/DesignSystem.jsx';
 import { LoginPage } from './Auth.jsx';
 import { useAuth } from './auth/AuthContext.jsx';
@@ -46,6 +47,7 @@ export default function App() {
       <Route path="/login" element={<Navigate to="/sign-in" replace />} />
       <Route path="/sign-in" element={<LoginPage />} />
       {import.meta.env.DEV && <Route path="/dev/enrollment/*" element={<EnrollmentWorkspace preview />} />}
+      {import.meta.env.DEV && <Route path="/preview/duplicates" element={<main style={{ padding: 24 }}><DuplicateRecords /></main>} />}
       <Route element={<RequireAuth />}>
         <Route element={<AppShell />}>
           <Route index element={<HomeRedirect />} />
@@ -54,10 +56,11 @@ export default function App() {
             <RoleGate allowedRoles={page.allowedRoles}>
               {page.path === '/setup' ? <AcademicSetup />
                 : page.path === '/design-system' ? <DesignSystem />
-                  : page.path === '/enrollment/queue' ? <EnrollmentWorkspace screen="queue" />
-                    : page.path === '/enrollment/intake' ? <EnrollmentWorkspace screen="intake" />
+                  : page.path === '/enrollment/duplicate' ? <DuplicateRecords />
+                    : page.path === '/enrollment/queue' ? <EnrollmentWorkspace screen="queue" />
+                      : page.path === '/enrollment/intake' ? <EnrollmentWorkspace screen="intake" />
                         : page.path === '/enrollment/requirements' ? <EnrollmentWorkspace screen="requirements" />
-                        : <Placeholder page={page} />}
+                          : <Placeholder page={page} />}
             </RoleGate>
           } />)}
           <Route path="/enrollment/applicants/:applicationId" element={
