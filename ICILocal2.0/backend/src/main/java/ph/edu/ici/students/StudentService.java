@@ -10,14 +10,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ph.edu.ici.auth.StaffIdentity;
+import ph.edu.ici.auth.AccessPolicy;
 
 @Service
 public class StudentService {
     private final NamedParameterJdbcTemplate db;
     private final ObjectMapper json;
-    public StudentService(NamedParameterJdbcTemplate db,ObjectMapper json){this.db=db;this.json=json;}
+    private final AccessPolicy accessPolicy;
+    public StudentService(NamedParameterJdbcTemplate db,ObjectMapper json,AccessPolicy accessPolicy){this.db=db;this.json=json;this.accessPolicy=accessPolicy;}
     private StaffIdentity identity(){return (StaffIdentity)SecurityContextHolder.getContext().getAuthentication().getPrincipal();}
-    private List<Long> campuses(){return identity().grants().stream().filter(g->List.of("ROLE_ADMIN","ROLE_REGISTRAR").contains(g.role())).map(StaffIdentity.Grant::campusId).distinct().toList();}
+    private List<Long> campuses(){return accessPolicy.campuses("enrollment.manage");}
     private void campus(long id){if(!campuses().contains(id))throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Your account cannot manage students at this campus.");}
     private ResponseStatusException invalid(String message){return new ResponseStatusException(HttpStatus.BAD_REQUEST,message);}
     private String text(String value){return value==null||value.isBlank()?null:value.trim();}
@@ -79,7 +81,7 @@ public class StudentService {
         if(((Number)existing.get("campus_id")).longValue()!=input.campusId())throw new ResponseStatusException(HttpStatus.CONFLICT,"Use the transfer workflow to change a student's campus.");
         if(input.version()==null)throw invalid("Record version is required for updates.");
         actor();var p=fields(input);p.put("id",id);p.put("version",input.version());
-        int count=db.update("UPDATE students SET program_id=:program,voucher_code=:voucher,track=:track,lrn=:lrn,first_name=:first,middle_name=:middle,last_name=:last,suffix=:suffix,birth_date=:birth,sex=:sex,phone=:phone,email=:email,address=CAST(:address AS jsonb),previous_school_name=:school,previous_school_id=:schoolId,previous_school_address=:schoolAddress,household_income_bracket=:income,active=:active,version=version+1 WHERE id=:id AND version=:version",p);
+        int count=db.update("UPDATE students SET program_id=:program,voucher_code=:voucher,track=:track,lrn=:lrn,first_name=:first,middle_name=:middle,last_name=:last,suffix=:suffix,birth_date=:birth,sex=:sex,phone=:phone,email=:email,address=CAST(:address AS jsonb),previous_school_name=:school,previous_school_id=:schoolId,previous_school_address=:schoolAddress,household_income_bracket=:income,active=:active,version=version+1 WHERE id=:id AND campus_id=:campus AND version=:version",p);
         if(count==0)throw new ResponseStatusException(HttpStatus.CONFLICT,"This student changed in another session. Reload before saving.");
         db.update("DELETE FROM guardians WHERE student_id=:id",Map.of("id",id));guardians(id,input.guardians());return get(id);
     }
@@ -88,8 +90,8 @@ public class StudentService {
             db.update("INSERT INTO guardians(student_id,full_name,relationship,phone,address,is_primary) VALUES (:id,:name,:relationship,:phone,:address,:primary)",p);}
     }
     @Transactional public void archive(long id,int version){
-        get(id);if(version<0)throw invalid("Version cannot be negative.");actor();
-        if(db.update("UPDATE students SET active=false,version=version+1 WHERE id=:id AND version=:version",Map.of("id",id,"version",version))==0)
+        var existing=get(id);if(version<0)throw invalid("Version cannot be negative.");actor();
+        if(db.update("UPDATE students SET active=false,version=version+1 WHERE id=:id AND campus_id=:campus AND version=:version",Map.of("id",id,"campus",existing.get("campus_id"),"version",version))==0)
             throw new ResponseStatusException(HttpStatus.CONFLICT,"This student changed in another session. Reload before archiving.");
     }
     public Map<String,Object> referenceData(){

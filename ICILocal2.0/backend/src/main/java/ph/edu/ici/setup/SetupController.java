@@ -14,7 +14,7 @@ import static ph.edu.ici.setup.SetupService.values;
 
 @RestController
 @RequestMapping("/api/setup")
-@PreAuthorize("hasAnyRole('ADMIN','REGISTRAR')")
+@PreAuthorize("@accessPolicy.hasPermission('enrollment.manage')")
 public class SetupController {
     private final SetupService service;
     public SetupController(SetupService service) { this.service=service; }

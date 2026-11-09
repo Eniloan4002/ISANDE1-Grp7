@@ -28,6 +28,6 @@ A missing/invalid/expired token returns 401. A signed-in user without the requir
 
 ## Task boundary
 
-This completes authentication/token issuance and invalidation. Full module/campus-specific RBAC (ICI2-7), user-account management (ICI2-9), password recovery, refresh tokens and rate-limit infrastructure are separate work. Existing static mockups retain their original demo-only role selector inside the archive.
+This completes authentication/token issuance and invalidation. The existing setup and student APIs use the role-permission and campus policy described in rbac-permissions.md. Authorization for future module workflows, user-account management (ICI2-9), password recovery, refresh tokens and rate-limit infrastructure remain separate work. Existing static mockups retain their original demo-only role selector inside the archive.
 
 Sources: [Spring Security stateless sessions](https://docs.spring.io/spring-security/reference/servlet/authentication/session-management.html), [JJWT signing and verification](https://github.com/jwtk/jjwt).

@@ -11,6 +11,6 @@
 
 PR #5 was reviewed and integrated into one ICILocal2.0 workspace with collaborator authorship retained. See pr-5-integration-review.md for conflicts, fixes and verification. No tracking-board status or deployment was changed.
 
-ICI2-7 full module/campus RBAC and ICI2-9 user-account management remain open. Authentication includes baseline endpoint protection and setup-role checks, not completion of every role's business permissions. Enrollment/grade/reporting production workflows remain separate tasks; the student master API is implemented.
+ICI2-7 is partial: existing setup and student APIs enforce current role-permission mappings and campus grants. Other role-specific module workflows do not yet exist and their authorization remains open. ICI2-9 user-account management remains open. Enrollment/grade/reporting production workflows remain separate tasks; the student master API is implemented.
 
 The 50-file high-fidelity prototype remains byte-for-byte preserved in archive/high-fidelity-2026-11-02/. Its demo role switcher remains part of that frozen reference. New work is in ICILocal2.0/frontend/ and ICILocal2.0/backend/.
