@@ -119,7 +119,7 @@ export default function DuplicateRecords() {
 
   return <>
     <div className="page-heading">
-      <h1>Duplicate records</h1>
+      <h1>Duplicate Records</h1>
       <p>The system flags possible duplicates against the centralized database. Review both records side by side and resolve each flag by merging or rejecting it.</p>
     </div>
 
