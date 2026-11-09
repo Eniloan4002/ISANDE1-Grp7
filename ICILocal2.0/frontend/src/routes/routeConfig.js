@@ -71,7 +71,10 @@ export const knownRoles = roleSections.map(({ role }) => role);
 const prototypePages = roleSections.flatMap(({ role, groups }) =>
   groups.flatMap(({ pages: groupPages }) => groupPages.map(page => ({ ...page, allowedRoles: [role] }))));
 
-export const pages=[...prototypePages,{path:'/setup',label:'Academic setup',allowedRoles:['admin','registrar']},{path:'/design-system',label:'Interface components',allowedRoles:knownRoles}];
+export const pages=[...prototypePages,
+  {path:'/enrollment/intake',label:'Applicant Intake Form',allowedRoles:['admin','registrar']},
+  {path:'/setup',label:'Academic setup',allowedRoles:['admin','registrar']},
+  {path:'/design-system',label:'Interface components',allowedRoles:knownRoles}];
 
 export function firstAllowedPath(roles) {
   if(roles.some(role=>['admin','registrar'].includes(role)))return '/setup';

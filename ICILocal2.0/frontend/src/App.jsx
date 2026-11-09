@@ -4,12 +4,13 @@ import DesignSystem from './components/DesignSystem.jsx';
 import { LoginPage } from './Auth.jsx';
 import { useAuth } from './auth/AuthContext.jsx';
 import { AppShell } from './components/AppShell.jsx';
+import { EnrollmentMockProvider, EnrollmentWorkspace } from './enrollment/EnrollmentScreens.jsx';
 import { firstAllowedPath, pages } from './routes/routeConfig.js';
 
 function RequireAuth() {
-  const { isAuthenticated,loading } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
-  if(loading)return <p role="status">Checking staff session…</p>;
+  if (loading) return <p role="status">Checking staff session…</p>;
   return isAuthenticated ? <Outlet /> : <Navigate to="/sign-in" replace state={{ from: location }} />;
 }
 
@@ -40,18 +41,30 @@ function NotFound() {
 }
 
 export default function App() {
-  return <Routes>
-    <Route path="/login" element={<Navigate to="/sign-in" replace />} />
-    <Route path="/sign-in" element={<LoginPage />} />
-    <Route element={<RequireAuth />}>
-      <Route element={<AppShell />}>
-        <Route index element={<HomeRedirect />} />
-        <Route path="/access-denied" element={<AccessDenied />} />
-        {pages.map(page => <Route key={page.path} path={page.path} element={
-          <RoleGate allowedRoles={page.allowedRoles}>{page.path==='/setup'?<AcademicSetup />:page.path==='/design-system'?<DesignSystem />:<Placeholder page={page} />}</RoleGate>
-        } />)}
+  return <EnrollmentMockProvider>
+    <Routes>
+      <Route path="/login" element={<Navigate to="/sign-in" replace />} />
+      <Route path="/sign-in" element={<LoginPage />} />
+      {import.meta.env.DEV && <Route path="/dev/enrollment/*" element={<EnrollmentWorkspace preview />} />}
+      <Route element={<RequireAuth />}>
+        <Route element={<AppShell />}>
+          <Route index element={<HomeRedirect />} />
+          <Route path="/access-denied" element={<AccessDenied />} />
+          {pages.map(page => <Route key={page.path} path={page.path} element={
+            <RoleGate allowedRoles={page.allowedRoles}>
+              {page.path === '/setup' ? <AcademicSetup />
+                : page.path === '/design-system' ? <DesignSystem />
+                  : page.path === '/enrollment/queue' ? <EnrollmentWorkspace screen="queue" />
+                    : page.path === '/enrollment/intake' ? <EnrollmentWorkspace screen="intake" />
+                      : <Placeholder page={page} />}
+            </RoleGate>
+          } />)}
+          <Route path="/enrollment/applicants/:applicationId" element={
+            <RoleGate allowedRoles={['admin', 'registrar']}><EnrollmentWorkspace screen="details" /></RoleGate>
+          } />
+        </Route>
       </Route>
-    </Route>
-    <Route path="*" element={<NotFound />} />
-  </Routes>;
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  </EnrollmentMockProvider>;
 }
