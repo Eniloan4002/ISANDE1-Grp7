@@ -28,7 +28,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Claims claims=tokens.verify(authorization.substring(7));
                 UUID tokenId=UUID.fromString(claims.getId());
                 var account=staff.find(Long.parseLong(claims.getSubject())).orElseThrow(IllegalArgumentException::new);
-                if(!account.active()||staff.revoked(tokenId))throw new IllegalArgumentException();
+                Object version=claims.get("tokenVersion");
+                if((version!=null&&!(version instanceof Integer))||((version==null?0:(Integer)version)!=account.tokenVersion())||!account.active()||staff.revoked(tokenId))throw new IllegalArgumentException();
                 var grants=staff.grants(account.id());
                 var identity=new StaffIdentity(account.id(),account.username(),account.fullName(),grants,tokenId,claims.getExpiration().toInstant());
                 var authorities=grants.stream().map(StaffIdentity.Grant::role).distinct().map(SimpleGrantedAuthority::new).toList();
