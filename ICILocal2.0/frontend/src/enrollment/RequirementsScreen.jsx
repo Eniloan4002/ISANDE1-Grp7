@@ -16,7 +16,7 @@ const documentStatuses = [
   { value: 'invalid', label: 'Invalid', tone: 'danger' },
 ];
 
-const defaultDocuments = {
+export const defaultDocuments = {
   'APP-2026-0148': { 'PSA Birth Certificate': 'submitted', 'Form 137': 'pending', 'Certificate of Completion': 'missing', 'Good Moral Certificate': 'missing' },
   'APP-2026-0149': { 'PSA Birth Certificate': 'submitted', 'Form 137': 'pending', 'Certificate of Completion': 'submitted', 'Good Moral Certificate': 'missing' },
   'APP-2026-0150': { 'PSA Birth Certificate': 'submitted', 'Form 137': 'submitted', 'Certificate of Completion': 'submitted', 'Good Moral Certificate': 'submitted' },
@@ -24,7 +24,7 @@ const defaultDocuments = {
   'APP-2026-0152': { 'PSA Birth Certificate': 'submitted', 'Form 137': 'submitted', 'Certificate of Completion': 'submitted', 'Good Moral Certificate': 'submitted' },
 };
 
-const defaultAudits = {
+export const defaultAudits = {
   'APP-2026-0148': ['Certificate of Completion marked Missing by R. Santos — Aug 3, 2026 04:19 PM', 'PSA Birth Certificate marked Submitted by R. Santos — Aug 3, 2026 09:58 AM'],
   'APP-2026-0149': ['Form 137 marked Pending by R. Santos — Aug 5, 2026 09:14 AM', 'PSA Birth Certificate marked Submitted by R. Santos — Aug 3, 2026 02:41 PM'],
   'APP-2026-0150': ['All documents verified by R. Santos — Aug 5, 2026 08:10 AM'],
@@ -55,7 +55,7 @@ function overallTone(status) {
   return status === 'Complete' ? 'success' : status === 'Incomplete' ? 'danger' : 'warning';
 }
 
-function initialDocuments(applicant) {
+export function initialDocuments(applicant) {
   return { ...(defaultDocuments[applicant.id] || Object.fromEntries(documents.map(document => [document, 'pending']))) };
 }
 
@@ -124,9 +124,7 @@ function ContactDetails({ applicant, onClose, onSent }) {
   </div>;
 }
 
-export default function RequirementsScreen({ applicants, basePath = '/enrollment' }) {
-  const [documentsByApplicant, setDocumentsByApplicant] = useState(() => Object.fromEntries(applicants.map(applicant => [applicant.id, initialDocuments(applicant)])));
-  const [auditsByApplicant, setAuditsByApplicant] = useState(() => Object.fromEntries(applicants.map(applicant => [applicant.id, defaultAudits[applicant.id] || []])));
+export default function RequirementsScreen({ applicants, basePath = '/enrollment', documentsByApplicant, auditsByApplicant, onDocumentChange, onRequirementsStatusChange }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [programFilter, setProgramFilter] = useState('all');
@@ -158,9 +156,11 @@ export default function RequirementsScreen({ applicants, basePath = '/enrollment
 
   function updateDocument(document, value) {
     const applicant = selectedApplicant;
-    setDocumentsByApplicant(current => ({ ...current, [applicant.id]: { ...current[applicant.id], [document]: value } }));
-    setAuditsByApplicant(current => ({ ...current, [applicant.id]: [`${document} marked ${statusMeta(value).label} by Registrar — ${new Date().toLocaleString('en-PH')}`, ...(current[applicant.id] || [])] }));
+    const nextDocuments = { ...(documentsByApplicant[applicant.id] || initialDocuments(applicant)), [document]: value };
+    const audit = `${document} marked ${statusMeta(value).label} by Registrar — ${new Date().toLocaleString('en-PH')}`;
+    onDocumentChange?.(applicant.id, document, value, audit);
     setNotice(`${document} updated to ${statusMeta(value).label}.`);
+    onRequirementsStatusChange?.(applicant.id, overallStatus(nextDocuments));
   }
 
   function showFollowUp() {

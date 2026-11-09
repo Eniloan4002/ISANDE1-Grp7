@@ -69,6 +69,28 @@
 .requirements-chip.danger{background:#fff3f3;border-color:#cf9a9a;color:#854343}
 .requirements-chip.warning{background:#fffaf0;border-color:#d3b878;color:#765918}
 .requirements-result-count{margin:0;padding:10px 14px;color:var(--text-secondary);font-size:11px}
+.attendance-filters{grid-template-columns:minmax(220px,2fr) minmax(180px,1fr)}
+.attendance-table{min-width:760px}
+.attendance-selected-row{background:#eaf3f8}
+.attendance-log-panel{margin-bottom:14px}
+.attendance-log-body{padding:14px}
+.attendance-selected-banner{padding:10px 12px;background:#e8f3f7;border:1px solid #b5d7e3;color:var(--primary-dark);font-size:12px}
+.attendance-day-list{display:grid;margin:14px 0;border-top:1px solid var(--border-light)}
+.attendance-day-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 4px;border-bottom:1px dashed #c3c9cb}
+.attendance-day-row span,.attendance-day-row small{display:block}
+.attendance-day-row small{margin-top:3px;color:var(--text-secondary);font-size:10px}
+.attendance-day-row select{min-width:120px;height:30px;border:1px solid #8d9597;border-radius:1px;background:#fff;padding:3px 7px;font-size:11px}
+.attendance-status-success{border-color:#6fae89!important;color:#286445}
+.attendance-status-danger{border-color:#cf9a9a!important;color:#854343}
+.attendance-status-warning{border-color:#d3b878!important;color:#765918}
+.attendance-gate-note{padding:9px 11px;border:1px solid #c9b78a;background:#fdfaf1;color:#6b5c2f;font-size:11px}
+.attendance-gate{display:flex;flex-wrap:wrap;gap:8px 18px;padding:12px 0;color:var(--text-secondary);font-size:12px}
+.gate-ok{color:#286445}.gate-no{color:#854343}
+.attendance-actions{display:flex;justify-content:flex-end;gap:10px}
+.attendance-actions button:disabled{cursor:not-allowed;opacity:.5}
+.attendance-help{margin:10px 0 0;color:var(--danger-color);font-size:11px;text-align:right}
+.attendance-confirmation-audit{margin:10px 0 0;color:var(--primary-dark);font-size:11px;text-align:right}
+.attendance-empty{padding:24px}
 .requirements-notice{margin:0 0 14px;padding:9px 11px;border:1px solid #b5d7e3;background:#e8f3f7;color:var(--primary-dark);font-size:12px}
 .requirements-dialog-backdrop{position:fixed;z-index:20;inset:0;display:grid;place-items:center;padding:20px;background:rgba(24,60,67,.42)}
 .requirements-dialog{width:min(640px,100%);max-height:calc(100vh - 40px);overflow:auto;background:#fff;border:1px solid var(--border-color);box-shadow:0 12px 30px rgba(0,0,0,.2)}

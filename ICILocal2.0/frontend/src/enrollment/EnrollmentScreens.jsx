@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
-import RequirementsScreen from './RequirementsScreen.jsx';
+import RequirementsScreen, { defaultAudits, defaultDocuments, initialDocuments } from './RequirementsScreen.jsx';
+import AttendanceScreen from './AttendanceScreen.jsx';
 import './enrollment.css';
 
 const initialApplicants = [
@@ -103,6 +104,15 @@ export function EnrollmentMockProvider({ children }) {
     }] : [],
   })));
   const [nextId, setNextId] = useState(153);
+  const [documentsByApplicant, setDocumentsByApplicant] = useState(() => Object.fromEntries(initialApplicants.map(applicant => [applicant.id, initialDocuments(applicant)])));
+  const [auditsByApplicant, setAuditsByApplicant] = useState(() => Object.fromEntries(initialApplicants.map(applicant => [applicant.id, defaultAudits[applicant.id] || []])));
+  const [attendance, setAttendance] = useState(() => Object.fromEntries(initialApplicants.map(applicant => [applicant.id, [
+    { day: 'Mon', date: 'Aug 3, 2026', status: applicant.id === 'APP-2026-0151' ? 'Present' : 'Pending' },
+    { day: 'Tue', date: 'Aug 4, 2026', status: applicant.id === 'APP-2026-0151' ? 'Present' : 'Pending' },
+    { day: 'Wed', date: 'Aug 5, 2026', status: applicant.id === 'APP-2026-0151' ? 'Present' : 'Pending' },
+    { day: 'Thu', date: 'Aug 6, 2026', status: applicant.id === 'APP-2026-0151' ? 'Present' : 'Pending' },
+    { day: 'Fri', date: 'Aug 7, 2026', status: applicant.id === 'APP-2026-0151' ? 'Present' : 'Pending' },
+  ]])));
   const addApplicant = async values => {
     await Promise.resolve();
     const applicant = {
@@ -112,16 +122,44 @@ export function EnrollmentMockProvider({ children }) {
       status: 'Pre-enlisted',
       requirements: 'Pending',
       duplicate: false,
+      confirmationAudit: null,
     };
     setNextId(value => value + 1);
     setApplicants(current => [applicant, ...current]);
     return applicant;
   };
-  const value = useMemo(() => ({ applicants, addApplicant, referenceData: mockReferenceData }), [applicants, nextId]);
+  const updateApplicant = (id, changes) => setApplicants(current => current.map(applicant => applicant.id === id ? { ...applicant, ...changes } : applicant));
+  const updateDocument = (id, document, value, audit) => {
+    setDocumentsByApplicant(current => ({ ...current, [id]: { ...(current[id] || defaultDocuments[id]), [document]: value } }));
+    setAuditsByApplicant(current => ({ ...current, [id]: [audit, ...(current[id] || [])] }));
+  };
+  const updateAttendance = (id, index, status) => setAttendance(current => ({
+    ...current,
+    [id]: (current[id] || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map(day => ({ day, date: '', status: 'Pending' }))).map((item, itemIndex) => itemIndex === index ? { ...item, status } : item),
+  }));
+  const confirmEnrollment = (id, confirmedBy = 'Registrar Staff') => {
+    const applicant = applicants.find(item => item.id === id);
+    const log = attendance[id] || [];
+    const eligibleStatus = ['pre-enlisted', 'pending requirements'].includes(applicant?.status?.toLowerCase());
+    if (!applicant || !eligibleStatus || applicant.requirements !== 'Complete' || log.length !== 5 || !log.every(item => item.status === 'Present')) return false;
+    const confirmedAt = new Date().toISOString();
+    updateApplicant(id, {
+      status: 'Enrolled',
+      confirmedAt,
+      confirmedBy,
+      confirmationAudit: {
+        action: 'Enrollment confirmed',
+        confirmedAt,
+        confirmedBy,
+      },
+    });
+    return true;
+  };
+  const value = useMemo(() => ({ applicants, addApplicant, updateApplicant, documentsByApplicant, auditsByApplicant, updateDocument, attendance, updateAttendance, confirmEnrollment, referenceData: mockReferenceData }), [applicants, auditsByApplicant, attendance, documentsByApplicant, nextId]);
   return <EnrollmentMockContext.Provider value={value}>{children}</EnrollmentMockContext.Provider>;
 }
 
-function useEnrollmentMock() {
+export function useEnrollmentMock() {
   const context = useContext(EnrollmentMockContext);
   if (!context) throw new Error('Enrollment screens must be rendered inside EnrollmentMockProvider.');
   return context;
@@ -402,13 +440,13 @@ function ApplicantDetails({ applicant, basePath, preview }) {
 }
 
 export function EnrollmentWorkspace({ preview = false, screen: requestedScreen, title: requestedTitle }) {
-  const { applicants, addApplicant, referenceData } = useEnrollmentMock();
+  const { applicants, addApplicant, updateApplicant, documentsByApplicant, auditsByApplicant, updateDocument, attendance, updateAttendance, confirmEnrollment, referenceData } = useEnrollmentMock();
   const location = useLocation();
   const navigate = useNavigate();
   const basePath = preview ? '/dev/enrollment' : '/enrollment';
   const relativePath = location.pathname.slice(basePath.length).replace(/^\/+|\/+$/g, '');
   const detailMatch = relativePath.match(/^applicants\/([^/]+)$/);
-  const screen = requestedScreen || (preview ? detailMatch ? 'details' : relativePath === 'intake' ? 'intake' : relativePath === 'requirements' ? 'requirements' : 'queue' : 'queue');
+  const screen = requestedScreen || (preview ? detailMatch ? 'details' : relativePath === 'intake' ? 'intake' : relativePath === 'requirements' ? 'requirements' : relativePath === 'attendance' ? 'attendance' : 'queue' : 'queue');
   const applicationId = detailMatch ? decodeURIComponent(detailMatch[1]) : location.pathname.match(/\/enrollment\/applicants\/([^/]+)/)?.[1];
   const applicant = applicants.find(item => item.id === applicationId);
   const title = requestedTitle || (screen === 'intake' ? 'Applicant Intake Form' : 'Enrollment Submission');
@@ -420,7 +458,9 @@ export function EnrollmentWorkspace({ preview = false, screen: requestedScreen, 
   const content = screen === 'queue'
     ? <EnrollmentQueue applicants={applicants} basePath={basePath} preview={preview} />
     : screen === 'requirements'
-      ? <RequirementsScreen applicants={applicants} basePath={basePath} />
+      ? <RequirementsScreen applicants={applicants} documentsByApplicant={documentsByApplicant} auditsByApplicant={auditsByApplicant} basePath={basePath} onDocumentChange={updateDocument} onRequirementsStatusChange={(id, status) => updateApplicant(id, { requirements: status })} />
+      : screen === 'attendance'
+        ? <AttendanceScreen applicants={applicants} attendance={attendance} updateAttendance={updateAttendance} confirmEnrollment={confirmEnrollment} basePath={basePath} />
     : screen === 'details'
       ? <ApplicantDetails applicant={applicant} basePath={basePath} preview={preview} />
       : <ApplicantIntake addApplicant={addApplicant} navigate={navigate} basePath={basePath} title={title} referenceData={referenceData} />;
@@ -432,6 +472,7 @@ export function EnrollmentWorkspace({ preview = false, screen: requestedScreen, 
       <Link to={`${basePath}/queue`}>Enrollment Queue</Link>
       <Link to={`${basePath}/intake`}>Applicant Intake Form</Link>
       <Link to={`${basePath}/requirements`}>Requirements Checklist</Link>
+      <Link to={`${basePath}/attendance`}>Attendance Monitoring</Link>
     </nav>
     {content}
   </main>;
