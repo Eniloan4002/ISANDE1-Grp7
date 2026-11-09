@@ -102,4 +102,55 @@ describe('enrollment development preview', () => {
     expect(await screen.findByRole('status')).toHaveTextContent('Certificate of Completion updated to Submitted');
     expect(screen.getByText(/2 of 4 submitted/)).toBeInTheDocument();
   });
+
+  it('keeps requirement changes when navigating between enrollment screens', () => {
+    show('/dev/enrollment/requirements');
+    fireEvent.click(screen.getAllByRole('button', { name: 'View' })[0]);
+    fireEvent.change(screen.getByRole('combobox', { name: 'Certificate of Completion status' }), { target: { value: 'submitted' } });
+    fireEvent.click(screen.getByRole('link', { name: 'Attendance Monitoring' }));
+    fireEvent.click(screen.getByRole('link', { name: 'Requirements Checklist' }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'View' })[0]);
+    expect(screen.getByRole('combobox', { name: 'Certificate of Completion status' })).toHaveValue('submitted');
+  });
+
+  it('opens attendance monitoring and prevents confirmation when the gate is not met', () => {
+    show('/dev/enrollment/attendance');
+    expect(screen.getByRole('heading', { name: 'First-Week Attendance' })).toBeInTheDocument();
+    fireEvent.click(screen.getAllByRole('button', { name: 'Monitor' })[0]);
+    expect(screen.getByRole('button', { name: /Confirm enrollment/ })).toBeDisabled();
+    expect(screen.getByText(/Requirements: Pending/)).toBeInTheDocument();
+  });
+
+  it('updates daily attendance and confirms an eligible applicant', () => {
+    show('/dev/enrollment/attendance');
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Search attendance' }), { target: { value: 'APP-2026-0151' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Monitor' }));
+    expect(screen.getByText('Both met')).toBeInTheDocument();
+    const confirmButton = screen.getByRole('button', { name: /Confirm enrollment/ });
+    expect(confirmButton).toBeEnabled();
+    fireEvent.click(confirmButton);
+    expect(screen.getAllByRole('status').some(element => element.textContent.includes('Noah Dela Cruz is now officially enrolled.'))).toBe(true);
+    expect(screen.getByText(/Confirmed by Registrar Staff on/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Already enrolled' })).toBeDisabled();
+  });
+
+  it('allows a complete Pending requirements applicant to confirm once', () => {
+    show('/dev/enrollment/attendance');
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Search attendance' }), { target: { value: 'APP-2026-0151' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Monitor' }));
+    fireEvent.click(screen.getByRole('button', { name: /Confirm enrollment/ }));
+    expect(screen.getByText(/Confirmed by Registrar Staff on/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Already enrolled' })).toBeDisabled();
+  });
+
+  it('filters attendance records and records a daily status update', () => {
+    show('/dev/enrollment/attendance');
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Search attendance' }), { target: { value: 'APP-2026-0148' } });
+    expect(screen.getByText('APP-2026-0148')).toBeInTheDocument();
+    expect(screen.queryByText('APP-2026-0151')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Monitor' }));
+    fireEvent.change(screen.getByRole('combobox', { name: 'Mon attendance' }), { target: { value: 'Present' } });
+    expect(screen.getByRole('status')).toHaveTextContent('Ana Reyes Garcia — Mon marked Present.');
+    expect(screen.getByText(/1\/5 present/)).toBeInTheDocument();
+  });
 });

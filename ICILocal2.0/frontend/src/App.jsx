@@ -62,6 +62,7 @@ export default function App() {
                     : page.path === '/enrollment/queue' ? <EnrollmentWorkspace screen="queue" />
                       : page.path === '/enrollment/intake' ? <EnrollmentWorkspace screen="intake" />
                         : page.path === '/enrollment/requirements' ? <EnrollmentWorkspace screen="requirements" />
+                          : page.path === '/enrollment/attendance' ? <EnrollmentWorkspace screen="attendance" />
                           : <Placeholder page={page} />}
             </RoleGate>
           } />)}
