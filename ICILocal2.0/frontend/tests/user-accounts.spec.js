@@ -1,0 +1,36 @@
+import { test, expect } from '@playwright/test';
+
+test('administrator manages a personnel account', async ({ page }) => {
+  test.skip(!process.env.ICI_LIVE_API, 'Start the disposable PostgreSQL backend and set ICI_LIVE_API=1.');
+  await page.goto('/administration/users');
+  await page.getByLabel('Username', {exact:true}).fill(process.env.ICI_TEST_USERNAME || 'browser-admin');
+  await page.getByLabel('Password', {exact:true}).fill(process.env.ICI_TEST_PASSWORD || 'Browser-test-password-123!');
+  await page.getByRole('button', {name:'Sign in',exact:true}).click();
+  await expect(page.getByRole('heading', {name:'User Accounts'})).toBeVisible();
+  const suffix=Date.now().toString(), name=`browser${suffix}`;
+  await page.getByLabel('Full name', {exact:true}).fill('Browser Personnel');
+  await page.getByLabel('Username', {exact:true}).fill(name);
+  await page.getByLabel('Email', {exact:true}).fill(`${name}@example.invalid`);
+  await page.getByLabel('Initial password', {exact:true}).fill('Personnel-Password-123!');
+  await page.getByRole('group', {name:'Iligan Main'}).getByLabel('Subject Teacher').check();
+  await page.getByRole('button', {name:'Create account',exact:true}).click();
+  let row=page.getByRole('row').filter({hasText:name});
+  await expect(row).toContainText('Subject Teacher');
+  await row.getByRole('button',{name:'Edit Browser Personnel'}).click();
+  await page.getByLabel('Full name',{exact:true}).fill('Updated Personnel');
+  await page.getByRole('button',{name:'Save changes',exact:true}).click();
+  row=page.getByRole('row').filter({hasText:name});await expect(row).toContainText('Updated Personnel');
+  page.once('dialog',dialog=>dialog.accept());
+  await row.getByRole('button',{name:'Deactivate Updated Personnel'}).click();
+  await expect(row).toContainText('Inactive');
+  page.once('dialog',dialog=>dialog.accept());
+  await row.getByRole('button',{name:'Activate Updated Personnel'}).click();
+  await expect(row).toContainText('Active');
+  await row.getByRole('button',{name:'Reset password for Updated Personnel'}).click();
+  await page.getByLabel('New password').fill('New-Personnel-Password-456!');
+  page.once('dialog',dialog=>dialog.accept());
+  await page.getByRole('button',{name:'Reset password',exact:true}).last().click();
+  await expect(page.getByRole('status')).toContainText('Password reset');
+  await page.setViewportSize({width:390,height:844});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});

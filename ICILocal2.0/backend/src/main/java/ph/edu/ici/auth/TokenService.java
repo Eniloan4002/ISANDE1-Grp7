@@ -26,12 +26,12 @@ public class TokenService {
         if(ttlMinutes<1||ttlMinutes>60) throw new IllegalArgumentException("JWT_TTL_MINUTES must be between 1 and 60.");
         this.issuer=issuer;this.ttlMinutes=ttlMinutes;
     }
-    public Issued issue(long userId,List<StaffIdentity.Grant> grants) {
+    public Issued issue(long userId,List<StaffIdentity.Grant> grants,int tokenVersion) {
         Instant now=Instant.now(), expiry=now.plusSeconds(ttlMinutes*60L);
         List<Map<String,Object>> scopes=grants.stream().map(grant->Map.<String,Object>of("campusId",grant.campusId(),"campusCode",grant.campusCode(),"role",grant.role())).toList();
         String jwt=Jwts.builder().issuer(issuer).subject(Long.toString(userId)).id(UUID.randomUUID().toString())
             .issuedAt(Date.from(now)).expiration(Date.from(expiry))
-            .claim("userId",userId).claim("roles",grants.stream().map(StaffIdentity.Grant::role).distinct().sorted().toList())
+            .claim("tokenVersion",tokenVersion).claim("userId",userId).claim("roles",grants.stream().map(StaffIdentity.Grant::role).distinct().sorted().toList())
             .claim("campusScope",scopes).signWith(key,Jwts.SIG.HS256).compact();
         return new Issued(jwt,expiry);
     }

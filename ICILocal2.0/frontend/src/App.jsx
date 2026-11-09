@@ -1,5 +1,6 @@
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router';
 import AcademicSetup from './AcademicSetup.jsx';
+import UserAccounts from './UserAccounts.jsx';
 import DuplicateRecords from './DuplicateRecords.jsx';
 import DesignSystem from './components/DesignSystem.jsx';
 import { LoginPage } from './Auth.jsx';
@@ -54,7 +55,8 @@ export default function App() {
           <Route path="/access-denied" element={<AccessDenied />} />
           {pages.map(page => <Route key={page.path} path={page.path} element={
             <RoleGate allowedRoles={page.allowedRoles}>
-              {page.path === '/setup' ? <AcademicSetup />
+              {page.path === '/administration/users' ? <UserAccounts />
+                : page.path === '/setup' ? <AcademicSetup />
                 : page.path === '/design-system' ? <DesignSystem />
                   : page.path === '/enrollment/duplicate' ? <DuplicateRecords />
                     : page.path === '/enrollment/queue' ? <EnrollmentWorkspace screen="queue" />

@@ -17,7 +17,7 @@ const future = () => Math.floor(Date.now() / 1000) + 3600;
 
 async function show(path, token = null) {
   setAccessToken(token);
-  api.defaults.adapter=async config=>({status:200,statusText:'OK',headers:{},config,data:config.url.startsWith('/setup/')?[]:{userId:1,username:'test',fullName:'Test Staff',grants:rolesFromClaims(readClaims(token)).map(role=>({campusId:1,campusCode:'ILIGAN',role}))}});
+  api.defaults.adapter=async config=>({status:200,statusText:'OK',headers:{},config,data:config.url==='/admin/users/options'?{roles:[],campuses:[]}:config.url==='/admin/users'||config.url.startsWith('/setup/')?[]:{userId:1,username:'test',fullName:'Test Staff',grants:rolesFromClaims(readClaims(token)).map(role=>({campusId:1,campusCode:'ILIGAN',role}))}});
   let result;
   await act(async()=>{result=render(<MemoryRouter initialEntries={[path]}><AuthProvider><App /></AuthProvider></MemoryRouter>);});
   return result;

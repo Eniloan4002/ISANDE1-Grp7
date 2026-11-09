@@ -4,15 +4,16 @@ Student information and enrollment management for Iligan Computer Institute: Ili
 
 ## Implemented
 
-- ICI2-5: PostgreSQL schema, Flyway V1–V5, common audit metadata/history, reference data and tested relational integrity.
+- ICI2-5: PostgreSQL schema, Flyway V1–V7, common audit metadata/history, reference data and tested relational integrity.
 - ICI2-6: staff login, BCrypt passwords, signed JWTs with campus/role claims, protected requests, durable logout revocation and real React sign-in/sign-out.
+- ICI2-9: campus-scoped personnel account management, role assignments, activation and password resets.
 - ICI2-12: student master API with guardian data, scoped directory search, validation, audits and safe archiving; see docs/student-master-api.md.
 - NEW SETUP: subject, academic-year, term and grading-period management APIs and React forms, validation, safe deletion and optimistic updates.
 - React shell/design system and the checksum-verified 50-file high-fidelity archive.
 
 PR #5’s shell and route/navigation structure are retained as the single frontend.
 
-Full module workflows, campus-specific RBAC (ICI2-7), account-management screens (ICI2-9) and honor policies remain separate tasks. No production data or default passwords are included.
+Full module workflows and honor policies remain separate tasks; campus-specific RBAC (ICI2-7) is partially implemented. No production data or default passwords are included.
 
 ## Repository map
 

@@ -4,7 +4,7 @@ The backend reloads active staff grants on each authenticated request. `AccessPo
 
 | Role | Seeded permissions | Existing API access |
 | --- | --- | --- |
-| Administrator | users.manage, enrollment.manage | Global academic setup and student management in granted campuses |
+| Administrator | users.manage, enrollment.manage | Global academic setup, student management and account management in granted campuses |
 | Registrar | enrollment.manage, grades.review, reports.read | Global academic setup and student management in granted campuses |
 | Principal | reports.read | No role-specific production API yet |
 | Adviser | advisory.read | No role-specific production API yet |
@@ -12,6 +12,6 @@ The backend reloads active staff grants on each authenticated request. `AccessPo
 | Guidance | guidance.manage | No role-specific production API yet |
 | Cashiering reference | cashier.read | No role-specific production API yet |
 
-V6 adds `enrollment.manage` to administrators to preserve their existing access. Other permission mappings were already seeded in V2. Setup data is global in the current schema, so anyone with `enrollment.manage` at any active campus can manage it globally. Student reads and writes are restricted to campuses where the same grant provides `enrollment.manage`. An unrelated role at another campus cannot expand this scope.
+V6 adds `enrollment.manage` to administrators to preserve their existing access. Other permission mappings were already seeded in V2. Account administration requires `users.manage` in every campus of the target account and every requested grant; the account API is the security boundary. Setup data is global in the current schema, so anyone with `enrollment.manage` at any active campus can manage it globally. Student reads and writes are restricted to campuses where the same grant provides `enrollment.manage`. An unrelated role at another campus cannot expand this scope.
 
-Permissions are a prerequisite for future workflows, not a substitute for checking the resource itself. Adviser access must also check the assigned section; teacher access must check subject assignment, membership, and grading window. Those APIs, other role-specific workflows, and account administration are not implemented by this change. The Principal and Cashiering navigation entries are placeholders. Client role information is not a security boundary and may remain stale until the session profile is refreshed.
+Permissions are a prerequisite for future workflows, not a substitute for checking the resource itself. Adviser access must also check the assigned section; teacher access must check subject assignment, membership, and grading window. Those APIs and other role-specific workflows remain separate work. Account administration is implemented by ICI2-9. The Principal and Cashiering navigation entries are placeholders. Client role information is not a security boundary and may remain stale until the session profile is refreshed.

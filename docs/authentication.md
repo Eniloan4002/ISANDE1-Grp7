@@ -6,7 +6,7 @@
 - Successful login returns accessToken, tokenType (Bearer), expiresAt and the staff profile. Signed HS256 JWTs include sub/userId, unique jti, issuer, issued/expiry times, roles and explicit per-campus role grants.
 - GET /api/auth/me verifies the token and returns the current staff profile. All business APIs require a valid token; academic setup currently permits admin/registrar roles.
 - POST /api/auth/logout durably revokes the current token by jti in PostgreSQL. Revocation survives application restarts when the database is retained. Other independent sign-ins stay valid.
-- Every protected request verifies the signature, issuer and expiry, rejects revoked tokens, checks the account is still active and reloads current campus-role grants. Removed permissions do not stay effective until token expiry.
+- Every protected request verifies the signature, issuer and expiry, rejects revoked tokens and outdated account token versions, checks the account is still active and reloads current campus-role grants. Deactivating an account or resetting its password invalidates all previously issued tokens permanently, including after reactivation. Removed permissions do not stay effective until token expiry.
 - No server login sessions or authentication cookies are created. Bearer headers are explicit, so CSRF cookie authentication is not used. Login/token responses are not cached.
 - React provides a real staff sign-in form, invalid-credential feedback, protected setup route, session restoration, expired-session handling and sign-out. The token is kept in sessionStorage for that browser tab and removed on confirmed logout or a 401. Passwords are never stored in browser storage.
 
@@ -28,6 +28,12 @@ A missing/invalid/expired token returns 401. A signed-in user without the requir
 
 ## Task boundary
 
-This completes authentication/token issuance and invalidation. The existing setup and student APIs use the role-permission and campus policy described in rbac-permissions.md. Authorization for future module workflows, user-account management (ICI2-9), password recovery, refresh tokens and rate-limit infrastructure remain separate work. Existing static mockups retain their original demo-only role selector inside the archive.
+This completes authentication/token issuance and invalidation. The existing setup and student APIs use the role-permission and campus policy described in rbac-permissions.md. User-account management is provided by the administrator panel (ICI2-9). Authorization for future module workflows, self-service password recovery, refresh tokens and rate-limit infrastructure remain separate work. Existing static mockups retain their original demo-only role selector inside the archive.
 
 Sources: [Spring Security stateless sessions](https://docs.spring.io/spring-security/reference/servlet/authentication/session-management.html), [JJWT signing and verification](https://github.com/jwtk/jjwt).
+
+## Administrator account management (ICI2-9)
+
+`/administration/users` manages personnel accounts. The API uses `GET /api/admin/users` and `/options`, `GET /api/admin/users/{id}`, `POST /api/admin/users`, `PUT /api/admin/users/{id}`, `PUT /api/admin/users/{id}/status`, and `PUT /api/admin/users/{id}/password`. Account details contain username, email, fullName and role/campus grants; create also requires an initial password. Status uses `active`, and password reset uses `password`. Password hashes are never returned or recorded in audit entries.
+
+All existing and requested account grants must be within the caller's active `users.manage` campus scope. Accounts with no grants or grants outside that scope are omitted from lists and cannot be managed. Inactive campus grants remain outside the scope until the campus is active. Changes take a transaction lock, recheck authorization, and preserve an active administrator at each affected campus. Administrators cannot deactivate themselves or remove their own administrator grants. Initial and reset passwords must be communicated outside the application.

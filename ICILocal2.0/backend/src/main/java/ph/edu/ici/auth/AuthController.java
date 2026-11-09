@@ -33,7 +33,7 @@ public class AuthController {
         catch(IllegalArgumentException ignored) { /* Invalid credentials use the same response. */ }
         if(account==null||!match||!account.active()) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Invalid username or password.");
         List<StaffIdentity.Grant> grants=staff.grants(account.id());
-        TokenService.Issued token=tokens.issue(account.id(),grants);
+        TokenService.Issued token=tokens.issue(account.id(),grants,account.tokenVersion());
         return ResponseEntity.ok().cacheControl(CacheControl.noStore())
             .body(new LoginResponse(token.accessToken(),"Bearer",token.expiresAt(),new Profile(account.id(),account.username(),account.fullName(),grants)));
     }
