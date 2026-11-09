@@ -45,7 +45,7 @@ describe('JWT claims', () => {
 
 describe('routes', () => {
   it('reserves every prototype page with a unique clean path', () => {
-    expect(pages).toHaveLength(27);
+    expect(pages).toHaveLength(28);
     expect(new Set(pages.map(page => page.path)).size).toBe(pages.length);
     expect(pages.every(page => page.allowedRoles.length > 0 && !page.path.endsWith('.html'))).toBe(true);
   });
@@ -53,6 +53,21 @@ describe('routes', () => {
   it('sends unauthenticated visitors to the staff sign-in screen', async () => {
     await show('/academic/grade-entry');
     expect(screen.getByRole('heading', { name: 'Staff sign in' })).toBeInTheDocument();
+  });
+
+  it('keeps the protected enrollment route behind staff sign-in', async () => {
+    await show('/enrollment/queue');
+    expect(screen.getByRole('heading', { name: 'Staff sign in' })).toBeInTheDocument();
+  });
+
+  it('keeps applicant details behind staff sign-in', async () => {
+    await show('/enrollment/applicants/APP-2026-0148');
+    expect(screen.getByRole('heading', { name: 'Staff sign in' })).toBeInTheDocument();
+  });
+
+  it('restricts applicant details to registrar and admin roles', async () => {
+    await show('/enrollment/applicants/APP-2026-0148', tokenFor({ role: 'teacher', exp: future() }));
+    expect(screen.getByRole('heading', { name: 'Access denied' })).toBeInTheDocument();
   });
 
   it('allows the matching role and hides other navigation sections', async () => {
