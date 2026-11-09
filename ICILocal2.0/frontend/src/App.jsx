@@ -1,5 +1,6 @@
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router';
 import AcademicSetup from './AcademicSetup.jsx';
+import DuplicateRecords from './DuplicateRecords.jsx';
 import DesignSystem from './components/DesignSystem.jsx';
 import { LoginPage } from './Auth.jsx';
 import { useAuth } from './auth/AuthContext.jsx';
@@ -48,10 +49,11 @@ export default function App() {
         <Route index element={<HomeRedirect />} />
         <Route path="/access-denied" element={<AccessDenied />} />
         {pages.map(page => <Route key={page.path} path={page.path} element={
-          <RoleGate allowedRoles={page.allowedRoles}>{page.path==='/setup'?<AcademicSetup />:page.path==='/design-system'?<DesignSystem />:<Placeholder page={page} />}</RoleGate>
+          <RoleGate allowedRoles={page.allowedRoles}>{page.path==='/setup'?<AcademicSetup />:page.path==='/design-system'?<DesignSystem />:page.path==='/enrollment/duplicate'?<DuplicateRecords />:<Placeholder page={page} />}</RoleGate>
         } />)}
       </Route>
     </Route>
+    {import.meta.env.DEV && <Route path="/preview/duplicates" element={<main style={{ padding: 24 }}><DuplicateRecords /></main>} />}
     <Route path="*" element={<NotFound />} />
   </Routes>;
 }
