@@ -84,4 +84,22 @@ describe('enrollment development preview', () => {
     expect(await screen.findByRole('heading', { name: 'Jamie Rivera' })).toBeInTheDocument();
     expect(screen.getByText('Maria Rivera (Mother, 09170000001); Jose Rivera (Father, primary contact)')).toBeInTheDocument();
   });
+
+  it('opens the requirements checklist and filters mock applicants', () => {
+    show('/dev/enrollment/requirements');
+    expect(screen.getByRole('heading', { name: 'Requirements Checklist' })).toBeInTheDocument();
+    expect(screen.getByText('APP-2026-0148')).toBeInTheDocument();
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Search requirements' }), { target: { value: 'APP-2026-0150' } });
+    expect(screen.getByText('APP-2026-0150')).toBeInTheDocument();
+    expect(screen.queryByText('APP-2026-0148')).not.toBeInTheDocument();
+  });
+
+  it('updates a document status and recomputes the checklist summary', async () => {
+    show('/dev/enrollment/requirements');
+    fireEvent.click(screen.getAllByRole('button', { name: 'View' })[0]);
+    expect(screen.getByRole('dialog', { name: 'Requirements Checklist' })).toBeInTheDocument();
+    fireEvent.change(screen.getByRole('combobox', { name: 'Certificate of Completion status' }), { target: { value: 'submitted' } });
+    expect(await screen.findByRole('status')).toHaveTextContent('Certificate of Completion updated to Submitted');
+    expect(screen.getByText(/2 of 4 submitted/)).toBeInTheDocument();
+  });
 });

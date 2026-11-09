@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
+import RequirementsScreen from './RequirementsScreen.jsx';
 import './enrollment.css';
 
 const initialApplicants = [
@@ -407,7 +408,7 @@ export function EnrollmentWorkspace({ preview = false, screen: requestedScreen, 
   const basePath = preview ? '/dev/enrollment' : '/enrollment';
   const relativePath = location.pathname.slice(basePath.length).replace(/^\/+|\/+$/g, '');
   const detailMatch = relativePath.match(/^applicants\/([^/]+)$/);
-  const screen = requestedScreen || (preview ? detailMatch ? 'details' : relativePath === 'intake' ? 'intake' : 'queue' : 'queue');
+  const screen = requestedScreen || (preview ? detailMatch ? 'details' : relativePath === 'intake' ? 'intake' : relativePath === 'requirements' ? 'requirements' : 'queue' : 'queue');
   const applicationId = detailMatch ? decodeURIComponent(detailMatch[1]) : location.pathname.match(/\/enrollment\/applicants\/([^/]+)/)?.[1];
   const applicant = applicants.find(item => item.id === applicationId);
   const title = requestedTitle || (screen === 'intake' ? 'Applicant Intake Form' : 'Enrollment Submission');
@@ -418,6 +419,8 @@ export function EnrollmentWorkspace({ preview = false, screen: requestedScreen, 
 
   const content = screen === 'queue'
     ? <EnrollmentQueue applicants={applicants} basePath={basePath} preview={preview} />
+    : screen === 'requirements'
+      ? <RequirementsScreen applicants={applicants} basePath={basePath} />
     : screen === 'details'
       ? <ApplicantDetails applicant={applicant} basePath={basePath} preview={preview} />
       : <ApplicantIntake addApplicant={addApplicant} navigate={navigate} basePath={basePath} title={title} referenceData={referenceData} />;
@@ -428,6 +431,7 @@ export function EnrollmentWorkspace({ preview = false, screen: requestedScreen, 
     <nav className="enrollment-preview-nav" aria-label="Enrollment screen previews">
       <Link to={`${basePath}/queue`}>Enrollment Queue</Link>
       <Link to={`${basePath}/intake`}>Applicant Intake Form</Link>
+      <Link to={`${basePath}/requirements`}>Requirements Checklist</Link>
     </nav>
     {content}
   </main>;

@@ -15,7 +15,7 @@ export const roleSections = [
         { path: '/enrollment/duplicate', label: 'Duplicate Records' },
       ] },
       { label: 'Validation', pages: [
-        { path: '/enrollment/requirements', label: 'Requirements' },
+        { path: '/enrollment/requirements', label: 'Requirements Checklist' },
         { path: '/enrollment/attendance', label: 'First-Week Attendance' },
       ] },
       { label: 'Enrollment', pages: [
