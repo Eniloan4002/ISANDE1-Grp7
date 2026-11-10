@@ -1,26 +1,26 @@
 [INFO] Scanning for projects...
-[INFO] 
+[INFO]
 [INFO] ------------------------< ph.edu.ici:ici-local >------------------------
 [INFO] Building ici-local 0.1.0-SNAPSHOT
 [INFO]   from pom.xml
 [INFO] --------------------------------[ jar ]---------------------------------
-[INFO] 
+[INFO]
 [INFO] --- resources:3.3.1:resources (default-resources) @ ici-local ---
 [INFO] Copying 1 resource from src/main/resources to target/classes
 [INFO] Copying 8 resources from src/main/resources to target/classes
-[INFO] 
+[INFO]
 [INFO] --- compiler:3.14.1:compile (default-compile) @ ici-local ---
 [INFO] Nothing to compile - all classes are up to date.
-[INFO] 
+[INFO]
 [INFO] --- resources:3.3.1:testResources (default-testResources) @ ici-local ---
 [INFO] skip non existing resourceDirectory /Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/backend/src/test/resources
-[INFO] 
+[INFO]
 [INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ ici-local ---
 [INFO] Nothing to compile - all classes are up to date.
-[INFO] 
+[INFO]
 [INFO] --- surefire:3.5.4:test (default-test) @ ici-local ---
 [INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
-[INFO] 
+[INFO]
 [INFO] -------------------------------------------------------
 [INFO]  T E S T S
 [INFO] -------------------------------------------------------
@@ -45,12 +45,12 @@
 2026-11-09T19:09:23.013+08:00  INFO 48858 --- [ici-local] [           main] i.z.t.d.p.embedded.EmbeddedPostgres      : Postgres binaries at /var/folders/13/237tfjzn33vfz31x1kjfypdm0000gn/T/embedded-pg/PG-eb0efa0aeda68f73a8f34f19c9a4e817
 2026-11-09T19:09:23.953+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      : The files belonging to this database system will be owned by user "Linus".
 2026-11-09T19:09:23.958+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      : This user must also own the server process.
-2026-11-09T19:09:23.967+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      : 
+2026-11-09T19:09:23.967+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      :
 2026-11-09T19:09:23.975+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      : The database cluster will be initialized with locale "C.UTF-8".
 2026-11-09T19:09:23.975+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      : The default text search configuration will be set to "english".
-2026-11-09T19:09:23.975+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      : 
+2026-11-09T19:09:23.975+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      :
 2026-11-09T19:09:23.975+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      : Data page checksums are disabled.
-2026-11-09T19:09:23.975+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      : 
+2026-11-09T19:09:23.975+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      :
 2026-11-09T19:09:23.976+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      : fixing permissions on existing directory /var/folders/13/237tfjzn33vfz31x1kjfypdm0000gn/T/epg2786642422366673701 ... ok
 2026-11-09T19:09:23.988+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      : creating subdirectories ... ok
 2026-11-09T19:09:23.994+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      : selecting dynamic shared memory implementation ... posix
@@ -61,11 +61,11 @@
 2026-11-09T19:09:27.355+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      : running bootstrap script ... ok
 2026-11-09T19:09:32.399+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      : performing post-bootstrap initialization ... ok
 2026-11-09T19:09:32.725+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      : syncing data to disk ... ok
-2026-11-09T19:09:32.726+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      : 
+2026-11-09T19:09:32.726+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      :
 2026-11-09T19:09:32.728+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      : Success. You can now start the database server using:
-2026-11-09T19:09:32.733+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      : 
+2026-11-09T19:09:32.733+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      :
 2026-11-09T19:09:32.734+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      :     /var/folders/13/237tfjzn33vfz31x1kjfypdm0000gn/T/embedded-pg/PG-eb0efa0aeda68f73a8f34f19c9a4e817/bin/pg_ctl -D /var/folders/13/237tfjzn33vfz31x1kjfypdm0000gn/T/epg2786642422366673701 -l logfile start
-2026-11-09T19:09:32.734+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      : 
+2026-11-09T19:09:32.734+08:00  INFO 48858 --- [ici-local] [itdb:pid(49853)] i.z.t.d.p.embedded.EmbeddedPostgres      :
 2026-11-09T19:09:32.740+08:00  INFO 48858 --- [ici-local] [           main] i.z.t.d.p.embedded.EmbeddedPostgres      : 03256362-358a-459b-ae70-bf1b70ad379f initdb completed in 00:00:09.711
 2026-11-09T19:09:32.885+08:00  INFO 48858 --- [ici-local] [           main] i.z.t.d.p.embedded.EmbeddedPostgres      : 03256362-358a-459b-ae70-bf1b70ad379f postmaster started as Process[pid=50593, exitValue="not exited"] on port 57874.  Waiting up to PT10S for server startup to finish.
 2026-11-09T19:09:33.354+08:00  INFO 48858 --- [ici-local] [gres:pid(50593)] i.z.t.d.p.embedded.EmbeddedPostgres      : waiting for server to start....2026-11-09 19:09:33.352 PST [50617] LOG:  starting PostgreSQL 17.6 on x86_64-apple-darwin23.6.0, compiled by Apple clang version 16.0.0 (clang-1600.0.26.6), 64-bit
@@ -267,14 +267,14 @@ OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader clas
 2026-11-09T19:12:32.555+08:00  INFO 48858 --- [ici-local] [1-auto-4-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
 2026-11-09T19:12:32.558+08:00  INFO 48858 --- [ici-local] [1-auto-4-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
 [INFO] Tests run: 19, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 61.26 s -- in ph.edu.ici.EnrollmentWorkflowTest
-[INFO] 
+[INFO]
 [INFO] Results:
-[INFO] 
+[INFO]
 [INFO] Tests run: 49, Failures: 0, Errors: 0, Skipped: 0
-[INFO] 
-[INFO] 
+[INFO]
+[INFO]
 [INFO] --- jar:3.4.2:jar (default-jar) @ ici-local ---
-[INFO] 
+[INFO]
 [INFO] --- spring-boot:3.5.7:repackage (repackage) @ ici-local ---
 [INFO] Replacing main artifact /Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/backend/target/ici-local-0.1.0-SNAPSHOT.jar with repackaged archive, adding nested dependencies in BOOT-INF/.
 [INFO] The original artifact has been renamed to /Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/backend/target/ici-local-0.1.0-SNAPSHOT.jar.original

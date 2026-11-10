@@ -100,3 +100,5 @@ Use the tested code version and a disposable/test database, not school records.
 ## GC-ready update
 
 > QA completed locally for ICI2-13–19 and ICI2-49. Final checks: 49 backend tests, 66 frontend unit tests, 15 schema/archive checks, production build, six historical matcher checks and four real-browser journeys passed. ICI2-15–19 passed their implemented functional scope. ICI2-13 matching works but production duplicate resolution is still pending. ICI2-14 works for new/transferee intake; returnee/continuing linkage remains pending. All seven staff roles passed sign-in/reload checks, but actual preview accounts still need verification on the team’s agreed database. No Jira status or app code was changed during QA; publication and team acceptance are still required. The report includes 48 cases with steps, expected/actual results and evidence.
+
+Publication note: copied console logs have trailing whitespace normalized; test results and the recorded source hashes are unchanged.
