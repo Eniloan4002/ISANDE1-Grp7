@@ -8,7 +8,7 @@ const migrations = new URL('../../backend/src/main/resources/db/migration/', imp
 test('migrations apply and preserve institutional data integrity', async t => {
   const db = new PGlite();
   try {
-    for (const name of (await readdir(migrations)).filter(name => name.endsWith('.sql')).sort()) {
+    for (const name of (await readdir(migrations)).filter(name => name.endsWith('.sql')).sort((a,b)=>Number(a.match(/^V(\d+)/)[1])-Number(b.match(/^V(\d+)/)[1]))) {
       await db.exec(await readFile(new URL(name, migrations), 'utf8'));
     }
     const query = async sql => (await db.query(sql)).rows;

@@ -1,0 +1,267 @@
+{
+  "config": {
+    "argv": [
+      "/Users/ladi/.nvm/versions/node/v24.14.0/bin/node",
+      "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/node_modules/.bin/playwright",
+      "test",
+      "tests/qa-acceptance.spec.js",
+      "tests/intake-integration.spec.js",
+      "tests/staff-roles.spec.js",
+      "--workers=1",
+      "--reporter=json"
+    ],
+    "configFile": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/playwright.config.js",
+    "rootDir": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.spec.js"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/tests",
+        "snapshotDir": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/tests",
+        "testIgnore": [],
+        "testMatch": "**/*.spec.js",
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://127.0.0.1:5173",
+          "headless": true,
+          "launchOptions": {
+            "executablePath": "/Users/ladi/Library/Caches/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5173 --strictPort",
+      "url": "http://127.0.0.1:5173",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "intake-integration.spec.js",
+      "file": "intake-integration.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Pauline intake and requirements UI persists through confirmation and allocation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12403,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-09T11:20:25.350Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "888307f066f6ccc6e126-870e06e096a3b2dcdbfa",
+          "file": "intake-integration.spec.js",
+          "line": 5,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "qa-acceptance.spec.js",
+      "file": "qa-acceptance.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "[ICI2-13/14] matching gates, false positives, and documented unresolved scope",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7567,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-09T11:20:40.039Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "38f6d30396d3d159ecc8-c41914e8d71b8ac8f7b4",
+          "file": "qa-acceptance.spec.js",
+          "line": 28,
+          "column": 1
+        },
+        {
+          "title": "[ICI2-15–19] live two-tab conflict, confirmation blockers, section controls and last seat",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 17110,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-09T11:20:47.672Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "38f6d30396d3d159ecc8-466423b76c9ce54ee609",
+          "file": "qa-acceptance.spec.js",
+          "line": 50,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "staff-roles.spec.js",
+      "file": "staff-roles.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "administrator provisions accounts and every staff role signs in to an allowed landing screen",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 26223,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-09T11:21:04.871Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3b128a3d92ef515fe815-a584e8e56823af87ed3e",
+          "file": "staff-roles.spec.js",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-09T11:20:20.539Z",
+    "duration": 70849.386,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

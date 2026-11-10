@@ -1,0 +1,59 @@
+{
+  "completedAt": "2026-11-09T19:23:19.730281+08:00",
+  "sourceId": "e21d3a9b6bf433a2bf50191e8fe7362c2a18422b1b8a263f4207eeb69942dd27",
+  "baseCommit": "2a82b077de9d138078692cb3aef1acd85cca4b33",
+  "localUncommitted": true,
+  "backend": {
+    "passed": 49,
+    "failed": 0,
+    "skipped": 0
+  },
+  "frontendSerial": {
+    "passed": 66,
+    "failed": 0
+  },
+  "schemaArchive": {
+    "passed": 15,
+    "failed": 0
+  },
+  "productionBuild": "PASS",
+  "historicalPr6Checks": {
+    "passed": 6,
+    "failed": 0
+  },
+  "browser": {
+    "startTime": "2026-11-09T11:20:20.539Z",
+    "duration": 70849.386,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "acceptanceCases": {
+    "passed": 45,
+    "blocked": 2,
+    "conditional": 1,
+    "total": 48
+  },
+  "initialAttempts": [
+    {
+      "kind": "frontend concurrent",
+      "passed": 58,
+      "timeouts": 8,
+      "resolution": "same application code passed serially with default assertion/test timeout unchanged"
+    },
+    {
+      "kind": "browser first",
+      "passed": 2,
+      "failed": 2,
+      "resolution": "corrected test actor and scoped history locator"
+    },
+    {
+      "kind": "browser second",
+      "passed": 3,
+      "failed": 1,
+      "resolution": "made unrelated test identity unique across reruns; the reused prior identity was correctly flagged"
+    }
+  ],
+  "applicationCodeChangedDuringQa": false
+}

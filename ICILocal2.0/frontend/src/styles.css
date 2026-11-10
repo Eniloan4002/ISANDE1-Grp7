@@ -23,29 +23,30 @@
   --spacing-4: 16px;
   --spacing-5: 20px;
   --spacing-6: 24px;
-  font: 14px 'Open Sans', Arial, sans-serif;
+  font: 16px 'Open Sans', Arial, sans-serif;
   color: var(--text-primary);
   background: var(--background-color);
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; }
+body { margin: 0; line-height: 1.55; }
+input, select, textarea { font: inherit; }
 button { font: inherit; cursor: pointer; }
 a { color: inherit; }
 :focus-visible { outline: 2px solid #f2d658; outline-offset: 2px; }
 .app-shell { display: flex; min-height: 100vh; }
 .sidebar { width: 238px; flex: none; height: 100vh; position: sticky; top: 0; overflow-y: auto; background: #076080; color: #fff; }
 .brand { display: flex; align-items: center; gap: 10px; min-height: 76px; padding: 12px 14px; background: linear-gradient(135deg, #08799f 0%, #076482 62%, #05536e 62%); border-bottom: 3px solid #e4eef2; text-decoration: none; }
-.brand-mark { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border: 2px solid white; background: #f4f4f4; color: #004f73; font: bold 12px Arial, sans-serif; }
+.brand-mark { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border: 2px solid white; background: #f4f4f4; color: #004f73; font: bold 14px Arial, sans-serif; }
 .brand-copy strong, .brand-copy small, .brand-lockup strong, .brand-lockup small { display: block; }
-.brand-copy strong, .brand-lockup strong { font: 600 16px Montserrat, sans-serif; }
-.brand-copy small, .brand-lockup small { margin-top: 4px; font-size: 8px; letter-spacing: .8px; text-transform: uppercase; }
+.brand-copy strong, .brand-lockup strong { font: 600 18px Montserrat, sans-serif; }
+.brand-copy small, .brand-lockup small { margin-top: 4px; font-size: 10px; letter-spacing: .8px; text-transform: uppercase; }
 .sidebar-nav { padding: 13px 10px; }
-.nav-label { margin: 12px 11px 6px; color: #c6e0eb; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
-.nav-group-toggle { display: flex; justify-content: space-between; width: 100%; padding: 8px 10px; border: 0; background: transparent; color: #c6e0eb; text-align: left; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.nav-label { margin: 12px 11px 6px; color: #c6e0eb; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.nav-group-toggle { display: flex; justify-content: space-between; width: 100%; padding: 8px 10px; border: 0; background: transparent; color: #c6e0eb; text-align: left; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
 .nav-group-toggle:hover, .nav-group-toggle:focus-visible { background: #0d719c; color: white; }
 .nav-group-items { padding-left: 6px; }
-.nav-item { display: block; padding: 8px 10px; margin-bottom: 1px; border-left: 3px solid transparent; color: white; font-size: 12px; text-decoration: none; }
+.nav-item { display: block; padding: 8px 10px; margin-bottom: 1px; border-left: 3px solid transparent; color: white; font-size: 14px; text-decoration: none; }
 .nav-item:hover { background: #0d719c; }
 .nav-item.active { background: #07506d; border-left-color: #89cce3; }
 .main-frame { min-width: 0; flex: 1; }
@@ -53,7 +54,7 @@ a { color: inherit; }
 .menu-toggle { width: 36px; height: 36px; flex: none; border: 1px solid var(--border-light); background: white; color: var(--primary-dark); }
 .hamburger { display: block; margin: auto; }
 .institution { display: flex; flex-direction: column; gap: 3px; }
-.institution strong { color: var(--primary-dark); font-size: 12px; letter-spacing: .5px; }
+.institution strong { color: var(--primary-dark); font-size: 14px; letter-spacing: .5px; }
 .institution small { color: var(--text-secondary); }
 .topbar-actions { display: flex; align-items: center; gap: 16px; margin-left: auto; }
 .profile { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
@@ -61,13 +62,13 @@ a { color: inherit; }
 .sign-out { padding: 7px 10px; border: 1px solid var(--border-light); background: white; color: var(--primary-dark); }
 .main-content { max-width: 1400px; padding: 32px; }
 .content-card, .entry-panel { padding: 30px; background: var(--surface-color); border: 1px solid var(--border-light); box-shadow: var(--shadow-small); }
-.content-card h1, .entry-panel h2 { margin: 4px 0 12px; color: var(--primary-dark); font: 700 24px Montserrat, sans-serif; }
+.content-card h1, .entry-panel h2 { margin: 4px 0 12px; color: var(--primary-dark); font: 700 26px Montserrat, sans-serif; }
 .content-card p, .entry-panel p { color: var(--text-secondary); }
-.eyebrow { margin: 0; color: var(--primary-color) !important; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.eyebrow { margin: 0; color: var(--primary-color) !important; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
 .entry-layout { display: grid; grid-template-columns: minmax(280px, 42%) 1fr; min-height: 100vh; }
 .entry-branding { display: flex; flex-direction: column; justify-content: space-between; padding: 40px; background: linear-gradient(150deg, #08799f, #05536e); color: white; }
 .brand-lockup { display: flex; align-items: center; gap: 12px; }
-.entry-branding h1 { font: 700 30px Montserrat, sans-serif; }
+.entry-branding h1 { font: 700 32px Montserrat, sans-serif; }
 .entry-branding p { max-width: 400px; line-height: 1.7; }
 .entry-panel { align-self: center; justify-self: center; width: min(460px, calc(100% - 40px)); }
 .standalone-message { max-width: 600px; margin: 10vh auto; padding: 24px; }
@@ -80,12 +81,12 @@ a { color: inherit; }
   .desktop-collapsed .sidebar { display: block; }
   .nav-scrim { display: block; position: fixed; inset: 0; z-index: 10; border: 0; background: rgba(0, 0, 0, .4); }
   .topbar { padding: 10px 14px; }
-  .institution strong { font-size: 10px; }
+  .institution strong { font-size: 12px; }
   .profile-name { display: none; }
   .topbar-actions { gap: 8px; }
   .main-content { padding: 20px 14px; }
   .entry-layout { grid-template-columns: 1fr; }
   .entry-branding { min-height: 230px; padding: 24px; gap: 35px; }
-  .entry-branding h1 { font-size: 23px; }
+  .entry-branding h1 { font-size: 25px; }
   .entry-panel { margin: 24px 0; }
 }

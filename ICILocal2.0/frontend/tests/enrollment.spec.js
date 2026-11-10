@@ -1,0 +1,65 @@
+import {test,expect} from '@playwright/test';
+
+// Use only a dedicated disposable application: this test confirms and assigns it.
+test('verify credentials, record attendance, confirm and allocate an enrollment',async({page})=>{
+  test.skip(!process.env.ICI_LIVE_API||!process.env.ICI_ENROLLMENT_APPLICATION_ID,'Provide a disposable pre-enlisted application with a linked student and profile.gradeLevel.');
+  const id=process.env.ICI_ENROLLMENT_APPLICATION_ID;
+  const errors=[];page.on('pageerror',error=>errors.push(error.message));
+  await page.route('https://fonts.googleapis.com/**',route=>route.abort());
+  await page.route('https://fonts.gstatic.com/**',route=>route.abort());
+  await page.goto(`/enrollment/requirements?applicationId=${id}`,{waitUntil:'domcontentloaded'});
+  await page.getByLabel('Username',{exact:true}).fill(process.env.ICI_TEST_USERNAME);
+  await page.getByLabel('Password',{exact:true}).fill(process.env.ICI_TEST_PASSWORD);
+  await page.getByRole('button',{name:'Sign in',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Requirements',exact:true})).toBeVisible();
+  for(const code of ['COMPLETION','FORM137','GOOD_MORAL','PSA']){
+    await page.getByLabel(`Status: ${code}`,{exact:true}).selectOption('submitted');
+    await page.getByLabel(`Verification notes: ${code}`,{exact:true}).fill('Original document inspected during browser verification.');
+    const saved=page.waitForResponse(response=>response.url().endsWith(`/requirements/${code}`)&&response.request().method()==='PUT');
+    await page.getByRole('button',{name:`Save ${code}`,exact:true}).click();expect((await saved).status()).toBe(200);
+    await expect(page.getByRole('button',{name:`Save ${code}`,exact:true})).toBeEnabled();
+    await expect(page.getByText('Loading application…')).toHaveCount(0);
+  }
+  await expect(page.locator('.enrollment-stats').getByText('Complete',{exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Verification history'})).toBeVisible();
+  await page.screenshot({path:'test-results/requirements-desktop.png',fullPage:true});
+  await page.getByRole('link',{name:'Continue to attendance',exact:true}).click();
+  await page.getByLabel('Attendance date',{exact:true}).fill('2026-06-01');
+  await page.getByLabel('Attendance status',{exact:true}).selectOption('present');
+  await page.getByRole('button',{name:'Save attendance',exact:true}).click();
+  await expect(page.getByRole('button',{name:'Confirm enrollment',exact:true})).toBeEnabled();
+  await page.getByRole('button',{name:'Confirm enrollment',exact:true}).click();
+  await expect(page.getByRole('dialog')).toContainText('Ana Santos');
+  await page.getByRole('button',{name:'Confirm',exact:true}).click();
+  await expect(page.getByText('Enrollment confirmed',{exact:true})).toBeVisible();
+  const token=await page.evaluate(()=>sessionStorage.getItem('ici_access_token'));
+  const response=await page.request.get(`/api/applications/${id}/enrollment`,{headers:{Authorization:`Bearer ${token}`}});
+  const detail=await response.json();expect(detail.enrollment.status).toBe('enrolled');
+  await page.getByRole('link',{name:'Section Configuration',exact:true}).click();
+  const form=page.getByRole('button',{name:'Create section',exact:true}).locator('..').locator('..');
+  await form.getByLabel('Campus',{exact:true}).selectOption(String(detail.application.campusId));
+  await form.getByLabel('Academic term',{exact:true}).selectOption(String(detail.application.termId));
+  await form.getByLabel('Program / strand',{exact:true}).selectOption(String(detail.application.programId));
+  const name=`STEM Browser ${Date.now()}`;
+  await form.getByLabel('Section name',{exact:true}).fill(name);
+  await form.getByLabel('Grade level',{exact:true}).fill('11');
+  await form.getByLabel('Room',{exact:true}).fill('Room 204');
+  await form.getByLabel('Maximum seats',{exact:true}).fill('1');
+  await page.getByRole('button',{name:'Create section',exact:true}).click();
+  await expect(page.getByRole('heading',{name,exact:true})).toBeVisible();
+  await page.goto(`/enrollment/enrolled?applicationId=${id}`,{waitUntil:'domcontentloaded'});
+  const card=page.locator('.section-card').filter({has:page.getByRole('heading',{name,exact:true})});
+  await card.getByRole('button',{name:'Assign to this section',exact:true}).click();
+  await page.getByRole('button',{name:'Confirm',exact:true}).click();
+  await expect(page.getByRole('heading',{name,exact:true}).first()).toBeVisible();
+  await expect(card.getByRole('button',{name:'Currently assigned',exact:true})).toBeDisabled();
+  await expect(card).toContainText('1 / 1');
+  await page.reload({waitUntil:'domcontentloaded'});await expect(page.getByRole('button',{name:'Currently assigned',exact:true})).toBeDisabled();
+  await page.screenshot({path:'test-results/allocation-desktop.png',fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await expect(page.getByRole('button',{name:'Toggle navigation'})).toHaveAttribute('aria-expanded','false');
+  await expect.poll(()=>page.locator('.sidebar').evaluate(node=>node.getBoundingClientRect().right)).toBeLessThanOrEqual(0);
+  await page.screenshot({path:'test-results/allocation-mobile.png',fullPage:true,animations:'disabled'});
+  expect(errors).toEqual([]);
+});

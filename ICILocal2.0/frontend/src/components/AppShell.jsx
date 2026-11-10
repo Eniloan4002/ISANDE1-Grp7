@@ -43,7 +43,7 @@ export function AppShell() {
             </div>;
           })}
         </div>)}
-        <div className="role-section"><p className="nav-label">Shared workspace</p>{pages.filter(page=>['/setup','/design-system'].includes(page.path)&&page.allowedRoles.some(role=>roles.includes(role))).map(page=><NavLink className="nav-item" key={page.path} to={page.path}>{page.label}</NavLink>)}</div>
+        <div className="role-section"><p className="nav-label">Shared workspace</p>{pages.filter(page=>['/setup','/design-system','/account/security'].includes(page.path)&&page.allowedRoles.some(role=>roles.includes(role))).map(page=><NavLink className="nav-item" key={page.path} to={page.path}>{page.label}</NavLink>)}</div>
       </nav>
     </aside>
     <div className="main-frame">

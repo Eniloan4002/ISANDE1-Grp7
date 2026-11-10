@@ -22,7 +22,7 @@ export function readClaims(token, nowSeconds = Date.now() / 1000) {
 export function rolesFromClaims(claims) {
   if (!claims) return [];
   const raw = Array.isArray(claims.roles) ? claims.roles : [claims.role];
-  const aliases={ROLE_ADMIN:'admin',ROLE_REGISTRAR:'registrar',ROLE_ADVISER:'adviser',ROLE_TEACHER:'teacher',ROLE_GUIDANCE:'guidance',ROLE_PRINCIPAL:'principal',ROLE_CASHIER_REF:'cashier'};
+  const aliases={ROLE_ADMIN:'admin',ROLE_REGISTRAR:'registrar',ROLE_ADVISER:'adviser',ROLE_TEACHER:'teacher',ROLE_GUIDANCE:'guidance',ROLE_PRINCIPAL:'principal',ROLE_CASHIER_REF:'cashier_ref'};
   const normalized=raw.map(role=>aliases[role]||role);
   return [...new Set(normalized.filter(role => typeof role === 'string' && knownRoles.includes(role)))];
 }

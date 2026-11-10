@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-10",
+  "upstreamCommit": "a62a677",
+  "checkout": "/tmp/ici-upstream-audit-20261110",
+  "baselineBackend": {
+    "passed": 24,
+    "failed": 0
+  },
+  "frontendUnit": {
+    "passed": 53,
+    "failed": 0
+  },
+  "frontendBuild": "passed",
+  "schemaArchive": {
+    "passed": 14,
+    "failed": 1,
+    "failure": "Archive test incorrectly requires current prototype/assets/js/app.js to equal frozen snapshot"
+  },
+  "browser": {
+    "startTime": "2026-11-10T00:06:54.978Z",
+    "duration": 9157.676,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "auditReproductionBackend": {
+    "passed": 5,
+    "includes": "one additional stale-edit reproduction; the passing reproduction proves silent overwrite occurs"
+  },
+  "localOverlapPaths": 28,
+  "mainWorkspaceUpdated": false
+}

@@ -6,7 +6,7 @@ import { AuthProvider } from '../auth/AuthContext.jsx';
 import { readClaims, rolesFromClaims } from '../auth/jwt.js';
 import { api, configureApiAuth } from '../api/client.js';
 import {setAccessToken} from '../api.js';
-import { pages } from '../routes/routeConfig.js';
+import { pages, firstAllowedPath } from '../routes/routeConfig.js';
 
 function tokenFor(claims) {
   const payload = btoa(JSON.stringify(claims)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
@@ -17,7 +17,7 @@ const future = () => Math.floor(Date.now() / 1000) + 3600;
 
 async function show(path, token = null) {
   setAccessToken(token);
-  api.defaults.adapter=async config=>({status:200,statusText:'OK',headers:{},config,data:config.url==='/admin/users/options'?{roles:[],campuses:[]}:config.url==='/admin/users'||config.url.startsWith('/setup/')?[]:{userId:1,username:'test',fullName:'Test Staff',grants:rolesFromClaims(readClaims(token)).map(role=>({campusId:1,campusCode:'ILIGAN',role}))}});
+  api.defaults.adapter=async config=>({status:200,statusText:'OK',headers:{},config,data:config.url.startsWith('/setup/')?[]:config.url.startsWith('/admin/accounts/reference-data')?{roles:[],campuses:[]}:config.url.startsWith('/admin/accounts')?{items:[],total:0}:(config.url.startsWith('/enrollment/reference-data')||config.url.startsWith('/intake/reference-data'))?{campuses:[],terms:[],programs:[],advisers:[],vouchers:[]}:config.url.startsWith('/duplicate-cases')||config.url.startsWith('/enrollment/applications')||config.url.startsWith('/sections')?{items:[],total:0}:{userId:1,username:'test',fullName:'Test Staff',grants:rolesFromClaims(readClaims(token)).map(role=>({campusId:1,campusCode:'ILIGAN',role}))}});
   let result;
   await act(async()=>{result=render(<MemoryRouter initialEntries={[path]}><AuthProvider><App /></AuthProvider></MemoryRouter>);});
   return result;
@@ -39,13 +39,13 @@ describe('JWT claims', () => {
 
   it('normalizes only known roles', () => {
     expect(rolesFromClaims(readClaims(tokenFor({ roles: ['registrar', 'admin', 'unknown', 'admin'], exp: future() })))).toEqual(['registrar', 'admin']);
-    expect(rolesFromClaims({roles:['ROLE_ADMIN','ROLE_REGISTRAR','ROLE_TEACHER','ROLE_PRINCIPAL','ROLE_CASHIER_REF']})).toEqual(['admin','registrar','teacher','principal','cashier']);
+    expect(rolesFromClaims({roles:['ROLE_ADMIN','ROLE_REGISTRAR','ROLE_TEACHER']})).toEqual(['admin','registrar','teacher']);
   });
 });
 
 describe('routes', () => {
   it('reserves every prototype page with a unique clean path', () => {
-    expect(pages).toHaveLength(30);
+    expect(pages).toHaveLength(33);
     expect(new Set(pages.map(page => page.path)).size).toBe(pages.length);
     expect(pages.every(page => page.allowedRoles.length > 0 && !page.path.endsWith('.html'))).toBe(true);
   });
@@ -53,21 +53,6 @@ describe('routes', () => {
   it('sends unauthenticated visitors to the staff sign-in screen', async () => {
     await show('/academic/grade-entry');
     expect(screen.getByRole('heading', { name: 'Staff sign in' })).toBeInTheDocument();
-  });
-
-  it('keeps the protected enrollment route behind staff sign-in', async () => {
-    await show('/enrollment/queue');
-    expect(screen.getByRole('heading', { name: 'Staff sign in' })).toBeInTheDocument();
-  });
-
-  it('keeps applicant details behind staff sign-in', async () => {
-    await show('/enrollment/applicants/APP-2026-0148');
-    expect(screen.getByRole('heading', { name: 'Staff sign in' })).toBeInTheDocument();
-  });
-
-  it('restricts applicant details to registrar and admin roles', async () => {
-    await show('/enrollment/applicants/APP-2026-0148', tokenFor({ role: 'teacher', exp: future() }));
-    expect(screen.getByRole('heading', { name: 'Access denied' })).toBeInTheDocument();
   });
 
   it('allows the matching role and hides other navigation sections', async () => {
@@ -103,6 +88,25 @@ describe('routes', () => {
   });
 });
 
+describe('documented staff role boundaries',()=>{
+  it('maps all seven backend staff roles',()=>{
+    expect(rolesFromClaims({roles:['ROLE_ADMIN','ROLE_REGISTRAR','ROLE_PRINCIPAL','ROLE_ADVISER','ROLE_TEACHER','ROLE_GUIDANCE','ROLE_CASHIER_REF']})).toEqual(['admin','registrar','principal','adviser','teacher','guidance','cashier_ref']);
+    expect(firstAllowedPath(['registrar'])).toBe('/enrollment/queue');
+    expect(firstAllowedPath(['principal'])).toBe('/academic/registrar-records');
+    expect(firstAllowedPath(['cashier_ref'])).toBe('/cashiering/students');
+  });
+  it.each(['principal','cashier_ref','teacher','adviser','guidance'])('keeps %s out of administrator setup',async role=>{
+    await show('/setup',tokenFor({roles:[role],exp:future()}));
+    expect(screen.getByRole('heading',{name:'Access denied'})).toBeInTheDocument();
+  });
+  it('shares principal review without giving grade entry access',async()=>{
+    const review=pages.find(page=>page.path==='/academic/grade-approvals');
+    expect(review.allowedRoles).toEqual(['registrar','principal']);
+    await show('/academic/grade-entry',tokenFor({roles:['principal'],exp:future()}));
+    expect(screen.getByRole('heading',{name:'Access denied'})).toBeInTheDocument();
+  });
+});
+
 describe('Axios client', () => {
   it('adds the bearer token to requests and clears auth on a 401', async () => {
     const unauthorized = vi.fn();
@@ -115,4 +119,25 @@ describe('Axios client', () => {
     expect(rejection.response.status).toBe(401);
     expect(unauthorized).toHaveBeenCalledOnce();
   });
+});
+
+
+describe('sign-in return URL permissions',()=>{
+  it('sends a teacher to their landing screen after a saved administrator-only URL',async()=>{
+    setAccessToken(null);
+    const profile={userId:77,username:'teacher-test',fullName:'Teacher Test',grants:[{role:'ROLE_TEACHER',campusId:1,campusCode:'ILIGAN'}]};
+    api.defaults.adapter=async config=>({status:200,statusText:'OK',headers:{},config,data:config.url==='/auth/login'?{accessToken:tokenFor({roles:['ROLE_TEACHER'],exp:future()}),user:profile}:profile});
+    render(<MemoryRouter initialEntries={['/administration/users']}><AuthProvider><App/></AuthProvider></MemoryRouter>);
+    fireEvent.change(await screen.findByLabelText('Username'),{target:{value:'teacher-test'}});fireEvent.change(screen.getByLabelText('Password',{exact:true}),{target:{value:'ChosenPassword123'}});fireEvent.click(screen.getByRole('button',{name:'Sign in',exact:true}));
+    expect(await screen.findByRole('heading',{name:'Grade Entry',exact:true})).toBeInTheDocument();expect(screen.queryByRole('heading',{name:'Access denied'})).not.toBeInTheDocument();
+    expect(screen.getByText(/You are signed in. This workflow is still under development/)).toBeInTheDocument();
+  });
+});
+
+it('forces a temporary-password session onto Account Security before business routes',async()=>{
+ setAccessToken(tokenFor({roles:['ROLE_TEACHER'],exp:future()}));
+ const profile={userId:91,username:'recovered-teacher',fullName:'Recovered Teacher',passwordChangeRequired:true,grants:[{role:'ROLE_TEACHER',campusId:1}]};
+ api.defaults.adapter=async config=>({status:200,statusText:'OK',headers:{},config,data:profile});
+ render(<MemoryRouter initialEntries={['/academic/grade-entry']}><AuthProvider><App/></AuthProvider></MemoryRouter>);
+ expect(await screen.findByRole('heading',{name:'Account Security',exact:true})).toBeInTheDocument();expect(screen.queryByRole('heading',{name:'Grade Entry',exact:true})).not.toBeInTheDocument();
 });

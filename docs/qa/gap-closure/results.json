@@ -1,0 +1,45 @@
+{
+  "date": "2026-11-09",
+  "backend": [
+    {
+      "name": "ph.edu.ici.EnrollmentWorkflowTest",
+      "tests": "27",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "ph.edu.ici.FoundationAuthenticationTest",
+      "tests": "18",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "ph.edu.ici.RequirementTrackingTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "ph.edu.ici.StudentMasterTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "browserStats": {
+    "startTime": "2026-11-09T13:16:16.872Z",
+    "duration": 104842.677,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "frontendUnitTests": 70,
+  "schemaArchiveChecks": 15,
+  "productionBuild": "passed",
+  "reviewAccountTool": "provision and verify-only passed on disposable database; six accounts, no duplicates"
+}

@@ -10,3 +10,11 @@
 **/frontend/test-results/
 **/frontend/playwright-report/
 **/backend/target/
+# Local fictional-demo manifest (no secrets)
+.demo-sprint-seed.json
+.demo-sprint-seed.tmp
+
+# Machine-generated artifacts
+.DS_Store
+__pycache__/
+*.pyc

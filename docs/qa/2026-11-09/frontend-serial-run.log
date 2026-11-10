@@ -1,0 +1,13 @@
+
+ RUN  v5.0.5 /Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend
+
+
+ Test Files  4 passed (4)
+      Tests  66 passed (66)
+   Start at  19:10:41
+   Duration  40.95s (tests 52%, environment 36%, import 5%, setup 5%, transform 1%)
+
+Environment  jsdom was created 4 times · 13.71s total, 36% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+

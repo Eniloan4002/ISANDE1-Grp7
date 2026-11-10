@@ -1,4 +1,4 @@
-# ICI2-12 — Student master record API
+# ICI2-12: Student master record API
 
 ## Scope delivered
 
@@ -17,7 +17,7 @@ Students represent permanent identities. The program, campus and voucher on the 
 | DELETE | /api/students/{id}?version=N | Archive by setting active=false; identity/history retained; 204 |
 | GET | /api/students/reference-data | Authorized campuses, program catalog and voucher catalog |
 
-All requests require the Bearer token from /api/auth/login. Missing/invalid authentication returns 401. Access requires a role with `enrollment.manage` **at the requested student's campus**. The seeded Administrator and Registrar roles have that permission. Grants are read from the verified current identity, not a caller-provided actor header. Out-of-scope record IDs return 404; an explicit unauthorized campus filter or create returns 403. The shared `AccessPolicy` checks current role-permission mappings and campus grants.
+All requests require the Bearer token from /api/auth/login. Missing/invalid authentication returns 401. Baseline access requires ROLE_ADMIN or ROLE_REGISTRAR **at the requested student's campus**. Grants are read from the verified current identity, not a caller-provided actor header. Out-of-scope record IDs return 404; an explicit unauthorized campus filter or create returns 403. This local guard is the handoff point for ICI2-7; shared authentication/security configuration was not changed.
 
 ## Create request example
 
@@ -56,15 +56,15 @@ Student numbers are generated immutable STU-UUID values. Updates cannot change i
 
 GET /api/students?search=Santos&campusId=1&programId=1&voucherCode=QVR&active=true&page=0&size=25
 
-Search matches full name, LRN or generated student number, with SQL wildcard characters treated literally. Filters are optional; omitted active includes archived identities. Pagination is zero-based, size 1–100 (default 25), with stable last-name/first-name/ID sorting. Response: items, total, page, size. The directory deliberately omits guardian, birth-date and address data; request authorized detail when needed.
+Search matches full name, LRN or generated student number, with SQL wildcard characters treated literally. Filters are optional; omitted active includes archived identities. Pagination is zero-based, size 1 to 100 (default 25), with stable last-name/first-name/ID sorting. Response: items, total, page, size. The directory deliberately omits guardian, birth-date and address data; request authorized detail when needed.
 
 Responses use database field names (first_name, campus_id, previous_school_name, household_income_bracket, is_primary), consistent with existing setup APIs. POST/PUT inputs use camelCase. Detail includes the current version and created_at/created_by/updated_at/updated_by; all writes and guardian replacements are attributed to the authenticated staff member in append-only audits.
 
 ## Migration and integration handoff
 
-V5 adds master-profile fields, version/active state, name validation and directory indexes without rewriting V1–V4. Existing student identities remain intact. Historical rows with no verified campus are deliberately hidden from this API until their campus is assigned through a controlled migration; the system does not guess ownership. No archive/demo/frontend files are changed.
+V5 adds master-profile fields, version/active state, name validation and directory indexes without rewriting V1-V4. Existing student identities remain intact. Historical rows with no verified campus are deliberately hidden from this API until their campus is assigned through a controlled migration; the system does not guess ownership. No archive/demo/frontend files are changed.
 
-- Future role-specific workflows must apply their own resource and assignment checks; do not broaden student reads to every authenticated role.
+- ICI2-7: integrate module permission rules using the existing per-campus ADMIN/REGISTRAR guard; do not broaden reads to every role just because it is authenticated.
 - ICI2-13: duplicate detection and resolution must operate on applicant records before issuing/merging a permanent identity. Do not weaken the permanent-student LRN uniqueness constraint.
 - ICI2-14: connect intake/directory UI to this contract; use reference-data and versions, and map camelCase requests to snake_case responses.
 

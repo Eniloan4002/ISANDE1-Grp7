@@ -37,6 +37,12 @@ class AccountManagementTest {
     }
     String login(String username,String secret) {return (String)rest.postForEntity("/api/auth/login",Map.of("username",username,"password",secret),Map.class).getBody().get("accessToken");}
     ResponseEntity<Map> call(HttpMethod method,String path,Object body,String bearer) {
+        if(method==HttpMethod.PUT&&body instanceof Map input){
+            String target=path.replaceFirst("/(status|password)$", "");
+            var h=new HttpHeaders();h.setBearerAuth(bearer);
+            var current=rest.exchange(target,HttpMethod.GET,new HttpEntity<>(h),Map.class);
+            var versioned=new HashMap<String,Object>(input);versioned.put("version",current.getStatusCode().is2xxSuccessful()?current.getBody().get("version"):"unavailable");versioned.put("reason","Verified test account change");body=versioned;
+        }
         HttpHeaders headers=new HttpHeaders();headers.setContentType(MediaType.APPLICATION_JSON);if(bearer!=null)headers.setBearerAuth(bearer);
         return rest.exchange(path,method,new HttpEntity<>(body,headers),Map.class);
     }
@@ -60,11 +66,11 @@ class AccountManagementTest {
         assertThat(call(HttpMethod.PUT,"/api/admin/users/"+id,changed,token).getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(jdbc.queryForObject("SELECT full_name FROM users WHERE id=?",String.class,id)).isEqualTo("Updated Name");
         jdbc.update("INSERT INTO user_role_grants(user_id,role_code,campus_id) VALUES (?,'ROLE_TEACHER',?)",id,other);
-        assertThat(call(HttpMethod.GET,"/api/admin/users/"+id,null,token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.GET,"/api/admin/users/"+id,null,token).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         HttpHeaders listHeaders=new HttpHeaders();listHeaders.setBearerAuth(token);
-        var list=rest.exchange("/api/admin/users",HttpMethod.GET,new HttpEntity<>(listHeaders),List.class);
-        assertThat(list.getBody().toString()).doesNotContain(name);
-        assertThat(call(HttpMethod.PUT,"/api/admin/users/"+id,changed,token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        var list=rest.exchange("/api/admin/users",HttpMethod.GET,new HttpEntity<>(listHeaders),Map.class);
+        assertThat(list.getBody().get("items").toString()).doesNotContain(name);
+        assertThat(call(HttpMethod.PUT,"/api/admin/users/"+id,changed,token).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         String teacher=login(name,password);
         assertThat(call(HttpMethod.GET,"/api/admin/users",null,teacher).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }

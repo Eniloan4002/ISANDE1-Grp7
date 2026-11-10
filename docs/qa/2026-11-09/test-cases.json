@@ -1,0 +1,482 @@
+[
+  {
+    "id": "TC-13-01",
+    "issue": "ICI2-13",
+    "title": "Exact LRN across campuses",
+    "steps": "Submit two different people with the same 12-digit LRN in different campuses.",
+    "expected": "Second application is duplicate_flag; no student identity is created.",
+    "coverage": "qa-acceptance.spec.js: matching gates",
+    "result": "PASS",
+    "actual": "Cross-campus LRN duplicate returned duplicate_flag and null studentId."
+  },
+  {
+    "id": "TC-13-02",
+    "issue": "ICI2-13",
+    "title": "Fuzzy name plus DOB",
+    "steps": "Submit a small first-name spelling variation with the same surname and birth date.",
+    "expected": "Suspected match is flagged.",
+    "coverage": "qa-acceptance.spec.js: matching gates",
+    "result": "PASS",
+    "actual": "Small name variation plus same DOB returned duplicate_flag."
+  },
+  {
+    "id": "TC-13-03",
+    "issue": "ICI2-13",
+    "title": "Different birthday",
+    "steps": "Submit the same name with a different DOB and no matching LRN.",
+    "expected": "Application remains submitted, without a false duplicate flag.",
+    "coverage": "qa-acceptance.spec.js: matching gates",
+    "result": "PASS",
+    "actual": "Same name with a different DOB returned submitted."
+  },
+  {
+    "id": "TC-13-04",
+    "issue": "ICI2-13",
+    "title": "Unrelated person",
+    "steps": "Submit unrelated first/last names with the same DOB.",
+    "expected": "Application remains submitted.",
+    "coverage": "qa-acceptance.spec.js: matching gates",
+    "result": "PASS",
+    "actual": "Unrelated names sharing DOB returned submitted."
+  },
+  {
+    "id": "TC-13-05",
+    "issue": "ICI2-13",
+    "title": "Empty IDs and self-exclusion",
+    "steps": "Run the PR #6 fixture with empty identifiers and exclude its own application ID.",
+    "expected": "Empty values do not match; application does not match itself.",
+    "coverage": "scripts/check-duplicate-pr.mjs",
+    "result": "PASS",
+    "actual": "Six PR #6 fixture checks passed, including blank identifiers and self-exclusion."
+  },
+  {
+    "id": "TC-13-06",
+    "issue": "ICI2-13",
+    "title": "Duplicate adjudication",
+    "steps": "Open Duplicate Records and attempt the production case/resolve workflow.",
+    "expected": "Side-by-side case review and adjudication should exist for the full feature.",
+    "coverage": "qa-acceptance.spec.js: matching gates; source review",
+    "result": "BLOCKED: production screen is a placeholder and case API is absent; matching alone passes.",
+    "actual": "production screen is a placeholder and case API is absent; matching alone passes."
+  },
+  {
+    "id": "TC-14-01",
+    "issue": "ICI2-14",
+    "title": "Catalog mapping",
+    "steps": "Choose a real campus, term, program group, track, specialization and voucher; submit.",
+    "expected": "Numeric catalog IDs and valid matching track are persisted.",
+    "coverage": "intake-integration.spec.js; intake-integration.test.jsx",
+    "result": "PASS",
+    "actual": "Form-to-API catalog mapping passed and persisted numeric IDs."
+  },
+  {
+    "id": "TC-14-02",
+    "issue": "ICI2-14",
+    "title": "Required fields and invalid input",
+    "steps": "Submit invalid LRN, incompatible track, inaccessible campus or multiple primary guardians.",
+    "expected": "Request rejected; no partial application/student writes.",
+    "coverage": "EnrollmentWorkflowTest.intakeValidationAndCampusScopeRejectWithoutPartialWrites",
+    "result": "PASS",
+    "actual": "Invalid/scoped inputs rejected; partial-write assertions passed."
+  },
+  {
+    "id": "TC-14-03",
+    "issue": "ICI2-14",
+    "title": "Multiple guardians",
+    "steps": "Enter two guardians and a primary contact; create then review the application.",
+    "expected": "Both contacts persist and are copied to the linked student.",
+    "coverage": "EnrollmentWorkflowTest.intakePersistsGuardiansAndExplicitReviewFeedsEnrollmentGates; intake-integration.test.jsx",
+    "result": "PASS",
+    "actual": "Two guardians persisted; primary-contact validation passed."
+  },
+  {
+    "id": "TC-14-04",
+    "issue": "ICI2-14",
+    "title": "Queue filtering and persistence",
+    "steps": "Create applicant, reload detail, apply campus filtering and exercise paged API results.",
+    "expected": "Saved profile survives reload; scoped filters and pagination return the matching records.",
+    "coverage": "intake-integration.spec.js; EnrollmentWorkflowTest.directoryFiltersCompletenessCampusDistrictRouteAndPagination",
+    "result": "PASS",
+    "actual": "Reload persistence, campus filtering and paged API assertions passed."
+  },
+  {
+    "id": "TC-14-05",
+    "issue": "ICI2-14",
+    "title": "Explicit registrar review",
+    "steps": "Submit a new applicant, attempt confirmation, then explicitly review/pre-enlist.",
+    "expected": "Submission alone creates no student or enrollment; review links one identity; concurrent review creates only one.",
+    "coverage": "EnrollmentWorkflowTest.intakePersistsGuardiansAndExplicitReviewFeedsEnrollmentGates; concurrentIntakeReviewCreatesOnlyOneStudentIdentity",
+    "result": "PASS",
+    "actual": "Explicit review created/linked one student; concurrent review produced one success and one conflict."
+  },
+  {
+    "id": "TC-14-06",
+    "issue": "ICI2-14",
+    "title": "Existing-student journey",
+    "steps": "Submit continuing/returnee category and try to review/link it.",
+    "expected": "Existing identity should be linked without duplicating the student for complete intake coverage.",
+    "coverage": "qa-acceptance.spec.js: matching gates; source review",
+    "result": "BLOCKED: capture works; continuing/returnee review returns 409 pending existing-student linkage.",
+    "actual": "capture works; continuing/returnee review returns 409 pending existing-student linkage."
+  },
+  {
+    "id": "TC-15-01",
+    "issue": "ICI2-15",
+    "title": "Initial checklist",
+    "steps": "Read checklist for an application with no document rows; read history.",
+    "expected": "All catalog credentials appear Pending; reads do not manufacture audit entries.",
+    "coverage": "RequirementTrackingTest.unrecordedChecklistIsPendingAndReadsDoNotManufactureHistory",
+    "result": "PASS",
+    "actual": "Read returned Pending catalog items without fabricated history."
+  },
+  {
+    "id": "TC-15-02",
+    "issue": "ICI2-15",
+    "title": "Completeness rules",
+    "steps": "Exercise submitted/missing/pending/invalid mandatory credentials and an optional credential.",
+    "expected": "Complete/Incomplete/Pending are correct; optional credentials do not block completion.",
+    "coverage": "RequirementTrackingTest.mandatoryStatusesDriveAllThreeSummaryStates; optionalDocumentsDoNotBlockMandatoryCompletion",
+    "result": "PASS",
+    "actual": "All mandatory summary states and optional-item exclusions passed."
+  },
+  {
+    "id": "TC-15-03",
+    "issue": "ICI2-15",
+    "title": "Attributed immutable audit",
+    "steps": "Update status and note; inspect old/new values and actor; try changing audit rows.",
+    "expected": "Real actor/time and before/after values retained; audit modification rejected.",
+    "coverage": "RequirementTrackingTest.actualWritesAreAttributedAndHistoryPreservesPreviousValues; FoundationAuthenticationTest.auditIsAppendOnlyAndPasswordsNeverEnterSnapshots",
+    "result": "PASS",
+    "actual": "Actor/before-after/history checks passed; audit mutations rejected."
+  },
+  {
+    "id": "TC-15-04",
+    "issue": "ICI2-15",
+    "title": "No-op and stale writes",
+    "steps": "Repeat an identical save, then save a stale version.",
+    "expected": "No fake audit for no-op; stale edit gets 409 and cannot overwrite.",
+    "coverage": "RequirementTrackingTest.noOpsAndStaleUpdatesDoNotCreateFalseAuditEntries",
+    "result": "PASS",
+    "actual": "No-op did not add history; stale writes conflicted."
+  },
+  {
+    "id": "TC-15-05",
+    "issue": "ICI2-15",
+    "title": "Validation and access",
+    "steps": "Use invalid code/status/notes, another campus and an unauthorized role; request paged history.",
+    "expected": "Invalid writes rejected; no cross-campus or unrelated history leakage.",
+    "coverage": "RequirementTrackingTest.invalidInputsAndUnknownCodesLeaveNoPartialWrites; rolesAndCampusesProtectReadWriteAndAudit; unrelatedApplicationsDoNotLeakIntoAuditPages",
+    "result": "PASS",
+    "actual": "Invalid/scoped/unrelated history access checks passed."
+  },
+  {
+    "id": "TC-15-06",
+    "issue": "ICI2-15",
+    "title": "Concurrent first save",
+    "steps": "Start two document writes with the same initial version.",
+    "expected": "Exactly one succeeds and the other conflicts.",
+    "coverage": "RequirementTrackingTest.simultaneousFirstWritesReturnOneConflictInsteadOfOverwriting",
+    "result": "PASS",
+    "actual": "Concurrent first writes produced one success and one conflict."
+  },
+  {
+    "id": "TC-16-01",
+    "issue": "ICI2-16",
+    "title": "Live directory/dialog",
+    "steps": "Open persisted applicant through requirements directory and deep link.",
+    "expected": "Actual catalog/checklist loaded; no seeded mock states or fabricated history.",
+    "coverage": "intake-integration.spec.js; qa-acceptance.spec.js",
+    "result": "PASS",
+    "actual": "Directory and deep-link dialog loaded persisted backend data."
+  },
+  {
+    "id": "TC-16-02",
+    "issue": "ICI2-16",
+    "title": "Status and note persistence",
+    "steps": "Set Missing with note, reload, then set Submitted.",
+    "expected": "Saved status/notes survive reload and history contains the change.",
+    "coverage": "qa-acceptance.spec.js: live two-tab conflict; intake-integration.spec.js",
+    "result": "PASS",
+    "actual": "Status and notes survived reload; live history entry displayed."
+  },
+  {
+    "id": "TC-16-03",
+    "issue": "ICI2-16",
+    "title": "Real two-tab conflict",
+    "steps": "Load same checklist in two separately authenticated tabs; save A, then stale B.",
+    "expected": "B shows conflict and retains its unsaved note; A is not overwritten.",
+    "coverage": "qa-acceptance.spec.js: live two-tab conflict",
+    "result": "PASS",
+    "actual": "Second tab got a conflict and retained its unsaved note."
+  },
+  {
+    "id": "TC-16-04",
+    "issue": "ICI2-16",
+    "title": "Follow-up contacts",
+    "steps": "Open contact details before and after student creation.",
+    "expected": "Actual applicant and guardian contacts displayed; no simulated message sent.",
+    "coverage": "intake-integration.test.jsx; intake-integration.spec.js",
+    "result": "PASS",
+    "actual": "Real student/guardian contacts displayed before/after linkage; no sending action simulated."
+  },
+  {
+    "id": "TC-16-05",
+    "issue": "ICI2-16",
+    "title": "Plain text and separate drafts",
+    "steps": "Save one document while another has a draft; render markup-like notes.",
+    "expected": "Other draft remains; note is rendered as text.",
+    "coverage": "enrollment.test.jsx: preserves another document draft; renders verification notes as plain text",
+    "result": "PASS",
+    "actual": "Independent drafts remained and markup-like notes rendered as text."
+  },
+  {
+    "id": "TC-16-06",
+    "issue": "ICI2-16",
+    "title": "Filtering, keyboard and mobile",
+    "steps": "Filter requirement status/program; dismiss checklist with Escape; reopen; use 390px viewport.",
+    "expected": "Filters call server; dismissal/reopen works with persisted notes; no document overflow.",
+    "coverage": "enrollment.test.jsx: completeness filters; qa-acceptance.spec.js; intake-integration.spec.js",
+    "result": "PASS",
+    "actual": "Filter tests, Escape/reopen and 390px document-overflow checks passed."
+  },
+  {
+    "id": "TC-17-01",
+    "issue": "ICI2-17",
+    "title": "Credential gate",
+    "steps": "Try confirming with missing mandatory documents.",
+    "expected": "Confirmation disabled/rejected and no enrollment inserted.",
+    "coverage": "qa-acceptance.spec.js; EnrollmentWorkflowTest.confirmationChecksEveryGateAndDoesNotWriteOnFailure",
+    "result": "PASS",
+    "actual": "Incomplete credentials kept confirmation disabled and API rejected premature confirmation."
+  },
+  {
+    "id": "TC-17-02",
+    "issue": "ICI2-17",
+    "title": "Attendance gate",
+    "steps": "Complete documents; use no attendance, Absent or Excused before Present.",
+    "expected": "No/Absent/Excused do not satisfy the gate; Present does.",
+    "coverage": "qa-acceptance.spec.js; EnrollmentWorkflowTest.confirmationChecksEveryGateAndDoesNotWriteOnFailure",
+    "result": "PASS",
+    "actual": "No/Absent/Excused attendance did not satisfy the gate; Present enabled confirmation."
+  },
+  {
+    "id": "TC-17-03",
+    "issue": "ICI2-17",
+    "title": "Dates and evidence retention",
+    "steps": "Try future attendance and stale date version; remove last present after enrollment.",
+    "expected": "Future/stale edit rejected; confirmed student retains present evidence.",
+    "coverage": "EnrollmentWorkflowTest.attendanceValidatesDatesVersionsAndProtectsConfirmedEvidence",
+    "result": "PASS",
+    "actual": "Future/stale date edits and loss of final Present evidence were rejected."
+  },
+  {
+    "id": "TC-17-04",
+    "issue": "ICI2-17",
+    "title": "Explicit confirmation and reload",
+    "steps": "Record Present, open confirmation dialog, confirm and reload.",
+    "expected": "Enrolled status and attributed confirmation persist; verification alone does not enroll.",
+    "coverage": "intake-integration.spec.js; EnrollmentWorkflowTest.confirmationIsAttributedPersistedAndSafeToRetry",
+    "result": "PASS",
+    "actual": "Explicit confirmation persisted enrolled standing, staff attribution and reload state."
+  },
+  {
+    "id": "TC-17-05",
+    "issue": "ICI2-17",
+    "title": "Concurrency and retries",
+    "steps": "Confirm concurrently; retry with old/current version; promote provisional record.",
+    "expected": "One enrollment only; stale version conflicts; current retry is safe; same-term duplicate rejected.",
+    "coverage": "EnrollmentWorkflowTest.simultaneousConfirmationCreatesOneEnrollment; provisionalEnrollmentIsPromotedAndSameTermCannotBeEnrolledTwice",
+    "result": "PASS",
+    "actual": "Concurrent/retry/provisional/same-term checks passed without a second enrollment."
+  },
+  {
+    "id": "TC-17-06",
+    "issue": "ICI2-17",
+    "title": "Other blockers and scope",
+    "steps": "Try inactive/missing student, open duplicate case, under-review standing or another campus/role.",
+    "expected": "Every blocker is enforced on server; no partial enrollment.",
+    "coverage": "EnrollmentWorkflowTest.confirmationChecksEveryGateAndDoesNotWriteOnFailure; campusAndRoleScopeProtectEveryWorkflow",
+    "result": "PASS",
+    "actual": "Student/status/duplicate/campus/role blockers rejected without partial enrollment."
+  },
+  {
+    "id": "TC-18-01",
+    "issue": "ICI2-18",
+    "title": "Create section in UI",
+    "steps": "Create a scoped section with campus, term, strand, grade and capacity.",
+    "expected": "Section persists with correct configuration and zero occupancy.",
+    "coverage": "qa-acceptance.spec.js: section controls",
+    "result": "PASS",
+    "actual": "UI created a matching section with capacity one."
+  },
+  {
+    "id": "TC-18-02",
+    "issue": "ICI2-18",
+    "title": "Edit and stale conflict",
+    "steps": "Edit room/capacity with current version, reload and retry old version.",
+    "expected": "Current edit persists; stale update is rejected.",
+    "coverage": "qa-acceptance.spec.js; EnrollmentWorkflowTest.sectionCrudPreservesParentsVersionsAndOccupiedCapacity",
+    "result": "PASS",
+    "actual": "UI room edit persisted; stale edit checks passed."
+  },
+  {
+    "id": "TC-18-03",
+    "issue": "ICI2-18",
+    "title": "Validation and adviser scope",
+    "steps": "Use zero capacity, invalid parent IDs or adviser without campus adviser grant.",
+    "expected": "Invalid request is rejected without partial section.",
+    "coverage": "EnrollmentWorkflowTest.sectionInputValidatesRequiredFieldsAndAdviserCampus",
+    "result": "PASS",
+    "actual": "Invalid capacity/parent/adviser inputs rejected."
+  },
+  {
+    "id": "TC-18-04",
+    "issue": "ICI2-18",
+    "title": "Fixed academic-term parent",
+    "steps": "Attempt to change the section\u2019s academic term after creation.",
+    "expected": "Term change is rejected; the original parent is preserved.",
+    "coverage": "EnrollmentWorkflowTest.sectionCrudPreservesParentsVersionsAndOccupiedCapacity",
+    "result": "PASS",
+    "actual": "Academic term change was rejected."
+  },
+  {
+    "id": "TC-18-05",
+    "issue": "ICI2-18",
+    "title": "Capacity lower bound and race",
+    "steps": "Reduce below current occupancy; race capacity reduction against assignment.",
+    "expected": "Capacity never falls below occupied seats.",
+    "coverage": "EnrollmentWorkflowTest.sectionCrudPreservesParentsVersionsAndOccupiedCapacity; capacityEditsSerializeWithReservations",
+    "result": "PASS",
+    "actual": "Capacity reduction/assignment race never allowed occupancy above capacity."
+  },
+  {
+    "id": "TC-18-06",
+    "issue": "ICI2-18",
+    "title": "Delete safeguards",
+    "steps": "Delete unused section, then attempt deleting a section with enrollment.",
+    "expected": "Unused section deletes; referenced section remains with a conflict response.",
+    "coverage": "qa-acceptance.spec.js; EnrollmentWorkflowTest.sectionCrudPreservesParentsVersionsAndOccupiedCapacity",
+    "result": "PASS",
+    "actual": "Unused deletion passed; UI/API refused referenced deletion and retained section."
+  },
+  {
+    "id": "TC-19-01",
+    "issue": "ICI2-19",
+    "title": "Scoped directory and route filters",
+    "steps": "Filter confirmed students by campus/program, district and transport route.",
+    "expected": "Matching scoped students returned; unconfirmed applicants cannot be allocated.",
+    "coverage": "EnrollmentWorkflowTest.directoryFiltersCompletenessCampusDistrictRouteAndPagination; enrollment.test.jsx",
+    "result": "PASS",
+    "actual": "Scoped district/route filters passed; unconfirmed assignment was blocked."
+  },
+  {
+    "id": "TC-19-02",
+    "issue": "ICI2-19",
+    "title": "Assign and persist",
+    "steps": "Assign confirmed student to matching section and reload.",
+    "expected": "Assignment retained and occupied/available counts updated.",
+    "coverage": "intake-integration.spec.js",
+    "result": "PASS",
+    "actual": "Assignment and occupied/available counts survived reload."
+  },
+  {
+    "id": "TC-19-03",
+    "issue": "ICI2-19",
+    "title": "Compatibility and versions",
+    "steps": "Try wrong campus/program/grade, missing grade or stale enrollment version.",
+    "expected": "Invalid allocation rejected; original enrollment preserved.",
+    "coverage": "EnrollmentWorkflowTest.assignmentChecksCompatibilityGradeVersionsAndSupportsRemoval; inaccessibleSectionsAndEnrollmentIdsCannotBeReadOrMutated",
+    "result": "PASS",
+    "actual": "Wrong grade/program/campus, missing grade and stale versions rejected."
+  },
+  {
+    "id": "TC-19-04",
+    "issue": "ICI2-19",
+    "title": "Full section UI and server",
+    "steps": "Fill a one-seat section; load another confirmed student; force assignment through API.",
+    "expected": "UI disables assignment; server returns 409; occupancy remains one.",
+    "coverage": "qa-acceptance.spec.js: last seat",
+    "result": "PASS",
+    "actual": "Full section disabled assignment; forced API call got 409 and occupancy stayed one."
+  },
+  {
+    "id": "TC-19-05",
+    "issue": "ICI2-19",
+    "title": "Concurrent last seat",
+    "steps": "Race two confirmed students for one available seat.",
+    "expected": "Exactly one succeeds; one conflicts; no overbooking.",
+    "coverage": "EnrollmentWorkflowTest.simultaneousReservationsCannotOverbookLastSeat",
+    "result": "PASS",
+    "actual": "Last-seat race produced one success/one conflict and one occupied seat."
+  },
+  {
+    "id": "TC-19-06",
+    "issue": "ICI2-19",
+    "title": "Removal and academic history",
+    "steps": "Remove ordinary assignment; try moving student with class memberships.",
+    "expected": "Ordinary removal succeeds; academic membership blocks transfer to preserve grades.",
+    "coverage": "EnrollmentWorkflowTest.assignmentChecksCompatibilityGradeVersionsAndSupportsRemoval; assignedAcademicMembershipsBlockTransfersAndPreserveGrades",
+    "result": "PASS",
+    "actual": "Ordinary removal worked; academic membership prevented reassignment."
+  },
+  {
+    "id": "TC-49-01",
+    "issue": "ICI2-49",
+    "title": "Seven actual sign-ins",
+    "steps": "Provision seven roles and sign in as each with chosen password.",
+    "expected": "Every role authenticates and reaches an allowed landing screen.",
+    "coverage": "staff-roles.spec.js; FoundationAuthenticationTest.provisionedAccountsForEveryStaffRoleCanActuallySignIn",
+    "result": "PASS",
+    "actual": "All seven roles provisioned and authenticated through real API/browser checks."
+  },
+  {
+    "id": "TC-49-02",
+    "issue": "ICI2-49",
+    "title": "Session restoration",
+    "steps": "Reload each role session after successful login.",
+    "expected": "Session and correct role landing restored.",
+    "coverage": "staff-roles.spec.js",
+    "result": "PASS",
+    "actual": "Every role restored its session after reload."
+  },
+  {
+    "id": "TC-49-03",
+    "issue": "ICI2-49",
+    "title": "Bad/inactive/revoked accounts",
+    "steps": "Use bad password, deactivate account, reuse revoked token and activate using current version.",
+    "expected": "Bad/inactive/revoked access rejected; valid reactivation enables new login.",
+    "coverage": "FoundationAuthenticationTest.invalidCredentialsAndDisabledAccountsCannotSignIn; logoutRevokesTokenDurablyAndOtherSessionsRemainValid; accountDeactivationRejectsExistingSessionsAndSupportsActivationWithVersionChecks",
+    "result": "PASS",
+    "actual": "Bad/inactive/revoked access rejected; current-version activation enabled new login."
+  },
+  {
+    "id": "TC-49-04",
+    "issue": "ICI2-49",
+    "title": "Role-safe return URL",
+    "steps": "Sign in as each non-admin with a saved User Accounts URL; request admin APIs.",
+    "expected": "Redirect goes to allowed landing; direct unauthorized API access rejected.",
+    "coverage": "staff-roles.spec.js; foundation.test.jsx: saved administrator-only URL; FoundationAuthenticationTest.provisionedAccountsForEveryStaffRoleCanActuallySignIn",
+    "result": "PASS",
+    "actual": "Each role reached an allowed landing from a saved admin URL; unauthorized APIs stayed denied."
+  },
+  {
+    "id": "TC-49-05",
+    "issue": "ICI2-49",
+    "title": "Provisioning controls",
+    "steps": "Create accounts through admin UI/API; try non-admin, cross-campus, weak password and self-deactivation.",
+    "expected": "Valid scoped creation works; invalid operations denied; hashes are not returned.",
+    "coverage": "staff-accounts.test.jsx; staff-roles.spec.js; FoundationAuthenticationTest account tests",
+    "result": "PASS",
+    "actual": "Scoped provisioning/status/validation/self-protection and password-hiding checks passed."
+  },
+  {
+    "id": "TC-49-06",
+    "issue": "ICI2-49",
+    "title": "Reviewer-accessible accounts",
+    "steps": "Verify the role accounts exist in the actual team review environment after QA cleanup.",
+    "expected": "Reviewer can access the intended preview environment using privately supplied credentials.",
+    "coverage": "Environment handoff",
+    "result": "CONDITIONAL: this QA provisions disposable accounts only; target team/review database has not been inspected or provisioned.",
+    "actual": "this QA provisions disposable accounts only; target team/review database has not been inspected or provisioned."
+  }
+]

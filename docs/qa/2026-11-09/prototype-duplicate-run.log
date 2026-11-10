@@ -1,0 +1,14 @@
+✔ exact LRN finds an applicant across campuses even with a different name and DOB (291.892292ms)
+✔ fuzzy name plus normalized DOB flags a suspected duplicate (57.580625ms)
+✔ same name with a different DOB does not match (105.802667ms)
+✔ empty identifiers do not match (64.542375ms)
+✔ an applicant is excluded from its own matches (101.935083ms)
+✔ duplicate check flags and creates a comparison pair; resolved pairs stay resolved (236.839166ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 944.812375

@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-10",
+  "upstreamReference": "a62a677d746e4ed4ae02a4d36d15d422e9168065",
+  "localGitHead": "2a82b07",
+  "published": false,
+  "backend": [
+    {
+      "name": "ph.edu.ici.EnrollmentWorkflowTest",
+      "tests": "27",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "ph.edu.ici.FoundationAuthenticationTest",
+      "tests": "18",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "ph.edu.ici.MigrationReconciliationTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "ph.edu.ici.ReconciledAccessTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "ph.edu.ici.RequirementTrackingTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "ph.edu.ici.StudentMasterTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "frontendUnitTests": 75,
+  "schemaArchiveChecks": 15,
+  "frontendBuild": "passed",
+  "browserStats": {
+    "startTime": "2026-11-10T00:30:10.941Z",
+    "duration": 70373.527,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "demoPreparationTool": "passed with actual API creates and Registrar login",
+  "reviewLauncherValidation": "short/mismatched input rejected; confirmed bootstrap environment passed without printing password",
+  "publishedMigrationIntegrity": "V1\u2013V7 byte-for-byte equal to upstream",
+  "databaseSideEffects": "disposable verification databases only"
+}

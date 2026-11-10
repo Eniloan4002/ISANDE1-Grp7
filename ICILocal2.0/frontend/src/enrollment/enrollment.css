@@ -1,7 +1,7 @@
 .enrollment-workspace{min-width:0}
 .enrollment-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}
 .enrollment-heading>.button{flex:none}
-.enrollment-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-bottom:14px}
+.enrollment-workspace .enrollment-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-bottom:14px}
 .enrollment-stat{display:flex;align-items:center;gap:14px;min-height:68px;padding:9px 12px;background:#fff;border:1px solid var(--border-color);border-radius:2px;box-shadow:var(--shadow-small)}
 .enrollment-stat strong{flex:none;color:var(--primary-dark);font:600 22px Montserrat,sans-serif}
 .enrollment-stat span,.enrollment-stat small{display:block}
@@ -11,9 +11,9 @@
 .enrollment-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 14px;border-bottom:3px solid var(--primary-color)}
 .enrollment-panel-heading h2{margin:0;color:var(--text-primary);font:700 15px Roboto,Arial,sans-serif}
 .enrollment-panel-heading p{margin:3px 0 0;color:var(--text-secondary);font-size:11px}
-.enrollment-filters{display:grid;grid-template-columns:minmax(220px,2fr) repeat(3,minmax(145px,1fr));align-items:center;gap:8px;padding:9px 14px;background:#e9ebeb;border-bottom:1px solid var(--border-color)}
-.enrollment-filters label{display:grid;min-width:0;gap:4px;color:var(--text-secondary);font-size:10px;font-weight:600}
-.enrollment-filters input,.enrollment-filters select,.enrollment-form-grid input,.enrollment-form-grid select{width:100%;height:33px;margin:0;padding:5px 8px;border:1px solid #8d9597;border-radius:1px;background:#fff;color:var(--text-primary);font:12px 'Open Sans',Arial,sans-serif}
+.enrollment-workspace .enrollment-filters{display:grid;grid-template-columns:minmax(220px,2fr) repeat(3,minmax(145px,1fr));align-items:center;gap:8px;padding:9px 14px;background:#e9ebeb;border-bottom:1px solid var(--border-color)}
+.enrollment-workspace .enrollment-filters label{display:grid;min-width:0;gap:4px;color:var(--text-secondary);font-size:10px;font-weight:600}
+.enrollment-workspace .enrollment-filters input,.enrollment-workspace .enrollment-filters select,.enrollment-form-grid input,.enrollment-form-grid select{width:100%;height:33px;margin:0;padding:5px 8px;border:1px solid #8d9597;border-radius:1px;background:#fff;color:var(--text-primary);font:12px 'Open Sans',Arial,sans-serif}
 .enrollment-table-wrap{overflow-x:auto;padding:0 14px}
 .enrollment-table{width:100%;min-width:900px;border-collapse:collapse;text-align:left;font-family:'Segoe UI',Arial,sans-serif;font-size:12px}
 .enrollment-table th{padding:9px 11px;background:#c8cacc;color:#202527;border-right:1px solid #969d9f;border-bottom:2px solid #646c6f;text-align:left;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
@@ -69,28 +69,6 @@
 .requirements-chip.danger{background:#fff3f3;border-color:#cf9a9a;color:#854343}
 .requirements-chip.warning{background:#fffaf0;border-color:#d3b878;color:#765918}
 .requirements-result-count{margin:0;padding:10px 14px;color:var(--text-secondary);font-size:11px}
-.attendance-filters{grid-template-columns:minmax(220px,2fr) minmax(180px,1fr)}
-.attendance-table{min-width:760px}
-.attendance-selected-row{background:#eaf3f8}
-.attendance-log-panel{margin-bottom:14px}
-.attendance-log-body{padding:14px}
-.attendance-selected-banner{padding:10px 12px;background:#e8f3f7;border:1px solid #b5d7e3;color:var(--primary-dark);font-size:12px}
-.attendance-day-list{display:grid;margin:14px 0;border-top:1px solid var(--border-light)}
-.attendance-day-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 4px;border-bottom:1px dashed #c3c9cb}
-.attendance-day-row span,.attendance-day-row small{display:block}
-.attendance-day-row small{margin-top:3px;color:var(--text-secondary);font-size:10px}
-.attendance-day-row select{min-width:120px;height:30px;border:1px solid #8d9597;border-radius:1px;background:#fff;padding:3px 7px;font-size:11px}
-.attendance-status-success{border-color:#6fae89!important;color:#286445}
-.attendance-status-danger{border-color:#cf9a9a!important;color:#854343}
-.attendance-status-warning{border-color:#d3b878!important;color:#765918}
-.attendance-gate-note{padding:9px 11px;border:1px solid #c9b78a;background:#fdfaf1;color:#6b5c2f;font-size:11px}
-.attendance-gate{display:flex;flex-wrap:wrap;gap:8px 18px;padding:12px 0;color:var(--text-secondary);font-size:12px}
-.gate-ok{color:#286445}.gate-no{color:#854343}
-.attendance-actions{display:flex;justify-content:flex-end;gap:10px}
-.attendance-actions button:disabled{cursor:not-allowed;opacity:.5}
-.attendance-help{margin:10px 0 0;color:var(--danger-color);font-size:11px;text-align:right}
-.attendance-confirmation-audit{margin:10px 0 0;color:var(--primary-dark);font-size:11px;text-align:right}
-.attendance-empty{padding:24px}
 .requirements-notice{margin:0 0 14px;padding:9px 11px;border:1px solid #b5d7e3;background:#e8f3f7;color:var(--primary-dark);font-size:12px}
 .requirements-dialog-backdrop{position:fixed;z-index:20;inset:0;display:grid;place-items:center;padding:20px;background:rgba(24,60,67,.42)}
 .requirements-dialog{width:min(640px,100%);max-height:calc(100vh - 40px);overflow:auto;background:#fff;border:1px solid var(--border-color);box-shadow:0 12px 30px rgba(0,0,0,.2)}
@@ -112,6 +90,13 @@
 .requirements-audit-item{display:flex;gap:9px;padding:6px 0;border-bottom:1px dotted #d4d9db;color:#4d575a;font-size:11px}
 .requirements-audit-dot{width:7px;height:7px;flex:0 0 7px;margin-top:5px;border-radius:50%;background:#2e7aa0}
 .requirements-dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
-@media(max-width:1000px){.enrollment-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.enrollment-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.enrollment-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.enrollment-table{min-width:900px}}
+@media(max-width:1000px){.enrollment-workspace .enrollment-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.enrollment-workspace .enrollment-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.enrollment-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.enrollment-table{min-width:900px}}
 @media(max-width:760px){.enrollment-detail-grid{grid-template-columns:1fr}.enrollment-detail-grid .panel:last-child{grid-column:auto}.enrollment-preview{padding:14px}}
-@media(max-width:640px){.enrollment-stats{grid-template-columns:1fr}.enrollment-heading{flex-direction:column}.enrollment-heading>.button{width:100%;text-align:center}.enrollment-filters,.enrollment-form-grid,.enrollment-detail-list{grid-template-columns:1fr}.enrollment-preview-banner{align-items:flex-start;flex-direction:column;gap:4px}.enrollment-detail-list{padding:8px 14px}.enrollment-form-actions{flex-direction:column-reverse}.enrollment-form-actions .button{width:100%;text-align:center}.requirements-document-row{align-items:flex-start;flex-wrap:wrap}.requirements-document-name{flex-basis:100%}.requirements-dialog-actions{flex-direction:column-reverse}.requirements-dialog-actions .button{width:100%}}
+@media(max-width:640px){.enrollment-workspace .enrollment-stats{grid-template-columns:1fr}.enrollment-heading{flex-direction:column}.enrollment-heading>.button{width:100%;text-align:center}.enrollment-workspace .enrollment-filters,.enrollment-form-grid,.enrollment-detail-list{grid-template-columns:1fr}.enrollment-preview-banner{align-items:flex-start;flex-direction:column;gap:4px}.enrollment-detail-list{padding:8px 14px}.enrollment-form-actions{flex-direction:column-reverse}.enrollment-form-actions .button{width:100%;text-align:center}.requirements-document-row{align-items:flex-start;flex-wrap:wrap}.requirements-document-name{flex-basis:100%}.requirements-dialog-actions{flex-direction:column-reverse}.requirements-dialog-actions .button{width:100%}}
+
+.intake-fields{border:0;padding:0;margin:0;min-width:0}
+.enrollment-workspace .enrollment-stat span,.enrollment-workspace .enrollment-stat small{font-size:12px}
+.enrollment-workspace .enrollment-filters label{font-size:12px}
+.enrollment-workspace .enrollment-form-actions{gap:12px}
+.requirements-dialog{width:min(920px,calc(100vw - 32px));max-height:90vh;overflow:auto}
+.requirements-dialog::backdrop{background:rgba(0,0,0,.45)}

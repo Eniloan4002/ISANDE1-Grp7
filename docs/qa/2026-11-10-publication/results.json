@@ -1,0 +1,77 @@
+{
+  "date": "2026-11-10",
+  "baseMain": "a62a677d746e4ed4ae02a4d36d15d422e9168065",
+  "backend": [
+    {
+      "name": "ph.edu.ici.AccessPolicyRequestTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "ph.edu.ici.AccountManagementTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "ph.edu.ici.EnrollmentWorkflowTest",
+      "tests": "27",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "ph.edu.ici.FoundationAuthenticationTest",
+      "tests": "18",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "ph.edu.ici.MigrationReconciliationTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "ph.edu.ici.ReconciledAccessTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "ph.edu.ici.RequirementTrackingTest",
+      "tests": "9",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "ph.edu.ici.StudentMasterTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "frontendTests": 78,
+  "schemaArchiveChecks": 15,
+  "frontendBuild": "passed",
+  "browserStats": {
+    "startTime": "2026-11-10T02:51:55.853Z",
+    "duration": 62175.794,
+    "expected": 13,
+    "skipped": 1,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "launcher": "normal shared first run, explicit bootstrap, stale-setting overrides validated; no saved passwords",
+  "demoTool": "nine scenarios created through disposable APIs, fresh-clone shared-term guard verified",
+  "secrets": "generic credential scan and comparison against live DB password/owner signing key passed; private files excluded",
+  "unrelatedPrototypeChanges": "not included"
+}

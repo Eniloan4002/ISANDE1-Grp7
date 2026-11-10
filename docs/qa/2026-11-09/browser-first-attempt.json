@@ -1,0 +1,327 @@
+{
+  "config": {
+    "argv": [
+      "/Users/ladi/.nvm/versions/node/v24.14.0/bin/node",
+      "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/node_modules/.bin/playwright",
+      "test",
+      "tests/qa-acceptance.spec.js",
+      "tests/intake-integration.spec.js",
+      "tests/staff-roles.spec.js",
+      "--workers=1",
+      "--reporter=json"
+    ],
+    "configFile": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/playwright.config.js",
+    "rootDir": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.spec.js"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/tests",
+        "snapshotDir": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/tests",
+        "testIgnore": [],
+        "testMatch": "**/*.spec.js",
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://127.0.0.1:5173",
+          "headless": true,
+          "launchOptions": {
+            "executablePath": "/Users/ladi/Library/Caches/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 5173 --strictPort",
+      "url": "http://127.0.0.1:5173",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "intake-integration.spec.js",
+      "file": "intake-integration.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Pauline intake and requirements UI persists through confirmation and allocation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 18483,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-09T11:14:35.698Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "888307f066f6ccc6e126-870e06e096a3b2dcdbfa",
+          "file": "intake-integration.spec.js",
+          "line": 5,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "qa-acceptance.spec.js",
+      "file": "qa-acceptance.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "[ICI2-13/14] matching gates, false positives, and documented unresolved scope",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 9882,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/This workflow is still under development/)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText(/This workflow is still under development/) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/This workflow is still under development/)\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/This workflow is still under development/)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText(/This workflow is still under development/) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/This workflow is still under development/)\u001b[22m\n\n    at /Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/tests/qa-acceptance.spec.js:42:116",
+                    "location": {
+                      "file": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/tests/qa-acceptance.spec.js",
+                      "column": 116,
+                      "line": 42
+                    },
+                    "snippet": "  40 |  const result=await page.request.post(`/api/intake/applications/${returning.id}/review`,{headers,data:{version:returning.version}});expect(result.status()).toBe(409);expect((await result.json()).detail).toContain('pending');\n  41 |  const duplicatePage=await page.request.get('/api/duplicate-cases',{headers});expect([404,405]).toContain(duplicatePage.status());\n> 42 |  await page.goto('/enrollment/duplicate');await expect(page.getByText(/This workflow is still under development/)).toBeVisible();\n     |                                                                                                                    ^\n  43 |  await page.screenshot({path:'test-results/qa-13-resolution-gap.png',fullPage:true,animations:'disabled'});\n  44 | });\n  45 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/tests/qa-acceptance.spec.js",
+                        "column": 116,
+                        "line": 42
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/This workflow is still under development/)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText(/This workflow is still under development/) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/This workflow is still under development/)\u001b[22m\n\n\n  40 |  const result=await page.request.post(`/api/intake/applications/${returning.id}/review`,{headers,data:{version:returning.version}});expect(result.status()).toBe(409);expect((await result.json()).detail).toContain('pending');\n  41 |  const duplicatePage=await page.request.get('/api/duplicate-cases',{headers});expect([404,405]).toContain(duplicatePage.status());\n> 42 |  await page.goto('/enrollment/duplicate');await expect(page.getByText(/This workflow is still under development/)).toBeVisible();\n     |                                                                                                                    ^\n  43 |  await page.screenshot({path:'test-results/qa-13-resolution-gap.png',fullPage:true,animations:'disabled'});\n  44 | });\n  45 |\n    at /Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/tests/qa-acceptance.spec.js:42:116"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-09T11:14:58.126Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/test-results/qa-acceptance--ICI2-13-14--8a0cb-documented-unresolved-scope/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/tests/qa-acceptance.spec.js",
+                    "column": 116,
+                    "line": 42
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "38f6d30396d3d159ecc8-c41914e8d71b8ac8f7b4",
+          "file": "qa-acceptance.spec.js",
+          "line": 28,
+          "column": 1
+        },
+        {
+          "title": "[ICI2-15–19] live two-tab conflict, confirmation blockers, section controls and last seat",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 10735,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Original absent at review', { exact: true })\nExpected: visible\nError: strict mode violation: getByText('Original absent at review', { exact: true }) resolved to 2 elements:\n    1) <textarea id=\"notes-PSA\" maxlength=\"2000\">Original absent at review</textarea> aka getByRole('textbox', { name: 'Verification notes: PSA' })\n    2) <p>Original absent at review</p> aka getByRole('listitem').getByText('Original absent at review')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Original absent at review', { exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Original absent at review', { exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Original absent at review', { exact: true })\nExpected: visible\nError: strict mode violation: getByText('Original absent at review', { exact: true }) resolved to 2 elements:\n    1) <textarea id=\"notes-PSA\" maxlength=\"2000\">Original absent at review</textarea> aka getByRole('textbox', { name: 'Verification notes: PSA' })\n    2) <p>Original absent at review</p> aka getByRole('listitem').getByText('Original absent at review')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Original absent at review', { exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Original absent at review', { exact: true })\u001b[22m\n\n    at /Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/tests/qa-acceptance.spec.js:57:73",
+                    "location": {
+                      "file": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/tests/qa-acceptance.spec.js",
+                      "column": 73,
+                      "line": 57
+                    },
+                    "snippet": "  55 |  await other.getByRole('button',{name:'Save PSA',exact:true}).click();await expect(other.getByRole('alert')).toContainText(/changed|reload/i);await expect(other.getByLabel('Verification notes: PSA',{exact:true})).toHaveValue('Unsaved second registrar note');\n  56 |  await other.screenshot({path:'test-results/qa-16-conflict-draft.png',fullPage:true,animations:'disabled'});await other.close();\n> 57 |  await expect(page.getByText('Original absent at review',{exact:true})).toBeVisible();await page.reload();await expect(page.getByLabel('Verification notes: PSA',{exact:true})).toHaveValue('Original absent at review');\n     |                                                                         ^\n  58 |  await page.keyboard.press('Escape');await expect(page.getByRole('dialog',{name:'Requirements Checklist'})).toHaveCount(0);await page.getByRole('button',{name:`Open ${app.applicationNumber}`,exact:true}).click();await expect(page.getByLabel('Verification notes: PSA',{exact:true})).toHaveValue('Original absent at review');\n  59 |  for(const code of ['PSA','FORM137','COMPLETION','GOOD_MORAL']){await page.getByLabel(`Status: ${code}`,{exact:true}).selectOption('submitted');const saved=page.waitForResponse(r=>r.url().endsWith(`/requirements/${code}`)&&r.request().method()==='PUT');await page.getByRole('button',{name:`Save ${code}`,exact:true}).click();expect((await saved).status()).toBe(200);await expect(page.getByLabel(`Status: ${code}`,{exact:true})).toHaveValue('submitted');}\n  60 |  await page.getByRole('link',{name:'Continue to attendance'}).click();await expect(page.getByRole('button',{name:'Confirm enrollment',exact:true})).toBeDisabled();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/tests/qa-acceptance.spec.js",
+                        "column": 73,
+                        "line": 57
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Original absent at review', { exact: true })\nExpected: visible\nError: strict mode violation: getByText('Original absent at review', { exact: true }) resolved to 2 elements:\n    1) <textarea id=\"notes-PSA\" maxlength=\"2000\">Original absent at review</textarea> aka getByRole('textbox', { name: 'Verification notes: PSA' })\n    2) <p>Original absent at review</p> aka getByRole('listitem').getByText('Original absent at review')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Original absent at review', { exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Original absent at review', { exact: true })\u001b[22m\n\n\n  55 |  await other.getByRole('button',{name:'Save PSA',exact:true}).click();await expect(other.getByRole('alert')).toContainText(/changed|reload/i);await expect(other.getByLabel('Verification notes: PSA',{exact:true})).toHaveValue('Unsaved second registrar note');\n  56 |  await other.screenshot({path:'test-results/qa-16-conflict-draft.png',fullPage:true,animations:'disabled'});await other.close();\n> 57 |  await expect(page.getByText('Original absent at review',{exact:true})).toBeVisible();await page.reload();await expect(page.getByLabel('Verification notes: PSA',{exact:true})).toHaveValue('Original absent at review');\n     |                                                                         ^\n  58 |  await page.keyboard.press('Escape');await expect(page.getByRole('dialog',{name:'Requirements Checklist'})).toHaveCount(0);await page.getByRole('button',{name:`Open ${app.applicationNumber}`,exact:true}).click();await expect(page.getByLabel('Verification notes: PSA',{exact:true})).toHaveValue('Original absent at review');\n  59 |  for(const code of ['PSA','FORM137','COMPLETION','GOOD_MORAL']){await page.getByLabel(`Status: ${code}`,{exact:true}).selectOption('submitted');const saved=page.waitForResponse(r=>r.url().endsWith(`/requirements/${code}`)&&r.request().method()==='PUT');await page.getByRole('button',{name:`Save ${code}`,exact:true}).click();expect((await saved).status()).toBe(200);await expect(page.getByLabel(`Status: ${code}`,{exact:true})).toHaveValue('submitted');}\n  60 |  await page.getByRole('link',{name:'Continue to attendance'}).click();await expect(page.getByRole('button',{name:'Confirm enrollment',exact:true})).toBeDisabled();\n    at /Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/tests/qa-acceptance.spec.js:57:73"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-09T11:15:09.513Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/test-results/qa-acceptance--ICI2-15–19--03c21-tion-controls-and-last-seat/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/ladi/Desktop/ISANDE1-Grp7/ICILocal2.0/frontend/tests/qa-acceptance.spec.js",
+                    "column": 73,
+                    "line": 57
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "38f6d30396d3d159ecc8-466423b76c9ce54ee609",
+          "file": "qa-acceptance.spec.js",
+          "line": 46,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "staff-roles.spec.js",
+      "file": "staff-roles.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "administrator provisions accounts and every staff role signs in to an allowed landing screen",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 31851,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-09T11:15:24.186Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3b128a3d92ef515fe815-a584e8e56823af87ed3e",
+          "file": "staff-roles.spec.js",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-09T11:14:30.625Z",
+    "duration": 87052.141,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

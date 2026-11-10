@@ -27,11 +27,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if(!authorization.startsWith("Bearer ")||authorization.length()>8192)throw new IllegalArgumentException();
                 Claims claims=tokens.verify(authorization.substring(7));
                 UUID tokenId=UUID.fromString(claims.getId());
-                var account=staff.find(Long.parseLong(claims.getSubject())).orElseThrow(IllegalArgumentException::new);
-                Object version=claims.get("tokenVersion");
-                if((version!=null&&!(version instanceof Integer))||((version==null?0:(Integer)version)!=account.tokenVersion())||!account.active()||staff.revoked(tokenId))throw new IllegalArgumentException();
-                var grants=staff.grants(account.id());
-                var identity=new StaffIdentity(account.id(),account.username(),account.fullName(),grants,tokenId,claims.getExpiration().toInstant());
+                var session=staff.session(Long.parseLong(claims.getSubject()),tokenId).orElseThrow(IllegalArgumentException::new);
+                var account=session.account();
+                Object credentialVersion=claims.getOrDefault("tokenVersion",0);if(!(credentialVersion instanceof Number))throw new IllegalArgumentException();
+                if(!account.active()||session.revoked()||account.tokenVersion()!=((Number)credentialVersion).intValue())throw new IllegalArgumentException();
+                if(account.passwordChangeRequired()&&!java.util.Set.of("/api/auth/me","/api/auth/logout","/api/auth/change-password").contains(request.getServletPath())){
+                    response.setStatus(403);response.setContentType("application/problem+json");response.getWriter().write("{\"status\":403,\"detail\":\"Change your temporary password before continuing.\"}");return;
+                }
+                var grants=session.grants();
+                var identity=new StaffIdentity(account.id(),account.username(),account.fullName(),grants,tokenId,claims.getExpiration().toInstant(),account.passwordChangeRequired());
                 var authorities=grants.stream().map(StaffIdentity.Grant::role).distinct().map(SimpleGrantedAuthority::new).toList();
                 SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(identity,null,authorities));
             }catch(JwtException|IllegalArgumentException exception){

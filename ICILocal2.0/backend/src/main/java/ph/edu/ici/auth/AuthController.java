@@ -15,7 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/api/auth")
 public class AuthController {
     public record Login(@NotBlank @Size(max=100) String username,@NotBlank @Size(max=72) String password) {}
-    public record Profile(long userId,String username,String fullName,List<StaffIdentity.Grant> grants) {}
+    public record Profile(long userId,String username,String fullName,List<StaffIdentity.Grant> grants,boolean passwordChangeRequired) {}
     public record LoginResponse(String accessToken,String tokenType,Instant expiresAt,Profile user) {}
     private final StaffRepository staff;
     private final TokenService tokens;
@@ -35,12 +35,12 @@ public class AuthController {
         List<StaffIdentity.Grant> grants=staff.grants(account.id());
         TokenService.Issued token=tokens.issue(account.id(),grants,account.tokenVersion());
         return ResponseEntity.ok().cacheControl(CacheControl.noStore())
-            .body(new LoginResponse(token.accessToken(),"Bearer",token.expiresAt(),new Profile(account.id(),account.username(),account.fullName(),grants)));
+            .body(new LoginResponse(token.accessToken(),"Bearer",token.expiresAt(),new Profile(account.id(),account.username(),account.fullName(),grants,account.passwordChangeRequired())));
     }
     @GetMapping("/me")
     public Profile me(@AuthenticationPrincipal StaffIdentity identity) { return profile(identity); }
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void logout(@AuthenticationPrincipal StaffIdentity identity) { staff.revoke(identity); }
-    static Profile profile(StaffIdentity identity) { return new Profile(identity.userId(),identity.username(),identity.fullName(),identity.grants()); }
+    static Profile profile(StaffIdentity identity) { return new Profile(identity.userId(),identity.username(),identity.fullName(),identity.grants(),identity.passwordChangeRequired()); }
 }

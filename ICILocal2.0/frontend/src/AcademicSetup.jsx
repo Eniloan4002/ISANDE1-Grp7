@@ -74,7 +74,7 @@ export default function AcademicSetup() {
     const value=row[field.column||field.key];
     if(field.type==='parent')return parentLabel(field.source,value);
     if(field.type==='active')return value?'Active':'Inactive';
-    return value??'—';
+    return value??'Not recorded';
   }
   function edit(row) {
     setEditing(row);setError('');setErrors({});

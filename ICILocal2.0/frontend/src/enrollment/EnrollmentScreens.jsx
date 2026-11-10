@@ -1,83 +1,8 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
-import RequirementsScreen, { defaultAudits, defaultDocuments, initialDocuments } from './RequirementsScreen.jsx';
-import AttendanceScreen from './AttendanceScreen.jsx';
 import './enrollment.css';
-
-const initialApplicants = [
-  {
-    id: 'APP-2026-0148', firstName: 'Ana', middleName: 'Reyes', lastName: 'Garcia', lrn: '119270140008',
-    submittedAt: '2026-08-02', category: 'New', campus: 'Iligan Main', program: 'Senior High School',
-    track: 'Academic', strand: 'HUMSS', voucher: 'QVR', status: 'Pre-enlisted', requirements: 'Pending',
-    duplicate: false, birthDate: '2009-04-12', sex: 'Female', phone: '09170000001', email: 'ana.garcia@example.invalid',
-    previousSchool: 'Iligan City National High School', guardianName: 'Maria Garcia', guardianRelationship: 'Mother',
-    guardianPhone: '09170000002', householdIncome: 'Not provided',
-  },
-  {
-    id: 'APP-2026-0149', firstName: 'Miguel', middleName: 'Santos', lastName: 'Reyes', lrn: '108517230184',
-    submittedAt: '2026-08-02', category: 'Transferee', campus: 'Iligan Main', program: 'Senior High School',
-    track: 'Academic', strand: 'STEM', voucher: 'ESC', status: 'For review', requirements: 'Incomplete',
-    duplicate: true, birthDate: '2008-11-03', sex: 'Male', phone: '09170000003', email: 'miguel.reyes@example.invalid',
-    previousSchool: 'Northern Mindanao Academy', guardianName: 'Jose Reyes', guardianRelationship: 'Father',
-    guardianPhone: '09170000004', householdIncome: 'Not provided',
-  },
-  {
-    id: 'APP-2026-0150', firstName: 'Lia', middleName: '', lastName: 'Navarro', lrn: '120381650117',
-    submittedAt: '2026-08-02', category: 'New', campus: 'Bugo — CDO', program: 'Senior High School',
-    track: 'TVL', strand: 'Cookery', voucher: 'REGULAR', status: 'Pending requirements', requirements: 'Incomplete',
-    duplicate: false, birthDate: '2009-07-26', sex: 'Female', phone: '09170000005', email: '',
-    previousSchool: 'Bugo Central School', guardianName: 'Elena Navarro', guardianRelationship: 'Mother',
-    guardianPhone: '09170000006', householdIncome: 'Not provided',
-  },
-  {
-    id: 'APP-2026-0151', firstName: 'Noah', middleName: 'Dela', lastName: 'Cruz', lrn: '112500710292',
-    submittedAt: '2026-08-05', category: 'Returnee', campus: 'Kapatagan', program: 'Senior High School',
-    track: 'Academic', strand: 'ABM', voucher: 'ALS', status: 'Pending requirements', requirements: 'Complete',
-    duplicate: false, birthDate: '2008-02-14', sex: 'Male', phone: '09170000007', email: 'noah.cruz@example.invalid',
-    previousSchool: 'Kapatagan National High School', guardianName: 'Rosa Cruz', guardianRelationship: 'Mother',
-    guardianPhone: '09170000008', householdIncome: 'Not provided',
-  },
-  {
-    id: 'APP-2026-0152', firstName: 'Mika', middleName: 'Lopez', lastName: 'Tan', lrn: '119770320691',
-    submittedAt: '2026-08-06', category: 'New', campus: 'Iligan Main', program: 'Senior High School',
-    track: 'TVL', strand: 'ICT', voucher: 'QVR', status: 'Enrolled', requirements: 'Complete',
-    duplicate: false, birthDate: '2009-01-19', sex: 'Female', phone: '09170000009', email: 'mika.tan@example.invalid',
-    previousSchool: 'Iligan City National High School', guardianName: 'Paolo Tan', guardianRelationship: 'Father',
-    guardianPhone: '09170000010', householdIncome: 'Not provided',
-  },
-];
-
-const mockReferenceData = {
-  campuses: [
-    { id: 'demo-campus-iligan-main', name: 'Iligan Main' },
-    { id: 'demo-campus-kapatagan', name: 'Kapatagan' },
-    { id: 'demo-campus-bugo-cdo', name: 'Bugo — CDO' },
-  ],
-  programs: [
-    { id: 'demo-program-shs', name: 'Senior High School' },
-    { id: 'demo-program-tvet', name: 'TVET' },
-  ],
-  tracks: [
-    { code: 'ACADEMIC', name: 'Academic', programId: 'demo-program-shs' },
-    { code: 'TVL', name: 'TVL', programId: 'demo-program-shs' },
-    { code: 'TVET', name: 'TVET', programId: 'demo-program-tvet' },
-  ],
-  specializations: [
-    { code: 'STEM', name: 'STEM', trackCode: 'ACADEMIC' },
-    { code: 'ABM', name: 'ABM', trackCode: 'ACADEMIC' },
-    { code: 'HUMSS', name: 'HUMSS', trackCode: 'ACADEMIC' },
-    { code: 'COOKERY', name: 'Cookery', trackCode: 'TVL' },
-    { code: 'ICT', name: 'ICT', trackCode: 'TVL' },
-    { code: 'TVET', name: 'TVET', trackCode: 'TVET' },
-  ],
-  vouchers: [
-    { code: 'QVR', name: 'Qualified Voucher Recipient (QVR)' },
-    { code: 'ESC', name: 'Education Service Contracting (ESC)' },
-    { code: 'ALS', name: 'Alternative Learning System (ALS)' },
-    { code: 'REGULAR', name: 'Regular / Paying' },
-  ],
-  terms: [{ id: 'demo-term', name: 'Demo term (preview only)' }],
-};
+import {useResource,Failure,Pager} from '../EnrollmentWorkspace.jsx';
+import {send,referenceData as adaptReference,intakePayload,queueApplicant,applicantDetail} from './enrollmentApi.js';
 
 const applicantCategories = [
   { code: 'new', name: 'New' },
@@ -86,86 +11,7 @@ const applicantCategories = [
   { code: 'continuing', name: 'Continuing' },
 ];
 
-const EnrollmentMockContext = createContext(null);
-
-export function EnrollmentMockProvider({ children }) {
-  const [applicants, setApplicants] = useState(() => initialApplicants.map(applicant => ({
-    ...applicant,
-    campusId: mockReferenceData.campuses.find(item => item.name === applicant.campus)?.id,
-    programId: mockReferenceData.programs.find(item => item.name === applicant.program)?.id,
-    termId: 'demo-term',
-    trackCode: applicant.track === 'Academic' ? 'ACADEMIC' : applicant.track === 'TVL' ? 'TVL' : 'TVET',
-    specializationCode: mockReferenceData.specializations.find(item => item.name === applicant.strand)?.code,
-    guardians: applicant.guardianName ? [{
-      fullName: applicant.guardianName,
-      relationship: applicant.guardianRelationship,
-      phone: applicant.guardianPhone,
-      primaryContact: true,
-    }] : [],
-  })));
-  const [nextId, setNextId] = useState(153);
-  const [documentsByApplicant, setDocumentsByApplicant] = useState(() => Object.fromEntries(initialApplicants.map(applicant => [applicant.id, initialDocuments(applicant)])));
-  const [auditsByApplicant, setAuditsByApplicant] = useState(() => Object.fromEntries(initialApplicants.map(applicant => [applicant.id, defaultAudits[applicant.id] || []])));
-  const [attendance, setAttendance] = useState(() => Object.fromEntries(initialApplicants.map(applicant => [applicant.id, [
-    { day: 'Mon', date: 'Aug 3, 2026', status: applicant.id === 'APP-2026-0151' ? 'Present' : 'Pending' },
-    { day: 'Tue', date: 'Aug 4, 2026', status: applicant.id === 'APP-2026-0151' ? 'Present' : 'Pending' },
-    { day: 'Wed', date: 'Aug 5, 2026', status: applicant.id === 'APP-2026-0151' ? 'Present' : 'Pending' },
-    { day: 'Thu', date: 'Aug 6, 2026', status: applicant.id === 'APP-2026-0151' ? 'Present' : 'Pending' },
-    { day: 'Fri', date: 'Aug 7, 2026', status: applicant.id === 'APP-2026-0151' ? 'Present' : 'Pending' },
-  ]])));
-  const addApplicant = async values => {
-    await Promise.resolve();
-    const applicant = {
-      ...values,
-      id: `APP-${new Date().getFullYear()}-${String(nextId).padStart(4, '0')}`,
-      submittedAt: new Date().toISOString().slice(0, 10),
-      status: 'Pre-enlisted',
-      requirements: 'Pending',
-      duplicate: false,
-      confirmationAudit: null,
-    };
-    setNextId(value => value + 1);
-    setApplicants(current => [applicant, ...current]);
-    return applicant;
-  };
-  const updateApplicant = (id, changes) => setApplicants(current => current.map(applicant => applicant.id === id ? { ...applicant, ...changes } : applicant));
-  const updateDocument = (id, document, value, audit) => {
-    setDocumentsByApplicant(current => ({ ...current, [id]: { ...(current[id] || defaultDocuments[id]), [document]: value } }));
-    setAuditsByApplicant(current => ({ ...current, [id]: [audit, ...(current[id] || [])] }));
-  };
-  const updateAttendance = (id, index, status) => setAttendance(current => ({
-    ...current,
-    [id]: (current[id] || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map(day => ({ day, date: '', status: 'Pending' }))).map((item, itemIndex) => itemIndex === index ? { ...item, status } : item),
-  }));
-  const confirmEnrollment = (id, confirmedBy = 'Registrar Staff') => {
-    const applicant = applicants.find(item => item.id === id);
-    const log = attendance[id] || [];
-    const eligibleStatus = ['pre-enlisted', 'pending requirements'].includes(applicant?.status?.toLowerCase());
-    if (!applicant || !eligibleStatus || applicant.requirements !== 'Complete' || log.length !== 5 || !log.every(item => item.status === 'Present')) return false;
-    const confirmedAt = new Date().toISOString();
-    updateApplicant(id, {
-      status: 'Enrolled',
-      confirmedAt,
-      confirmedBy,
-      confirmationAudit: {
-        action: 'Enrollment confirmed',
-        confirmedAt,
-        confirmedBy,
-      },
-    });
-    return true;
-  };
-  const value = useMemo(() => ({ applicants, addApplicant, updateApplicant, documentsByApplicant, auditsByApplicant, updateDocument, attendance, updateAttendance, confirmEnrollment, referenceData: mockReferenceData }), [applicants, auditsByApplicant, attendance, documentsByApplicant, nextId]);
-  return <EnrollmentMockContext.Provider value={value}>{children}</EnrollmentMockContext.Provider>;
-}
-
-export function useEnrollmentMock() {
-  const context = useContext(EnrollmentMockContext);
-  if (!context) throw new Error('Enrollment screens must be rendered inside EnrollmentMockProvider.');
-  return context;
-}
-
-const statuses = ['Pre-enlisted', 'Pending requirements', 'For review', 'Enrolled'];
+const statuses = ['submitted','pre_enlisted','under_review','duplicate_flag','enrolled','rejected','withdrawn'];
 
 function statusTone(status) {
   if (status === 'Enrolled') return 'success';
@@ -187,56 +33,53 @@ function applicantUrl(basePath, id) {
   return `${basePath}/applicants/${encodeURIComponent(id)}`;
 }
 
-function EnrollmentQueue({ applicants, basePath, preview }) {
-  const { referenceData } = useEnrollmentMock();
+function EnrollmentQueue({ referenceData, basePath, title }) {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all');
   const [program, setProgram] = useState('all');
   const [campus, setCampus] = useState('all');
-  const intakePath = preview ? `${basePath}/intake` : '/enrollment/intake';
-  const filtered = applicants.filter(applicant => {
-    const query = search.trim().toLowerCase();
-    const matchesSearch = !query || [fullName(applicant), applicant.id, applicant.lrn].some(value => value?.toLowerCase().includes(query));
-    return matchesSearch &&
-      (status === 'all' || applicant.status === status) &&
-      (program === 'all' || applicant.track === program) &&
-      (campus === 'all' || applicant.campus === campus);
-  });
-  const stats = [
-    { label: 'Pre-enlisted', value: applicants.filter(applicant => applicant.status === 'Pre-enlisted').length, description: 'Awaiting evaluation' },
-    { label: 'Pending requirements', value: applicants.filter(applicant => applicant.status === 'Pending requirements').length, description: 'Needs follow-up' },
-    { label: 'Duplicate flags', value: applicants.filter(applicant => applicant.duplicate).length, description: 'For review' },
-    { label: 'Enrolled', value: applicants.filter(applicant => applicant.status === 'Enrolled').length, description: 'This academic year' },
+  const intakePath = '/enrollment/intake';
+  const [page,setPage]=useState(0);
+  const params=new URLSearchParams({page:String(page),size:'25',search,status:status==='all'?'':status,campusId:campus==='all'?'':campus,programId:program==='all'?'':program});
+  const directory=useResource(`/api/enrollment/applications?${params}`);
+  const statistics=useResource('/api/intake/statistics');
+  const filtered=(directory.data?.items??[]).map(queueApplicant);
+  const stats=[
+    {label:'Submitted',value:statistics.data?.submitted,description:'Awaiting registrar review'},
+    {label:'Pre-enlisted',value:statistics.data?.preEnlisted,description:'Ready for credential verification'},
+    {label:'Duplicate flags',value:statistics.data?.duplicates,description:'For review'},
+    {label:'Enrolled',value:statistics.data?.enrolled,description:'Confirmed enrollment'},
   ];
 
   return <div className="enrollment-workspace">
     <header className="page-heading enrollment-heading">
-      <div><p className="eyebrow">ENROLLMENT MANAGEMENT</p><h1>Enrollment Queue</h1><p>Review and manage incoming applicant submissions.</p></div>
+      <div><p className="eyebrow">ENROLLMENT MANAGEMENT</p><h1>{title||'Enrollment Queue'}</h1><p>Review and manage incoming applicant submissions.</p></div>
       <Link className="button" to={intakePath}>New applicant</Link>
     </header>
     <div className="enrollment-stats" aria-label="Application statistics">
       {stats.map(item => <section className="enrollment-stat" key={item.label}>
-        <strong>{item.value}</strong><div><span>{item.label}</span><small>{item.description}</small></div>
+        <strong>{item.value??"…"}</strong><div><span>{item.label}</span><small>{item.description}</small></div>
       </section>)}
     </div>
     <section className="panel enrollment-panel" aria-labelledby="applicant-queue-title">
-      <div className="enrollment-panel-heading"><div><h2 id="applicant-queue-title">Applicant Queue</h2><p>{filtered.length} of {applicants.length} applications</p></div></div>
+      <div className="enrollment-panel-heading"><div><h2 id="applicant-queue-title">Applicant Queue</h2><p>{directory.data?.total??0} matching applications</p></div></div>
       <div className="enrollment-filters">
-        <label>Search applicants<input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Name, application ID, or LRN" /></label>
-        <label>Status<select value={status} onChange={event => setStatus(event.target.value)}><option value="all">All statuses</option>{statuses.map(value => <option key={value}>{value}</option>)}</select></label>
-        <label>Track<select value={program} onChange={event => setProgram(event.target.value)}><option value="all">All tracks</option>{referenceData.tracks.map(item => <option key={item.code} value={item.name}>{item.name}</option>)}</select></label>
-        <label>Campus<select value={campus} onChange={event => setCampus(event.target.value)}><option value="all">All campuses</option>{referenceData.campuses.map(item => <option key={item.id} value={item.name}>{item.name}</option>)}</select></label>
+        <label>Search applicants<input type="search" value={search} onChange={event => { setSearch(event.target.value); setPage(0); }} placeholder="Name, application ID, or LRN" /></label>
+        <label>Status<select value={status} onChange={event => { setStatus(event.target.value); setPage(0); }}><option value="all">All statuses</option>{statuses.map(value => <option key={value} value={value}>{value.replaceAll('_',' ')}</option>)}</select></label>
+        <label>Program<select value={program} onChange={event => { setProgram(event.target.value); setPage(0); }}><option value="all">All programs</option>{referenceData.specializations.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+        <label>Campus<select value={campus} onChange={event => { setCampus(event.target.value); setPage(0); }}><option value="all">All campuses</option>{referenceData.campuses.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
       </div>
-      {filtered.length ? <div className="enrollment-table-wrap"><table className="enrollment-table">
+      <Failure error={directory.error} reload={directory.reload}/><Failure error={statistics.error} reload={statistics.reload}/>{directory.loading&&<p role="status">Loading applications…</p>}
+      {!directory.loading&&!directory.error&&(filtered.length ? <div className="enrollment-table-wrap"><table className="enrollment-table">
         <thead><tr><th scope="col">Applicant</th><th scope="col">Application ID</th><th scope="col">Submitted</th><th scope="col">Program</th><th scope="col">Campus</th><th scope="col">Requirements</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
         <tbody>{filtered.map(applicant => <tr key={applicant.id}>
           <td><strong>{applicant.lastName}, {applicant.firstName}</strong><small>{applicant.lrn ? `LRN ${applicant.lrn}` : 'LRN not provided'}</small></td>
-          <td>{applicant.id}</td><td>{prettyDate(applicant.submittedAt)}</td><td>{applicant.track} · {applicant.strand}</td>
+          <td>{applicant.applicationNumber}</td><td>{prettyDate(applicant.submittedAt)}</td><td>{applicant.track} · {applicant.strand}</td>
           <td>{applicant.campus}</td><td><span className={`status ${applicant.requirements === 'Complete' ? 'status-success' : 'status-warning'}`}>{applicant.requirements}</span></td>
           <td><span className={`status status-${statusTone(applicant.status)}`}>{applicant.status}</span>{applicant.duplicate && <small className="enrollment-flag">Possible duplicate</small>}</td>
           <td><Link className="button button-outline enrollment-view" to={applicantUrl(basePath, applicant.id)}>View</Link></td>
         </tr>)}</tbody>
-      </table></div> : <div className="empty-state enrollment-empty"><h3>No matching applicants</h3><p>Try changing or clearing the search and filters.</p><button className="button button-outline" type="button" onClick={() => { setSearch(''); setStatus('all'); setProgram('all'); setCampus('all'); }}>Clear filters</button></div>}
+      </table></div> : <div className="empty-state enrollment-empty"><h3>No matching applicants</h3><p>Try changing or clearing the search and filters.</p><button className="button button-outline" type="button" onClick={() => { setSearch(''); setStatus('all'); setProgram('all'); setCampus('all'); }}>Clear filters</button></div>)}<Pager page={page} total={directory.data?.total??0} onChange={setPage} disabled={directory.loading}/>
     </section>
   </div>;
 }
@@ -250,7 +93,7 @@ function createEmptyForm() {
     firstName: '', middleName: '', lastName: '', lrn: '', birthDate: '', sex: '',
     phone: '', email: '', campusId: '', category: '', programId: '', termId: '',
     trackCode: '', specializationCode: '', voucher: '', previousSchool: '',
-    householdIncome: '', guardians: [emptyGuardian()],
+    householdIncome: '', gradeLevel:'', district:'', transportRoute:'', guardians: [emptyGuardian()],
   };
 }
 
@@ -312,9 +155,9 @@ function ApplicantIntake({ addApplicant, navigate, basePath, title, referenceDat
     setSubmitting(true);
     setSubmitError('');
     try {
-      const campus = referenceData.campuses.find(item => item.id === form.campusId);
+      const campus = referenceData.campuses.find(item => String(item.id) === form.campusId);
       const program = referenceData.programs.find(item => item.id === form.programId);
-      const term = referenceData.terms.find(item => item.id === form.termId);
+      const term = referenceData.terms.find(item => String(item.id) === form.termId);
       const track = referenceData.tracks.find(item => item.code === form.trackCode);
       const specialization = referenceData.specializations.find(item => item.code === form.specializationCode);
       const category = applicantCategories.find(item => item.code === form.category);
@@ -346,7 +189,7 @@ function ApplicantIntake({ addApplicant, navigate, basePath, title, referenceDat
     <header className="page-heading"><div><p className="eyebrow">ENROLLMENT MANAGEMENT</p><h1>{title}</h1><p>Enter the applicant’s details and enrollment preferences.</p></div></header>
     <form className="enrollment-form" aria-label="Applicant intake form" onSubmit={submit} aria-busy={submitting}>
       {submitError && <p className="notice notice-error enrollment-form-error" role="alert">{submitError}</p>}
-      <section className="panel enrollment-panel">
+      <fieldset disabled={submitting} className="intake-fields"><section className="panel enrollment-panel">
         <div className="enrollment-panel-heading"><div><h2>Applicant information</h2><p>Enter the applicant’s identity and contact information. Required fields are marked with *.</p></div></div>
         <div className="enrollment-form-grid">
           <label htmlFor="applicant-first-name">First name <span aria-hidden="true">*</span><input id="applicant-first-name" name="firstName" required maxLength="150" value={form.firstName} onChange={update} /></label>
@@ -361,13 +204,16 @@ function ApplicantIntake({ addApplicant, navigate, basePath, title, referenceDat
         </div>
       </section>
       <section className="panel enrollment-panel">
-        <div className="enrollment-panel-heading"><div><h2>Enrollment preferences</h2><p>Catalog options shown here are mock reference data for preview only.</p></div></div>
+        <div className="enrollment-panel-heading"><div><h2>Enrollment preferences</h2><p>Choose from the school’s configured programs and academic terms.</p></div></div>
         <div className="enrollment-form-grid">
           <label htmlFor="applicant-campus">Preferred campus <span aria-hidden="true">*</span><select id="applicant-campus" name="campusId" required value={form.campusId} onChange={update}><option value="">Select…</option>{referenceData.campuses.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
           <label htmlFor="applicant-term">Academic term <span aria-hidden="true">*</span><select id="applicant-term" name="termId" required value={form.termId} onChange={update}><option value="">Select…</option>{referenceData.terms.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
           <label htmlFor="applicant-program">Program <span aria-hidden="true">*</span><select id="applicant-program" name="programId" required value={form.programId} onChange={update}><option value="">Select…</option>{referenceData.programs.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
           <label htmlFor="applicant-track">Track <span aria-hidden="true">*</span><select id="applicant-track" name="trackCode" required disabled={!tracks.length} value={form.trackCode} onChange={update}><option value="">{tracks.length ? 'Select…' : 'Select a program first'}</option>{tracks.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label>
           <label htmlFor="applicant-strand">Strand / specialization <span aria-hidden="true">*</span><select id="applicant-strand" name="specializationCode" required disabled={!specializations.length} value={form.specializationCode} onChange={update}><option value="">{specializations.length ? 'Select…' : 'Select a track first'}</option>{specializations.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label>
+          <label htmlFor="applicant-grade">Grade level <span aria-hidden="true">*</span><input id="applicant-grade" name="gradeLevel" required maxLength="30" placeholder="e.g. 11 or institution-defined level" value={form.gradeLevel} onChange={update}/></label>
+          <label htmlFor="applicant-district">Residential district<input id="applicant-district" name="district" maxLength="200" value={form.district} onChange={update}/></label>
+          <label htmlFor="applicant-route">Transportation route<input id="applicant-route" name="transportRoute" maxLength="200" value={form.transportRoute} onChange={update}/></label>
           <label htmlFor="applicant-voucher">Voucher classification <span aria-hidden="true">*</span><select id="applicant-voucher" name="voucher" required value={form.voucher} onChange={update}><option value="">Select…</option>{referenceData.vouchers.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label>
         </div>
       </section>
@@ -396,8 +242,8 @@ function ApplicantIntake({ addApplicant, navigate, basePath, title, referenceDat
           <button className="button button-outline enrollment-add-guardian" type="button" onClick={addGuardian}>Add another parent / guardian</button>
         </div>
       </section>
-      <div className="enrollment-form-actions"><Link className="button button-outline" to={previewQueuePath(basePath)}>Cancel</Link><button className="button" type="submit" disabled={submitting}>{submitting ? 'Adding applicant…' : 'Add applicant to queue'}</button></div>
-      {submitting && <p className="enrollment-submit-status" role="status">Saving applicant to the mock queue…</p>}
+      </fieldset><div className="enrollment-form-actions"><Link className="button button-outline" to={previewQueuePath(basePath)}>Cancel</Link><button className="button" type="submit" disabled={submitting}>{submitting ? 'Adding applicant…' : 'Add applicant to queue'}</button></div>
+      {submitting && <p className="enrollment-submit-status" role="status">Saving application…</p>}
     </form>
   </div>;
 }
@@ -406,12 +252,22 @@ function previewQueuePath(basePath) {
   return basePath === '/dev/enrollment' ? `${basePath}/queue` : '/enrollment/queue';
 }
 
-function ApplicantDetails({ applicant, basePath, preview }) {
+function ExistingStudentLink({applicant,onLinked}){
+  const [search,setSearch]=useState(''),[page,setPage]=useState(0),[selected,setSelected]=useState(null),[reason,setReason]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('');
+  const matches=useResource(`/api/students?${new URLSearchParams({search,active:'true',page:String(page),size:'25'})}`);
+  const student=useResource(selected?`/api/students/${selected}`:null);
+  async function link(event){event.preventDefault();setBusy(true);setError('');try{await send(`/api/intake/applications/${applicant.id}/link-student`,'POST',{studentId:Number(selected),studentVersion:student.data.version,version:applicant.version,reason});setSelected(null);setReason('');onLinked();}catch(e){setError(e.message);}finally{setBusy(false);}}
+  return <section className="panel"><h2>Link existing student</h2><div className="panel-body"><p>Search a verified active student identity for a returning/continuing applicant. Confirm the DOB and LRN/name before linking. This keeps the existing master record and academic history.</p><label htmlFor="existing-student-search">Find existing student</label><input id="existing-student-search" maxLength={150} value={search} onChange={event=>{setSearch(event.target.value);setPage(0);}}/><Failure error={matches.error} reload={matches.reload}/><div className="setup-table-wrap"><table className="setup-table"><thead><tr><th>Student</th><th>LRN</th><th>Select</th></tr></thead><tbody>{matches.data?.items.map(row=><tr key={row.id}><td>{row.first_name} {row.last_name}<small>{row.student_number}</small></td><td>{row.lrn||'Not recorded'}</td><td><button className="button button-outline" onClick={()=>setSelected(String(row.id))}>Select student {row.id}</button></td></tr>)}</tbody></table></div><Pager page={page} total={matches.data?.total??0} onChange={setPage}/><Failure error={error}/><Failure error={student.error} reload={student.reload}/>{student.data&&<form onSubmit={link}><p><strong>{student.data.first_name} {student.data.last_name}</strong> / DOB {student.data.birth_date} / LRN {student.data.lrn||'Not recorded'}</p><label htmlFor="link-reason">Identity verification reason</label><textarea id="link-reason" required maxLength={2000} value={reason} disabled={busy} onChange={event=>setReason(event.target.value)}/><button className="button" disabled={busy||!reason.trim()}>Confirm student link</button></form>}</div></section>;
+}
+
+function ApplicantDetails({ applicant, basePath, preview, onReviewed }) {
+  const [busy,setBusy]=useState(false),[error,setError]=useState('');
+  async function review(){setBusy(true);setError('');try{await send(`/api/intake/applications/${applicant.id}/review`,'POST',{version:applicant.version});onReviewed();}catch(e){setError(e.message);}finally{setBusy(false);}}
   const queuePath = preview ? `${basePath}/queue` : '/enrollment/queue';
-  if (!applicant) return <section className="content-card"><h1>Applicant not found</h1><p>This mock application may have been cleared by a page refresh.</p><Link className="button button-outline" to={queuePath}>Back to queue</Link></section>;
+  if (!applicant) return <section className="content-card"><h1>Applicant not found</h1><p>The application may be unavailable in your campus scope.</p><Link className="button button-outline" to={queuePath}>Back to queue</Link></section>;
 
   const sections = [
-    { title: 'Personal information', fields: [['Full name', fullName(applicant)], ['Application ID', applicant.id], ['LRN', applicant.lrn || 'Not provided'], ['Date of birth', prettyDate(applicant.birthDate)], ['Sex', applicant.sex || 'Not provided'], ['Contact number', applicant.phone || 'Not provided'], ['Email', applicant.email || 'Not provided']] },
+    { title: 'Personal information', fields: [['Full name', fullName(applicant)], ['Application ID', applicant.applicationNumber], ['LRN', applicant.lrn || 'Not provided'], ['Date of birth', prettyDate(applicant.birthDate)], ['Sex', applicant.sex || 'Not provided'], ['Contact number', applicant.phone || 'Not provided'], ['Email', applicant.email || 'Not provided']] },
     { title: 'Enrollment preferences', fields: [['Campus', applicant.campus], ['Academic term', applicant.term || 'Not provided'], ['Program', applicant.program], ['Track', applicant.track], ['Strand / specialization', applicant.strand], ['Applicant category', applicant.category], ['Voucher classification', applicant.voucher]] },
     { title: 'Previous school and family contact', fields: [
       ['Junior high / previous school', applicant.previousSchool || 'Not provided'],
@@ -423,7 +279,7 @@ function ApplicantDetails({ applicant, basePath, preview }) {
   ];
   return <div className="enrollment-workspace">
     <header className="page-heading enrollment-heading">
-      <div><p className="eyebrow">ENROLLMENT MANAGEMENT / APPLICANT DETAILS</p><h1>{fullName(applicant)}</h1><p>{applicant.id} · Submitted {prettyDate(applicant.submittedAt)}</p></div>
+      <div><p className="eyebrow">ENROLLMENT MANAGEMENT / APPLICANT DETAILS</p><h1>{fullName(applicant)}</h1><p>{applicant.applicationNumber} / Submitted {prettyDate(applicant.submittedAt)}</p></div>
       <Link className="button button-outline" to={queuePath}>Back to queue</Link>
     </header>
     <section className="enrollment-detail-status" aria-label="Application status">
@@ -435,45 +291,28 @@ function ApplicantDetails({ applicant, basePath, preview }) {
       <div className="enrollment-panel-heading"><h2>{section.title}</h2></div>
       <dl className="enrollment-detail-list">{section.fields.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value || 'Not provided'}</dd></div>)}</dl>
     </section>)}</div>
-    <p className="enrollment-mock-note">Mock preview only. Application changes are held in memory and are cleared when the page reloads.</p>
+    <Failure error={error}/>
+    {['submitted','duplicate_flag','under_review'].includes(applicant.statusCode)&&!applicant.studentId&&<ExistingStudentLink applicant={applicant} onLinked={onReviewed}/>}
+    {applicant.studentId&&<p className="notice">Linked student #{applicant.studentId}. Review and pre-enlist when duplicate checks are clear.</p>}
+    <div className="component-row">
+      {applicant.statusCode==='submitted'&&<button className="button" disabled={busy} onClick={review}>{busy?'Reviewing…':'Review and pre-enlist'}</button>}
+      <Link className="button button-outline" to={`/enrollment/duplicate?applicationId=${applicant.id}`}>Review duplicate checks</Link>
+      <Link className="button button-outline" to={`/enrollment/requirements?applicationId=${applicant.id}`}>Open requirements</Link>
+      <Link className="button button-outline" to={`/enrollment/attendance?applicationId=${applicant.id}`}>Attendance and confirmation</Link>
+    </div><p className="field-help">Review checks for duplicate identities and creates the student master record. Enrollment is confirmed separately after credentials and attendance are verified.</p>
   </div>;
 }
 
-export function EnrollmentWorkspace({ preview = false, screen: requestedScreen, title: requestedTitle }) {
-  const { applicants, addApplicant, updateApplicant, documentsByApplicant, auditsByApplicant, updateDocument, attendance, updateAttendance, confirmEnrollment, referenceData } = useEnrollmentMock();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const basePath = preview ? '/dev/enrollment' : '/enrollment';
-  const relativePath = location.pathname.slice(basePath.length).replace(/^\/+|\/+$/g, '');
-  const detailMatch = relativePath.match(/^applicants\/([^/]+)$/);
-  const screen = requestedScreen || (preview ? detailMatch ? 'details' : relativePath === 'intake' ? 'intake' : relativePath === 'requirements' ? 'requirements' : relativePath === 'attendance' ? 'attendance' : 'queue' : 'queue');
-  const applicationId = detailMatch ? decodeURIComponent(detailMatch[1]) : location.pathname.match(/\/enrollment\/applicants\/([^/]+)/)?.[1];
-  const applicant = applicants.find(item => item.id === applicationId);
-  const title = requestedTitle || (screen === 'intake' ? 'Applicant Intake Form' : 'Enrollment Submission');
-
-  useEffect(() => {
-    if (preview && !relativePath) navigate(`${basePath}/queue`, { replace: true });
-  }, [basePath, navigate, preview, relativePath]);
-
-  const content = screen === 'queue'
-    ? <EnrollmentQueue applicants={applicants} basePath={basePath} preview={preview} />
-    : screen === 'requirements'
-      ? <RequirementsScreen applicants={applicants} documentsByApplicant={documentsByApplicant} auditsByApplicant={auditsByApplicant} basePath={basePath} onDocumentChange={updateDocument} onRequirementsStatusChange={(id, status) => updateApplicant(id, { requirements: status })} />
-      : screen === 'attendance'
-        ? <AttendanceScreen applicants={applicants} attendance={attendance} updateAttendance={updateAttendance} confirmEnrollment={confirmEnrollment} basePath={basePath} />
-    : screen === 'details'
-      ? <ApplicantDetails applicant={applicant} basePath={basePath} preview={preview} />
-      : <ApplicantIntake addApplicant={addApplicant} navigate={navigate} basePath={basePath} title={title} referenceData={referenceData} />;
-
-  if (!preview) return content;
-  return <main className="enrollment-preview">
-    <div className="enrollment-preview-banner"><strong>Development preview</strong><span>Mock applicants only · changes reset on refresh · sign-in bypass is available only in Vite development mode.</span></div>
-    <nav className="enrollment-preview-nav" aria-label="Enrollment screen previews">
-      <Link to={`${basePath}/queue`}>Enrollment Queue</Link>
-      <Link to={`${basePath}/intake`}>Applicant Intake Form</Link>
-      <Link to={`${basePath}/requirements`}>Requirements Checklist</Link>
-      <Link to={`${basePath}/attendance`}>Attendance Monitoring</Link>
-    </nav>
-    {content}
-  </main>;
+export function EnrollmentWorkspace({screen='queue',title}) {
+  const location=useLocation(),navigate=useNavigate();
+  const reference=useResource('/api/intake/reference-data');
+  const referenceData=adaptReference(reference.data);
+  const id=location.pathname.match(/^\/enrollment\/applicants\/(\d+)$/)?.[1];
+  const detail=useResource(screen==='details'&&id?`/api/intake/applications/${id}`:null);
+  async function addApplicant(values){return send('/api/intake/applications','POST',intakePayload(values,referenceData));}
+  if(reference.error)return <Failure error={reference.error} reload={reference.reload}/>;
+  if(!referenceData)return <p role="status">Loading enrollment catalogs…</p>;
+  if(screen==='details')return <><Failure error={detail.error} reload={detail.reload}/>{detail.loading?<p role="status">Loading application…</p>:detail.data?<ApplicantDetails applicant={applicantDetail(detail.data,referenceData)} basePath="/enrollment" onReviewed={detail.reload}/>:!detail.error&&<p>Application not found.</p>}</>;
+  if(screen==='queue')return <EnrollmentQueue referenceData={referenceData} basePath="/enrollment" title={title}/>;
+  return <ApplicantIntake addApplicant={addApplicant} navigate={navigate} basePath="/enrollment" title="Applicant Intake Form" referenceData={referenceData}/>;
 }

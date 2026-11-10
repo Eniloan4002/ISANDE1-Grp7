@@ -1,0 +1,283 @@
+[
+  {
+    "suite": "ph.edu.ici.EnrollmentWorkflowTest",
+    "tests": 19,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "name": "provisionalEnrollmentIsPromotedAndSameTermCannotBeEnrolledTwice",
+        "seconds": "3.871",
+        "passed": true
+      },
+      {
+        "name": "concurrentIntakeReviewCreatesOnlyOneStudentIdentity",
+        "seconds": "4.068",
+        "passed": true
+      },
+      {
+        "name": "intakeValidationAndCampusScopeRejectWithoutPartialWrites",
+        "seconds": "3.102",
+        "passed": true
+      },
+      {
+        "name": "simultaneousConfirmationCreatesOneEnrollment",
+        "seconds": "5.637",
+        "passed": true
+      },
+      {
+        "name": "confirmationIsAttributedPersistedAndSafeToRetry",
+        "seconds": "4.034",
+        "passed": true
+      },
+      {
+        "name": "intakeDuplicateRulesFlagCrossCampusLrnAndFuzzyNameDobWithoutNewIdentity",
+        "seconds": "3.154",
+        "passed": true
+      },
+      {
+        "name": "sectionCrudPreservesParentsVersionsAndOccupiedCapacity",
+        "seconds": "4.285",
+        "passed": true
+      },
+      {
+        "name": "sectionInputValidatesRequiredFieldsAndAdviserCampus",
+        "seconds": "2.99",
+        "passed": true
+      },
+      {
+        "name": "simultaneousReservationsCannotOverbookLastSeat",
+        "seconds": "3.032",
+        "passed": true
+      },
+      {
+        "name": "capacityEditsSerializeWithReservations",
+        "seconds": "2.275",
+        "passed": true
+      },
+      {
+        "name": "campusAndRoleScopeProtectEveryWorkflow",
+        "seconds": "2.22",
+        "passed": true
+      },
+      {
+        "name": "inaccessibleSectionsAndEnrollmentIdsCannotBeReadOrMutated",
+        "seconds": "1.801",
+        "passed": true
+      },
+      {
+        "name": "directoryFiltersCompletenessCampusDistrictRouteAndPagination",
+        "seconds": "2.267",
+        "passed": true
+      },
+      {
+        "name": "intakePersistsGuardiansAndExplicitReviewFeedsEnrollmentGates",
+        "seconds": "2.127",
+        "passed": true
+      },
+      {
+        "name": "assignmentChecksCompatibilityGradeVersionsAndSupportsRemoval",
+        "seconds": "2.655",
+        "passed": true
+      },
+      {
+        "name": "confirmationChecksEveryGateAndDoesNotWriteOnFailure",
+        "seconds": "1.962",
+        "passed": true
+      },
+      {
+        "name": "assignedAcademicMembershipsBlockTransfersAndPreserveGrades",
+        "seconds": "2.201",
+        "passed": true
+      },
+      {
+        "name": "intakeRequiresAuthenticatedRegistrarAndStatisticsStayScoped",
+        "seconds": "2.251",
+        "passed": true
+      },
+      {
+        "name": "attendanceValidatesDatesVersionsAndProtectsConfirmedEvidence",
+        "seconds": "3.505",
+        "passed": true
+      }
+    ]
+  },
+  {
+    "suite": "ph.edu.ici.FoundationAuthenticationTest",
+    "tests": 16,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "name": "setupCrudDateValidationAndDuplicateProtection",
+        "seconds": "15.932",
+        "passed": true
+      },
+      {
+        "name": "existingV2DatabaseUpgradesWithoutLosingConfiguration",
+        "seconds": "8.265",
+        "passed": true
+      },
+      {
+        "name": "logoutRevokesTokenDurablyAndOtherSessionsRemainValid",
+        "seconds": "3.519",
+        "passed": true
+      },
+      {
+        "name": "passwordIsBcryptAndClaimsContainIdentityRolesAndCampus",
+        "seconds": "2.882",
+        "passed": true
+      },
+      {
+        "name": "currentRolesAreRecheckedAndSetupRequiresRegistrarOrAdmin",
+        "seconds": "2.361",
+        "passed": true
+      },
+      {
+        "name": "accountDeactivationRejectsExistingSessionsAndSupportsActivationWithVersionChecks",
+        "seconds": "9.382",
+        "passed": true
+      },
+      {
+        "name": "accountCreationRejectsNonAdminsCrossCampusAndInvalidPasswords",
+        "seconds": "3.485",
+        "passed": true
+      },
+      {
+        "name": "accountDirectoryDoesNotExposeHashesOrAccountsOutsideAdminScope",
+        "seconds": "4.491",
+        "passed": true
+      },
+      {
+        "name": "assignmentsProtectSubjectsAndGradingWindowsProtectPeriods",
+        "seconds": "3.007",
+        "passed": true
+      },
+      {
+        "name": "malformedExpiredForgedAndWrongIssuerTokensAreRejected",
+        "seconds": "2.963",
+        "passed": true
+      },
+      {
+        "name": "provisionedAccountsForEveryStaffRoleCanActuallySignIn",
+        "seconds": "30.852",
+        "passed": true
+      },
+      {
+        "name": "flywayRunsAndValidatesAllVersionsOnRealPostgres",
+        "seconds": "3.746",
+        "passed": true
+      },
+      {
+        "name": "auditIsAppendOnlyAndPasswordsNeverEnterSnapshots",
+        "seconds": "2.326",
+        "passed": true
+      },
+      {
+        "name": "concurrentSectionReservationsCannotOverbook",
+        "seconds": "2.076",
+        "passed": true
+      },
+      {
+        "name": "setupUsesOptimisticVersionsAndAttributedAudits",
+        "seconds": "2.887",
+        "passed": true
+      },
+      {
+        "name": "invalidCredentialsAndDisabledAccountsCannotSignIn",
+        "seconds": "5.084",
+        "passed": true
+      }
+    ]
+  },
+  {
+    "suite": "ph.edu.ici.RequirementTrackingTest",
+    "tests": 9,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "name": "actualWritesAreAttributedAndHistoryPreservesPreviousValues",
+        "seconds": "2.784",
+        "passed": true
+      },
+      {
+        "name": "unrecordedChecklistIsPendingAndReadsDoNotManufactureHistory",
+        "seconds": "1.776",
+        "passed": true
+      },
+      {
+        "name": "mandatoryStatusesDriveAllThreeSummaryStates",
+        "seconds": "2.565",
+        "passed": true
+      },
+      {
+        "name": "rolesAndCampusesProtectReadWriteAndAudit",
+        "seconds": "2.305",
+        "passed": true
+      },
+      {
+        "name": "noOpsAndStaleUpdatesDoNotCreateFalseAuditEntries",
+        "seconds": "1.931",
+        "passed": true
+      },
+      {
+        "name": "simultaneousFirstWritesReturnOneConflictInsteadOfOverwriting",
+        "seconds": "2.294",
+        "passed": true
+      },
+      {
+        "name": "optionalDocumentsDoNotBlockMandatoryCompletion",
+        "seconds": "2.335",
+        "passed": true
+      },
+      {
+        "name": "invalidInputsAndUnknownCodesLeaveNoPartialWrites",
+        "seconds": "2.92",
+        "passed": true
+      },
+      {
+        "name": "unrelatedApplicationsDoNotLeakIntoAuditPages",
+        "seconds": "2.403",
+        "passed": true
+      }
+    ]
+  },
+  {
+    "suite": "ph.edu.ici.StudentMasterTest",
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "name": "createsCompleteProfileAndReadsPersistedGuardians",
+        "seconds": "3.895",
+        "passed": true
+      },
+      {
+        "name": "validationAndBadGuardiansDoNotLeavePartialProfiles",
+        "seconds": "4.396",
+        "passed": true
+      },
+      {
+        "name": "directoryFiltersPaginationAndCampusIsolation",
+        "seconds": "3.158",
+        "passed": true
+      },
+      {
+        "name": "updatesAreVersionedAndArchivingPreservesIdentity",
+        "seconds": "3.255",
+        "passed": true
+      },
+      {
+        "name": "referenceDataAndRoleRestrictions",
+        "seconds": "2.269",
+        "passed": true
+      }
+    ]
+  }
+]

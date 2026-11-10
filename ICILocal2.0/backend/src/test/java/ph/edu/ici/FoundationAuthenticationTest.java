@@ -54,7 +54,7 @@ class FoundationAuthenticationTest {
     Map subject(){return create("subjects",Map.of("code","SUB-"+UUID.randomUUID().toString().substring(0,8),"name","Mathematics","units",1,"active",true));}
 
     @Test void flywayRunsAndValidatesAllVersionsOnRealPostgres(){
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("7");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("11");
         flyway.validate();assertThat(flyway.migrate().migrationsExecuted).isZero();
         assertThat(jdbc.queryForObject("SELECT version()",String.class)).contains("PostgreSQL 17");
         assertThat(jdbc.queryForObject("SELECT count(*) FROM information_schema.tables t WHERE t.table_schema='public' AND t.table_name NOT IN ('audit_logs','revoked_tokens','flyway_schema_history') AND NOT EXISTS(SELECT 1 FROM information_schema.columns c WHERE c.table_schema=t.table_schema AND c.table_name=t.table_name AND c.column_name='created_by')",Integer.class)).isZero();
@@ -148,7 +148,7 @@ class FoundationAuthenticationTest {
             statement.execute("INSERT INTO academic_terms(academic_year_id,code,name,starts_on,ends_on) VALUES (1,'S1','Existing term','2026-06-01','2026-10-31')");
             statement.execute("INSERT INTO grading_periods(term_id,code,sequence) VALUES (1,'Q1',1)");
         }
-        Flyway latest=Flyway.configure().dataSource(url,"postgres","").load();assertThat(latest.migrate().migrationsExecuted).isEqualTo(5);latest.validate();
+        Flyway latest=Flyway.configure().dataSource(url,"postgres","").load();assertThat(latest.migrate().migrationsExecuted).isEqualTo(9);latest.validate();
         try(var connection=java.sql.DriverManager.getConnection(url,"postgres","");var statement=connection.createStatement()){
             try(var rows=statement.executeQuery("SELECT name,version FROM subjects WHERE code='LEGACY'")){assertThat(rows.next()).isTrue();assertThat(rows.getString(1)).isEqualTo("Existing subject");assertThat(rows.getInt(2)).isZero();}
             try(var rows=statement.executeQuery("SELECT starts_on,ends_on FROM grading_periods WHERE code='Q1'")){assertThat(rows.next()).isTrue();assertThat(rows.getDate(1).toString()).isEqualTo("2026-06-01");assertThat(rows.getDate(2).toString()).isEqualTo("2026-10-31");}
@@ -182,5 +182,71 @@ class FoundationAuthenticationTest {
         }
         assertThat(successes.get()).isEqualTo(1);
         assertThat(jdbc.queryForObject("SELECT count(*) FROM enrollments WHERE section_id=?",Integer.class,section)).isEqualTo(1);
+    }
+
+    void accountAdmin(){jdbc.update("UPDATE user_role_grants SET role_code='ROLE_ADMIN' WHERE user_id=?",userId);}
+    Map<String,Object> accountInput(String role,long campus){String name="staff-"+UUID.randomUUID();return Map.of("username",name,"email",name+"@example.invalid","fullName","New Staff","password",password,"role",role,"campusIds",List.of(campus));}
+    @Test void provisionedAccountsForEveryStaffRoleCanActuallySignIn(){
+        accountAdmin();long campus=jdbc.queryForObject("SELECT id FROM campuses WHERE code='ILIGAN'",Long.class);
+        for(String role:List.of("ROLE_ADMIN","ROLE_REGISTRAR","ROLE_PRINCIPAL","ROLE_ADVISER","ROLE_TEACHER","ROLE_GUIDANCE","ROLE_CASHIER_REF")){
+            var input=accountInput(role,campus);var created=call(HttpMethod.POST,"/api/admin/accounts",input,token);
+            assertThat(created.getStatusCode()).describedAs(role+" "+created).isEqualTo(HttpStatus.CREATED);assertThat(created.getBody()).doesNotContainKeys("password","password_hash");
+            long id=((Number)created.getBody().get("id")).longValue();assertThat(passwords.matches(password,jdbc.queryForObject("SELECT password_hash FROM users WHERE id=?",String.class,id))).isTrue();
+            var signed=login(input.get("username").toString().toUpperCase(Locale.ROOT),password);assertThat(signed.getStatusCode()).isEqualTo(HttpStatus.OK);
+            String staffToken=(String)signed.getBody().get("accessToken");var me=call(HttpMethod.GET,"/api/auth/me",null,staffToken);
+            assertThat(((Map)((List)me.getBody().get("grants")).getFirst()).get("role")).isEqualTo(role);
+            if(!"ROLE_ADMIN".equals(role))assertThat(call(HttpMethod.GET,"/api/admin/accounts",null,staffToken).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+            if(!List.of("ROLE_ADMIN","ROLE_REGISTRAR").contains(role))assertThat(call(HttpMethod.GET,"/api/enrollment/applications",null,staffToken).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        }
+    }
+    @Test void accountCreationRejectsNonAdminsCrossCampusAndInvalidPasswords(){
+        long campus=jdbc.queryForObject("SELECT id FROM campuses WHERE code='ILIGAN'",Long.class),other=jdbc.queryForObject("SELECT id FROM campuses WHERE code='BUGO'",Long.class);
+        assertThat(call(HttpMethod.POST,"/api/admin/accounts",accountInput("ROLE_TEACHER",campus),token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        accountAdmin();assertThat(call(HttpMethod.POST,"/api/admin/accounts",accountInput("ROLE_TEACHER",other),token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        var input=new HashMap<>(accountInput("ROLE_TEACHER",campus));input.put("password","short");assertThat(call(HttpMethod.POST,"/api/admin/accounts",input,token).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        input.put("password","é".repeat(40));assertThat(call(HttpMethod.POST,"/api/admin/accounts",input,token).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        input.put("password",password);input.put("role","ROLE_STUDENT");assertThat(call(HttpMethod.POST,"/api/admin/accounts",input,token).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+    @Test void accountDeactivationRejectsExistingSessionsAndSupportsActivationWithVersionChecks(){
+        accountAdmin();long campus=jdbc.queryForObject("SELECT id FROM campuses WHERE code='ILIGAN'",Long.class);var input=accountInput("ROLE_GUIDANCE",campus);
+        Map created=call(HttpMethod.POST,"/api/admin/accounts",input,token).getBody();long id=((Number)created.get("id")).longValue();String signed=(String)login(input.get("username").toString(),password).getBody().get("accessToken");
+        var inactive=call(HttpMethod.PUT,"/api/admin/accounts/"+id+"/status",Map.of("active",false,"version",created.get("version")),token);assertThat(inactive.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(login(input.get("username").toString(),password).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);assertThat(call(HttpMethod.GET,"/api/auth/me",null,signed).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(call(HttpMethod.PUT,"/api/admin/accounts/"+id+"/status",Map.of("active",true,"version",created.get("version")),token).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(call(HttpMethod.PUT,"/api/admin/accounts/"+id+"/status",Map.of("active",true,"version",inactive.getBody().get("version")),token).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(login(input.get("username").toString(),password).getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+    @Test void accountDirectoryDoesNotExposeHashesOrAccountsOutsideAdminScope(){
+        accountAdmin();long other=jdbc.queryForObject("SELECT id FROM campuses WHERE code='BUGO'",Long.class);
+        jdbc.update("INSERT INTO user_role_grants(user_id,role_code,campus_id) VALUES (?,'ROLE_ADMIN',?)",userId,other);
+        Map created=call(HttpMethod.POST,"/api/admin/accounts",accountInput("ROLE_TEACHER",other),token).getBody();long id=((Number)created.get("id")).longValue();
+        jdbc.update("DELETE FROM user_role_grants WHERE user_id=? AND campus_id=?",userId,other);
+        Map list=call(HttpMethod.GET,"/api/admin/accounts",null,token).getBody();assertThat(list.toString()).doesNotContain("password_hash");assertThat(((List<Map>)list.get("items")).stream().noneMatch(row->((Number)row.get("id")).longValue()==id)).isTrue();
+        assertThat(call(HttpMethod.PUT,"/api/admin/accounts/"+id+"/status",Map.of("active",false,"version",created.get("version")),token).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        String version=jdbc.queryForObject("SELECT updated_at FROM users WHERE id=?",java.sql.Timestamp.class,userId).toInstant().toString();
+        assertThat(call(HttpMethod.PUT,"/api/admin/accounts/"+userId+"/status",Map.of("active",false,"version",version),token).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+    }
+
+    @Test void accountRoleEditEndsOldSessionsAndEnforcesCampusScopeAndVersions(){
+        accountAdmin();long campus=jdbc.queryForObject("SELECT id FROM campuses WHERE code='ILIGAN'",Long.class),other=jdbc.queryForObject("SELECT id FROM campuses WHERE code='BUGO'",Long.class);
+        var input=accountInput("ROLE_TEACHER",campus);Map created=call(HttpMethod.POST,"/api/admin/accounts",input,token).getBody();long id=((Number)created.get("id")).longValue();String old=(String)login(input.get("username").toString(),password).getBody().get("accessToken");
+        var edit=new HashMap<String,Object>(Map.of("fullName","Edited Staff","email",input.get("email"),"version",created.get("version"),"reason","Verified registrar appointment","grants",List.of(Map.of("role","ROLE_REGISTRAR","campusId",other))));
+        assertThat(call(HttpMethod.PUT,"/api/admin/accounts/"+id,edit,token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        edit.put("grants",List.of(Map.of("role","ROLE_REGISTRAR","campusId",campus)));assertThat(call(HttpMethod.PUT,"/api/admin/accounts/"+id,edit,token).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(call(HttpMethod.GET,"/api/auth/me",null,old).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);assertThat(call(HttpMethod.PUT,"/api/admin/accounts/"+id,edit,token).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        Map profile=(Map)login(input.get("username").toString(),password).getBody().get("user");assertThat(((Map)((List)profile.get("grants")).getFirst()).get("role")).isEqualTo("ROLE_REGISTRAR");
+    }
+    @Test void administratorRecoveryRequiresNewPasswordAndRevokesEveryPreviousSession(){
+        accountAdmin();long campus=jdbc.queryForObject("SELECT id FROM campuses WHERE code='ILIGAN'",Long.class);var input=accountInput("ROLE_TEACHER",campus);Map created=call(HttpMethod.POST,"/api/admin/accounts",input,token).getBody();long id=((Number)created.get("id")).longValue();
+        String old=(String)login(input.get("username").toString(),password).getBody().get("accessToken");String temporary="Temporary-Recovery-123!",replacement="Replacement-Personal-123!";
+        var reset=call(HttpMethod.POST,"/api/admin/accounts/"+id+"/reset-password",Map.of("password",temporary,"version",created.get("version"),"reason","School identity check completed"),token);assertThat(reset.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(login(input.get("username").toString(),password).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);assertThat(call(HttpMethod.GET,"/api/auth/me",null,old).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        var signed=login(input.get("username").toString(),temporary).getBody();assertThat((Map)signed.get("user")).containsEntry("passwordChangeRequired",true);String forced=(String)signed.get("accessToken");
+        assertThat(call(HttpMethod.GET,"/api/students",null,forced).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.POST,"/api/auth/change-password",Map.of("currentPassword","wrong","newPassword",replacement),forced).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(call(HttpMethod.POST,"/api/auth/change-password",Map.of("currentPassword",temporary,"newPassword",replacement),forced).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(call(HttpMethod.GET,"/api/auth/me",null,forced).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);assertThat(login(input.get("username").toString(),temporary).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat((Map)login(input.get("username").toString(),replacement).getBody().get("user")).containsEntry("passwordChangeRequired",false);
+        assertThat(jdbc.queryForObject("SELECT password_reset_reason FROM users WHERE id=?",String.class,id)).isNull();
     }
 }

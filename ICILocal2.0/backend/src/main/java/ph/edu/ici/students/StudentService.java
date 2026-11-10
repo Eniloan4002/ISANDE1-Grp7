@@ -15,9 +15,9 @@ import ph.edu.ici.auth.AccessPolicy;
 @Service
 public class StudentService {
     private final NamedParameterJdbcTemplate db;
-    private final ObjectMapper json;
     private final AccessPolicy accessPolicy;
-    public StudentService(NamedParameterJdbcTemplate db,ObjectMapper json,AccessPolicy accessPolicy){this.db=db;this.json=json;this.accessPolicy=accessPolicy;}
+    private final ObjectMapper json;
+    public StudentService(NamedParameterJdbcTemplate db,ObjectMapper json,AccessPolicy accessPolicy){this.accessPolicy=accessPolicy;this.db=db;this.json=json;}
     private StaffIdentity identity(){return (StaffIdentity)SecurityContextHolder.getContext().getAuthentication().getPrincipal();}
     private List<Long> campuses(){return accessPolicy.campuses("enrollment.manage");}
     private void campus(long id){if(!campuses().contains(id))throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Your account cannot manage students at this campus.");}
@@ -54,7 +54,7 @@ public class StudentService {
         Map<String,Object> row=decode(rows.getFirst());row.put("guardians",db.queryForList("SELECT id,full_name,relationship,phone,address,is_primary FROM guardians WHERE student_id=:id ORDER BY is_primary DESC,id",Map.of("id",id)));return row;
     }
     public Map<String,Object> list(String search,Long campusId,Long programId,String voucher,Boolean active,int page,int size){
-        if(page<0||size<1||size>100||page>1000000||search.length()>150)throw invalid("Use a nonnegative page, a size of 1–100 and a search of at most 150 characters.");
+        if(page<0||size<1||size>100||page>1000000||search.length()>150)throw invalid("Use a nonnegative page, a size of 1 to 100 and a search of at most 150 characters.");
         if(campusId!=null)campus(campusId);
         List<Long> scope=campusId==null?campuses():List.of(campusId);
         if(scope.isEmpty())return Map.of("items",List.of(),"total",0,"page",page,"size",size);
@@ -81,7 +81,7 @@ public class StudentService {
         if(((Number)existing.get("campus_id")).longValue()!=input.campusId())throw new ResponseStatusException(HttpStatus.CONFLICT,"Use the transfer workflow to change a student's campus.");
         if(input.version()==null)throw invalid("Record version is required for updates.");
         actor();var p=fields(input);p.put("id",id);p.put("version",input.version());
-        int count=db.update("UPDATE students SET program_id=:program,voucher_code=:voucher,track=:track,lrn=:lrn,first_name=:first,middle_name=:middle,last_name=:last,suffix=:suffix,birth_date=:birth,sex=:sex,phone=:phone,email=:email,address=CAST(:address AS jsonb),previous_school_name=:school,previous_school_id=:schoolId,previous_school_address=:schoolAddress,household_income_bracket=:income,active=:active,version=version+1 WHERE id=:id AND campus_id=:campus AND version=:version",p);
+        int count=db.update("UPDATE students SET program_id=:program,voucher_code=:voucher,track=:track,lrn=:lrn,first_name=:first,middle_name=:middle,last_name=:last,suffix=:suffix,birth_date=:birth,sex=:sex,phone=:phone,email=:email,address=CAST(:address AS jsonb),previous_school_name=:school,previous_school_id=:schoolId,previous_school_address=:schoolAddress,household_income_bracket=:income,active=:active,version=version+1 WHERE id=:id AND version=:version",p);
         if(count==0)throw new ResponseStatusException(HttpStatus.CONFLICT,"This student changed in another session. Reload before saving.");
         db.update("DELETE FROM guardians WHERE student_id=:id",Map.of("id",id));guardians(id,input.guardians());return get(id);
     }
@@ -90,8 +90,8 @@ public class StudentService {
             db.update("INSERT INTO guardians(student_id,full_name,relationship,phone,address,is_primary) VALUES (:id,:name,:relationship,:phone,:address,:primary)",p);}
     }
     @Transactional public void archive(long id,int version){
-        var existing=get(id);if(version<0)throw invalid("Version cannot be negative.");actor();
-        if(db.update("UPDATE students SET active=false,version=version+1 WHERE id=:id AND campus_id=:campus AND version=:version",Map.of("id",id,"campus",existing.get("campus_id"),"version",version))==0)
+        get(id);if(version<0)throw invalid("Version cannot be negative.");actor();
+        if(db.update("UPDATE students SET active=false,version=version+1 WHERE id=:id AND version=:version",Map.of("id",id,"version",version))==0)
             throw new ResponseStatusException(HttpStatus.CONFLICT,"This student changed in another session. Reload before archiving.");
     }
     public Map<String,Object> referenceData(){
