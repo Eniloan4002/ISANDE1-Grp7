@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import './enrollment.css';
-import {useResource,Failure,Pager} from '../EnrollmentWorkspace.jsx';
+import {useDebouncedValue,useResource,Failure,Pager} from '../EnrollmentWorkspace.jsx';
 import {send,referenceData as adaptReference,intakePayload,queueApplicant,applicantDetail} from './enrollmentApi.js';
 
 const applicantCategories = [
@@ -40,7 +40,8 @@ function EnrollmentQueue({ referenceData, basePath, title }) {
   const [campus, setCampus] = useState('all');
   const intakePath = '/enrollment/intake';
   const [page,setPage]=useState(0);
-  const params=new URLSearchParams({page:String(page),size:'25',search,status:status==='all'?'':status,campusId:campus==='all'?'':campus,programId:program==='all'?'':program});
+  const effectiveSearch=useDebouncedValue(search);
+  const params=new URLSearchParams({page:String(page),size:'25',search:effectiveSearch,status:status==='all'?'':status,campusId:campus==='all'?'':campus,programId:program==='all'?'':program});
   const directory=useResource(`/api/enrollment/applications?${params}`);
   const statistics=useResource('/api/intake/statistics');
   const filtered=(directory.data?.items??[]).map(queueApplicant);
@@ -254,7 +255,8 @@ function previewQueuePath(basePath) {
 
 function ExistingStudentLink({applicant,onLinked}){
   const [search,setSearch]=useState(''),[page,setPage]=useState(0),[selected,setSelected]=useState(null),[reason,setReason]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('');
-  const matches=useResource(`/api/students?${new URLSearchParams({search,active:'true',page:String(page),size:'25'})}`);
+  const effectiveSearch=useDebouncedValue(search);
+  const matches=useResource(`/api/students?${new URLSearchParams({search:effectiveSearch,active:'true',page:String(page),size:'25'})}`);
   const student=useResource(selected?`/api/students/${selected}`:null);
   async function link(event){event.preventDefault();setBusy(true);setError('');try{await send(`/api/intake/applications/${applicant.id}/link-student`,'POST',{studentId:Number(selected),studentVersion:student.data.version,version:applicant.version,reason});setSelected(null);setReason('');onLinked();}catch(e){setError(e.message);}finally{setBusy(false);}}
   return <section className="panel"><h2>Link existing student</h2><div className="panel-body"><p>Search a verified active student identity for a returning/continuing applicant. Confirm the DOB and LRN/name before linking. This keeps the existing master record and academic history.</p><label htmlFor="existing-student-search">Find existing student</label><input id="existing-student-search" maxLength={150} value={search} onChange={event=>{setSearch(event.target.value);setPage(0);}}/><Failure error={matches.error} reload={matches.reload}/><div className="setup-table-wrap"><table className="setup-table"><thead><tr><th>Student</th><th>LRN</th><th>Select</th></tr></thead><tbody>{matches.data?.items.map(row=><tr key={row.id}><td>{row.first_name} {row.last_name}<small>{row.student_number}</small></td><td>{row.lrn||'Not recorded'}</td><td><button className="button button-outline" onClick={()=>setSelected(String(row.id))}>Select student {row.id}</button></td></tr>)}</tbody></table></div><Pager page={page} total={matches.data?.total??0} onChange={setPage}/><Failure error={error}/><Failure error={student.error} reload={student.reload}/>{student.data&&<form onSubmit={link}><p><strong>{student.data.first_name} {student.data.last_name}</strong> / DOB {student.data.birth_date} / LRN {student.data.lrn||'Not recorded'}</p><label htmlFor="link-reason">Identity verification reason</label><textarea id="link-reason" required maxLength={2000} value={reason} disabled={busy} onChange={event=>setReason(event.target.value)}/><button className="button" disabled={busy||!reason.trim()}>Confirm student link</button></form>}</div></section>;
@@ -310,9 +312,9 @@ export function EnrollmentWorkspace({screen='queue',title}) {
   const id=location.pathname.match(/^\/enrollment\/applicants\/(\d+)$/)?.[1];
   const detail=useResource(screen==='details'&&id?`/api/intake/applications/${id}`:null);
   async function addApplicant(values){return send('/api/intake/applications','POST',intakePayload(values,referenceData));}
+  if(screen==='queue')return <><Failure error={reference.error} reload={reference.reload}/><EnrollmentQueue referenceData={referenceData??{campuses:[],specializations:[],programs:[],terms:[]}} basePath="/enrollment" title={title}/></>;
   if(reference.error)return <Failure error={reference.error} reload={reference.reload}/>;
   if(!referenceData)return <p role="status">Loading enrollment catalogs…</p>;
   if(screen==='details')return <><Failure error={detail.error} reload={detail.reload}/>{detail.loading?<p role="status">Loading application…</p>:detail.data?<ApplicantDetails applicant={applicantDetail(detail.data,referenceData)} basePath="/enrollment" onReviewed={detail.reload}/>:!detail.error&&<p>Application not found.</p>}</>;
-  if(screen==='queue')return <EnrollmentQueue referenceData={referenceData} basePath="/enrollment" title={title}/>;
   return <ApplicantIntake addApplicant={addApplicant} navigate={navigate} basePath="/enrollment" title="Applicant Intake Form" referenceData={referenceData}/>;
 }

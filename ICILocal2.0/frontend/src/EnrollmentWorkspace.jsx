@@ -3,15 +3,20 @@ import {Link,useSearchParams} from 'react-router';
 import {apiRequest} from './api.js';
 import './enrollment.css';
 
-const request=(path,method,body,force=false)=>apiRequest(path,{method,force,body:body===undefined?undefined:JSON.stringify(body)});
+const request=(path,method,body,force=false,signal)=>apiRequest(path,{method,force,signal,body:body===undefined?undefined:JSON.stringify(body)});
 export function useResource(path){
   const [data,setData]=useState(null),[error,setError]=useState(''),[loading,setLoading]=useState(false),[revision,setRevision]=useState(0);
   const previousPath=useRef(path);
-  useEffect(()=>{let current=true;if(previousPath.current!==path){setData(null);previousPath.current=path;}setError('');if(!path){setLoading(false);return;}setLoading(true);
-    request(path,undefined,undefined,revision>0).then(value=>{if(current)setData(value);}).catch(e=>{if(current)setError(e.message);}).finally(()=>{if(current)setLoading(false);});
-    return()=>{current=false;};
+  useEffect(()=>{let current=true;const controller=new AbortController();if(previousPath.current!==path){setData(null);previousPath.current=path;}setError('');if(!path){setLoading(false);return;}setLoading(true);
+    request(path,undefined,undefined,revision>0,controller.signal).then(value=>{if(current)setData(value);}).catch(e=>{if(current&&e.name!=='AbortError')setError(e.message);}).finally(()=>{if(current)setLoading(false);});
+    return()=>{current=false;controller.abort();};
   },[path,revision]);
   return {data,error,loading,reload:()=>setRevision(value=>value+1)};
+}
+export function useDebouncedValue(value,delay=300){
+  const [settled,setSettled]=useState(value);
+  useEffect(()=>{const timer=setTimeout(()=>setSettled(value),delay);return()=>clearTimeout(timer);},[value,delay]);
+  return settled;
 }
 export function Failure({error,reload}){return error?<div className="notice notice-error" role="alert">{error}{reload&&<button className="button button-outline retry-button" onClick={reload}>Reload records</button>}</div>:null;}
 function Badge({children}){const value=String(children??'Pending');return <span className={`status ${['Complete','submitted','present','enrolled'].includes(value)?'status-success':['Incomplete','invalid','missing','absent'].includes(value)?'status-danger':'status-warning'}`}>{value.replaceAll('_',' ')}</span>;}

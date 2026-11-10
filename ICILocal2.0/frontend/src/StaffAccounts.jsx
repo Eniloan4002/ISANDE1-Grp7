@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {useAuth} from './auth/AuthContext.jsx';
 import {apiRequest} from './api.js';
-import {Confirm,Failure,Pager,useResource} from './EnrollmentWorkspace.jsx';
+import {Confirm,Failure,Pager,useDebouncedValue,useResource} from './EnrollmentWorkspace.jsx';
 const empty={username:'',email:'',fullName:'',password:'',role:'ROLE_REGISTRAR',campusIds:[]};
 function AccountEditor({account,mode,reference,onClose,onSaved}){
  const [username,setUsername]=useState(account.username),[name,setName]=useState(account.fullName),[email,setEmail]=useState(account.email),[grants,setGrants]=useState(account.grants.map(({role,campusId})=>({role,campusId}))),[password,setPassword]=useState(''),[reason,setReason]=useState(''),[verified,setVerified]=useState(false),[confirm,setConfirm]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState('');
@@ -13,7 +13,8 @@ export default function StaffAccounts(){
   const {user}=useAuth(),reference=useResource('/api/admin/accounts/reference-data');
   const [form,setForm]=useState(empty),[search,setSearch]=useState(''),[page,setPage]=useState(0),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
   const [editing,setEditing]=useState(null);
-  const directory=useResource(`/api/admin/accounts?${new URLSearchParams({search,page:String(page)})}`);
+  const effectiveSearch=useDebouncedValue(search);
+  const directory=useResource(`/api/admin/accounts?${new URLSearchParams({search:effectiveSearch,page:String(page)})}`);
   const change=key=>event=>setForm({...form,[key]:event.target.value});
   async function create(event){event.preventDefault();setBusy(true);setError('');setNotice('');try{await apiRequest('/api/admin/accounts',{method:'POST',body:JSON.stringify(form)});setForm({...empty,campusIds:[]});directory.reload();setNotice('Staff account created. The person can sign in with the username and password you chose. Share credentials privately.');}catch(e){setError(e.message);}finally{setBusy(false);}}
   async function status(account){setBusy(true);setError('');try{await apiRequest(`/api/admin/accounts/${account.id}/status`,{method:'PUT',body:JSON.stringify({active:!account.active,version:account.version})});directory.reload();setNotice(account.active?'Account deactivated. Existing sessions are rejected by the server.':'Account activated.');}catch(e){setError(e.message);}finally{setBusy(false);}}

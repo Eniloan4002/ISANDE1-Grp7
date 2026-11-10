@@ -1,0 +1,90 @@
+{
+  "method": "Synthetic browser request-shape probe; every API request intercepted; fixed 300ms delay, no real database access. Development StrictMode.",
+  "events": [
+    {
+      "phase": "cold",
+      "path": "/api/auth/me",
+      "method": "GET",
+      "startOffsetMs": 0,
+      "endOffsetMs": 306
+    },
+    {
+      "phase": "cold",
+      "path": "/api/auth/me",
+      "method": "GET",
+      "startOffsetMs": 0,
+      "endOffsetMs": 306
+    },
+    {
+      "phase": "cold",
+      "path": "/api/intake/reference-data",
+      "method": "GET",
+      "startOffsetMs": 345,
+      "endOffsetMs": 649
+    },
+    {
+      "phase": "cold",
+      "path": "/api/enrollment/applications?page=0&size=25&search=&status=&campusId=&programId=",
+      "method": "GET",
+      "startOffsetMs": 673,
+      "endOffsetMs": 979
+    },
+    {
+      "phase": "cold",
+      "path": "/api/intake/statistics",
+      "method": "GET",
+      "startOffsetMs": 678,
+      "endOffsetMs": 983
+    },
+    {
+      "phase": "cold",
+      "path": "/api/enrollment/applications?page=0&size=25&search=&status=&campusId=&programId=",
+      "method": "GET",
+      "startOffsetMs": 678,
+      "endOffsetMs": 983
+    },
+    {
+      "phase": "cold",
+      "path": "/api/intake/statistics",
+      "method": "GET",
+      "startOffsetMs": 679,
+      "endOffsetMs": 984
+    },
+    {
+      "phase": "typing",
+      "path": "/api/enrollment/applications?page=0&size=25&search=C&status=&campusId=&programId=",
+      "method": "GET",
+      "startOffsetMs": 3327,
+      "endOffsetMs": 3630
+    },
+    {
+      "phase": "typing",
+      "path": "/api/enrollment/applications?page=0&size=25&search=Ca&status=&campusId=&programId=",
+      "method": "GET",
+      "startOffsetMs": 3394,
+      "endOffsetMs": 3697
+    },
+    {
+      "phase": "typing",
+      "path": "/api/enrollment/applications?page=0&size=25&search=Car&status=&campusId=&programId=",
+      "method": "GET",
+      "startOffsetMs": 3464,
+      "endOffsetMs": 3769
+    },
+    {
+      "phase": "typing",
+      "path": "/api/enrollment/applications?page=0&size=25&search=Carl&status=&campusId=&programId=",
+      "method": "GET",
+      "startOffsetMs": 3534,
+      "endOffsetMs": 3839
+    },
+    {
+      "phase": "typing",
+      "path": "/api/enrollment/applications?page=0&size=25&search=Carlo&status=&campusId=&programId=",
+      "method": "GET",
+      "startOffsetMs": 3603,
+      "endOffsetMs": 3909
+    }
+  ],
+  "errors": []
+}

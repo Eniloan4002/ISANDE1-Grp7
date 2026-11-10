@@ -35,7 +35,7 @@ public class IntakeService {
     private Map<String,Object> profile(Map<String,Object> row){try{return json.readValue(row.get("profile").toString(),new TypeReference<Map<String,Object>>(){});}catch(Exception e){throw new IllegalStateException("Invalid stored application profile",e);}}
     private String encode(Object value){try{return json.writeValueAsString(value);}catch(Exception e){throw error(HttpStatus.BAD_REQUEST,"Invalid application profile.");}}
     @Transactional(readOnly=true)
-    public Map<String,Object> reference(){var result=new LinkedHashMap<>(enrollment.reference());result.put("vouchers",db.queryForList("SELECT code,name FROM vouchers ORDER BY code",Map.of()));return result;}
+    public Map<String,Object> reference(){return enrollment.reference(true);}
     @Transactional(readOnly=true)
     public Map<String,Object> statistics(){
         return db.queryForMap("""
@@ -53,7 +53,7 @@ public class IntakeService {
         String[][] fields={{"applicationNumber","application_number"},{"firstName","first_name"},{"middleName","middle_name"},{"lastName","last_name"},{"birthDate","birth_date"},{"campusId","campus_id"},{"programId","program_id"},{"termId","term_id"},{"phone","contact_phone"},{"email","email"},{"lrn","lrn"},{"voucher","voucher_code"},{"previousSchool","previous_school"},{"studentId","student_id"}};
         for(var field:fields)result.put(field[0],row.get(field[1]));
         result.put("submittedAt",row.get("submitted_at").toString().substring(0,10));result.put("profile",profile(row));
-        result.put("workflow",enrollment.detail(id));return result;
+        result.put("workflow",enrollment.detailForApplication(row));return result;
     }
     @Transactional
     public Map<String,Object> create(IntakeController.Input input){

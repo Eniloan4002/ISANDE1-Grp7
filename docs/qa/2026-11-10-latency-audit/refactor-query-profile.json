@@ -1,0 +1,2001 @@
+{
+  "connectMs": 2279.01,
+  "selectOneWireMs": [
+    267.19,
+    228.21,
+    230.7,
+    264.18,
+    228.16,
+    294.27,
+    231.36,
+    293.38,
+    229.04,
+    299.4
+  ],
+  "selectOnePlan": "[\n  {\n    \"Plan\": {\n      \"Node Type\": \"Result\",\n      \"Parallel Aware\": false,\n      \"Async Capable\": false,\n      \"Startup Cost\": 0.00,\n      \"Total Cost\": 0.01,\n      \"Plan Rows\": 1,\n      \"Plan Width\": 4,\n      \"Actual Startup Time\": 0.002,\n      \"Actual Total Time\": 0.002,\n      \"Actual Rows\": 1,\n      \"Actual Loops\": 1,\n      \"Shared Hit Blocks\": 0,\n      \"Shared Read Blocks\": 0,\n      \"Shared Dirtied Blocks\": 0,\n      \"Shared Written Blocks\": 0,\n      \"Local Hit Blocks\": 0,\n      \"Local Read Blocks\": 0,\n      \"Local Dirtied Blocks\": 0,\n      \"Local Written Blocks\": 0,\n      \"Temp Read Blocks\": 0,\n      \"Temp Written Blocks\": 0\n    },\n    \"Planning\": {\n      \"Shared Hit Blocks\": 0,\n      \"Shared Read Blocks\": 0,\n      \"Shared Dirtied Blocks\": 0,\n      \"Shared Written Blocks\": 0,\n      \"Local Hit Blocks\": 0,\n      \"Local Read Blocks\": 0,\n      \"Local Dirtied Blocks\": 0,\n      \"Local Written Blocks\": 0,\n      \"Temp Read Blocks\": 0,\n      \"Temp Written Blocks\": 0\n    },\n    \"Planning Time\": 0.031,\n    \"Triggers\": [\n    ],\n    \"Execution Time\": 0.027\n  }\n]",
+  "steps": [
+    {
+      "elapsedMs": 238.03,
+      "queries": [
+        {
+          "milliseconds": 230.24,
+          "executions": 1,
+          "sql": "SELECT u.id,u.username,u.full_name,u.active,u.token_version,u.password_change_required, EXISTS(SELECT 1 FROM revoked_tokens r WHERE r.token_id=?) AS revoked, g.campus_id,g.code,g.role_code FROM users u LEFT JOIN ( SELECT g.user_id,g.campus_id,c.code,g.role_code FROM user_role_grants g JOIN campuses c ON c.id=g.campus_id AND c.active ) g ON g.user_id=u.id WHERE u.id=? ORDER BY g.campus_id,g.role_code"
+        }
+      ],
+      "sqlWireMs": 230.24,
+      "route": "auth/me (actor/grants only)",
+      "sqlExecutions": 1
+    },
+    {
+      "elapsedMs": 841.92,
+      "queries": [
+        {
+          "milliseconds": 242.49,
+          "executions": 1,
+          "sql": "SELECT u.id,u.username,u.full_name,u.active,u.token_version,u.password_change_required, EXISTS(SELECT 1 FROM revoked_tokens r WHERE r.token_id=?) AS revoked, g.campus_id,g.code,g.role_code FROM users u LEFT JOIN ( SELECT g.user_id,g.campus_id,c.code,g.role_code FROM user_role_grants g JOIN campuses c ON c.id=g.campus_id AND c.active ) g ON g.user_id=u.id WHERE u.id=? ORDER BY g.campus_id,g.role_code"
+        },
+        {
+          "milliseconds": 236.57,
+          "executions": 1,
+          "sql": "SELECT DISTINCT g.campus_id FROM user_role_grants g JOIN users u ON u.id=g.user_id AND u.active JOIN campuses c ON c.id=g.campus_id AND c.active JOIN role_permissions rp ON rp.role_code=g.role_code WHERE g.user_id=? AND rp.permission_code=? ORDER BY g.campus_id"
+        },
+        {
+          "milliseconds": 279.63,
+          "executions": 1,
+          "sql": "SELECT 'campuses' AS kind,row_to_json(r)::text AS payload FROM (SELECT id,code,name FROM campuses WHERE active AND id IN (?) ORDER BY name) r UNION ALL SELECT 'programs',row_to_json(r)::text FROM (SELECT id,code,name,category FROM programs ORDER BY name) r UNION ALL SELECT 'terms',row_to_json(r)::text FROM (SELECT t.id,t.name,t.code,y.label AS \"academicYear\",t.starts_on AS \"startsOn\",t.ends_on AS \"endsOn\" FROM academic_terms t JOIN academic_years y ON y.id=t.academic_year_id ORDER BY t.starts_on DESC,t.id DESC) r UNION ALL SELECT 'advisers',row_to_json(r)::text FROM (SELECT DISTINCT u.id,u.full_name AS name,g.campus_id AS \"campusId\" FROM users u JOIN user_role_grants g ON g.user_id=u.id WHERE u.active AND g.role_code='ROLE_ADVISER' AND g.campus_id IN (?) ORDER BY u.full_name) r UNION ALL SELECT 'vouchers',row_to_json(r)::text FROM (SELECT code,name FROM vouchers WHERE ? ORDER BY code) r"
+        }
+      ],
+      "sqlWireMs": 758.7,
+      "route": "intake/reference-data",
+      "sqlExecutions": 3
+    },
+    {
+      "elapsedMs": 699.7,
+      "queries": [
+        {
+          "milliseconds": 232.19,
+          "executions": 1,
+          "sql": "SELECT u.id,u.username,u.full_name,u.active,u.token_version,u.password_change_required, EXISTS(SELECT 1 FROM revoked_tokens r WHERE r.token_id=?) AS revoked, g.campus_id,g.code,g.role_code FROM users u LEFT JOIN ( SELECT g.user_id,g.campus_id,c.code,g.role_code FROM user_role_grants g JOIN campuses c ON c.id=g.campus_id AND c.active ) g ON g.user_id=u.id WHERE u.id=? ORDER BY g.campus_id,g.role_code"
+        },
+        {
+          "milliseconds": 228.94,
+          "executions": 1,
+          "sql": "SELECT DISTINCT g.campus_id FROM user_role_grants g JOIN users u ON u.id=g.user_id AND u.active JOIN campuses c ON c.id=g.campus_id AND c.active JOIN role_permissions rp ON rp.role_code=g.role_code WHERE g.user_id=? AND rp.permission_code=? ORDER BY g.campus_id"
+        },
+        {
+          "milliseconds": 236.91,
+          "executions": 1,
+          "sql": "SELECT 'campuses' AS kind,row_to_json(r)::text AS payload FROM (SELECT id,code,name FROM campuses WHERE active AND id IN (?) ORDER BY name) r UNION ALL SELECT 'programs',row_to_json(r)::text FROM (SELECT id,code,name,category FROM programs ORDER BY name) r UNION ALL SELECT 'terms',row_to_json(r)::text FROM (SELECT t.id,t.name,t.code,y.label AS \"academicYear\",t.starts_on AS \"startsOn\",t.ends_on AS \"endsOn\" FROM academic_terms t JOIN academic_years y ON y.id=t.academic_year_id ORDER BY t.starts_on DESC,t.id DESC) r UNION ALL SELECT 'advisers',row_to_json(r)::text FROM (SELECT DISTINCT u.id,u.full_name AS name,g.campus_id AS \"campusId\" FROM users u JOIN user_role_grants g ON g.user_id=u.id WHERE u.active AND g.role_code='ROLE_ADVISER' AND g.campus_id IN (?) ORDER BY u.full_name) r UNION ALL SELECT 'vouchers',row_to_json(r)::text FROM (SELECT code,name FROM vouchers WHERE ? ORDER BY code) r"
+        }
+      ],
+      "sqlWireMs": 698.04,
+      "route": "enrollment/reference-data",
+      "sqlExecutions": 3
+    },
+    {
+      "elapsedMs": 1051.77,
+      "queries": [
+        {
+          "milliseconds": 273.5,
+          "executions": 1,
+          "sql": "SELECT u.id,u.username,u.full_name,u.active,u.token_version,u.password_change_required, EXISTS(SELECT 1 FROM revoked_tokens r WHERE r.token_id=?) AS revoked, g.campus_id,g.code,g.role_code FROM users u LEFT JOIN ( SELECT g.user_id,g.campus_id,c.code,g.role_code FROM user_role_grants g JOIN campuses c ON c.id=g.campus_id AND c.active ) g ON g.user_id=u.id WHERE u.id=? ORDER BY g.campus_id,g.role_code"
+        },
+        {
+          "milliseconds": 232.19,
+          "executions": 1,
+          "sql": "SELECT DISTINCT g.campus_id FROM user_role_grants g JOIN users u ON u.id=g.user_id AND u.active JOIN campuses c ON c.id=g.campus_id AND c.active JOIN role_permissions rp ON rp.role_code=g.role_code WHERE g.user_id=? AND rp.permission_code=? ORDER BY g.campus_id"
+        },
+        {
+          "milliseconds": 287.97,
+          "executions": 1,
+          "sql": "SELECT count(*) FROM applications a JOIN campuses c ON c.id=a.campus_id JOIN programs p ON p.id=a.program_id JOIN academic_terms t ON t.id=a.term_id JOIN academic_years y ON y.id=t.academic_year_id LEFT JOIN students st ON st.id=a.student_id LEFT JOIN enrollments e ON e.application_id=a.id LEFT JOIN sections s ON s.id=e.section_id CROSS JOIN LATERAL ( SELECT CASE WHEN count(*) FILTER(WHERE rt.mandatory)=0 THEN 'Pending' WHEN count(*) FILTER(WHERE rt.mandatory AND coalesce(ar.status,'pending')<>'submitted')=0 THEN 'Complete' WHEN count(*) FILTER(WHERE rt.mandatory AND ar.status IN ('missing','invalid'))>0 THEN 'Incomplete' ELSE 'Pending' END AS status,max(ar.updated_at) AS updated_at FROM requirement_types rt LEFT JOIN application_requirements ar ON ar.requirement_code=rt.code AND ar.application_id=a.id ) creds WHERE a.campus_id IN (?) AND a.campus_id=? AND a.term_id=?"
+        },
+        {
+          "milliseconds": 250.34,
+          "executions": 1,
+          "sql": "SELECT a.id,a.application_number AS \"applicationNumber\",concat_ws(' ',a.first_name,a.last_name) AS name, a.campus_id AS \"campusId\",c.name AS campus,a.term_id AS \"termId\",concat(y.label,' / ',t.name) AS term, a.program_id AS \"programId\",p.code AS program,a.status,a.version, a.first_name AS \"firstName\",a.middle_name AS \"middleName\",a.last_name AS \"lastName\",a.lrn,a.category, a.submitted_at::date AS \"submittedAt\",a.updated_at AS \"updatedAt\",p.category AS \"programCategory\", CASE WHEN p.category='TVET' THEN 'TVET' WHEN p.code LIKE 'TVL_%' THEN 'TVL' ELSE 'ACADEMIC' END AS track, a.student_id AS \"studentId\",st.student_number AS \"studentNumber\",a.contact_phone AS phone,a.email, coalesce(a.profile->>'gradeLevel','') AS \"gradeLevel\",coalesce(a.profile->>'district','') AS district, coalesce(a.profile->>'transportRoute','') AS \"transportRoute\",creds.status AS \"requirementsStatus\",creds.updated_at AS \"requirementsUpdatedAt\", EXISTS(SELECT 1 FROM orientation_attendance o WHERE o.application_id=a.id AND o.status='present') AS \"attendancePresent\", e.id AS \"enrollmentId\",e.version AS \"enrollmentVersion\",e.status AS \"enrollmentStatus\", e.section_id AS \"sectionId\",s.name AS section FROM applications a JOIN campuses c ON c.id=a.campus_id JOIN programs p ON p.id=a.program_id JOIN academic_terms t ON t.id=a.term_id JOIN academic_years y ON y.id=t.academic_year_id LEFT JOIN students st ON st.id=a.student_id LEFT JOIN enrollments e ON e.application_id=a.id LEFT JOIN sections s ON s.id=e.section_id CROSS JOIN LATERAL ( SELECT CASE WHEN count(*) FILTER(WHERE rt.mandatory)=0 THEN 'Pending' WHEN count(*) FILTER(WHERE rt.mandatory AND coalesce(ar.status,'pending')<>'submitted')=0 THEN 'Complete' WHEN count(*) FILTER(WHERE rt.mandatory AND ar.status IN ('missing','invalid'))>0 THEN 'Incomplete' ELSE 'Pending' END AS status,max(ar.updated_at) AS updated_at FROM requirement_types rt LEFT JOIN application_requirements ar ON ar.requirement_code=rt.code AND ar.application_id=a.id ) creds WHERE a.campus_id IN (?) AND a.campus_id=? AND a.term_id=? ORDER BY a.submitted_at DESC,a.id DESC LIMIT ? OFFSET ?"
+        }
+      ],
+      "sqlWireMs": 1044.0,
+      "route": "enrollment/applications",
+      "sqlExecutions": 4
+    },
+    {
+      "elapsedMs": 793.51,
+      "queries": [
+        {
+          "milliseconds": 270.11,
+          "executions": 1,
+          "sql": "SELECT u.id,u.username,u.full_name,u.active,u.token_version,u.password_change_required, EXISTS(SELECT 1 FROM revoked_tokens r WHERE r.token_id=?) AS revoked, g.campus_id,g.code,g.role_code FROM users u LEFT JOIN ( SELECT g.user_id,g.campus_id,c.code,g.role_code FROM user_role_grants g JOIN campuses c ON c.id=g.campus_id AND c.active ) g ON g.user_id=u.id WHERE u.id=? ORDER BY g.campus_id,g.role_code"
+        },
+        {
+          "milliseconds": 229.22,
+          "executions": 1,
+          "sql": "SELECT DISTINCT g.campus_id FROM user_role_grants g JOIN users u ON u.id=g.user_id AND u.active JOIN campuses c ON c.id=g.campus_id AND c.active JOIN role_permissions rp ON rp.role_code=g.role_code WHERE g.user_id=? AND rp.permission_code=? ORDER BY g.campus_id"
+        },
+        {
+          "milliseconds": 292.57,
+          "executions": 1,
+          "sql": "SELECT count(*) AS total,count(*) FILTER(WHERE status='submitted') AS submitted, count(*) FILTER(WHERE status='pre_enlisted') AS \"preEnlisted\", count(*) FILTER(WHERE status='duplicate_flag' OR EXISTS(SELECT 1 FROM duplicate_cases d WHERE (d.application_id=a.id OR d.matched_application_id=a.id) AND d.status='open')) AS duplicates, count(*) FILTER(WHERE status='enrolled') AS enrolled FROM applications a WHERE campus_id IN (?)"
+        }
+      ],
+      "sqlWireMs": 791.9,
+      "route": "intake/statistics",
+      "sqlExecutions": 3
+    },
+    {
+      "elapsedMs": 2628.42,
+      "queries": [
+        {
+          "milliseconds": 230.03,
+          "executions": 1,
+          "sql": "SELECT u.id,u.username,u.full_name,u.active,u.token_version,u.password_change_required, EXISTS(SELECT 1 FROM revoked_tokens r WHERE r.token_id=?) AS revoked, g.campus_id,g.code,g.role_code FROM users u LEFT JOIN ( SELECT g.user_id,g.campus_id,c.code,g.role_code FROM user_role_grants g JOIN campuses c ON c.id=g.campus_id AND c.active ) g ON g.user_id=u.id WHERE u.id=? ORDER BY g.campus_id,g.role_code"
+        },
+        {
+          "milliseconds": 293.06,
+          "executions": 1,
+          "sql": "SELECT DISTINCT g.campus_id FROM user_role_grants g JOIN users u ON u.id=g.user_id AND u.active JOIN campuses c ON c.id=g.campus_id AND c.active JOIN role_permissions rp ON rp.role_code=g.role_code WHERE g.user_id=? AND rp.permission_code=? ORDER BY g.campus_id"
+        },
+        {
+          "milliseconds": 226.47,
+          "executions": 1,
+          "sql": "SELECT * FROM applications WHERE id=? AND campus_id IN (?)"
+        },
+        {
+          "milliseconds": 282.89,
+          "executions": 1,
+          "sql": "SELECT t.code,t.name,t.mandatory,coalesce(r.status,'pending') status, coalesce(r.version,0) version,r.application_id IS NOT NULL recorded, r.notes,r.verified_by,r.verified_at,r.updated_by,r.updated_at,r.original_filename FROM requirement_types t LEFT JOIN application_requirements r ON r.requirement_code=t.code AND r.application_id=? ORDER BY t.mandatory DESC,t.code"
+        },
+        {
+          "milliseconds": 228.98,
+          "executions": 1,
+          "sql": "SELECT attendance_date AS date,status,version,recorded_by AS \"recordedBy\",recorded_at AS \"recordedAt\" FROM orientation_attendance WHERE application_id=? ORDER BY attendance_date DESC"
+        },
+        {
+          "milliseconds": 288.35,
+          "executions": 1,
+          "sql": "SELECT EXISTS(SELECT 1 FROM orientation_attendance o LEFT JOIN enrollment_attendance_windows w ON w.campus_id=? AND w.term_id=? WHERE o.application_id=? AND o.status='present' AND (w.campus_id IS NULL OR o.attendance_date BETWEEN w.starts_on AND w.ends_on OR o.attendance_date BETWEEN w.orientation_starts_on AND w.orientation_ends_on)) AS present, EXISTS(SELECT 1 FROM students WHERE id=? AND active) AS active, EXISTS(SELECT 1 FROM duplicate_cases WHERE (application_id=? OR matched_application_id=?) AND status='open') AS duplicate"
+        },
+        {
+          "milliseconds": 227.93,
+          "executions": 1,
+          "sql": "SELECT e.id,e.status,e.version,e.section_id AS \"sectionId\",s.name AS section,e.confirmed_at AS \"confirmedAt\",e.confirmed_by AS \"confirmedBy\" FROM enrollments e LEFT JOIN sections s ON s.id=e.section_id WHERE e.application_id=?"
+        },
+        {
+          "milliseconds": 295.63,
+          "executions": 1,
+          "sql": "SELECT starts_on AS \"startsOn\",ends_on AS \"endsOn\",approval_note AS \"approvalNote\",orientation_starts_on AS \"orientationStartsOn\",orientation_ends_on AS \"orientationEndsOn\",version FROM enrollment_attendance_windows WHERE campus_id=? AND term_id=?"
+        }
+      ],
+      "sqlWireMs": 2073.34,
+      "route": "intake/applications/detail",
+      "sqlExecutions": 8
+    },
+    {
+      "elapsedMs": 1039.76,
+      "queries": [
+        {
+          "milliseconds": 229.94,
+          "executions": 1,
+          "sql": "SELECT u.id,u.username,u.full_name,u.active,u.token_version,u.password_change_required, EXISTS(SELECT 1 FROM revoked_tokens r WHERE r.token_id=?) AS revoked, g.campus_id,g.code,g.role_code FROM users u LEFT JOIN ( SELECT g.user_id,g.campus_id,c.code,g.role_code FROM user_role_grants g JOIN campuses c ON c.id=g.campus_id AND c.active ) g ON g.user_id=u.id WHERE u.id=? ORDER BY g.campus_id,g.role_code"
+        },
+        {
+          "milliseconds": 284.54,
+          "executions": 1,
+          "sql": "SELECT DISTINCT g.campus_id FROM user_role_grants g JOIN users u ON u.id=g.user_id AND u.active JOIN campuses c ON c.id=g.campus_id AND c.active JOIN role_permissions rp ON rp.role_code=g.role_code WHERE g.user_id=? AND rp.permission_code=? ORDER BY g.campus_id"
+        },
+        {
+          "milliseconds": 230.86,
+          "executions": 1,
+          "sql": "SELECT id,application_number,campus_id,student_id FROM applications WHERE id=? AND campus_id IN (?)"
+        },
+        {
+          "milliseconds": 292.42,
+          "executions": 1,
+          "sql": "SELECT t.code,t.name,t.mandatory,coalesce(r.status,'pending') status, coalesce(r.version,0) version,r.application_id IS NOT NULL recorded, r.notes,r.verified_by,r.verified_at,r.updated_by,r.updated_at,r.original_filename FROM requirement_types t LEFT JOIN application_requirements r ON r.requirement_code=t.code AND r.application_id=? ORDER BY t.mandatory DESC,t.code"
+        }
+      ],
+      "sqlWireMs": 1037.76,
+      "route": "applications/requirements",
+      "sqlExecutions": 4
+    },
+    {
+      "elapsedMs": 1279.63,
+      "queries": [
+        {
+          "milliseconds": 228.71,
+          "executions": 1,
+          "sql": "SELECT u.id,u.username,u.full_name,u.active,u.token_version,u.password_change_required, EXISTS(SELECT 1 FROM revoked_tokens r WHERE r.token_id=?) AS revoked, g.campus_id,g.code,g.role_code FROM users u LEFT JOIN ( SELECT g.user_id,g.campus_id,c.code,g.role_code FROM user_role_grants g JOIN campuses c ON c.id=g.campus_id AND c.active ) g ON g.user_id=u.id WHERE u.id=? ORDER BY g.campus_id,g.role_code"
+        },
+        {
+          "milliseconds": 292.73,
+          "executions": 1,
+          "sql": "SELECT DISTINCT g.campus_id FROM user_role_grants g JOIN users u ON u.id=g.user_id AND u.active JOIN campuses c ON c.id=g.campus_id AND c.active JOIN role_permissions rp ON rp.role_code=g.role_code WHERE g.user_id=? AND rp.permission_code=? ORDER BY g.campus_id"
+        },
+        {
+          "milliseconds": 246.32,
+          "executions": 1,
+          "sql": "SELECT id,application_number,campus_id,student_id FROM applications WHERE id=? AND campus_id IN (?)"
+        },
+        {
+          "milliseconds": 273.28,
+          "executions": 1,
+          "sql": "SELECT count(*) FROM audit_logs a WHERE a.table_name='application_requirements' AND coalesce(a.new_data->>'application_id',a.old_data->>'application_id')=?"
+        },
+        {
+          "milliseconds": 232.09,
+          "executions": 1,
+          "sql": "SELECT a.id,a.operation,a.occurred_at AS \"occurredAt\",a.actor_id AS \"actorId\",u.full_name AS \"actorName\", coalesce(a.new_data->>'requirement_code',a.old_data->>'requirement_code') AS \"requirementCode\", a.old_data->>'status' AS \"oldStatus\",a.new_data->>'status' AS \"newStatus\", a.old_data->>'notes' AS \"oldNotes\",a.new_data->>'notes' AS \"newNotes\" FROM audit_logs a LEFT JOIN users u ON u.id=a.actor_id WHERE a.table_name='application_requirements' AND coalesce(a.new_data->>'application_id',a.old_data->>'application_id')=? ORDER BY a.id DESC LIMIT ? OFFSET ?"
+        }
+      ],
+      "sqlWireMs": 1273.13,
+      "route": "applications/requirements/audit",
+      "sqlExecutions": 5
+    },
+    {
+      "elapsedMs": 2623.26,
+      "queries": [
+        {
+          "milliseconds": 290.81,
+          "executions": 1,
+          "sql": "SELECT u.id,u.username,u.full_name,u.active,u.token_version,u.password_change_required, EXISTS(SELECT 1 FROM revoked_tokens r WHERE r.token_id=?) AS revoked, g.campus_id,g.code,g.role_code FROM users u LEFT JOIN ( SELECT g.user_id,g.campus_id,c.code,g.role_code FROM user_role_grants g JOIN campuses c ON c.id=g.campus_id AND c.active ) g ON g.user_id=u.id WHERE u.id=? ORDER BY g.campus_id,g.role_code"
+        },
+        {
+          "milliseconds": 226.49,
+          "executions": 1,
+          "sql": "SELECT DISTINCT g.campus_id FROM user_role_grants g JOIN users u ON u.id=g.user_id AND u.active JOIN campuses c ON c.id=g.campus_id AND c.active JOIN role_permissions rp ON rp.role_code=g.role_code WHERE g.user_id=? AND rp.permission_code=? ORDER BY g.campus_id"
+        },
+        {
+          "milliseconds": 299.43,
+          "executions": 1,
+          "sql": "SELECT * FROM applications WHERE id=? AND campus_id IN (?)"
+        },
+        {
+          "milliseconds": 234.86,
+          "executions": 1,
+          "sql": "SELECT t.code,t.name,t.mandatory,coalesce(r.status,'pending') status, coalesce(r.version,0) version,r.application_id IS NOT NULL recorded, r.notes,r.verified_by,r.verified_at,r.updated_by,r.updated_at,r.original_filename FROM requirement_types t LEFT JOIN application_requirements r ON r.requirement_code=t.code AND r.application_id=? ORDER BY t.mandatory DESC,t.code"
+        },
+        {
+          "milliseconds": 815.74,
+          "executions": 1,
+          "sql": "SELECT attendance_date AS date,status,version,recorded_by AS \"recordedBy\",recorded_at AS \"recordedAt\" FROM orientation_attendance WHERE application_id=? ORDER BY attendance_date DESC"
+        },
+        {
+          "milliseconds": 239.44,
+          "executions": 1,
+          "sql": "SELECT EXISTS(SELECT 1 FROM orientation_attendance o LEFT JOIN enrollment_attendance_windows w ON w.campus_id=? AND w.term_id=? WHERE o.application_id=? AND o.status='present' AND (w.campus_id IS NULL OR o.attendance_date BETWEEN w.starts_on AND w.ends_on OR o.attendance_date BETWEEN w.orientation_starts_on AND w.orientation_ends_on)) AS present, EXISTS(SELECT 1 FROM students WHERE id=? AND active) AS active, EXISTS(SELECT 1 FROM duplicate_cases WHERE (application_id=? OR matched_application_id=?) AND status='open') AS duplicate"
+        },
+        {
+          "milliseconds": 280.54,
+          "executions": 1,
+          "sql": "SELECT e.id,e.status,e.version,e.section_id AS \"sectionId\",s.name AS section,e.confirmed_at AS \"confirmedAt\",e.confirmed_by AS \"confirmedBy\" FROM enrollments e LEFT JOIN sections s ON s.id=e.section_id WHERE e.application_id=?"
+        },
+        {
+          "milliseconds": 229.19,
+          "executions": 1,
+          "sql": "SELECT starts_on AS \"startsOn\",ends_on AS \"endsOn\",approval_note AS \"approvalNote\",orientation_starts_on AS \"orientationStartsOn\",orientation_ends_on AS \"orientationEndsOn\",version FROM enrollment_attendance_windows WHERE campus_id=? AND term_id=?"
+        }
+      ],
+      "sqlWireMs": 2616.5,
+      "route": "applications/enrollment",
+      "sqlExecutions": 8
+    },
+    {
+      "elapsedMs": 1057.41,
+      "queries": [
+        {
+          "milliseconds": 285.12,
+          "executions": 1,
+          "sql": "SELECT u.id,u.username,u.full_name,u.active,u.token_version,u.password_change_required, EXISTS(SELECT 1 FROM revoked_tokens r WHERE r.token_id=?) AS revoked, g.campus_id,g.code,g.role_code FROM users u LEFT JOIN ( SELECT g.user_id,g.campus_id,c.code,g.role_code FROM user_role_grants g JOIN campuses c ON c.id=g.campus_id AND c.active ) g ON g.user_id=u.id WHERE u.id=? ORDER BY g.campus_id,g.role_code"
+        },
+        {
+          "milliseconds": 228.84,
+          "executions": 1,
+          "sql": "SELECT DISTINCT g.campus_id FROM user_role_grants g JOIN users u ON u.id=g.user_id AND u.active JOIN campuses c ON c.id=g.campus_id AND c.active JOIN role_permissions rp ON rp.role_code=g.role_code WHERE g.user_id=? AND rp.permission_code=? ORDER BY g.campus_id"
+        },
+        {
+          "milliseconds": 298.6,
+          "executions": 1,
+          "sql": "SELECT count(*) FROM sections s WHERE s.campus_id IN (?) AND s.campus_id=? AND s.term_id=?"
+        },
+        {
+          "milliseconds": 235.57,
+          "executions": 1,
+          "sql": "SELECT s.id,s.campus_id AS \"campusId\",c.name AS campus,s.term_id AS \"termId\",concat(y.label,' / ',t.name) AS term, s.program_id AS \"programId\",p.code AS program,s.name,s.grade_level AS \"gradeLevel\",s.room,s.capacity, s.adviser_id AS \"adviserId\",u.full_name AS adviser,s.version, (SELECT count(*) FROM enrollments e WHERE e.section_id=s.id AND e.status IN ('provisional','enrolled')) AS occupied, s.capacity-(SELECT count(*) FROM enrollments e WHERE e.section_id=s.id AND e.status IN ('provisional','enrolled')) AS available FROM sections s JOIN campuses c ON c.id=s.campus_id JOIN academic_terms t ON t.id=s.term_id JOIN academic_years y ON y.id=t.academic_year_id JOIN programs p ON p.id=s.program_id LEFT JOIN users u ON u.id=s.adviser_id WHERE s.campus_id IN (?) AND s.campus_id=? AND s.term_id=? ORDER BY s.name,s.id LIMIT ? OFFSET ?"
+        }
+      ],
+      "sqlWireMs": 1048.13,
+      "route": "sections",
+      "sqlExecutions": 4
+    },
+    {
+      "elapsedMs": 1034.9,
+      "queries": [
+        {
+          "milliseconds": 280.58,
+          "executions": 1,
+          "sql": "SELECT u.id,u.username,u.full_name,u.active,u.token_version,u.password_change_required, EXISTS(SELECT 1 FROM revoked_tokens r WHERE r.token_id=?) AS revoked, g.campus_id,g.code,g.role_code FROM users u LEFT JOIN ( SELECT g.user_id,g.campus_id,c.code,g.role_code FROM user_role_grants g JOIN campuses c ON c.id=g.campus_id AND c.active ) g ON g.user_id=u.id WHERE u.id=? ORDER BY g.campus_id,g.role_code"
+        },
+        {
+          "milliseconds": 230.36,
+          "executions": 1,
+          "sql": "SELECT DISTINCT g.campus_id FROM user_role_grants g JOIN users u ON u.id=g.user_id AND u.active JOIN campuses c ON c.id=g.campus_id AND c.active JOIN role_permissions rp ON rp.role_code=g.role_code WHERE g.user_id=? AND rp.permission_code=? ORDER BY g.campus_id"
+        },
+        {
+          "milliseconds": 288.31,
+          "executions": 1,
+          "sql": "SELECT d.id,d.version,d.status,a.id AS \"applicationId\",a.application_number AS \"applicationNumber\",concat_ws(' ',a.first_name,a.last_name) AS name,(coalesce(m.campus_id,s.campus_id) IN (?)) AS \"canReview\" FROM duplicate_cases d JOIN applications a ON a.id=d.application_id LEFT JOIN applications m ON m.id=d.matched_application_id LEFT JOIN students s ON s.id=d.matched_student_id WHERE a.campus_id IN (?) AND d.status=? ORDER BY d.id DESC LIMIT 25 OFFSET ?"
+        },
+        {
+          "milliseconds": 231.8,
+          "executions": 1,
+          "sql": "SELECT count(*) FROM duplicate_cases d JOIN applications a ON a.id=d.application_id LEFT JOIN applications m ON m.id=d.matched_application_id LEFT JOIN students s ON s.id=d.matched_student_id WHERE a.campus_id IN (?) AND d.status=?"
+        }
+      ],
+      "sqlWireMs": 1031.05,
+      "route": "duplicate-cases",
+      "sqlExecutions": 4
+    },
+    {
+      "elapsedMs": 2625.99,
+      "queries": [
+        {
+          "milliseconds": 228.47,
+          "executions": 1,
+          "sql": "SELECT u.id,u.username,u.full_name,u.active,u.token_version,u.password_change_required, EXISTS(SELECT 1 FROM revoked_tokens r WHERE r.token_id=?) AS revoked, g.campus_id,g.code,g.role_code FROM users u LEFT JOIN ( SELECT g.user_id,g.campus_id,c.code,g.role_code FROM user_role_grants g JOIN campuses c ON c.id=g.campus_id AND c.active ) g ON g.user_id=u.id WHERE u.id=? ORDER BY g.campus_id,g.role_code"
+        },
+        {
+          "milliseconds": 298.61,
+          "executions": 1,
+          "sql": "SELECT DISTINCT g.campus_id FROM user_role_grants g JOIN users u ON u.id=g.user_id AND u.active JOIN campuses c ON c.id=g.campus_id AND c.active JOIN role_permissions rp ON rp.role_code=g.role_code WHERE g.user_id=? AND rp.permission_code=? ORDER BY g.campus_id"
+        },
+        {
+          "milliseconds": 230.23,
+          "executions": 1,
+          "sql": "SELECT * FROM duplicate_cases WHERE id=?"
+        },
+        {
+          "milliseconds": 291.0,
+          "executions": 1,
+          "sql": "SELECT * FROM applications WHERE id=? AND campus_id IN (?)"
+        },
+        {
+          "milliseconds": 230.46,
+          "executions": 1,
+          "sql": "SELECT * FROM students WHERE id=? AND campus_id IN (?)"
+        },
+        {
+          "milliseconds": 291.43,
+          "executions": 1,
+          "sql": "SELECT * FROM applications WHERE id=? AND campus_id IN (?)"
+        },
+        {
+          "milliseconds": 228.86,
+          "executions": 1,
+          "sql": "SELECT * FROM students WHERE id=? AND campus_id IN (?)"
+        },
+        {
+          "milliseconds": 284.62,
+          "executions": 1,
+          "sql": "SELECT name FROM campuses WHERE id=?"
+        },
+        {
+          "milliseconds": 228.12,
+          "executions": 1,
+          "sql": "SELECT name FROM campuses WHERE id=?"
+        },
+        {
+          "milliseconds": 298.63,
+          "executions": 1,
+          "sql": "SELECT l.id,l.occurred_at AS \"occurredAt\",u.full_name AS actor,l.new_data->>'status' AS status,l.new_data->>'reason' AS reason FROM audit_logs l LEFT JOIN users u ON u.id=l.actor_id WHERE l.table_name='duplicate_cases' AND coalesce(l.new_data,l.old_data)->>'id'=? ORDER BY l.id DESC LIMIT 50"
+        }
+      ],
+      "sqlWireMs": 2610.43,
+      "route": "duplicate-cases/detail",
+      "sqlExecutions": 10
+    },
+    {
+      "elapsedMs": 1278.68,
+      "queries": [
+        {
+          "milliseconds": 235.02,
+          "executions": 1,
+          "sql": "SELECT u.id,u.username,u.full_name,u.active,u.token_version,u.password_change_required, EXISTS(SELECT 1 FROM revoked_tokens r WHERE r.token_id=?) AS revoked, g.campus_id,g.code,g.role_code FROM users u LEFT JOIN ( SELECT g.user_id,g.campus_id,c.code,g.role_code FROM user_role_grants g JOIN campuses c ON c.id=g.campus_id AND c.active ) g ON g.user_id=u.id WHERE u.id=? ORDER BY g.campus_id,g.role_code"
+        },
+        {
+          "milliseconds": 285.32,
+          "executions": 1,
+          "sql": "SELECT DISTINCT g.campus_id FROM user_role_grants g JOIN users u ON u.id=g.user_id AND u.active JOIN campuses c ON c.id=g.campus_id AND c.active JOIN role_permissions rp ON rp.role_code=g.role_code WHERE g.user_id=? AND rp.permission_code=? ORDER BY g.campus_id"
+        },
+        {
+          "milliseconds": 232.17,
+          "executions": 1,
+          "sql": "SELECT count(*) FROM users u WHERE EXISTS(SELECT 1 FROM user_role_grants g WHERE g.user_id=u.id AND g.campus_id IN (?, ?, ?)) AND NOT EXISTS(SELECT 1 FROM user_role_grants g WHERE g.user_id=u.id AND g.campus_id NOT IN (?, ?, ?)) AND strpos(lower(concat_ws(' ',u.username,u.full_name,u.email)),?)>0"
+        },
+        {
+          "milliseconds": 288.81,
+          "executions": 1,
+          "sql": "SELECT u.id,u.username,u.email,u.full_name AS \"fullName\",u.active,u.password_change_required AS \"passwordChangeRequired\",u.updated_at FROM users u WHERE EXISTS(SELECT 1 FROM user_role_grants g WHERE g.user_id=u.id AND g.campus_id IN (?, ?, ?)) AND NOT EXISTS(SELECT 1 FROM user_role_grants g WHERE g.user_id=u.id AND g.campus_id NOT IN (?, ?, ?)) AND strpos(lower(concat_ws(' ',u.username,u.full_name,u.email)),?)>0 ORDER BY u.username LIMIT 25 OFFSET ?"
+        },
+        {
+          "milliseconds": 231.18,
+          "executions": 1,
+          "sql": "SELECT g.user_id,g.role_code AS role,g.campus_id AS \"campusId\",c.name AS campus FROM user_role_grants g JOIN campuses c ON c.id=g.campus_id WHERE g.user_id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ORDER BY c.name,g.role_code"
+        }
+      ],
+      "sqlWireMs": 1272.49,
+      "route": "admin/accounts (admin, up to 25 rows)",
+      "sqlExecutions": 5
+    }
+  ],
+  "queuePlans": [
+    {
+      "plan": [
+        {
+          "Plan": {
+            "Node Type": "Aggregate",
+            "Strategy": "Plain",
+            "Partial Mode": "Simple",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Startup Cost": 26.6,
+            "Total Cost": 26.61,
+            "Plan Rows": 1,
+            "Plan Width": 8,
+            "Actual Startup Time": 0.35,
+            "Actual Total Time": 0.353,
+            "Actual Rows": 1,
+            "Actual Loops": 1,
+            "Shared Hit Blocks": 83,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0,
+            "Plans": [
+              {
+                "Node Type": "Nested Loop",
+                "Parent Relationship": "Outer",
+                "Parallel Aware": false,
+                "Async Capable": false,
+                "Join Type": "Inner",
+                "Startup Cost": 15.43,
+                "Total Cost": 26.59,
+                "Plan Rows": 1,
+                "Plan Width": 0,
+                "Actual Startup Time": 0.158,
+                "Actual Total Time": 0.348,
+                "Actual Rows": 9,
+                "Actual Loops": 1,
+                "Inner Unique": false,
+                "Shared Hit Blocks": 83,
+                "Shared Read Blocks": 0,
+                "Shared Dirtied Blocks": 0,
+                "Shared Written Blocks": 0,
+                "Local Hit Blocks": 0,
+                "Local Read Blocks": 0,
+                "Local Dirtied Blocks": 0,
+                "Local Written Blocks": 0,
+                "Temp Read Blocks": 0,
+                "Temp Written Blocks": 0,
+                "Plans": [
+                  {
+                    "Node Type": "Nested Loop",
+                    "Parent Relationship": "Outer",
+                    "Parallel Aware": false,
+                    "Async Capable": false,
+                    "Join Type": "Inner",
+                    "Startup Cost": 0.73,
+                    "Total Cost": 11.86,
+                    "Plan Rows": 1,
+                    "Plan Width": 8,
+                    "Actual Startup Time": 0.128,
+                    "Actual Total Time": 0.283,
+                    "Actual Rows": 9,
+                    "Actual Loops": 1,
+                    "Inner Unique": true,
+                    "Shared Hit Blocks": 74,
+                    "Shared Read Blocks": 0,
+                    "Shared Dirtied Blocks": 0,
+                    "Shared Written Blocks": 0,
+                    "Local Hit Blocks": 0,
+                    "Local Read Blocks": 0,
+                    "Local Dirtied Blocks": 0,
+                    "Local Written Blocks": 0,
+                    "Temp Read Blocks": 0,
+                    "Temp Written Blocks": 0,
+                    "Plans": [
+                      {
+                        "Node Type": "Nested Loop",
+                        "Parent Relationship": "Outer",
+                        "Parallel Aware": false,
+                        "Async Capable": false,
+                        "Join Type": "Inner",
+                        "Startup Cost": 0.58,
+                        "Total Cost": 9.49,
+                        "Plan Rows": 1,
+                        "Plan Width": 16,
+                        "Actual Startup Time": 0.109,
+                        "Actual Total Time": 0.243,
+                        "Actual Rows": 9,
+                        "Actual Loops": 1,
+                        "Inner Unique": false,
+                        "Shared Hit Blocks": 56,
+                        "Shared Read Blocks": 0,
+                        "Shared Dirtied Blocks": 0,
+                        "Shared Written Blocks": 0,
+                        "Local Hit Blocks": 0,
+                        "Local Read Blocks": 0,
+                        "Local Dirtied Blocks": 0,
+                        "Local Written Blocks": 0,
+                        "Temp Read Blocks": 0,
+                        "Temp Written Blocks": 0,
+                        "Plans": [
+                          {
+                            "Node Type": "Nested Loop",
+                            "Parent Relationship": "Outer",
+                            "Parallel Aware": false,
+                            "Async Capable": false,
+                            "Join Type": "Inner",
+                            "Startup Cost": 0.44,
+                            "Total Cost": 7.11,
+                            "Plan Rows": 1,
+                            "Plan Width": 16,
+                            "Actual Startup Time": 0.042,
+                            "Actual Total Time": 0.098,
+                            "Actual Rows": 9,
+                            "Actual Loops": 1,
+                            "Inner Unique": true,
+                            "Shared Hit Blocks": 38,
+                            "Shared Read Blocks": 0,
+                            "Shared Dirtied Blocks": 0,
+                            "Shared Written Blocks": 0,
+                            "Local Hit Blocks": 0,
+                            "Local Read Blocks": 0,
+                            "Local Dirtied Blocks": 0,
+                            "Local Written Blocks": 0,
+                            "Temp Read Blocks": 0,
+                            "Temp Written Blocks": 0,
+                            "Plans": [
+                              {
+                                "Node Type": "Nested Loop",
+                                "Parent Relationship": "Outer",
+                                "Parallel Aware": false,
+                                "Async Capable": false,
+                                "Join Type": "Inner",
+                                "Startup Cost": 0.29,
+                                "Total Cost": 4.74,
+                                "Plan Rows": 1,
+                                "Plan Width": 24,
+                                "Actual Startup Time": 0.026,
+                                "Actual Total Time": 0.058,
+                                "Actual Rows": 9,
+                                "Actual Loops": 1,
+                                "Inner Unique": false,
+                                "Shared Hit Blocks": 20,
+                                "Shared Read Blocks": 0,
+                                "Shared Dirtied Blocks": 0,
+                                "Shared Written Blocks": 0,
+                                "Local Hit Blocks": 0,
+                                "Local Read Blocks": 0,
+                                "Local Dirtied Blocks": 0,
+                                "Local Written Blocks": 0,
+                                "Temp Read Blocks": 0,
+                                "Temp Written Blocks": 0,
+                                "Plans": [
+                                  {
+                                    "Node Type": "Index Scan",
+                                    "Parent Relationship": "Outer",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Scan Direction": "Forward",
+                                    "Index Name": "applications_queue",
+                                    "Relation Name": "applications",
+                                    "Alias": "a",
+                                    "Startup Cost": 0.14,
+                                    "Total Cost": 2.36,
+                                    "Plan Rows": 1,
+                                    "Plan Width": 40,
+                                    "Actual Startup Time": 0.019,
+                                    "Actual Total Time": 0.027,
+                                    "Actual Rows": 9,
+                                    "Actual Loops": 1,
+                                    "Index Cond": "((campus_id = '1'::bigint) AND (term_id = '1'::bigint))",
+                                    "Rows Removed by Index Recheck": 0,
+                                    "Shared Hit Blocks": 2,
+                                    "Shared Read Blocks": 0,
+                                    "Shared Dirtied Blocks": 0,
+                                    "Shared Written Blocks": 0,
+                                    "Local Hit Blocks": 0,
+                                    "Local Read Blocks": 0,
+                                    "Local Dirtied Blocks": 0,
+                                    "Local Written Blocks": 0,
+                                    "Temp Read Blocks": 0,
+                                    "Temp Written Blocks": 0
+                                  },
+                                  {
+                                    "Node Type": "Index Only Scan",
+                                    "Parent Relationship": "Inner",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Scan Direction": "Forward",
+                                    "Index Name": "campuses_pkey",
+                                    "Relation Name": "campuses",
+                                    "Alias": "c",
+                                    "Startup Cost": 0.15,
+                                    "Total Cost": 2.37,
+                                    "Plan Rows": 1,
+                                    "Plan Width": 8,
+                                    "Actual Startup Time": 0.002,
+                                    "Actual Total Time": 0.002,
+                                    "Actual Rows": 1,
+                                    "Actual Loops": 9,
+                                    "Index Cond": "(id = '1'::bigint)",
+                                    "Rows Removed by Index Recheck": 0,
+                                    "Heap Fetches": 9,
+                                    "Shared Hit Blocks": 18,
+                                    "Shared Read Blocks": 0,
+                                    "Shared Dirtied Blocks": 0,
+                                    "Shared Written Blocks": 0,
+                                    "Local Hit Blocks": 0,
+                                    "Local Read Blocks": 0,
+                                    "Local Dirtied Blocks": 0,
+                                    "Local Written Blocks": 0,
+                                    "Temp Read Blocks": 0,
+                                    "Temp Written Blocks": 0
+                                  }
+                                ]
+                              },
+                              {
+                                "Node Type": "Index Only Scan",
+                                "Parent Relationship": "Inner",
+                                "Parallel Aware": false,
+                                "Async Capable": false,
+                                "Scan Direction": "Forward",
+                                "Index Name": "programs_pkey",
+                                "Relation Name": "programs",
+                                "Alias": "p",
+                                "Startup Cost": 0.15,
+                                "Total Cost": 2.37,
+                                "Plan Rows": 1,
+                                "Plan Width": 8,
+                                "Actual Startup Time": 0.003,
+                                "Actual Total Time": 0.003,
+                                "Actual Rows": 1,
+                                "Actual Loops": 9,
+                                "Index Cond": "(id = a.program_id)",
+                                "Rows Removed by Index Recheck": 0,
+                                "Heap Fetches": 9,
+                                "Shared Hit Blocks": 18,
+                                "Shared Read Blocks": 0,
+                                "Shared Dirtied Blocks": 0,
+                                "Shared Written Blocks": 0,
+                                "Local Hit Blocks": 0,
+                                "Local Read Blocks": 0,
+                                "Local Dirtied Blocks": 0,
+                                "Local Written Blocks": 0,
+                                "Temp Read Blocks": 0,
+                                "Temp Written Blocks": 0
+                              }
+                            ]
+                          },
+                          {
+                            "Node Type": "Index Scan",
+                            "Parent Relationship": "Inner",
+                            "Parallel Aware": false,
+                            "Async Capable": false,
+                            "Scan Direction": "Forward",
+                            "Index Name": "academic_terms_pkey",
+                            "Relation Name": "academic_terms",
+                            "Alias": "t",
+                            "Startup Cost": 0.15,
+                            "Total Cost": 2.37,
+                            "Plan Rows": 1,
+                            "Plan Width": 16,
+                            "Actual Startup Time": 0.009,
+                            "Actual Total Time": 0.009,
+                            "Actual Rows": 1,
+                            "Actual Loops": 9,
+                            "Index Cond": "(id = '1'::bigint)",
+                            "Rows Removed by Index Recheck": 0,
+                            "Shared Hit Blocks": 18,
+                            "Shared Read Blocks": 0,
+                            "Shared Dirtied Blocks": 0,
+                            "Shared Written Blocks": 0,
+                            "Local Hit Blocks": 0,
+                            "Local Read Blocks": 0,
+                            "Local Dirtied Blocks": 0,
+                            "Local Written Blocks": 0,
+                            "Temp Read Blocks": 0,
+                            "Temp Written Blocks": 0
+                          }
+                        ]
+                      },
+                      {
+                        "Node Type": "Index Only Scan",
+                        "Parent Relationship": "Inner",
+                        "Parallel Aware": false,
+                        "Async Capable": false,
+                        "Scan Direction": "Forward",
+                        "Index Name": "academic_years_pkey",
+                        "Relation Name": "academic_years",
+                        "Alias": "y",
+                        "Startup Cost": 0.15,
+                        "Total Cost": 2.37,
+                        "Plan Rows": 1,
+                        "Plan Width": 8,
+                        "Actual Startup Time": 0.003,
+                        "Actual Total Time": 0.003,
+                        "Actual Rows": 1,
+                        "Actual Loops": 9,
+                        "Index Cond": "(id = t.academic_year_id)",
+                        "Rows Removed by Index Recheck": 0,
+                        "Heap Fetches": 9,
+                        "Shared Hit Blocks": 18,
+                        "Shared Read Blocks": 0,
+                        "Shared Dirtied Blocks": 0,
+                        "Shared Written Blocks": 0,
+                        "Local Hit Blocks": 0,
+                        "Local Read Blocks": 0,
+                        "Local Dirtied Blocks": 0,
+                        "Local Written Blocks": 0,
+                        "Temp Read Blocks": 0,
+                        "Temp Written Blocks": 0
+                      }
+                    ]
+                  },
+                  {
+                    "Node Type": "Aggregate",
+                    "Strategy": "Plain",
+                    "Partial Mode": "Simple",
+                    "Parent Relationship": "Inner",
+                    "Parallel Aware": false,
+                    "Async Capable": false,
+                    "Startup Cost": 14.7,
+                    "Total Cost": 14.71,
+                    "Plan Rows": 1,
+                    "Plan Width": 40,
+                    "Actual Startup Time": 0.005,
+                    "Actual Total Time": 0.006,
+                    "Actual Rows": 1,
+                    "Actual Loops": 9,
+                    "Shared Hit Blocks": 9,
+                    "Shared Read Blocks": 0,
+                    "Shared Dirtied Blocks": 0,
+                    "Shared Written Blocks": 0,
+                    "Local Hit Blocks": 0,
+                    "Local Read Blocks": 0,
+                    "Local Dirtied Blocks": 0,
+                    "Local Written Blocks": 0,
+                    "Temp Read Blocks": 0,
+                    "Temp Written Blocks": 0,
+                    "Plans": [
+                      {
+                        "Node Type": "Seq Scan",
+                        "Parent Relationship": "Outer",
+                        "Parallel Aware": false,
+                        "Async Capable": false,
+                        "Relation Name": "requirement_types",
+                        "Alias": "rt",
+                        "Startup Cost": 0.0,
+                        "Total Cost": 14.7,
+                        "Plan Rows": 470,
+                        "Plan Width": 0,
+                        "Actual Startup Time": 0.003,
+                        "Actual Total Time": 0.004,
+                        "Actual Rows": 4,
+                        "Actual Loops": 9,
+                        "Shared Hit Blocks": 9,
+                        "Shared Read Blocks": 0,
+                        "Shared Dirtied Blocks": 0,
+                        "Shared Written Blocks": 0,
+                        "Local Hit Blocks": 0,
+                        "Local Read Blocks": 0,
+                        "Local Dirtied Blocks": 0,
+                        "Local Written Blocks": 0,
+                        "Temp Read Blocks": 0,
+                        "Temp Written Blocks": 0
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "Planning": {
+            "Shared Hit Blocks": 0,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          "Planning Time": 0.677,
+          "Triggers": [],
+          "Execution Time": 0.574
+        }
+      ],
+      "sql": "SELECT count(*) FROM applications a JOIN campuses c ON c.id=a.campus_id JOIN programs p ON p.id=a.program_id JOIN academic_terms t ON t.id=a.term_id JOIN academic_years y ON y.id=t.academic_year_id LEFT JOIN students st ON st.id=a.student_id LEFT JOIN enrollments e ON e.application_id=a.id LEFT JOIN sections s ON s.id=e.section_id CROSS JOIN LATERAL ( SELECT CASE WHEN count(*) FILTER(WHERE rt.mandatory)=0 THEN 'Pending' WHEN count(*) FILTER(WHERE rt.mandatory AND coalesce(ar.status,'pending')<>'submitted')=0 THEN 'Complete' WHEN count(*) FILTER(WHERE rt.mandatory AND ar.status IN ('missing','invalid'))>0 THEN 'Incomplete' ELSE 'Pending' END AS status,max(ar.updated_at) AS updated_at FROM requirement_types rt LEFT JOIN application_requirements ar ON ar.requirement_code=rt.code AND ar.application_id=a.id ) creds WHERE a.campus_id IN (?) AND a.campus_id=? AND a.term_id=?"
+    },
+    {
+      "plan": [
+        {
+          "Plan": {
+            "Node Type": "Limit",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Startup Cost": 42.29,
+            "Total Cost": 44.69,
+            "Plan Rows": 1,
+            "Plan Width": 1077,
+            "Actual Startup Time": 0.609,
+            "Actual Total Time": 0.635,
+            "Actual Rows": 9,
+            "Actual Loops": 1,
+            "Shared Hit Blocks": 136,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0,
+            "Plans": [
+              {
+                "Node Type": "Result",
+                "Parent Relationship": "Outer",
+                "Parallel Aware": false,
+                "Async Capable": false,
+                "Startup Cost": 42.29,
+                "Total Cost": 44.69,
+                "Plan Rows": 1,
+                "Plan Width": 1077,
+                "Actual Startup Time": 0.607,
+                "Actual Total Time": 0.631,
+                "Actual Rows": 9,
+                "Actual Loops": 1,
+                "Shared Hit Blocks": 136,
+                "Shared Read Blocks": 0,
+                "Shared Dirtied Blocks": 0,
+                "Shared Written Blocks": 0,
+                "Local Hit Blocks": 0,
+                "Local Read Blocks": 0,
+                "Local Dirtied Blocks": 0,
+                "Local Written Blocks": 0,
+                "Temp Read Blocks": 0,
+                "Temp Written Blocks": 0,
+                "Plans": [
+                  {
+                    "Node Type": "Sort",
+                    "Parent Relationship": "Outer",
+                    "Parallel Aware": false,
+                    "Async Capable": false,
+                    "Startup Cost": 42.29,
+                    "Total Cost": 42.29,
+                    "Plan Rows": 1,
+                    "Plan Width": 1076,
+                    "Actual Startup Time": 0.583,
+                    "Actual Total Time": 0.588,
+                    "Actual Rows": 9,
+                    "Actual Loops": 1,
+                    "Sort Key": [
+                      "a.submitted_at DESC",
+                      "a.id DESC"
+                    ],
+                    "Sort Method": "quicksort",
+                    "Sort Space Used": 29,
+                    "Sort Space Type": "Memory",
+                    "Shared Hit Blocks": 124,
+                    "Shared Read Blocks": 0,
+                    "Shared Dirtied Blocks": 0,
+                    "Shared Written Blocks": 0,
+                    "Local Hit Blocks": 0,
+                    "Local Read Blocks": 0,
+                    "Local Dirtied Blocks": 0,
+                    "Local Written Blocks": 0,
+                    "Temp Read Blocks": 0,
+                    "Temp Written Blocks": 0,
+                    "Plans": [
+                      {
+                        "Node Type": "Nested Loop",
+                        "Parent Relationship": "Outer",
+                        "Parallel Aware": false,
+                        "Async Capable": false,
+                        "Join Type": "Inner",
+                        "Startup Cost": 26.54,
+                        "Total Cost": 42.28,
+                        "Plan Rows": 1,
+                        "Plan Width": 1076,
+                        "Actual Startup Time": 0.191,
+                        "Actual Total Time": 0.547,
+                        "Actual Rows": 9,
+                        "Actual Loops": 1,
+                        "Inner Unique": false,
+                        "Shared Hit Blocks": 124,
+                        "Shared Read Blocks": 0,
+                        "Shared Dirtied Blocks": 0,
+                        "Shared Written Blocks": 0,
+                        "Local Hit Blocks": 0,
+                        "Local Read Blocks": 0,
+                        "Local Dirtied Blocks": 0,
+                        "Local Written Blocks": 0,
+                        "Temp Read Blocks": 0,
+                        "Temp Written Blocks": 0,
+                        "Plans": [
+                          {
+                            "Node Type": "Nested Loop",
+                            "Parent Relationship": "Outer",
+                            "Parallel Aware": false,
+                            "Async Capable": false,
+                            "Join Type": "Left",
+                            "Startup Cost": 1.17,
+                            "Total Cost": 16.86,
+                            "Plan Rows": 1,
+                            "Plan Width": 962,
+                            "Actual Startup Time": 0.106,
+                            "Actual Total Time": 0.301,
+                            "Actual Rows": 9,
+                            "Actual Loops": 1,
+                            "Inner Unique": true,
+                            "Shared Hit Blocks": 101,
+                            "Shared Read Blocks": 0,
+                            "Shared Dirtied Blocks": 0,
+                            "Shared Written Blocks": 0,
+                            "Local Hit Blocks": 0,
+                            "Local Read Blocks": 0,
+                            "Local Dirtied Blocks": 0,
+                            "Local Written Blocks": 0,
+                            "Temp Read Blocks": 0,
+                            "Temp Written Blocks": 0,
+                            "Plans": [
+                              {
+                                "Node Type": "Nested Loop",
+                                "Parent Relationship": "Outer",
+                                "Parallel Aware": false,
+                                "Async Capable": false,
+                                "Join Type": "Inner",
+                                "Startup Cost": 1.03,
+                                "Total Cost": 14.44,
+                                "Plan Rows": 1,
+                                "Plan Width": 864,
+                                "Actual Startup Time": 0.098,
+                                "Actual Total Time": 0.229,
+                                "Actual Rows": 9,
+                                "Actual Loops": 1,
+                                "Inner Unique": true,
+                                "Shared Hit Blocks": 89,
+                                "Shared Read Blocks": 0,
+                                "Shared Dirtied Blocks": 0,
+                                "Shared Written Blocks": 0,
+                                "Local Hit Blocks": 0,
+                                "Local Read Blocks": 0,
+                                "Local Dirtied Blocks": 0,
+                                "Local Written Blocks": 0,
+                                "Temp Read Blocks": 0,
+                                "Temp Written Blocks": 0,
+                                "Plans": [
+                                  {
+                                    "Node Type": "Nested Loop",
+                                    "Parent Relationship": "Outer",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Join Type": "Inner",
+                                    "Startup Cost": 0.88,
+                                    "Total Cost": 12.06,
+                                    "Plan Rows": 1,
+                                    "Plan Width": 814,
+                                    "Actual Startup Time": 0.088,
+                                    "Actual Total Time": 0.201,
+                                    "Actual Rows": 9,
+                                    "Actual Loops": 1,
+                                    "Inner Unique": false,
+                                    "Shared Hit Blocks": 71,
+                                    "Shared Read Blocks": 0,
+                                    "Shared Dirtied Blocks": 0,
+                                    "Shared Written Blocks": 0,
+                                    "Local Hit Blocks": 0,
+                                    "Local Read Blocks": 0,
+                                    "Local Dirtied Blocks": 0,
+                                    "Local Written Blocks": 0,
+                                    "Temp Read Blocks": 0,
+                                    "Temp Written Blocks": 0,
+                                    "Plans": [
+                                      {
+                                        "Node Type": "Nested Loop",
+                                        "Parent Relationship": "Outer",
+                                        "Parallel Aware": false,
+                                        "Async Capable": false,
+                                        "Join Type": "Inner",
+                                        "Startup Cost": 0.73,
+                                        "Total Cost": 9.69,
+                                        "Plan Rows": 1,
+                                        "Plan Width": 774,
+                                        "Actual Startup Time": 0.074,
+                                        "Actual Total Time": 0.167,
+                                        "Actual Rows": 9,
+                                        "Actual Loops": 1,
+                                        "Inner Unique": true,
+                                        "Shared Hit Blocks": 53,
+                                        "Shared Read Blocks": 0,
+                                        "Shared Dirtied Blocks": 0,
+                                        "Shared Written Blocks": 0,
+                                        "Local Hit Blocks": 0,
+                                        "Local Read Blocks": 0,
+                                        "Local Dirtied Blocks": 0,
+                                        "Local Written Blocks": 0,
+                                        "Temp Read Blocks": 0,
+                                        "Temp Written Blocks": 0,
+                                        "Plans": [
+                                          {
+                                            "Node Type": "Nested Loop",
+                                            "Parent Relationship": "Outer",
+                                            "Parallel Aware": false,
+                                            "Async Capable": false,
+                                            "Join Type": "Inner",
+                                            "Startup Cost": 0.58,
+                                            "Total Cost": 7.31,
+                                            "Plan Rows": 1,
+                                            "Plan Width": 658,
+                                            "Actual Startup Time": 0.063,
+                                            "Actual Total Time": 0.136,
+                                            "Actual Rows": 9,
+                                            "Actual Loops": 1,
+                                            "Inner Unique": false,
+                                            "Shared Hit Blocks": 35,
+                                            "Shared Read Blocks": 0,
+                                            "Shared Dirtied Blocks": 0,
+                                            "Shared Written Blocks": 0,
+                                            "Local Hit Blocks": 0,
+                                            "Local Read Blocks": 0,
+                                            "Local Dirtied Blocks": 0,
+                                            "Local Written Blocks": 0,
+                                            "Temp Read Blocks": 0,
+                                            "Temp Written Blocks": 0,
+                                            "Plans": [
+                                              {
+                                                "Node Type": "Nested Loop",
+                                                "Parent Relationship": "Outer",
+                                                "Parallel Aware": false,
+                                                "Async Capable": false,
+                                                "Join Type": "Left",
+                                                "Startup Cost": 0.44,
+                                                "Total Cost": 4.94,
+                                                "Plan Rows": 1,
+                                                "Plan Width": 626,
+                                                "Actual Startup Time": 0.048,
+                                                "Actual Total Time": 0.1,
+                                                "Actual Rows": 9,
+                                                "Actual Loops": 1,
+                                                "Inner Unique": false,
+                                                "Shared Hit Blocks": 17,
+                                                "Shared Read Blocks": 0,
+                                                "Shared Dirtied Blocks": 0,
+                                                "Shared Written Blocks": 0,
+                                                "Local Hit Blocks": 0,
+                                                "Local Read Blocks": 0,
+                                                "Local Dirtied Blocks": 0,
+                                                "Local Written Blocks": 0,
+                                                "Temp Read Blocks": 0,
+                                                "Temp Written Blocks": 0,
+                                                "Plans": [
+                                                  {
+                                                    "Node Type": "Index Scan",
+                                                    "Parent Relationship": "Outer",
+                                                    "Parallel Aware": false,
+                                                    "Async Capable": false,
+                                                    "Scan Direction": "Forward",
+                                                    "Index Name": "applications_queue",
+                                                    "Relation Name": "applications",
+                                                    "Alias": "a",
+                                                    "Startup Cost": 0.14,
+                                                    "Total Cost": 2.36,
+                                                    "Plan Rows": 1,
+                                                    "Plan Width": 516,
+                                                    "Actual Startup Time": 0.028,
+                                                    "Actual Total Time": 0.038,
+                                                    "Actual Rows": 9,
+                                                    "Actual Loops": 1,
+                                                    "Index Cond": "((campus_id = '1'::bigint) AND (term_id = '1'::bigint))",
+                                                    "Rows Removed by Index Recheck": 0,
+                                                    "Shared Hit Blocks": 2,
+                                                    "Shared Read Blocks": 0,
+                                                    "Shared Dirtied Blocks": 0,
+                                                    "Shared Written Blocks": 0,
+                                                    "Local Hit Blocks": 0,
+                                                    "Local Read Blocks": 0,
+                                                    "Local Dirtied Blocks": 0,
+                                                    "Local Written Blocks": 0,
+                                                    "Temp Read Blocks": 0,
+                                                    "Temp Written Blocks": 0
+                                                  },
+                                                  {
+                                                    "Node Type": "Nested Loop",
+                                                    "Parent Relationship": "Inner",
+                                                    "Parallel Aware": false,
+                                                    "Async Capable": false,
+                                                    "Join Type": "Left",
+                                                    "Startup Cost": 0.29,
+                                                    "Total Cost": 2.57,
+                                                    "Plan Rows": 1,
+                                                    "Plan Width": 118,
+                                                    "Actual Startup Time": 0.006,
+                                                    "Actual Total Time": 0.006,
+                                                    "Actual Rows": 0,
+                                                    "Actual Loops": 9,
+                                                    "Inner Unique": true,
+                                                    "Shared Hit Blocks": 15,
+                                                    "Shared Read Blocks": 0,
+                                                    "Shared Dirtied Blocks": 0,
+                                                    "Shared Written Blocks": 0,
+                                                    "Local Hit Blocks": 0,
+                                                    "Local Read Blocks": 0,
+                                                    "Local Dirtied Blocks": 0,
+                                                    "Local Written Blocks": 0,
+                                                    "Temp Read Blocks": 0,
+                                                    "Temp Written Blocks": 0,
+                                                    "Plans": [
+                                                      {
+                                                        "Node Type": "Index Scan",
+                                                        "Parent Relationship": "Outer",
+                                                        "Parallel Aware": false,
+                                                        "Async Capable": false,
+                                                        "Scan Direction": "Forward",
+                                                        "Index Name": "enrollments_application_id_key",
+                                                        "Relation Name": "enrollments",
+                                                        "Alias": "e",
+                                                        "Startup Cost": 0.15,
+                                                        "Total Cost": 2.37,
+                                                        "Plan Rows": 1,
+                                                        "Plan Width": 86,
+                                                        "Actual Startup Time": 0.003,
+                                                        "Actual Total Time": 0.003,
+                                                        "Actual Rows": 0,
+                                                        "Actual Loops": 9,
+                                                        "Index Cond": "(application_id = a.id)",
+                                                        "Rows Removed by Index Recheck": 0,
+                                                        "Shared Hit Blocks": 11,
+                                                        "Shared Read Blocks": 0,
+                                                        "Shared Dirtied Blocks": 0,
+                                                        "Shared Written Blocks": 0,
+                                                        "Local Hit Blocks": 0,
+                                                        "Local Read Blocks": 0,
+                                                        "Local Dirtied Blocks": 0,
+                                                        "Local Written Blocks": 0,
+                                                        "Temp Read Blocks": 0,
+                                                        "Temp Written Blocks": 0
+                                                      },
+                                                      {
+                                                        "Node Type": "Index Scan",
+                                                        "Parent Relationship": "Inner",
+                                                        "Parallel Aware": false,
+                                                        "Async Capable": false,
+                                                        "Scan Direction": "Forward",
+                                                        "Index Name": "sections_id_term_id_key",
+                                                        "Relation Name": "sections",
+                                                        "Alias": "s",
+                                                        "Startup Cost": 0.15,
+                                                        "Total Cost": 0.2,
+                                                        "Plan Rows": 1,
+                                                        "Plan Width": 40,
+                                                        "Actual Startup Time": 0.007,
+                                                        "Actual Total Time": 0.007,
+                                                        "Actual Rows": 1,
+                                                        "Actual Loops": 2,
+                                                        "Index Cond": "(id = e.section_id)",
+                                                        "Rows Removed by Index Recheck": 0,
+                                                        "Shared Hit Blocks": 4,
+                                                        "Shared Read Blocks": 0,
+                                                        "Shared Dirtied Blocks": 0,
+                                                        "Shared Written Blocks": 0,
+                                                        "Local Hit Blocks": 0,
+                                                        "Local Read Blocks": 0,
+                                                        "Local Dirtied Blocks": 0,
+                                                        "Local Written Blocks": 0,
+                                                        "Temp Read Blocks": 0,
+                                                        "Temp Written Blocks": 0
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "Node Type": "Index Scan",
+                                                "Parent Relationship": "Inner",
+                                                "Parallel Aware": false,
+                                                "Async Capable": false,
+                                                "Scan Direction": "Forward",
+                                                "Index Name": "campuses_pkey",
+                                                "Relation Name": "campuses",
+                                                "Alias": "c",
+                                                "Startup Cost": 0.15,
+                                                "Total Cost": 2.37,
+                                                "Plan Rows": 1,
+                                                "Plan Width": 40,
+                                                "Actual Startup Time": 0.003,
+                                                "Actual Total Time": 0.003,
+                                                "Actual Rows": 1,
+                                                "Actual Loops": 9,
+                                                "Index Cond": "(id = '1'::bigint)",
+                                                "Rows Removed by Index Recheck": 0,
+                                                "Shared Hit Blocks": 18,
+                                                "Shared Read Blocks": 0,
+                                                "Shared Dirtied Blocks": 0,
+                                                "Shared Written Blocks": 0,
+                                                "Local Hit Blocks": 0,
+                                                "Local Read Blocks": 0,
+                                                "Local Dirtied Blocks": 0,
+                                                "Local Written Blocks": 0,
+                                                "Temp Read Blocks": 0,
+                                                "Temp Written Blocks": 0
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "Node Type": "Index Scan",
+                                            "Parent Relationship": "Inner",
+                                            "Parallel Aware": false,
+                                            "Async Capable": false,
+                                            "Scan Direction": "Forward",
+                                            "Index Name": "programs_pkey",
+                                            "Relation Name": "programs",
+                                            "Alias": "p",
+                                            "Startup Cost": 0.15,
+                                            "Total Cost": 2.37,
+                                            "Plan Rows": 1,
+                                            "Plan Width": 124,
+                                            "Actual Startup Time": 0.002,
+                                            "Actual Total Time": 0.002,
+                                            "Actual Rows": 1,
+                                            "Actual Loops": 9,
+                                            "Index Cond": "(id = a.program_id)",
+                                            "Rows Removed by Index Recheck": 0,
+                                            "Shared Hit Blocks": 18,
+                                            "Shared Read Blocks": 0,
+                                            "Shared Dirtied Blocks": 0,
+                                            "Shared Written Blocks": 0,
+                                            "Local Hit Blocks": 0,
+                                            "Local Read Blocks": 0,
+                                            "Local Dirtied Blocks": 0,
+                                            "Local Written Blocks": 0,
+                                            "Temp Read Blocks": 0,
+                                            "Temp Written Blocks": 0
+                                          }
+                                        ]
+                                      },
+                                      {
+                                        "Node Type": "Index Scan",
+                                        "Parent Relationship": "Inner",
+                                        "Parallel Aware": false,
+                                        "Async Capable": false,
+                                        "Scan Direction": "Forward",
+                                        "Index Name": "academic_terms_pkey",
+                                        "Relation Name": "academic_terms",
+                                        "Alias": "t",
+                                        "Startup Cost": 0.15,
+                                        "Total Cost": 2.37,
+                                        "Plan Rows": 1,
+                                        "Plan Width": 48,
+                                        "Actual Startup Time": 0.003,
+                                        "Actual Total Time": 0.003,
+                                        "Actual Rows": 1,
+                                        "Actual Loops": 9,
+                                        "Index Cond": "(id = '1'::bigint)",
+                                        "Rows Removed by Index Recheck": 0,
+                                        "Shared Hit Blocks": 18,
+                                        "Shared Read Blocks": 0,
+                                        "Shared Dirtied Blocks": 0,
+                                        "Shared Written Blocks": 0,
+                                        "Local Hit Blocks": 0,
+                                        "Local Read Blocks": 0,
+                                        "Local Dirtied Blocks": 0,
+                                        "Local Written Blocks": 0,
+                                        "Temp Read Blocks": 0,
+                                        "Temp Written Blocks": 0
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "Node Type": "Index Scan",
+                                    "Parent Relationship": "Inner",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Scan Direction": "Forward",
+                                    "Index Name": "academic_years_pkey",
+                                    "Relation Name": "academic_years",
+                                    "Alias": "y",
+                                    "Startup Cost": 0.15,
+                                    "Total Cost": 2.37,
+                                    "Plan Rows": 1,
+                                    "Plan Width": 66,
+                                    "Actual Startup Time": 0.002,
+                                    "Actual Total Time": 0.002,
+                                    "Actual Rows": 1,
+                                    "Actual Loops": 9,
+                                    "Index Cond": "(id = t.academic_year_id)",
+                                    "Rows Removed by Index Recheck": 0,
+                                    "Shared Hit Blocks": 18,
+                                    "Shared Read Blocks": 0,
+                                    "Shared Dirtied Blocks": 0,
+                                    "Shared Written Blocks": 0,
+                                    "Local Hit Blocks": 0,
+                                    "Local Read Blocks": 0,
+                                    "Local Dirtied Blocks": 0,
+                                    "Local Written Blocks": 0,
+                                    "Temp Read Blocks": 0,
+                                    "Temp Written Blocks": 0
+                                  }
+                                ]
+                              },
+                              {
+                                "Node Type": "Index Scan",
+                                "Parent Relationship": "Inner",
+                                "Parallel Aware": false,
+                                "Async Capable": false,
+                                "Scan Direction": "Forward",
+                                "Index Name": "students_pkey",
+                                "Relation Name": "students",
+                                "Alias": "st",
+                                "Startup Cost": 0.14,
+                                "Total Cost": 2.36,
+                                "Plan Rows": 1,
+                                "Plan Width": 106,
+                                "Actual Startup Time": 0.007,
+                                "Actual Total Time": 0.007,
+                                "Actual Rows": 1,
+                                "Actual Loops": 9,
+                                "Index Cond": "(id = a.student_id)",
+                                "Rows Removed by Index Recheck": 0,
+                                "Shared Hit Blocks": 12,
+                                "Shared Read Blocks": 0,
+                                "Shared Dirtied Blocks": 0,
+                                "Shared Written Blocks": 0,
+                                "Local Hit Blocks": 0,
+                                "Local Read Blocks": 0,
+                                "Local Dirtied Blocks": 0,
+                                "Local Written Blocks": 0,
+                                "Temp Read Blocks": 0,
+                                "Temp Written Blocks": 0
+                              }
+                            ]
+                          },
+                          {
+                            "Node Type": "Aggregate",
+                            "Strategy": "Plain",
+                            "Partial Mode": "Simple",
+                            "Parent Relationship": "Inner",
+                            "Parallel Aware": false,
+                            "Async Capable": false,
+                            "Startup Cost": 25.37,
+                            "Total Cost": 25.39,
+                            "Plan Rows": 1,
+                            "Plan Width": 40,
+                            "Actual Startup Time": 0.022,
+                            "Actual Total Time": 0.023,
+                            "Actual Rows": 1,
+                            "Actual Loops": 9,
+                            "Shared Hit Blocks": 23,
+                            "Shared Read Blocks": 0,
+                            "Shared Dirtied Blocks": 0,
+                            "Shared Written Blocks": 0,
+                            "Local Hit Blocks": 0,
+                            "Local Read Blocks": 0,
+                            "Local Dirtied Blocks": 0,
+                            "Local Written Blocks": 0,
+                            "Temp Read Blocks": 0,
+                            "Temp Written Blocks": 0,
+                            "Plans": [
+                              {
+                                "Node Type": "Hash Join",
+                                "Parent Relationship": "Outer",
+                                "Parallel Aware": false,
+                                "Async Capable": false,
+                                "Join Type": "Left",
+                                "Startup Cost": 2.38,
+                                "Total Cost": 18.32,
+                                "Plan Rows": 470,
+                                "Plan Width": 67,
+                                "Actual Startup Time": 0.015,
+                                "Actual Total Time": 0.017,
+                                "Actual Rows": 4,
+                                "Actual Loops": 9,
+                                "Inner Unique": true,
+                                "Hash Cond": "((rt.code)::text = (ar.requirement_code)::text)",
+                                "Shared Hit Blocks": 23,
+                                "Shared Read Blocks": 0,
+                                "Shared Dirtied Blocks": 0,
+                                "Shared Written Blocks": 0,
+                                "Local Hit Blocks": 0,
+                                "Local Read Blocks": 0,
+                                "Local Dirtied Blocks": 0,
+                                "Local Written Blocks": 0,
+                                "Temp Read Blocks": 0,
+                                "Temp Written Blocks": 0,
+                                "Plans": [
+                                  {
+                                    "Node Type": "Seq Scan",
+                                    "Parent Relationship": "Outer",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Relation Name": "requirement_types",
+                                    "Alias": "rt",
+                                    "Startup Cost": 0.0,
+                                    "Total Cost": 14.7,
+                                    "Plan Rows": 470,
+                                    "Plan Width": 79,
+                                    "Actual Startup Time": 0.003,
+                                    "Actual Total Time": 0.004,
+                                    "Actual Rows": 4,
+                                    "Actual Loops": 9,
+                                    "Shared Hit Blocks": 9,
+                                    "Shared Read Blocks": 0,
+                                    "Shared Dirtied Blocks": 0,
+                                    "Shared Written Blocks": 0,
+                                    "Local Hit Blocks": 0,
+                                    "Local Read Blocks": 0,
+                                    "Local Dirtied Blocks": 0,
+                                    "Local Written Blocks": 0,
+                                    "Temp Read Blocks": 0,
+                                    "Temp Written Blocks": 0
+                                  },
+                                  {
+                                    "Node Type": "Hash",
+                                    "Parent Relationship": "Inner",
+                                    "Parallel Aware": false,
+                                    "Async Capable": false,
+                                    "Startup Cost": 2.36,
+                                    "Total Cost": 2.36,
+                                    "Plan Rows": 1,
+                                    "Plan Width": 144,
+                                    "Actual Startup Time": 0.006,
+                                    "Actual Total Time": 0.006,
+                                    "Actual Rows": 2,
+                                    "Actual Loops": 9,
+                                    "Hash Buckets": 1024,
+                                    "Original Hash Buckets": 1024,
+                                    "Hash Batches": 1,
+                                    "Original Hash Batches": 1,
+                                    "Peak Memory Usage": 9,
+                                    "Shared Hit Blocks": 14,
+                                    "Shared Read Blocks": 0,
+                                    "Shared Dirtied Blocks": 0,
+                                    "Shared Written Blocks": 0,
+                                    "Local Hit Blocks": 0,
+                                    "Local Read Blocks": 0,
+                                    "Local Dirtied Blocks": 0,
+                                    "Local Written Blocks": 0,
+                                    "Temp Read Blocks": 0,
+                                    "Temp Written Blocks": 0,
+                                    "Plans": [
+                                      {
+                                        "Node Type": "Index Scan",
+                                        "Parent Relationship": "Outer",
+                                        "Parallel Aware": false,
+                                        "Async Capable": false,
+                                        "Scan Direction": "Forward",
+                                        "Index Name": "application_requirements_pkey",
+                                        "Relation Name": "application_requirements",
+                                        "Alias": "ar",
+                                        "Startup Cost": 0.14,
+                                        "Total Cost": 2.36,
+                                        "Plan Rows": 1,
+                                        "Plan Width": 144,
+                                        "Actual Startup Time": 0.003,
+                                        "Actual Total Time": 0.004,
+                                        "Actual Rows": 2,
+                                        "Actual Loops": 9,
+                                        "Index Cond": "(application_id = a.id)",
+                                        "Rows Removed by Index Recheck": 0,
+                                        "Shared Hit Blocks": 14,
+                                        "Shared Read Blocks": 0,
+                                        "Shared Dirtied Blocks": 0,
+                                        "Shared Written Blocks": 0,
+                                        "Local Hit Blocks": 0,
+                                        "Local Read Blocks": 0,
+                                        "Local Dirtied Blocks": 0,
+                                        "Local Written Blocks": 0,
+                                        "Temp Read Blocks": 0,
+                                        "Temp Written Blocks": 0
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "Node Type": "Index Only Scan",
+                    "Parent Relationship": "SubPlan",
+                    "Subplan Name": "SubPlan 1",
+                    "Parallel Aware": false,
+                    "Async Capable": false,
+                    "Scan Direction": "Forward",
+                    "Index Name": "attendance_present_application",
+                    "Relation Name": "orientation_attendance",
+                    "Alias": "o",
+                    "Startup Cost": 0.14,
+                    "Total Cost": 2.36,
+                    "Plan Rows": 1,
+                    "Plan Width": 0,
+                    "Actual Startup Time": 0.003,
+                    "Actual Total Time": 0.003,
+                    "Actual Rows": 0,
+                    "Actual Loops": 9,
+                    "Index Cond": "(application_id = a.id)",
+                    "Rows Removed by Index Recheck": 0,
+                    "Heap Fetches": 3,
+                    "Shared Hit Blocks": 12,
+                    "Shared Read Blocks": 0,
+                    "Shared Dirtied Blocks": 0,
+                    "Shared Written Blocks": 0,
+                    "Local Hit Blocks": 0,
+                    "Local Read Blocks": 0,
+                    "Local Dirtied Blocks": 0,
+                    "Local Written Blocks": 0,
+                    "Temp Read Blocks": 0,
+                    "Temp Written Blocks": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "Planning": {
+            "Shared Hit Blocks": 0,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          "Planning Time": 6.29,
+          "Triggers": [],
+          "Execution Time": 1.205
+        }
+      ],
+      "sql": "SELECT a.id,a.application_number AS \"applicationNumber\",concat_ws(' ',a.first_name,a.last_name) AS name, a.campus_id AS \"campusId\",c.name AS campus,a.term_id AS \"termId\",concat(y.label,' / ',t.name) AS term, a.program_id AS \"programId\",p.code AS program,a.status,a.version, a.first_name AS \"firstName\",a.middle_name AS \"middleName\",a.last_name AS \"lastName\",a.lrn,a.category, a.submitted_at::date AS \"submittedAt\",a.updated_at AS \"updatedAt\",p.category AS \"programCategory\", CASE WHEN p.category='TVET' THEN 'TVET' WHEN p.code LIKE 'TVL_%' THEN 'TVL' ELSE 'ACADEMIC' END AS track, a.student_id AS \"studentId\",st.student_number AS \"studentNumber\",a.contact_phone AS phone,a.email, coalesce(a.profile->>'gradeLevel','') AS \"gradeLevel\",coalesce(a.profile->>'district','') AS district, coalesce(a.profile->>'transportRoute','') AS \"transportRoute\",creds.status AS \"requirementsStatus\",creds.updated_at AS \"requirementsUpdatedAt\", EXISTS(SELECT 1 FROM orientation_attendance o WHERE o.application_id=a.id AND o.status='present') AS \"attendancePresent\", e.id AS \"enrollmentId\",e.version AS \"enrollmentVersion\",e.status AS \"enrollmentStatus\", e.section_id AS \"sectionId\",s.name AS section FROM applications a JOIN campuses c ON c.id=a.campus_id JOIN programs p ON p.id=a.program_id JOIN academic_terms t ON t.id=a.term_id JOIN academic_years y ON y.id=t.academic_year_id LEFT JOIN students st ON st.id=a.student_id LEFT JOIN enrollments e ON e.application_id=a.id LEFT JOIN sections s ON s.id=e.section_id CROSS JOIN LATERAL ( SELECT CASE WHEN count(*) FILTER(WHERE rt.mandatory)=0 THEN 'Pending' WHEN count(*) FILTER(WHERE rt.mandatory AND coalesce(ar.status,'pending')<>'submitted')=0 THEN 'Complete' WHEN count(*) FILTER(WHERE rt.mandatory AND ar.status IN ('missing','invalid'))>0 THEN 'Incomplete' ELSE 'Pending' END AS status,max(ar.updated_at) AS updated_at FROM requirement_types rt LEFT JOIN application_requirements ar ON ar.requirement_code=rt.code AND ar.application_id=a.id ) creds WHERE a.campus_id IN (?) AND a.campus_id=? AND a.term_id=? ORDER BY a.submitted_at DESC,a.id DESC LIMIT ? OFFSET ?"
+    }
+  ],
+  "indexes": [
+    {
+      "tablename": "academic_terms",
+      "indexname": "academic_terms_academic_year_id_code_key",
+      "indexdef": "CREATE UNIQUE INDEX academic_terms_academic_year_id_code_key ON public.academic_terms USING btree (academic_year_id, code)"
+    },
+    {
+      "tablename": "academic_terms",
+      "indexname": "academic_terms_pkey",
+      "indexdef": "CREATE UNIQUE INDEX academic_terms_pkey ON public.academic_terms USING btree (id)"
+    },
+    {
+      "tablename": "academic_terms",
+      "indexname": "term_code_casefold",
+      "indexdef": "CREATE UNIQUE INDEX term_code_casefold ON public.academic_terms USING btree (academic_year_id, lower(btrim((code)::text)))"
+    },
+    {
+      "tablename": "academic_years",
+      "indexname": "academic_year_label_casefold",
+      "indexdef": "CREATE UNIQUE INDEX academic_year_label_casefold ON public.academic_years USING btree (lower(btrim((label)::text)))"
+    },
+    {
+      "tablename": "academic_years",
+      "indexname": "academic_years_label_key",
+      "indexdef": "CREATE UNIQUE INDEX academic_years_label_key ON public.academic_years USING btree (label)"
+    },
+    {
+      "tablename": "academic_years",
+      "indexname": "academic_years_pkey",
+      "indexdef": "CREATE UNIQUE INDEX academic_years_pkey ON public.academic_years USING btree (id)"
+    },
+    {
+      "tablename": "application_requirements",
+      "indexname": "application_requirements_pkey",
+      "indexdef": "CREATE UNIQUE INDEX application_requirements_pkey ON public.application_requirements USING btree (application_id, requirement_code)"
+    },
+    {
+      "tablename": "applications",
+      "indexname": "applications_application_number_key",
+      "indexdef": "CREATE UNIQUE INDEX applications_application_number_key ON public.applications USING btree (application_number)"
+    },
+    {
+      "tablename": "applications",
+      "indexname": "applications_id_campus_id_term_id_program_id_key",
+      "indexdef": "CREATE UNIQUE INDEX applications_id_campus_id_term_id_program_id_key ON public.applications USING btree (id, campus_id, term_id, program_id)"
+    },
+    {
+      "tablename": "applications",
+      "indexname": "applications_lrn",
+      "indexdef": "CREATE INDEX applications_lrn ON public.applications USING btree (lrn)"
+    },
+    {
+      "tablename": "applications",
+      "indexname": "applications_pkey",
+      "indexdef": "CREATE UNIQUE INDEX applications_pkey ON public.applications USING btree (id)"
+    },
+    {
+      "tablename": "applications",
+      "indexname": "applications_queue",
+      "indexdef": "CREATE INDEX applications_queue ON public.applications USING btree (campus_id, term_id, status)"
+    },
+    {
+      "tablename": "audit_logs",
+      "indexname": "audit_actor_history",
+      "indexdef": "CREATE INDEX audit_actor_history ON public.audit_logs USING btree (actor_id, occurred_at DESC)"
+    },
+    {
+      "tablename": "audit_logs",
+      "indexname": "audit_logs_pkey",
+      "indexdef": "CREATE UNIQUE INDEX audit_logs_pkey ON public.audit_logs USING btree (id)"
+    },
+    {
+      "tablename": "audit_logs",
+      "indexname": "audit_record_history",
+      "indexdef": "CREATE INDEX audit_record_history ON public.audit_logs USING btree (table_name, record_id, occurred_at DESC)"
+    },
+    {
+      "tablename": "audit_logs",
+      "indexname": "requirement_audit_application",
+      "indexdef": "CREATE INDEX requirement_audit_application ON public.audit_logs USING btree (COALESCE((new_data ->> 'application_id'::text), (old_data ->> 'application_id'::text)), id DESC) WHERE (table_name = 'application_requirements'::text)"
+    },
+    {
+      "tablename": "campuses",
+      "indexname": "campuses_code_key",
+      "indexdef": "CREATE UNIQUE INDEX campuses_code_key ON public.campuses USING btree (code)"
+    },
+    {
+      "tablename": "campuses",
+      "indexname": "campuses_pkey",
+      "indexdef": "CREATE UNIQUE INDEX campuses_pkey ON public.campuses USING btree (id)"
+    },
+    {
+      "tablename": "class_memberships",
+      "indexname": "class_memberships_class_id_enrollment_id_term_id_key",
+      "indexdef": "CREATE UNIQUE INDEX class_memberships_class_id_enrollment_id_term_id_key ON public.class_memberships USING btree (class_id, enrollment_id, term_id)"
+    },
+    {
+      "tablename": "class_memberships",
+      "indexname": "class_memberships_pkey",
+      "indexdef": "CREATE UNIQUE INDEX class_memberships_pkey ON public.class_memberships USING btree (class_id, enrollment_id)"
+    },
+    {
+      "tablename": "class_offerings",
+      "indexname": "class_offerings_id_section_id_term_id_key",
+      "indexdef": "CREATE UNIQUE INDEX class_offerings_id_section_id_term_id_key ON public.class_offerings USING btree (id, section_id, term_id)"
+    },
+    {
+      "tablename": "class_offerings",
+      "indexname": "class_offerings_id_term_id_key",
+      "indexdef": "CREATE UNIQUE INDEX class_offerings_id_term_id_key ON public.class_offerings USING btree (id, term_id)"
+    },
+    {
+      "tablename": "class_offerings",
+      "indexname": "class_offerings_pkey",
+      "indexdef": "CREATE UNIQUE INDEX class_offerings_pkey ON public.class_offerings USING btree (id)"
+    },
+    {
+      "tablename": "class_offerings",
+      "indexname": "class_offerings_section_id_subject_id_key",
+      "indexdef": "CREATE UNIQUE INDEX class_offerings_section_id_subject_id_key ON public.class_offerings USING btree (section_id, subject_id)"
+    },
+    {
+      "tablename": "document_requests",
+      "indexname": "document_requests_pkey",
+      "indexdef": "CREATE UNIQUE INDEX document_requests_pkey ON public.document_requests USING btree (id)"
+    },
+    {
+      "tablename": "duplicate_cases",
+      "indexname": "duplicate_cases_pkey",
+      "indexdef": "CREATE UNIQUE INDEX duplicate_cases_pkey ON public.duplicate_cases USING btree (id)"
+    },
+    {
+      "tablename": "duplicate_cases",
+      "indexname": "duplicate_cases_review",
+      "indexdef": "CREATE INDEX duplicate_cases_review ON public.duplicate_cases USING btree (application_id, status)"
+    },
+    {
+      "tablename": "enrollment_attendance_windows",
+      "indexname": "enrollment_attendance_windows_pkey",
+      "indexdef": "CREATE UNIQUE INDEX enrollment_attendance_windows_pkey ON public.enrollment_attendance_windows USING btree (campus_id, term_id)"
+    },
+    {
+      "tablename": "enrollments",
+      "indexname": "enrollment_workspace",
+      "indexdef": "CREATE INDEX enrollment_workspace ON public.enrollments USING btree (campus_id, term_id, program_id, status, id)"
+    },
+    {
+      "tablename": "enrollments",
+      "indexname": "enrollments_application_id_key",
+      "indexdef": "CREATE UNIQUE INDEX enrollments_application_id_key ON public.enrollments USING btree (application_id)"
+    },
+    {
+      "tablename": "enrollments",
+      "indexname": "enrollments_id_section_id_term_id_key",
+      "indexdef": "CREATE UNIQUE INDEX enrollments_id_section_id_term_id_key ON public.enrollments USING btree (id, section_id, term_id)"
+    },
+    {
+      "tablename": "enrollments",
+      "indexname": "enrollments_pkey",
+      "indexdef": "CREATE UNIQUE INDEX enrollments_pkey ON public.enrollments USING btree (id)"
+    },
+    {
+      "tablename": "enrollments",
+      "indexname": "enrollments_section",
+      "indexdef": "CREATE INDEX enrollments_section ON public.enrollments USING btree (section_id)"
+    },
+    {
+      "tablename": "enrollments",
+      "indexname": "enrollments_student_id_term_id_key",
+      "indexdef": "CREATE UNIQUE INDEX enrollments_student_id_term_id_key ON public.enrollments USING btree (student_id, term_id)"
+    },
+    {
+      "tablename": "flyway_schema_history",
+      "indexname": "flyway_schema_history_pk",
+      "indexdef": "CREATE UNIQUE INDEX flyway_schema_history_pk ON public.flyway_schema_history USING btree (installed_rank)"
+    },
+    {
+      "tablename": "flyway_schema_history",
+      "indexname": "flyway_schema_history_s_idx",
+      "indexdef": "CREATE INDEX flyway_schema_history_s_idx ON public.flyway_schema_history USING btree (success)"
+    },
+    {
+      "tablename": "grade_corrections",
+      "indexname": "grade_corrections_pkey",
+      "indexdef": "CREATE UNIQUE INDEX grade_corrections_pkey ON public.grade_corrections USING btree (id)"
+    },
+    {
+      "tablename": "grades",
+      "indexname": "grades_class_id_enrollment_id_grading_period_id_key",
+      "indexdef": "CREATE UNIQUE INDEX grades_class_id_enrollment_id_grading_period_id_key ON public.grades USING btree (class_id, enrollment_id, grading_period_id)"
+    },
+    {
+      "tablename": "grades",
+      "indexname": "grades_pkey",
+      "indexdef": "CREATE UNIQUE INDEX grades_pkey ON public.grades USING btree (id)"
+    },
+    {
+      "tablename": "grading_periods",
+      "indexname": "grading_periods_id_term_id_key",
+      "indexdef": "CREATE UNIQUE INDEX grading_periods_id_term_id_key ON public.grading_periods USING btree (id, term_id)"
+    },
+    {
+      "tablename": "grading_periods",
+      "indexname": "grading_periods_pkey",
+      "indexdef": "CREATE UNIQUE INDEX grading_periods_pkey ON public.grading_periods USING btree (id)"
+    },
+    {
+      "tablename": "grading_periods",
+      "indexname": "grading_periods_term_id_code_key",
+      "indexdef": "CREATE UNIQUE INDEX grading_periods_term_id_code_key ON public.grading_periods USING btree (term_id, code)"
+    },
+    {
+      "tablename": "grading_periods",
+      "indexname": "grading_periods_term_id_sequence_key",
+      "indexdef": "CREATE UNIQUE INDEX grading_periods_term_id_sequence_key ON public.grading_periods USING btree (term_id, sequence)"
+    },
+    {
+      "tablename": "grading_periods",
+      "indexname": "period_code_casefold",
+      "indexdef": "CREATE UNIQUE INDEX period_code_casefold ON public.grading_periods USING btree (term_id, lower(btrim((code)::text)))"
+    },
+    {
+      "tablename": "grading_windows",
+      "indexname": "grading_windows_pkey",
+      "indexdef": "CREATE UNIQUE INDEX grading_windows_pkey ON public.grading_windows USING btree (class_id, grading_period_id)"
+    },
+    {
+      "tablename": "guardians",
+      "indexname": "guardians_one_primary",
+      "indexdef": "CREATE UNIQUE INDEX guardians_one_primary ON public.guardians USING btree (student_id) WHERE is_primary"
+    },
+    {
+      "tablename": "guardians",
+      "indexname": "guardians_pkey",
+      "indexdef": "CREATE UNIQUE INDEX guardians_pkey ON public.guardians USING btree (id)"
+    },
+    {
+      "tablename": "import_batches",
+      "indexname": "import_batches_pkey",
+      "indexdef": "CREATE UNIQUE INDEX import_batches_pkey ON public.import_batches USING btree (id)"
+    },
+    {
+      "tablename": "import_exceptions",
+      "indexname": "import_exceptions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX import_exceptions_pkey ON public.import_exceptions USING btree (id)"
+    },
+    {
+      "tablename": "incomplete_cases",
+      "indexname": "incomplete_cases_pkey",
+      "indexdef": "CREATE UNIQUE INDEX incomplete_cases_pkey ON public.incomplete_cases USING btree (id)"
+    },
+    {
+      "tablename": "incomplete_cases",
+      "indexname": "incomplete_one_open",
+      "indexdef": "CREATE UNIQUE INDEX incomplete_one_open ON public.incomplete_cases USING btree (grade_id) WHERE ((status)::text <> 'resolved'::text)"
+    },
+    {
+      "tablename": "orientation_attendance",
+      "indexname": "attendance_present_application",
+      "indexdef": "CREATE INDEX attendance_present_application ON public.orientation_attendance USING btree (application_id) WHERE ((status)::text = 'present'::text)"
+    },
+    {
+      "tablename": "orientation_attendance",
+      "indexname": "orientation_attendance_pkey",
+      "indexdef": "CREATE UNIQUE INDEX orientation_attendance_pkey ON public.orientation_attendance USING btree (application_id, attendance_date)"
+    },
+    {
+      "tablename": "permissions",
+      "indexname": "permissions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX permissions_pkey ON public.permissions USING btree (code)"
+    },
+    {
+      "tablename": "programs",
+      "indexname": "programs_code_key",
+      "indexdef": "CREATE UNIQUE INDEX programs_code_key ON public.programs USING btree (code)"
+    },
+    {
+      "tablename": "programs",
+      "indexname": "programs_pkey",
+      "indexdef": "CREATE UNIQUE INDEX programs_pkey ON public.programs USING btree (id)"
+    },
+    {
+      "tablename": "requirement_types",
+      "indexname": "requirement_types_pkey",
+      "indexdef": "CREATE UNIQUE INDEX requirement_types_pkey ON public.requirement_types USING btree (code)"
+    },
+    {
+      "tablename": "revoked_tokens",
+      "indexname": "revoked_tokens_expiry",
+      "indexdef": "CREATE INDEX revoked_tokens_expiry ON public.revoked_tokens USING btree (expires_at)"
+    },
+    {
+      "tablename": "revoked_tokens",
+      "indexname": "revoked_tokens_pkey",
+      "indexdef": "CREATE UNIQUE INDEX revoked_tokens_pkey ON public.revoked_tokens USING btree (token_id)"
+    },
+    {
+      "tablename": "role_permissions",
+      "indexname": "role_permissions_pkey",
+      "indexdef": "CREATE UNIQUE INDEX role_permissions_pkey ON public.role_permissions USING btree (role_code, permission_code)"
+    },
+    {
+      "tablename": "roles",
+      "indexname": "roles_pkey",
+      "indexdef": "CREATE UNIQUE INDEX roles_pkey ON public.roles USING btree (code)"
+    },
+    {
+      "tablename": "sections",
+      "indexname": "sections_campus_id_term_id_name_key",
+      "indexdef": "CREATE UNIQUE INDEX sections_campus_id_term_id_name_key ON public.sections USING btree (campus_id, term_id, name)"
+    },
+    {
+      "tablename": "sections",
+      "indexname": "sections_id_campus_id_term_id_program_id_key",
+      "indexdef": "CREATE UNIQUE INDEX sections_id_campus_id_term_id_program_id_key ON public.sections USING btree (id, campus_id, term_id, program_id)"
+    },
+    {
+      "tablename": "sections",
+      "indexname": "sections_id_term_id_key",
+      "indexdef": "CREATE UNIQUE INDEX sections_id_term_id_key ON public.sections USING btree (id, term_id)"
+    },
+    {
+      "tablename": "sections",
+      "indexname": "sections_pkey",
+      "indexdef": "CREATE UNIQUE INDEX sections_pkey ON public.sections USING btree (id)"
+    },
+    {
+      "tablename": "student_notes",
+      "indexname": "student_notes_pkey",
+      "indexdef": "CREATE UNIQUE INDEX student_notes_pkey ON public.student_notes USING btree (id)"
+    },
+    {
+      "tablename": "students",
+      "indexname": "students_campus_directory",
+      "indexdef": "CREATE INDEX students_campus_directory ON public.students USING btree (campus_id, last_name, first_name, id)"
+    },
+    {
+      "tablename": "students",
+      "indexname": "students_lrn_key",
+      "indexdef": "CREATE UNIQUE INDEX students_lrn_key ON public.students USING btree (lrn)"
+    },
+    {
+      "tablename": "students",
+      "indexname": "students_name_birth",
+      "indexdef": "CREATE INDEX students_name_birth ON public.students USING btree (lower(last_name), lower(first_name), birth_date)"
+    },
+    {
+      "tablename": "students",
+      "indexname": "students_pkey",
+      "indexdef": "CREATE UNIQUE INDEX students_pkey ON public.students USING btree (id)"
+    },
+    {
+      "tablename": "students",
+      "indexname": "students_program",
+      "indexdef": "CREATE INDEX students_program ON public.students USING btree (program_id)"
+    },
+    {
+      "tablename": "students",
+      "indexname": "students_student_number_key",
+      "indexdef": "CREATE UNIQUE INDEX students_student_number_key ON public.students USING btree (student_number)"
+    },
+    {
+      "tablename": "subjects",
+      "indexname": "subjects_code_casefold",
+      "indexdef": "CREATE UNIQUE INDEX subjects_code_casefold ON public.subjects USING btree (lower(btrim((code)::text)))"
+    },
+    {
+      "tablename": "subjects",
+      "indexname": "subjects_code_key",
+      "indexdef": "CREATE UNIQUE INDEX subjects_code_key ON public.subjects USING btree (code)"
+    },
+    {
+      "tablename": "subjects",
+      "indexname": "subjects_pkey",
+      "indexdef": "CREATE UNIQUE INDEX subjects_pkey ON public.subjects USING btree (id)"
+    },
+    {
+      "tablename": "user_role_grants",
+      "indexname": "user_role_grants_pkey",
+      "indexdef": "CREATE UNIQUE INDEX user_role_grants_pkey ON public.user_role_grants USING btree (user_id, role_code, campus_id)"
+    },
+    {
+      "tablename": "users",
+      "indexname": "users_email_normalized",
+      "indexdef": "CREATE UNIQUE INDEX users_email_normalized ON public.users USING btree (lower(email))"
+    },
+    {
+      "tablename": "users",
+      "indexname": "users_pkey",
+      "indexdef": "CREATE UNIQUE INDEX users_pkey ON public.users USING btree (id)"
+    },
+    {
+      "tablename": "users",
+      "indexname": "users_username_normalized",
+      "indexdef": "CREATE UNIQUE INDEX users_username_normalized ON public.users USING btree (lower((username)::text))"
+    },
+    {
+      "tablename": "vouchers",
+      "indexname": "vouchers_pkey",
+      "indexdef": "CREATE UNIQUE INDEX vouchers_pkey ON public.vouchers USING btree (code)"
+    },
+    {
+      "tablename": "withdrawal_clearances",
+      "indexname": "withdrawal_clearances_pkey",
+      "indexdef": "CREATE UNIQUE INDEX withdrawal_clearances_pkey ON public.withdrawal_clearances USING btree (withdrawal_id, office)"
+    },
+    {
+      "tablename": "withdrawals",
+      "indexname": "withdrawals_enrollment_id_key",
+      "indexdef": "CREATE UNIQUE INDEX withdrawals_enrollment_id_key ON public.withdrawals USING btree (enrollment_id)"
+    },
+    {
+      "tablename": "withdrawals",
+      "indexname": "withdrawals_pkey",
+      "indexdef": "CREATE UNIQUE INDEX withdrawals_pkey ON public.withdrawals USING btree (id)"
+    }
+  ],
+  "rowCounts": {
+    "applications": 9,
+    "students": 8,
+    "accounts": 10,
+    "audit_events": 106
+  },
+  "methodology": "Read-only connection; direct service calls with current DB actor grants and explicit permission check. Request attributes reproduce per-request permission reuse. Includes JDBC wire time, excludes HTTP transport, Spring transaction/pool management, JWT crypto and rendering. Direct-service phase issues no tokens or writes; see liveApiMethod for optional HTTP sampling.",
+  "note": "Direct-service profile after catalog/account/detail refactors, before the subsequent queue window-count optimization. Queue now uses one page/count statement on a nonempty page; see HTTP comparison and query-budget tests."
+}

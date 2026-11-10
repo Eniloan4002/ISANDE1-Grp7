@@ -74,6 +74,12 @@ public class RequirementService {
     @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
     public Checklist checklist(long applicationId){return assemble(application(applicationId,false));}
 
+    // Reuse an application already read by the enrollment service, but recheck its scope.
+    public Checklist checklistForApplication(Map<String,Object> application){
+        if(!scope().contains(((Number)application.get("campus_id")).longValue()))throw missing();
+        return assemble(application);
+    }
+
     @Transactional
     public Checklist update(long applicationId,String rawCode,RequirementUpdate input){
         // The same application row is locked by enrollment confirmation. This

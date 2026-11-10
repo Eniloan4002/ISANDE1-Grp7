@@ -1,0 +1,70 @@
+{
+  "results": [
+    {
+      "path": "/auth/me",
+      "statuses": [
+        200,
+        200,
+        200
+      ],
+      "samplesMs": [
+        3516.28,
+        240.4,
+        238.1
+      ]
+    },
+    {
+      "path": "/intake/reference-data",
+      "statuses": [
+        200,
+        200,
+        200
+      ],
+      "samplesMs": [
+        1014.88,
+        993.91,
+        1048.43
+      ]
+    },
+    {
+      "path": "/enrollment/applications?termId=1",
+      "statuses": [
+        200,
+        200,
+        200
+      ],
+      "samplesMs": [
+        1812.71,
+        1856.12,
+        1801.47
+      ]
+    },
+    {
+      "path": "/intake/applications/1",
+      "statuses": [
+        200,
+        200,
+        200
+      ],
+      "samplesMs": [
+        2915.41,
+        2341.41,
+        2418.86
+      ]
+    },
+    {
+      "path": "/admin/accounts",
+      "statuses": [
+        200,
+        200,
+        200
+      ],
+      "samplesMs": [
+        1539.37,
+        1558.07,
+        1572.22
+      ]
+    }
+  ],
+  "method": "Three sequential GETs per endpoint on the normal refactored backend after restart. Tokens remain in memory; no writes performed. Checked nine demo applications, ten accounts and no exposed internal count column. Diagnostic samples, not load-test percentiles."
+}

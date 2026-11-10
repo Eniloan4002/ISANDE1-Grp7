@@ -19,6 +19,7 @@ public class EnrollmentService {
     private final NamedParameterJdbcTemplate db;
     private final AccessPolicy accessPolicy;
     private final RequirementService requirements;
+    private static final com.fasterxml.jackson.databind.ObjectMapper CATALOG_JSON=new com.fasterxml.jackson.databind.ObjectMapper();
     public EnrollmentService(NamedParameterJdbcTemplate db,RequirementService requirements,AccessPolicy accessPolicy){this.accessPolicy=accessPolicy;this.db=db;this.requirements=requirements;}
     private StaffIdentity identity(){return (StaffIdentity)SecurityContextHolder.getContext().getAuthentication().getPrincipal();}
     private List<Long> scope(){return accessPolicy.campuses("enrollment.manage");}
@@ -32,11 +33,27 @@ public class EnrollmentService {
         if(rows.isEmpty())throw error(HttpStatus.NOT_FOUND,"Application not found.");return rows.getFirst();
     }
     @Transactional(readOnly=true)
-    public Map<String,Object> reference(){return Map.of(
-        "campuses",db.queryForList("SELECT id,code,name FROM campuses WHERE active AND id IN (:scope) ORDER BY name",Map.of("scope",scope())),
-        "programs",db.queryForList("SELECT id,code,name,category FROM programs ORDER BY name",Map.of()),
-        "terms",db.queryForList("SELECT t.id,t.name,t.code,y.label AS \"academicYear\",t.starts_on AS \"startsOn\",t.ends_on AS \"endsOn\" FROM academic_terms t JOIN academic_years y ON y.id=t.academic_year_id ORDER BY t.starts_on DESC,t.id DESC",Map.of()),
-        "advisers",db.queryForList("SELECT DISTINCT u.id,u.full_name AS name,g.campus_id AS \"campusId\" FROM users u JOIN user_role_grants g ON g.user_id=u.id WHERE u.active AND g.role_code='ROLE_ADVISER' AND g.campus_id IN (:scope) ORDER BY u.full_name",Map.of("scope",scope())));}
+    public Map<String,Object> reference(){return reference(false);}
+    @Transactional(readOnly=true)
+    public Map<String,Object> reference(boolean includeVouchers){
+        // One wire exchange for ordered catalog rows; no cross-request authorization cache.
+        var result=new LinkedHashMap<String,Object>();
+        for(String key:List.of("campuses","programs","terms","advisers"))result.put(key,new ArrayList<Map<String,Object>>());
+        if(includeVouchers)result.put("vouchers",new ArrayList<Map<String,Object>>());
+        db.query("""
+            SELECT 'campuses' AS kind,row_to_json(r)::text AS payload FROM (SELECT id,code,name FROM campuses WHERE active AND id IN (:scope) ORDER BY name) r
+            UNION ALL SELECT 'programs',row_to_json(r)::text FROM (SELECT id,code,name,category FROM programs ORDER BY name) r
+            UNION ALL SELECT 'terms',row_to_json(r)::text FROM (SELECT t.id,t.name,t.code,y.label AS "academicYear",t.starts_on AS "startsOn",t.ends_on AS "endsOn" FROM academic_terms t JOIN academic_years y ON y.id=t.academic_year_id ORDER BY t.starts_on DESC,t.id DESC) r
+            UNION ALL SELECT 'advisers',row_to_json(r)::text FROM (SELECT DISTINCT u.id,u.full_name AS name,g.campus_id AS "campusId" FROM users u JOIN user_role_grants g ON g.user_id=u.id WHERE u.active AND g.role_code='ROLE_ADVISER' AND g.campus_id IN (:scope) ORDER BY u.full_name) r
+            UNION ALL SELECT 'vouchers',row_to_json(r)::text FROM (SELECT code,name FROM vouchers WHERE :vouchers ORDER BY code) r
+            """,Map.of("scope",scope(),"vouchers",includeVouchers),rs->{
+                try{
+                    @SuppressWarnings("unchecked") var rows=(List<Map<String,Object>>)result.get(rs.getString("kind"));
+                    rows.add(CATALOG_JSON.readValue(rs.getString("payload"),new com.fasterxml.jackson.core.type.TypeReference<Map<String,Object>>(){}));
+                }catch(java.io.IOException e){throw new IllegalStateException("Invalid catalog data",e);}
+            });
+        return result;
+    }
 
     public Map<String,Object> window(long campus,long term){
         if(!scope().contains(campus))throw error(HttpStatus.NOT_FOUND,"Campus not found.");
@@ -84,9 +101,8 @@ public class EnrollmentService {
         if(!status.isBlank()){where+=" AND a.status=:status";params.put("status",status);}
         if(!district.isBlank()){where+=" AND strpos(lower(coalesce(a.profile->>'district','')),:district)>0";params.put("district",district.trim().toLowerCase(Locale.ROOT));}
         if(!route.isBlank()){where+=" AND strpos(lower(coalesce(a.profile->>'transportRoute','')),:route)>0";params.put("route",route.trim().toLowerCase(Locale.ROOT));}
-        long total=db.queryForObject("SELECT count(*) "+APPLICATION_FROM+where,params,Long.class);
         var items=db.queryForList("""
-            SELECT a.id,a.application_number AS "applicationNumber",concat_ws(' ',a.first_name,a.last_name) AS name,
+            SELECT count(*) OVER() AS "_total",a.id,a.application_number AS "applicationNumber",concat_ws(' ',a.first_name,a.last_name) AS name,
               a.campus_id AS "campusId",c.name AS campus,a.term_id AS "termId",concat(y.label,' / ',t.name) AS term,
               a.program_id AS "programId",p.code AS program,a.status,a.version,
               a.first_name AS "firstName",a.middle_name AS "middleName",a.last_name AS "lastName",a.lrn,a.category,
@@ -99,25 +115,42 @@ public class EnrollmentService {
               e.id AS "enrollmentId",e.version AS "enrollmentVersion",e.status AS "enrollmentStatus",
               e.section_id AS "sectionId",s.name AS section
             """+APPLICATION_FROM+where+" ORDER BY a.submitted_at DESC,a.id DESC LIMIT :limit OFFSET :offset",params);
+        // Carry the filtered total with the page in the same database exchange.
+        // An out-of-range page has no carrier row, so retain an exact-count fallback.
+        long total=items.isEmpty()?(page==0?0:db.queryForObject("SELECT count(*) "+APPLICATION_FROM+where,params,Long.class)):((Number)items.getFirst().get("_total")).longValue();
+        for(var item:items)item.remove("_total");
         return Map.of("items",items,"total",total,"page",page,"size",size);
     }
     private List<String> blockers(Map<String,Object> app,boolean complete,boolean present){
+        boolean active=app.get("student_id")==null||Boolean.TRUE.equals(db.queryForObject("SELECT active FROM students WHERE id=:id",Map.of("id",app.get("student_id")),Boolean.class));
+        boolean duplicate=Boolean.TRUE.equals(db.queryForObject("SELECT EXISTS(SELECT 1 FROM duplicate_cases WHERE (application_id=:id OR matched_application_id=:id) AND status='open')",Map.of("id",app.get("id")),Boolean.class));
+        return blockers(app,complete,present,active,duplicate);
+    }
+    private List<String> blockers(Map<String,Object> app,boolean complete,boolean present,boolean active,boolean duplicate){
         List<String> result=new ArrayList<>();
         if(!"pre_enlisted".equals(app.get("status")))result.add("Application must be Pre-Enlisted.");
         if(app.get("student_id")==null)result.add("Link a verified student master record through intake first.");
-        else if(!Boolean.TRUE.equals(db.queryForObject("SELECT active FROM students WHERE id=:id",Map.of("id",app.get("student_id")),Boolean.class)))result.add("The linked student is archived.");
+        else if(!active)result.add("The linked student is archived.");
         if(!complete)result.add("Submit every mandatory credential.");
         if(!present)result.add("Record present orientation / first-week attendance.");
-        if(Boolean.TRUE.equals(db.queryForObject("SELECT EXISTS(SELECT 1 FROM duplicate_cases WHERE (application_id=:id OR matched_application_id=:id) AND status='open')",Map.of("id",app.get("id")),Boolean.class)))result.add("Resolve open duplicate cases first.");
+        if(duplicate)result.add("Resolve open duplicate cases first.");
         return result;
     }
     private Map<String,Object> assemble(Map<String,Object> app){
         long id=number(app,"id");
-        var checklist=requirements.checklist(id);
+        var checklist=requirements.checklistForApplication(app);
         var attendance=db.queryForList("SELECT attendance_date AS date,status,version,recorded_by AS \"recordedBy\",recorded_at AS \"recordedAt\" FROM orientation_attendance WHERE application_id=:id ORDER BY attendance_date DESC",Map.of("id",id));
-        boolean present=present(app);
+        var flags=db.queryForMap("""
+            SELECT EXISTS(SELECT 1 FROM orientation_attendance o LEFT JOIN enrollment_attendance_windows w
+              ON w.campus_id=:campus AND w.term_id=:term WHERE o.application_id=:id AND o.status='present'
+              AND (w.campus_id IS NULL OR o.attendance_date BETWEEN w.starts_on AND w.ends_on
+                   OR o.attendance_date BETWEEN w.orientation_starts_on AND w.orientation_ends_on)) AS present,
+              EXISTS(SELECT 1 FROM students WHERE id=:student AND active) AS active,
+              EXISTS(SELECT 1 FROM duplicate_cases WHERE (application_id=:id OR matched_application_id=:id) AND status='open') AS duplicate
+            """,new org.springframework.jdbc.core.namedparam.MapSqlParameterSource().addValue("id",id).addValue("campus",app.get("campus_id")).addValue("term",app.get("term_id")).addValue("student",app.get("student_id")));
+        boolean present=Boolean.TRUE.equals(flags.get("present"));
         var enrollment=db.queryForList("SELECT e.id,e.status,e.version,e.section_id AS \"sectionId\",s.name AS section,e.confirmed_at AS \"confirmedAt\",e.confirmed_by AS \"confirmedBy\" FROM enrollments e LEFT JOIN sections s ON s.id=e.section_id WHERE e.application_id=:id",Map.of("id",id));
-        var blockers=blockers(app,checklist.summary().credentialsComplete(),present);
+        var blockers=blockers(app,checklist.summary().credentialsComplete(),present,Boolean.TRUE.equals(flags.get("active")),Boolean.TRUE.equals(flags.get("duplicate")));
         Map<String,Object> result=new LinkedHashMap<>();
         var summary=new LinkedHashMap<String,Object>(Map.of("id",id,"applicationNumber",app.get("application_number"),"name",app.get("first_name")+" "+app.get("last_name"),"status",app.get("status"),"version",app.get("version"),"campusId",app.get("campus_id"),"termId",app.get("term_id"),"programId",app.get("program_id")));
         summary.put("phone",app.get("contact_phone"));summary.put("email",app.get("email"));result.put("application",summary);
@@ -126,6 +159,12 @@ public class EnrollmentService {
     }
     @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
     public Map<String,Object> detail(long id){return assemble(application(id,false));}
+    // Package-local composition avoids reading the same scoped application twice.
+    Map<String,Object> detailForApplication(Map<String,Object> app){
+        if(!scope().contains(number(app,"campus_id")))throw error(HttpStatus.NOT_FOUND,"Application not found.");
+        return assemble(app);
+    }
+
 
     @Transactional
     public Map<String,Object> attendance(long id,LocalDate date,AttendanceInput input){

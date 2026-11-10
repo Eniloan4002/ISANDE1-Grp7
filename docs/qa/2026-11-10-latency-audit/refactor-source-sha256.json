@@ -1,0 +1,14 @@
+{
+  "ICILocal2.0/backend/src/main/java/ph/edu/ici/auth/StaffAccountController.java": "cd2c5f863422d4afc2b6ea6e8bd5df6b1b52e257e8a1a61e361395d35942e4a4",
+  "ICILocal2.0/backend/src/main/java/ph/edu/ici/enrollment/EnrollmentService.java": "2b2515fddcedc111e1bcf6ae84a4199fb3fc1b7ce45627943c2fdd9bca8db0f3",
+  "ICILocal2.0/backend/src/main/java/ph/edu/ici/enrollment/IntakeService.java": "9cf53b828b1bf59becd994dc9fef6a90b8b8b5c23951ad48d162ab29a336767f",
+  "ICILocal2.0/backend/src/main/java/ph/edu/ici/requirements/RequirementService.java": "5f4ea588169654e5a84d94d0a6d8fb3fc5e7785a7eed82dcb2c300be8c7fe7d2",
+  "ICILocal2.0/frontend/src/EnrollmentWorkspace.jsx": "b67b12e06f5b125227d7b0e29e60f742d4fb05eb4a1b8200d9bf69d279c3fa9a",
+  "ICILocal2.0/frontend/src/StaffAccounts.jsx": "55b550f6518c52ade8dd7e88d480d48469c53977b79bd53117094d5a4c3aaba2",
+  "ICILocal2.0/frontend/src/api.js": "01246e3d96a5cce77a560aba057d1e0f8d90951053fa252cf5afa7269094d8fc",
+  "ICILocal2.0/frontend/src/enrollment/EnrollmentScreens.jsx": "3d3ebdcef1ebca4d7084d3ad5132d2f260c9af8999282b2b71f98712d44b47e7",
+  "ICILocal2.0/frontend/src/enrollment/RequirementsScreen.jsx": "1d22a8cb495409493d9c52d0e01317d9c70c2e1bbb9aa031488563fb3730a67f",
+  "ICILocal2.0/frontend/src/test/api-catalog-cache.test.jsx": "581cf003fd3ad5ad740bf77bd299b98c5695b31e77095c770e7126f9f17ea578",
+  "ICILocal2.0/frontend/src/test/staff-accounts.test.jsx": "ea2f2bfd49260a9a36ccdc9f58f0e93c31fed9ce2d19377db8fb256c4adfd8b7",
+  "ICILocal2.0/backend/src/test/java/ph/edu/ici/ReadQueryBudgetTest.java": "d61f5426f0a434bc95b5d735ca82a2788c8413d4f2405c41bbcdc34ef9fedfaa"
+}

@@ -64,7 +64,13 @@ public class StaffAccountController {
         String where=" WHERE "+VISIBLE+" AND strpos(lower(concat_ws(' ',u.username,u.full_name,u.email)),:search)>0";
         long total=db.queryForObject("SELECT count(*) FROM users u"+where,p,Long.class);
         var rows=db.queryForList("SELECT u.id,u.username,u.email,u.full_name AS \"fullName\",u.active,u.password_change_required AS \"passwordChangeRequired\",u.updated_at FROM users u"+where+" ORDER BY u.username LIMIT 25 OFFSET :offset",p);
-        return Map.of("items",rows.stream().map(this::view).toList(),"total",total,"page",page,"size",25);
+        // Fetch grants for the whole visible page, rather than one remote query per user.
+        Map<Long,List<Map<String,Object>>> grants=new HashMap<>();
+        if(!rows.isEmpty())for(var grant:db.queryForList("SELECT g.user_id,g.role_code AS role,g.campus_id AS \"campusId\",c.name AS campus FROM user_role_grants g JOIN campuses c ON c.id=g.campus_id WHERE g.user_id IN (:ids) ORDER BY c.name,g.role_code",Map.of("ids",rows.stream().map(row->row.get("id")).toList()))){
+            long user=((Number)grant.remove("user_id")).longValue();grants.computeIfAbsent(user,key->new ArrayList<>()).add(grant);
+        }
+        for(var row:rows){row.put("version",((Timestamp)row.remove("updated_at")).toInstant().toString());row.put("grants",grants.getOrDefault(((Number)row.get("id")).longValue(),List.of()));}
+        return Map.of("items",rows,"total",total,"page",page,"size",25);
     }
     private void validateGrants(List<Grant> grants){
         if(grants==null||grants.isEmpty())throw error(HttpStatus.BAD_REQUEST,"Choose at least one role and campus.");

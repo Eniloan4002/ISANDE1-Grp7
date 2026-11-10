@@ -1,0 +1,41 @@
+{
+  "method": "Synthetic browser request-shape probe; every API request intercepted; fixed 300ms delay, no real database access. Development StrictMode.",
+  "events": [
+    {
+      "phase": "cold",
+      "path": "/api/auth/me",
+      "method": "GET",
+      "startOffsetMs": 0,
+      "endOffsetMs": 304
+    },
+    {
+      "phase": "cold",
+      "path": "/api/enrollment/applications?page=0&size=25&search=&status=&campusId=&programId=",
+      "method": "GET",
+      "startOffsetMs": 363,
+      "endOffsetMs": 668
+    },
+    {
+      "phase": "cold",
+      "path": "/api/intake/statistics",
+      "method": "GET",
+      "startOffsetMs": 363,
+      "endOffsetMs": 668
+    },
+    {
+      "phase": "cold",
+      "path": "/api/intake/reference-data",
+      "method": "GET",
+      "startOffsetMs": 363,
+      "endOffsetMs": 670
+    },
+    {
+      "phase": "typing",
+      "path": "/api/enrollment/applications?page=0&size=25&search=Carlo&status=&campusId=&programId=",
+      "method": "GET",
+      "startOffsetMs": 3854,
+      "endOffsetMs": 4156
+    }
+  ],
+  "errors": []
+}

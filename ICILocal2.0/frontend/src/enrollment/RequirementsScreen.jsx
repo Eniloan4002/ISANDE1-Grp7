@@ -2,7 +2,7 @@
 // with authenticated API data and the shared versioned verification editor.
 import {useEffect,useRef,useState} from 'react';
 import {Link,useSearchParams} from 'react-router';
-import {Failure,Pager,Requirements,useResource} from '../EnrollmentWorkspace.jsx';
+import {Failure,Pager,Requirements,useDebouncedValue,useResource} from '../EnrollmentWorkspace.jsx';
 import './enrollment.css';
 
 function ChecklistDialog({id,onClose,onSaved}){
@@ -22,8 +22,9 @@ function ChecklistDialog({id,onClose,onSaved}){
 export default function RequirementsScreen(){
   const [params,setParams]=useSearchParams(),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[program,setProgram]=useState(''),[page,setPage]=useState(0);
   const selected=params.get('applicationId');
+  const effectiveSearch=useDebouncedValue(search);
   const reference=useResource('/api/enrollment/reference-data');
-  const query=new URLSearchParams({search,requirementsStatus:status,programId:program,page:String(page),size:'25'});
+  const query=new URLSearchParams({search:effectiveSearch,requirementsStatus:status,programId:program,page:String(page),size:'25'});
   const directory=useResource(`/api/enrollment/applications?${query}`);
   const rows=directory.data?.items??[];
   return <div className="enrollment-workspace"><header className="page-heading enrollment-heading"><div><p className="eyebrow">Enrollment management</p><h1>Requirements</h1><p>Track submitted credentials and review their verification history.</p></div><Link className="button button-outline" to="/enrollment/queue">Back to Queue</Link></header>

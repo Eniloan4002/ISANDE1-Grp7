@@ -22,3 +22,11 @@ it('retains the account form and exposes a retryable API error',async()=>{
  for(const [label,value] of [['Username','existing_teacher'],['Full name','Teacher One'],['Email','teacher@example.invalid'],['Initial password','ChosenPassword123!']])fireEvent.change(screen.getByLabelText(label,{exact:true}),{target:{value}});
  fireEvent.click(screen.getByLabelText('Iligan Main'));fireEvent.click(screen.getByRole('button',{name:'Create staff account'}));await screen.findByRole('alert');expect(screen.getByLabelText('Username')).toHaveValue('existing_teacher');
 });
+it('debounces directory typing into one effective search',async()=>{
+ show();await screen.findByLabelText('Search staff');
+ const field=screen.getByLabelText('Search staff');
+ for(const value of ['C','Ca','Car','Carl','Carlo'])fireEvent.change(field,{target:{value}});
+ expect(apiRequest.mock.calls.filter(([path])=>path.includes('search=Carlo'))).toHaveLength(0);
+ await waitFor(()=>expect(apiRequest.mock.calls.filter(([path])=>path.includes('search=Carlo'))).toHaveLength(1));
+ expect(apiRequest.mock.calls.filter(([path])=>/search=C(?:a|ar|arl)?&/.test(path))).toHaveLength(0);
+});

@@ -1,0 +1,125 @@
+{
+  "results": [
+    {
+      "afterReadOnlyMs": [
+        3677.8,
+        1280.88,
+        1283.05,
+        1277.45,
+        1279.03
+      ],
+      "path": "/intake/reference-data",
+      "allPayloadsEqual": true,
+      "statuses": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "beforeMs": [
+        2463.31,
+        2352.55,
+        2383.41,
+        2391.81,
+        2386.76
+      ]
+    },
+    {
+      "afterReadOnlyMs": [
+        3122.75,
+        2619.88,
+        2620.92,
+        2619.83,
+        2621.57
+      ],
+      "path": "/intake/applications/1",
+      "allPayloadsEqual": true,
+      "statuses": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "beforeMs": [
+        4248.9,
+        3633.09,
+        3669.84,
+        3668.33,
+        3671.44
+      ]
+    },
+    {
+      "afterReadOnlyMs": [
+        1879.02,
+        1813.14,
+        1870.69,
+        1798.02,
+        1868.08
+      ],
+      "path": "/admin/accounts",
+      "allPayloadsEqual": true,
+      "statuses": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "beforeMs": [
+        4191.36,
+        4179.59,
+        4179.88,
+        4196.88,
+        4192.08
+      ]
+    },
+    {
+      "beforeMs": [
+        2539.22,
+        2284.66,
+        2629.26,
+        2395.41,
+        2505.78
+      ],
+      "statuses": [
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200,
+        200
+      ],
+      "allPayloadsEqual": true,
+      "path": "/enrollment/applications?termId=1",
+      "afterReadOnlyMs": [
+        4503.5,
+        2182.35,
+        2058.14,
+        2334.29,
+        2100.36
+      ]
+    }
+  ],
+  "method": "Five alternating GET pairs against original 8081 and refactored read-only 8082. No writes, migrations or bootstrap on 8082; tokens kept only in memory. Read-only pool mode may add overhead; timings diagnostic, not load-test percentiles."
+}
