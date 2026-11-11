@@ -54,7 +54,7 @@ class FoundationAuthenticationTest {
     Map subject(){return create("subjects",Map.of("code","SUB-"+UUID.randomUUID().toString().substring(0,8),"name","Mathematics","units",1,"active",true));}
 
     @Test void flywayRunsAndValidatesAllVersionsOnRealPostgres(){
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("11");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("12");
         flyway.validate();assertThat(flyway.migrate().migrationsExecuted).isZero();
         assertThat(jdbc.queryForObject("SELECT version()",String.class)).contains("PostgreSQL 17");
         assertThat(jdbc.queryForObject("SELECT count(*) FROM information_schema.tables t WHERE t.table_schema='public' AND t.table_name NOT IN ('audit_logs','revoked_tokens','flyway_schema_history') AND NOT EXISTS(SELECT 1 FROM information_schema.columns c WHERE c.table_schema=t.table_schema AND c.table_name=t.table_name AND c.column_name='created_by')",Integer.class)).isZero();
@@ -148,7 +148,7 @@ class FoundationAuthenticationTest {
             statement.execute("INSERT INTO academic_terms(academic_year_id,code,name,starts_on,ends_on) VALUES (1,'S1','Existing term','2026-06-01','2026-10-31')");
             statement.execute("INSERT INTO grading_periods(term_id,code,sequence) VALUES (1,'Q1',1)");
         }
-        Flyway latest=Flyway.configure().dataSource(url,"postgres","").load();assertThat(latest.migrate().migrationsExecuted).isEqualTo(9);latest.validate();
+        Flyway latest=Flyway.configure().dataSource(url,"postgres","").load();assertThat(latest.migrate().migrationsExecuted).isEqualTo(10);latest.validate();
         try(var connection=java.sql.DriverManager.getConnection(url,"postgres","");var statement=connection.createStatement()){
             try(var rows=statement.executeQuery("SELECT name,version FROM subjects WHERE code='LEGACY'")){assertThat(rows.next()).isTrue();assertThat(rows.getString(1)).isEqualTo("Existing subject");assertThat(rows.getInt(2)).isZero();}
             try(var rows=statement.executeQuery("SELECT starts_on,ends_on FROM grading_periods WHERE code='Q1'")){assertThat(rows.next()).isTrue();assertThat(rows.getDate(1).toString()).isEqualTo("2026-06-01");assertThat(rows.getDate(2).toString()).isEqualTo("2026-10-31");}
