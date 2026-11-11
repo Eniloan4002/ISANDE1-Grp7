@@ -1,0 +1,14 @@
+.academic-workspace{max-width:1400px}
+.advisory-source-notice{margin:0 0 24px}
+.advisory-overview{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:18px 22px;margin-top:0}
+.advisory-overview h2{margin:4px 0;color:var(--action);font-size:24px}
+.advisory-overview p{margin:0;color:var(--muted)}
+.advisory-overview dl{display:grid;grid-template-columns:repeat(3,minmax(130px,1fr));gap:18px;margin:0}
+.advisory-overview dt{color:var(--muted);font-size:13px;font-weight:600}
+.advisory-overview dd{margin:4px 0 0;font-weight:600}
+.advisory-roster-panel{margin-top:20px}.panel-heading{display:flex;justify-content:space-between;align-items:end;gap:20px;padding:18px 22px;border-bottom:1px solid var(--border)}
+.panel-heading h2{margin:0 0 5px}.panel-heading p{margin:0;color:var(--muted)}.advisory-search{width:min(320px,100%);margin:0}.advisory-search input{margin:6px 0 0}
+.advisory-student-count{color:var(--muted);font-size:16px;font-weight:600}
+.advisory-table{margin:0 22px;width:calc(100% - 44px)}.advisory-read-only-note{padding:0 22px 18px;margin:18px 0 0}
+@media(max-width:900px){.advisory-overview{display:block}.advisory-overview dl{margin-top:16px}.panel-heading{align-items:stretch;flex-direction:column}}
+@media(max-width:560px){.advisory-table{margin:0 14px;width:calc(100% - 28px)}}
