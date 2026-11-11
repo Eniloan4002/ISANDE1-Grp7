@@ -130,7 +130,7 @@ describe('sign-in return URL permissions',()=>{
     render(<MemoryRouter initialEntries={['/administration/users']}><AuthProvider><App/></AuthProvider></MemoryRouter>);
     fireEvent.change(await screen.findByLabelText('Username'),{target:{value:'teacher-test'}});fireEvent.change(screen.getByLabelText('Password',{exact:true}),{target:{value:'ChosenPassword123'}});fireEvent.click(screen.getByRole('button',{name:'Sign in',exact:true}));
     expect(await screen.findByRole('heading',{name:'Grade Entry',exact:true})).toBeInTheDocument();expect(screen.queryByRole('heading',{name:'Access denied'})).not.toBeInTheDocument();
-    expect(screen.getByText(/You are signed in. This workflow is still under development/)).toBeInTheDocument();
+    expect(screen.getByText(/Mock-only workflow/)).toBeInTheDocument();
   });
 });
 
