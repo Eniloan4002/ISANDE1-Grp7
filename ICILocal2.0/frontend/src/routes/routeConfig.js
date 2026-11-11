@@ -25,6 +25,7 @@ export const roleSections = [
         { path: '/enrollment/sections', label: 'Section Configuration' },
       ] },
       { label: 'Academic Records', pages: [
+        { path: '/academic/assignments', label: 'Teacher & Adviser Assignments' },
         { path: '/academic/registrar-records', label: 'Academic History' },
         { path: '/academic/incomplete-grades', label: 'Incomplete Grades' },
         { path: '/academic/grade-approvals', label: 'Grade Approvals' },

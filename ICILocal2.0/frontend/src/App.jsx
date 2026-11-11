@@ -8,6 +8,7 @@ import EnrollmentWorkspace,{SectionConfiguration} from './EnrollmentWorkspace.js
 import {EnrollmentWorkspace as IntakeWorkspace} from './enrollment/EnrollmentScreens.jsx';
 import RequirementsScreen from './enrollment/RequirementsScreen.jsx';
 import DesignSystem from './components/DesignSystem.jsx';
+import AcademicAssignments from './academic/AcademicAssignments.jsx';
 import { LoginPage } from './Auth.jsx';
 import { useAuth } from './auth/AuthContext.jsx';
 import { AppShell } from './components/AppShell.jsx';
@@ -58,7 +59,7 @@ export default function App() {
         <Route path="/enrollment/applicants/:applicationId" element={<RoleGate allowedRoles={['admin','registrar']}><IntakeWorkspace screen="details"/></RoleGate>}/>
         <Route path="/account/security" element={<AccountSecurity />}/>
         {pages.filter(page=>page.path!=='/account/security').map(page => <Route key={page.path} path={page.path} element={
-          <RoleGate allowedRoles={page.allowedRoles}>{page.path==='/enrollment/duplicate'?<DuplicateRecords />:page.path==='/account/security'?<AccountSecurity />:page.path==='/administration/users'?<StaffAccounts />:page.path==='/setup'?<AcademicSetup />:page.path==='/design-system'?<DesignSystem />:page.path==='/enrollment/queue'?<IntakeWorkspace screen="queue" />:page.path==='/enrollment/evaluate'?<IntakeWorkspace screen="queue" title="Evaluate Applications" />:page.path==='/enrollment/intake'?<IntakeWorkspace screen="intake" />:page.path==='/enrollment/requirements'?<RequirementsScreen />:page.path==='/enrollment/attendance'?<AttendanceScreen />:page.path==='/enrollment/enrolled'?<EnrollmentWorkspace mode="allocation" />:page.path==='/enrollment/sections'?<SectionConfiguration />:<Placeholder page={page} />}</RoleGate>
+          <RoleGate allowedRoles={page.allowedRoles}>{page.path==='/enrollment/duplicate'?<DuplicateRecords />:page.path==='/account/security'?<AccountSecurity />:page.path==='/administration/users'?<StaffAccounts />:page.path==='/setup'?<AcademicSetup />:page.path==='/academic/assignments'?<AcademicAssignments />:page.path==='/design-system'?<DesignSystem />:page.path==='/enrollment/queue'?<IntakeWorkspace screen="queue" />:page.path==='/enrollment/evaluate'?<IntakeWorkspace screen="queue" title="Evaluate Applications" />:page.path==='/enrollment/intake'?<IntakeWorkspace screen="intake" />:page.path==='/enrollment/requirements'?<RequirementsScreen />:page.path==='/enrollment/attendance'?<AttendanceScreen />:page.path==='/enrollment/enrolled'?<EnrollmentWorkspace mode="allocation" />:page.path==='/enrollment/sections'?<SectionConfiguration />:<Placeholder page={page} />}</RoleGate>
         } />)}
       </Route>
     </Route>
