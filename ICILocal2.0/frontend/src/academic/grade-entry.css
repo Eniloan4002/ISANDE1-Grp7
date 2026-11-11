@@ -1,0 +1,21 @@
+.grade-entry-context{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;flex-wrap:wrap}
+.grade-entry-context .assignment-field{min-width:260px}
+.grade-entry-meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:0}
+.grade-entry-meta div{padding:14px 0;border-bottom:1px solid var(--border)}
+.grade-entry-meta dt{font-size:13px;color:var(--muted);margin-bottom:5px}
+.grade-entry-meta dd{margin:0;font-weight:600}
+.grade-entry-grid{overflow:auto}
+.grade-entry-table{border-collapse:collapse;min-width:760px;width:100%;font-size:15px}
+.grade-entry-table th,.grade-entry-table td{padding:13px 12px;border-bottom:1px solid var(--border);text-align:left;vertical-align:middle}
+.grade-entry-table th{color:var(--muted);font-size:14px;white-space:nowrap}
+.grade-entry-table th:first-child,.grade-entry-table td:first-child{padding-left:0}
+.grade-entry-table input{width:125px;margin:0}
+.grade-entry-table input[aria-invalid=true]{border:2px solid #a34755;background:#fff0f1}
+.grade-entry-table tr.has-error td{background:#fffafa}
+.grade-cell{display:flex;flex-direction:column;gap:5px}
+.grade-cell small{color:#8c303c;min-height:18px}
+.grade-entry-actions{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:18px}
+.grade-entry-actions .component-row{margin:0}
+.grade-entry-note{margin-top:0}
+.grade-entry-dialog p{line-height:1.6}
+@media(max-width:700px){.grade-entry-meta{grid-template-columns:repeat(2,minmax(0,1fr))}.grade-entry-context .assignment-field{width:100%;min-width:0}}
