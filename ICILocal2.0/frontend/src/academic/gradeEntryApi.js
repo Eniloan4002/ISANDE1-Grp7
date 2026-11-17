@@ -1,61 +1,83 @@
-import { gradeEntryFixture } from './gradeEntryFixture.js';
+import { apiRequest } from '../api.js';
 
-let state = structuredClone(gradeEntryFixture);
+export const approvedNonNumericMarks = ['INC', 'NG', 'DRP'];
 
-function clone(value) {
-  return structuredClone(value);
+export function loadGradeCatalog() {
+  return apiRequest('/api/academic/terms');
 }
 
-function findClass(classId) {
-  const item = state.classes.find(entry => String(entry.id) === String(classId));
-  if (!item) {
-    const error = new Error('Assigned class was not found.');
-    error.status = 404;
-    throw error;
-  }
-  return item;
+function context({ academicYearId, termId }) {
+  return new URLSearchParams({ academicYearId, termId });
 }
 
-export async function loadTeacherClasses() {
-  return clone({ teacher: state.teacher, items: state.classes.map(({ id, subject, subjectCode, gradeLevel, section, room, academicYear, periods }) => ({ id, subject, subjectCode, gradeLevel, section, room, academicYear, periods })) });
+export async function loadTeacherClasses(filters) {
+  const result = await apiRequest(`/api/academic/classes?${context(filters)}`);
+  return {
+    items: (result.items || []).map(item => ({
+      id: item.classId,
+      subject: item.subject,
+      subjectCode: item.subjectCode,
+      gradeLevel: item.gradeLevel,
+      section: item.section,
+      room: item.room,
+    })),
+  };
 }
 
-export async function loadClassGradebook(classId, periodId) {
-  const item = findClass(classId);
-  const period = item.periods.find(entry => entry.id === periodId) || item.periods[0];
-  return clone({
-    teacher: state.teacher,
-    class: { id: item.id, subject: item.subject, subjectCode: item.subjectCode, gradeLevel: item.gradeLevel, section: item.section, room: item.room, academicYear: item.academicYear },
-    period,
-    students: item.students,
-    grades: item.grades[period.id],
-    submission: item.submission[period.id],
+export async function loadGradingPeriods(classId, filters) {
+  const result = await apiRequest(`/api/academic/classes/${classId}/grading-periods?${context(filters)}`);
+  return (result.periods || []).map(period => ({ id: period.id, label: period.code, status: period.status }));
+}
+
+function formatDeadline(value) {
+  if (!value) return 'Not set';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function toGradebook(result) {
+  const grades = {};
+  const students = (result.students || []).map(row => {
+    const hasValue = row.value !== null && row.value !== undefined;
+    grades[row.enrollmentId] = hasValue
+      ? { value: Number(row.value).toFixed(2), kind: 'numeric' }
+      : row.mark ? { value: row.mark, kind: 'mark' } : { value: '', kind: 'empty' };
+    return { id: row.enrollmentId, studentNumber: row.studentNumber, name: row.name, version: row.version ?? null };
   });
+  return {
+    class: result.class,
+    period: { id: result.period.id, label: result.period.code, status: result.period.status, deadline: formatDeadline(result.period.deadline) },
+    students,
+    grades,
+    submission: ['submitted', 'finalized'].includes(result.state) ? 'submitted' : 'draft',
+  };
 }
 
-export async function saveGradeDraft(classId, periodId, grades) {
-  const item = findClass(classId);
-  if (item.submission[periodId] === 'submitted') {
-    const error = new Error('Submitted grades are read-only.');
-    error.status = 409;
-    throw error;
-  }
-  item.grades[periodId] = clone(grades);
-  return loadClassGradebook(classId, periodId);
+export async function loadClassGradebook(classId, periodId, filters) {
+  const query = context(filters);
+  query.set('gradingPeriodId', periodId);
+  return toGradebook(await apiRequest(`/api/academic/classes/${classId}/grades?${query}`));
 }
 
-export async function submitGrades(classId, periodId, grades) {
-  const item = findClass(classId);
-  if (item.submission[periodId] === 'submitted') {
-    const error = new Error('Grades have already been submitted.');
-    error.status = 409;
-    throw error;
-  }
-  item.grades[periodId] = clone(grades);
-  item.submission[periodId] = 'submitted';
-  return loadClassGradebook(classId, periodId);
+export async function saveGradeDraft(classId, periodId, grades, students, filters) {
+  const entries = students.map(student => {
+    const grade = grades[student.id] || { value: '', kind: 'empty' };
+    return {
+      enrollmentId: student.id,
+      value: grade.kind === 'numeric' ? Number(grade.value) : null,
+      mark: grade.kind === 'mark' ? grade.value : null,
+      version: student.version,
+    };
+  });
+  return toGradebook(await apiRequest(`/api/academic/classes/${classId}/grades`, {
+    method: 'PUT',
+    body: JSON.stringify({ academicYearId: Number(filters.academicYearId), termId: Number(filters.termId), gradingPeriodId: Number(periodId), entries }),
+  }));
 }
 
-export function resetGradeEntryFixture() {
-  state = structuredClone(gradeEntryFixture);
+export async function submitGrades(classId, periodId, filters) {
+  return toGradebook(await apiRequest(`/api/academic/classes/${classId}/grades/submit`, {
+    method: 'POST',
+    body: JSON.stringify({ academicYearId: Number(filters.academicYearId), termId: Number(filters.termId), gradingPeriodId: Number(periodId) }),
+  }));
 }

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Confirm, Failure } from '../EnrollmentWorkspace.jsx';
-import { loadClassGradebook, loadTeacherClasses, saveGradeDraft, submitGrades } from './gradeEntryApi.js';
-import { approvedNonNumericMarks } from './gradeEntryFixture.js';
+import { approvedNonNumericMarks, loadClassGradebook, loadGradeCatalog, loadGradingPeriods, loadTeacherClasses, saveGradeDraft, submitGrades } from './gradeEntryApi.js';
 import './grade-entry.css';
 
 const numericPattern = /^\d{1,3}(\.\d{1,2})?$/;
@@ -26,7 +25,7 @@ function normalizedGrades(grades) {
 
 function requestError(error) {
   if (error?.status === 403) return 'You are not authorized to access this assigned class.';
-  if (error?.status === 409) return 'These grades are no longer editable because they were submitted.';
+  if (error?.status === 409) return error.message || 'These grades changed or are no longer editable. Reload and try again.';
   return error?.message || 'The grade-entry request failed.';
 }
 
@@ -47,8 +46,15 @@ function GradeInput({ student, grade, readOnly, onChange, onKeyDown, inputRef })
   </div>;
 }
 
+function optionValue(value) {
+  return value == null ? '' : String(value);
+}
+
 export default function GradeEntry() {
+  const [catalog, setCatalog] = useState({ years: [], terms: [] });
+  const [filters, setFilters] = useState({ academicYearId: '', termId: '' });
   const [classes, setClasses] = useState([]);
+  const [periods, setPeriods] = useState([]);
   const [selectedClassId, setSelectedClassId] = useState('');
   const [periodId, setPeriodId] = useState('');
   const [book, setBook] = useState(null);
@@ -63,26 +69,56 @@ export default function GradeEntry() {
 
   useEffect(() => {
     let active = true;
-    loadTeacherClasses().then(result => {
+    loadGradeCatalog().then(result => {
       if (!active) return;
-      setClasses(result.items);
-      setSelectedClassId(String(result.items[0]?.id || ''));
-    }).catch(requestFailure => active && setError(requestError(requestFailure))).finally(() => active && setLoading(false));
+      const years = result?.years || [];
+      const terms = result?.terms || [];
+      setCatalog({ years, terms });
+      const year = years[0];
+      const term = terms.find(item => optionValue(item.academic_year_id ?? item.academicYearId) === optionValue(year?.id));
+      setFilters({ academicYearId: optionValue(year?.id), termId: optionValue(term?.id) });
+      if (!year || !term) setLoading(false);
+    }).catch(requestFailure => {
+      if (!active) return;
+      setError(requestError(requestFailure));
+      setLoading(false);
+    });
     return () => { active = false; };
   }, []);
 
   useEffect(() => {
+    if (!filters.academicYearId || !filters.termId) return;
+    let active = true;
+    setLoading(true);
+    setError('');
+    setBook(null);
+    loadTeacherClasses(filters).then(result => {
+      if (!active) return;
+      setClasses(result.items);
+      setSelectedClassId(String(result.items[0]?.id || ''));
+      setPeriodId('');
+      setPeriods([]);
+    }).catch(requestFailure => active && setError(requestError(requestFailure))).finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, [filters.academicYearId, filters.termId]);
+
+  useEffect(() => {
     if (!selectedClassId) return;
-    const selected = classes.find(item => String(item.id) === selectedClassId);
-    setPeriodId(current => current || selected?.periods?.[0]?.id || 'q1');
-  }, [classes, selectedClassId]);
+    let active = true;
+    loadGradingPeriods(selectedClassId, filters).then(result => {
+      if (!active) return;
+      setPeriods(result);
+      setPeriodId(String(result[0]?.id || ''));
+    }).catch(requestFailure => active && setError(requestError(requestFailure)));
+    return () => { active = false; };
+  }, [selectedClassId]);
 
   useEffect(() => {
     if (!selectedClassId || !periodId) return;
     let active = true;
     setLoadingBook(true);
     setError('');
-    loadClassGradebook(selectedClassId, periodId).then(result => {
+    loadClassGradebook(selectedClassId, periodId, filters).then(result => {
       if (!active) return;
       setBook(result);
       setGrades(result.grades);
@@ -91,10 +127,16 @@ export default function GradeEntry() {
     return () => { active = false; };
   }, [selectedClassId, periodId]);
 
+  const terms = useMemo(() => catalog.terms.filter(term => optionValue(term.academic_year_id ?? term.academicYearId) === filters.academicYearId), [catalog.terms, filters.academicYearId]);
+
+  function updateYear(value) {
+    const term = catalog.terms.find(item => optionValue(item.academic_year_id ?? item.academicYearId) === value);
+    setFilters({ academicYearId: value, termId: optionValue(term?.id) });
+  }
+
   const validation = useMemo(() => Object.fromEntries(Object.entries(grades).map(([id, grade]) => [id, validateGrade(grade.value)])), [grades]);
   const hasErrors = Object.values(validation).some(item => item.error);
   const readOnly = book?.submission === 'submitted' || book?.period.status !== 'open';
-  const selectedClass = classes.find(item => String(item.id) === selectedClassId);
 
   function updateGrade(studentId, value) {
     const upper = value.toUpperCase();
@@ -120,8 +162,8 @@ export default function GradeEntry() {
     setSaveState('Saving…');
     setError('');
     try {
-      const result = await saveGradeDraft(selectedClassId, periodId, normalizedGrades(grades));
-      setBook(result); setGrades(result.grades); setSaveState('Draft saved (mock only)'); setNotice('Draft saved in the temporary frontend fixture. No database record was changed.');
+      const result = await saveGradeDraft(selectedClassId, periodId, normalizedGrades(grades), book.students, filters);
+      setBook(result); setGrades(result.grades); setSaveState('Draft saved'); setNotice('Draft grades saved.');
     } catch (requestFailure) { setSaveState('Save failed'); setError(requestError(requestFailure)); }
   }
 
@@ -130,10 +172,11 @@ export default function GradeEntry() {
     setSaveState('Submitting…');
     setError('');
     try {
-      const result = await submitGrades(selectedClassId, periodId, normalizedGrades(grades));
-      setBook(result); setGrades(result.grades); setSaveState('Submitted (mock only)'); setNotice('Grades marked submitted in the temporary frontend fixture. No school record was submitted.');
+      await saveGradeDraft(selectedClassId, periodId, normalizedGrades(grades), book.students, filters);
+      const result = await submitGrades(selectedClassId, periodId, filters);
+      setBook(result); setGrades(result.grades); setSaveState('Submitted'); setNotice('Grades submitted. This grading period is now read-only.');
       setConfirming(false);
-    } catch (requestFailure) { setSaveState('Submission failed'); setError(requestError(requestFailure)); }
+    } catch (requestFailure) { setSaveState('Submission failed'); setConfirming(false); setError(requestError(requestFailure)); }
   }
 
   if (loading) return <p role="status">Loading assigned classes…</p>;
@@ -143,22 +186,31 @@ export default function GradeEntry() {
       <h1>Grade Entry</h1>
       <p>Encode grading-period marks for classes assigned to your account.</p>
     </header>
-    <div className="notice grade-entry-note"><strong>Mock-only workflow:</strong> grades are held in temporary frontend memory until the GRADE API is available.</div>
     {notice && <div className="notice" role="status">{notice}</div>}
     {error && <Failure error={error} />}
     {!classes.length && !error && <div className="empty-state"><h2>No assigned classes</h2><p>Your Registrar-assigned classes will appear here when available.</p></div>}
-    {classes.length > 0 && <section className="panel">
+    {catalog.years.length > 0 && <section className="panel">
       <div className="panel-body grade-entry-context">
-        <label className="assignment-field">Assigned class
-          <select value={selectedClassId} onChange={event => { setSelectedClassId(event.target.value); setPeriodId(''); }} disabled={loadingBook}>
+        <label className="assignment-field">Academic year
+          <select value={filters.academicYearId} onChange={event => updateYear(event.target.value)} disabled={loadingBook}>
+            {catalog.years.map(year => <option key={year.id} value={year.id}>{year.label}</option>)}
+          </select>
+        </label>
+        <label className="assignment-field">Term
+          <select value={filters.termId} onChange={event => setFilters(current => ({ ...current, termId: event.target.value }))} disabled={loadingBook}>
+            {terms.map(term => <option key={term.id} value={term.id}>{term.name} ({term.code})</option>)}
+          </select>
+        </label>
+        {classes.length > 0 && <label className="assignment-field">Assigned class
+          <select value={selectedClassId} onChange={event => { setSelectedClassId(event.target.value); setPeriodId(''); setBook(null); }} disabled={loadingBook}>
             {classes.map(item => <option key={item.id} value={item.id}>{item.subjectCode} — {item.section}</option>)}
           </select>
-        </label>
-        <label className="assignment-field">Grading period
+        </label>}
+        {classes.length > 0 && <label className="assignment-field">Grading period
           <select value={periodId} onChange={event => setPeriodId(event.target.value)} disabled={loadingBook}>
-            {(selectedClass?.periods || []).map(period => <option key={period.id} value={period.id}>{period.label}</option>)}
+            {periods.map(period => <option key={period.id} value={period.id}>{period.label}</option>)}
           </select>
-        </label>
+        </label>}
       </div>
     </section>}
     {loadingBook && <p role="status">Loading grade book…</p>}
@@ -184,6 +236,6 @@ export default function GradeEntry() {
         {hasErrors && <p className="field-error" role="alert">Correct invalid grades before saving or submitting.</p>}
       </div>
     </section></>}
-    {confirming && <Confirm title="Submit grades?" busy={saveState === 'Submitting…'} onCancel={() => setConfirming(false)} onConfirm={submit}><p>This will make the selected grading period read-only. This frontend demo will only update temporary mock state.</p></Confirm>}
+    {confirming && <Confirm title="Submit grades?" busy={saveState === 'Submitting…'} onCancel={() => setConfirming(false)} onConfirm={submit}><p>This will make the selected grading period read-only. Draft grades are saved first, and the class cannot be edited after submission.</p></Confirm>}
   </div>;
 }
