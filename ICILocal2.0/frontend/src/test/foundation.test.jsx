@@ -45,7 +45,7 @@ describe('JWT claims', () => {
 
 describe('routes', () => {
   it('reserves every prototype page with a unique clean path', () => {
-    expect(pages).toHaveLength(33);
+    expect(pages).toHaveLength(34);
     expect(new Set(pages.map(page => page.path)).size).toBe(pages.length);
     expect(pages.every(page => page.allowedRoles.length > 0 && !page.path.endsWith('.html'))).toBe(true);
   });
