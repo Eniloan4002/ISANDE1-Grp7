@@ -24,6 +24,12 @@ public class AcademicController {
     public record WithdrawalDecision(@NotBlank @Pattern(regexp="cleared|rejected") String decision,
             @Size(max=2000) String notes,@NotNull @PositiveOrZero Integer version) {}
 
+    @GetMapping("/api/academic/terms")
+    @PreAuthorize("@accessPolicy.hasPermission('advisory.read') or @accessPolicy.hasPermission('grades.encode')")
+    public Map<String,Object> academicTerms(){
+        return service.academicTerms();
+    }
+
     @GetMapping("/api/academic/assignments")
     @PreAuthorize("@accessPolicy.hasPermission('enrollment.manage')")
     public Map<String,Object> assignments(@RequestParam long academicYearId,
