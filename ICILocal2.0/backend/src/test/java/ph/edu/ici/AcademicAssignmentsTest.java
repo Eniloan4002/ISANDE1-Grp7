@@ -135,6 +135,17 @@ class AcademicAssignmentsTest {
         assertThat(call(HttpMethod.GET,"/api/academic/classes/"+assigned+"?academicYearId="+year+"&termId="+(term+1),null,teacherToken).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
+    @Test void advisersAndTeachersCanReadAcademicTermsButOtherRolesCannot(){
+        for(String token:List.of(adviserToken,teacherToken)){
+            var response=call(HttpMethod.GET,"/api/academic/terms",null,token);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat((List<Map>)response.getBody().get("years")).extracting(row->((Number)row.get("id")).longValue()).contains(year);
+            assertThat((List<Map>)response.getBody().get("terms")).extracting(row->((Number)row.get("id")).longValue()).contains(term);
+        }
+        assertThat(call(HttpMethod.GET,"/api/academic/terms",null,registrarToken).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.GET,"/api/academic/terms",null,null).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
     @Test void advisoryRostersAndWithdrawalDecisionsFollowTheAssignedSection(){
         long enrollment=studentEnrollment("Mina");
         var assignAdviser=Map.of("academicYearId",year,"termId",term,"adviserId",adviser,"version",0);

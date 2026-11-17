@@ -7,20 +7,24 @@ import AdvisoryClass from '../academic/AdvisoryClass.jsx';
 import { api } from '../api/client.js';
 import { setAccessToken } from '../api.js';
 
+const catalog = {
+  years: [{ id: 1, label: '2026-2027' }],
+  terms: [{ id: 10, academic_year_id: 1, name: 'First Semester', code: 'S1' }],
+};
 const roster = {
-  source: 'development-fixture',
-  academicYear: '2026-2027',
-  term: 'First Semester',
-  adviser: { name: 'Development Adviser' },
-  section: { name: 'STEM 11-A', gradeLevel: 'Grade 11' },
-  students: [
-    { studentNumber: 'STU-1', name: 'Ana Garcia', contactNumber: '0917', enrollmentStatus: 'Enrolled', requirementsStatus: 'Complete', academicStanding: 'Good standing', academicFlag: null },
-    { studentNumber: 'STU-2', name: 'Miguel Santos', contactNumber: '0918', enrollmentStatus: 'Pre-enlisted', requirementsStatus: 'Incomplete', academicStanding: 'At risk', academicFlag: 'Missing Form 137' },
-  ],
+  academicYearId: 1, academicYear: '2026-2027', termId: 10, term: 'First Semester',
+  adviser: { id: 7, name: 'Development Adviser' },
+  sections: [{
+    id: 5, name: 'STEM 11-A', gradeLevel: 'Grade 11', room: '204', adviserId: 7, adviser: 'Development Adviser', version: 0,
+    students: [
+      { studentNumber: 'STU-1', name: 'Ana Garcia', contactNumber: '0917', enrollmentStatus: 'Enrolled', requirementsStatus: 'Complete' },
+      { studentNumber: 'STU-2', name: 'Miguel Santos', contactNumber: '0918', enrollmentStatus: 'Pre-enlisted', requirementsStatus: 'Incomplete' },
+    ],
+  }],
 };
 
 vi.mock('../academic/advisoryRoster.js', () => ({
-  advisoryDataSource: () => 'development-fixture',
+  loadAdvisoryCatalog: vi.fn(() => Promise.resolve(catalog)),
   loadAdvisoryRoster: vi.fn(() => Promise.resolve(roster)),
 }));
 
@@ -46,7 +50,7 @@ describe('Advisory Class dashboard', () => {
     render(<MemoryRouter initialEntries={['/academic/advisory']}><AuthProvider><App /></AuthProvider></MemoryRouter>);
     expect(await screen.findByRole('heading', { name: 'Advisory Class' })).toBeInTheDocument();
     expect((await screen.findAllByText('STEM 11-A')).length).toBeGreaterThan(0);
-    expect(screen.getByText('Development fixture mode: this roster is temporary and is not connected to the database.')).toBeInTheDocument();
+    expect(screen.queryByText(/fixture/i)).not.toBeInTheDocument();
   });
 
   it('shows roster information and filters by name or student number', async () => {
@@ -55,8 +59,7 @@ describe('Advisory Class dashboard', () => {
     expect(screen.getByText('Miguel Santos')).toBeInTheDocument();
     expect(screen.getByText('0917')).toBeInTheDocument();
     expect(screen.getByText('Complete')).toBeInTheDocument();
-    expect(screen.getByText('Good standing')).toBeInTheDocument();
-    expect(screen.getByText('Missing Form 137')).toBeInTheDocument();
+    expect(screen.getByText('Incomplete')).toBeInTheDocument();
     fireEvent.change(screen.getByRole('searchbox', { name: 'Search students' }), { target: { value: 'STU-2' } });
     expect(screen.queryByText('Ana Garcia')).not.toBeInTheDocument();
     expect(screen.getByText('Miguel Santos')).toBeInTheDocument();
@@ -94,8 +97,22 @@ describe('Advisory Class dashboard', () => {
 
   it('renders an empty assigned roster', async () => {
     const { loadAdvisoryRoster } = await import('../academic/advisoryRoster.js');
-    loadAdvisoryRoster.mockResolvedValueOnce({ ...roster, students: [] });
+    loadAdvisoryRoster.mockResolvedValueOnce({ ...roster, sections: [{ ...roster.sections[0], students: [] }] });
     render(<AdvisoryClass />);
     expect(await screen.findByRole('heading', { name: 'No assigned students' })).toBeInTheDocument();
+  });
+
+  it('shows a message when the adviser has no section in the term', async () => {
+    const { loadAdvisoryRoster } = await import('../academic/advisoryRoster.js');
+    loadAdvisoryRoster.mockResolvedValueOnce({ ...roster, sections: [] });
+    render(<AdvisoryClass />);
+    expect(await screen.findByRole('heading', { name: 'No advisory section assigned' })).toBeInTheDocument();
+  });
+
+  it('requests the roster for the selected academic year and term', async () => {
+    const { loadAdvisoryRoster } = await import('../academic/advisoryRoster.js');
+    render(<AdvisoryClass />);
+    await screen.findByText('Ana Garcia');
+    expect(loadAdvisoryRoster).toHaveBeenCalledWith(expect.objectContaining({ academicYearId: '1', termId: '10' }));
   });
 });

@@ -43,6 +43,15 @@ public class AcademicService {
         return rows.getFirst();
     }
 
+    @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
+    public Map<String,Object> academicTerms(){
+        return Map.of(
+            "years",db.queryForList("SELECT id,label FROM academic_years ORDER BY starts_on DESC,id DESC",Map.of()),
+            "terms",db.queryForList("""
+                SELECT id,academic_year_id,code,name FROM academic_terms ORDER BY starts_on,id
+                """,Map.of()));
+    }
+
     private void requireCampus(long campusId,List<Long> campuses){
         if(!campuses.contains(campusId))throw error(HttpStatus.FORBIDDEN,"You do not have access to this campus.");
     }
