@@ -8,7 +8,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@RestControllerAdvice(assignableTypes=AcademicController.class)
+@RestControllerAdvice(assignableTypes={AcademicController.class,GradeController.class})
 public class AcademicErrors {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ProblemDetail> integrity(DataIntegrityViolationException exception){
