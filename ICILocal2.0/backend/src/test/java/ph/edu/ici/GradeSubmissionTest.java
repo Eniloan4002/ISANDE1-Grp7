@@ -154,8 +154,8 @@ class GradeSubmissionTest {
         var periods=call(HttpMethod.GET,base()+"/grading-periods?academicYearId="+year+"&termId="+term,null,teacherToken);
         assertThat((List<Map>)periods.getBody().get("periods")).extracting(row->row.get("status")).containsExactly("locked","open");
         assertThat(call(HttpMethod.GET,gradesPath(period1),null,teacherToken).getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(call(HttpMethod.PUT,base()+"/grades",draft(period1,entry(e1,80,null,null)),teacherToken).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-        assertThat(call(HttpMethod.POST,base()+"/grades/submit",submitBody(period1),teacherToken).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(call(HttpMethod.PUT,base()+"/grades",draft(period1,entry(e1,80,null,null)),teacherToken).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.POST,base()+"/grades/submit",submitBody(period1),teacherToken).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(call(HttpMethod.PUT,base()+"/grades",draft(period2,entry(e1,80,null,null)),teacherToken).getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }

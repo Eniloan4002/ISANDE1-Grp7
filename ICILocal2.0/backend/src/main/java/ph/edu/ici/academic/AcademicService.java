@@ -150,6 +150,9 @@ public class AcademicService {
         yearTerm(input.academicYearId(),input.termId());
         var campuses=scope("enrollment.manage");
         var section=sectionForManager(input.sectionId(),input.termId(),campuses,true);
+        if(Boolean.TRUE.equals(db.queryForObject("SELECT EXISTS(SELECT 1 FROM section_grading_windows WHERE section_id=:section AND finalized_at IS NOT NULL)",
+                Map.of("section",input.sectionId()),Boolean.class)))
+            throw error(HttpStatus.CONFLICT,"This section has finalized grades. New subject offerings require a reviewed academic amendment.");
         long campus=number(section,"campus_id");
         if(!Boolean.TRUE.equals(db.queryForObject("SELECT EXISTS(SELECT 1 FROM subjects WHERE id=:id AND active)",
                 Map.of("id",input.subjectId()),Boolean.class)))

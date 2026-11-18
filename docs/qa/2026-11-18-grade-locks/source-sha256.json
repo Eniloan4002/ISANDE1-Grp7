@@ -1,0 +1,12 @@
+{
+  "ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/AcademicErrors.java": "c70129bda82ced787b8a60dead9c7eb0e581622a4a62702f5ddec3afc7160d95",
+  "ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/AcademicService.java": "aff8089e4d4dd50eab88156cc3e0b70029c42f49b74405bad70722ea6619c695",
+  "ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/GradingWindowController.java": "7bd13d6a3aaf1c8f6c65ab1524101f29b999845fea3d2ccab409c404469a4636",
+  "ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/AcademicHistoryService.java": "3780baf9f78a88c72cb88fb098de1619ee385049bfca5668deb6970e2e536a1a",
+  "ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/AcademicController.java": "9ca34620fee20ba5f14263219b273efd25356f0caf7f6f26ebe6be555da4831e",
+  "ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/AcademicHistoryController.java": "98f7571de8acc98cf1126143456d7bce967e7619d3b2fff84d4cf19d0afb6a40",
+  "ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/GradeController.java": "83d9bb70fb2626b4375d8927be049705d49f0e0575199d2933fa6b63c74c5506",
+  "ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/GradeService.java": "ae31af168a4309386fe9a860699090509e827dce87b5b1f97c7d40ac561f506b",
+  "ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/GradingWindowService.java": "a24ec8bd84b76b993344060231e0b42ba82a98b62bf6218c2a2b04a3d3f0c84b",
+  "ICILocal2.0/backend/src/main/resources/db/migration/V13__section_grading_controls.sql": "098f94017c2af9d9cfb0c85449f82081890555b6dbbdab24f14d9ce3dc60e17e"
+}
