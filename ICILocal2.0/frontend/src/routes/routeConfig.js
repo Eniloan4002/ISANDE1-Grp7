@@ -112,6 +112,7 @@ export const pages=[...prototypePages,{path:'/setup',label:'Academic setup',allo
 
 export function firstAllowedPath(roles) {
   if(roles.includes('admin'))return '/setup';
+  if(roles.includes('teacher') && !roles.includes('registrar'))return '/academic/grade-entry';
   return pages.find(page => page.allowedRoles.some(role => roles.includes(role)))?.path ?? '/access-denied';
 }
 

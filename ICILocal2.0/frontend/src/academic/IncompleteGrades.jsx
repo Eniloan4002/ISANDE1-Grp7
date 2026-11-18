@@ -121,7 +121,7 @@ export default function IncompleteGrades() {
   return <div className="incomplete-workspace">
     <header className="page-heading">
       <p className="eyebrow">Academic records / {isTeacher ? 'Subject teacher' : 'Registrar staff'}</p>
-      <h1>{isTeacher ? 'My Incomplete Grade Cases' : 'Incomplete Grade Monitoring'}</h1>
+      <h1>Incomplete Grades</h1>
       <p>Track unresolved INC marks across active and historical academic periods.</p>
     </header>
 
