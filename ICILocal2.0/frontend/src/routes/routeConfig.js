@@ -48,6 +48,7 @@ export const roleSections = [
     role: 'teacher', label: 'Subject Teacher', office: 'Subject Teacher Portal', initials: 'ST',
     groups: [{ label: 'Academic Records', pages: [
       { path: '/academic/grade-entry', label: 'Grade Entry' },
+      { path: '/academic/incomplete-grades', label: 'Incomplete Grades' },
       { path: '/academic/class-list', label: 'Assigned Classes' },
       { path: '/academic/progress-reports', label: 'Grade Corrections' },
     ] }],
@@ -111,6 +112,7 @@ export const pages=[...prototypePages,{path:'/setup',label:'Academic setup',allo
 
 export function firstAllowedPath(roles) {
   if(roles.includes('admin'))return '/setup';
+  if(roles.includes('teacher') && !roles.includes('registrar'))return '/academic/grade-entry';
   return pages.find(page => page.allowedRoles.some(role => roles.includes(role)))?.path ?? '/access-denied';
 }
 
