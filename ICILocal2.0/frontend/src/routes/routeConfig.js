@@ -48,6 +48,7 @@ export const roleSections = [
     role: 'teacher', label: 'Subject Teacher', office: 'Subject Teacher Portal', initials: 'ST',
     groups: [{ label: 'Academic Records', pages: [
       { path: '/academic/grade-entry', label: 'Grade Entry' },
+      { path: '/academic/incomplete-grades', label: 'Incomplete Grades' },
       { path: '/academic/class-list', label: 'Assigned Classes' },
       { path: '/academic/progress-reports', label: 'Grade Corrections' },
     ] }],
