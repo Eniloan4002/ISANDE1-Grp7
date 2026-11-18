@@ -17,9 +17,10 @@ import static ph.edu.ici.academic.AcademicController.*;
 public class AcademicService {
     private final NamedParameterJdbcTemplate db;
     private final AccessPolicy accessPolicy;
+    private final WithdrawalService withdrawals;
 
-    public AcademicService(NamedParameterJdbcTemplate db,AccessPolicy accessPolicy){
-        this.db=db;this.accessPolicy=accessPolicy;
+    public AcademicService(NamedParameterJdbcTemplate db,AccessPolicy accessPolicy,WithdrawalService withdrawals){
+        this.db=db;this.accessPolicy=accessPolicy;this.withdrawals=withdrawals;
     }
 
     private StaffIdentity identity(){return (StaffIdentity)SecurityContextHolder.getContext().getAuthentication().getPrincipal();}
@@ -311,34 +312,6 @@ public class AcademicService {
 
     @Transactional
     public Map<String,Object> decideWithdrawal(long withdrawalId,WithdrawalDecision input){
-        var rows=db.queryForList("""
-            SELECT w.id,w.status AS "withdrawalStatus",wc.status AS "clearanceStatus",wc.version,
-                   e.campus_id AS "campusId"
-            FROM withdrawal_clearances wc JOIN withdrawals w ON w.id=wc.withdrawal_id
-            JOIN enrollments e ON e.id=w.enrollment_id JOIN sections s ON s.id=e.section_id
-            WHERE w.id=:id AND wc.office='adviser' AND s.adviser_id=:adviser
-              AND e.campus_id IN (:scope)
-            FOR UPDATE OF w,wc,s
-            """,Map.of("id",withdrawalId,"adviser",identity().userId(),"scope",scope("advisory.read")));
-        if(rows.isEmpty())throw error(HttpStatus.NOT_FOUND,"Assigned withdrawal endorsement not found.");
-        var current=rows.getFirst();
-        if(!"pending".equals(current.get("withdrawalStatus"))||!"pending".equals(current.get("clearanceStatus")))
-            throw error(HttpStatus.CONFLICT,"This withdrawal endorsement has already been decided.");
-        if(version(current)!=input.version())throw error(HttpStatus.CONFLICT,"This withdrawal endorsement changed. Reload before deciding.");
-        actor();
-        String notes=input.notes()==null||input.notes().isBlank()?null:input.notes().trim();
-        db.update("""
-            UPDATE withdrawal_clearances
-            SET status=:decision,acted_by=:actor,acted_at=current_timestamp,notes=:notes,version=version+1
-            WHERE withdrawal_id=:id AND office='adviser'
-            """,new MapSqlParameterSource().addValue("decision",input.decision())
-                    .addValue("actor",identity().userId()).addValue("notes",notes).addValue("id",withdrawalId));
-        String withdrawalStatus="pending";
-        if("rejected".equals(input.decision())){
-            db.update("UPDATE withdrawals SET status='rejected' WHERE id=:id",Map.of("id",withdrawalId));
-            withdrawalStatus="rejected";
-        }
-        return Map.of("withdrawalId",withdrawalId,"endorsementStatus",input.decision(),
-                "withdrawalStatus",withdrawalStatus,"version",version(current)+1);
+        return withdrawals.legacyAdviser(withdrawalId,input);
     }
 }

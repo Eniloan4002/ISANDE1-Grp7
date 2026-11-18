@@ -1,0 +1,49 @@
+
+> ici-local-react-foundation@0.1.0 test
+> npm run test:unit && npm run test:schema
+
+
+> ici-local-react-foundation@0.1.0 test:unit
+> vitest run
+
+
+ RUN  v5.0.5 /private/tmp/ici-sprint2-backend/ICILocal2.0/frontend
+
+
+ Test Files  11 passed (11)
+      Tests  111 passed (111)
+   Start at  20:32:23
+   Duration  3.94s (tests 38%, environment 38%, transform 11%, import 8%, setup 4%)
+
+Environment  jsdom was created 11 times · 9.11s total, 38% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments
+
+
+> ici-local-react-foundation@0.1.0 test:schema
+> node --test tests/*.test.mjs
+
+✔ frozen prototype matches captured checksums (22.051417ms)
+▶ migrations apply and preserve institutional data integrity
+  ✔ reference data includes three campuses and seven roles (2.254625ms)
+  ✔ duplicate applicant LRN is allowed but permanent identity is unique (2.79675ms)
+  ✔ malformed LRN and duplicate case without a target are rejected (1.264375ms)
+  ✔ section overbooking is rejected (0.787ms)
+  ✔ section capacity cannot be reduced below occupancy (0.826209ms)
+  ✔ cross-campus enrollment section is rejected (1.332167ms)
+  ✔ enrollment must match its linked application identity (0.423542ms)
+  ✔ confirmation requires attendance and every mandatory credential (8.669375ms)
+  ✔ cross-term grade periods are rejected (1.668708ms)
+  ✔ invalid grades and numeric plus nonnumeric marks are rejected (2.357333ms)
+  ✔ credential and grade audit entries preserve actor and previous values (2.17425ms)
+  ✔ audit update, deletion and truncation are rejected (1.374542ms)
+  ✔ unreconciled import cannot be signed off (0.593125ms)
+✔ migrations apply and preserve institutional data integrity (1031.089541ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1101.320459

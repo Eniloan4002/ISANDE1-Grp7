@@ -1,0 +1,845 @@
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------< ph.edu.ici:ici-local >------------------------
+[INFO] Building ici-local 0.1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- clean:3.4.1:clean (default-clean) @ ici-local ---
+[INFO] Deleting /private/tmp/ici-sprint2-backend/ICILocal2.0/backend/target
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ ici-local ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 20 resources from src/main/resources to target/classes
+[INFO]
+[INFO] --- compiler:3.14.1:compile (default-compile) @ ici-local ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 50 source files with javac [debug parameters release 21] to target/classes
+[INFO] /private/tmp/ici-sprint2-backend/ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/WithdrawalService.java: Some input files use unchecked or unsafe operations.
+[INFO] /private/tmp/ici-sprint2-backend/ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/WithdrawalService.java: Recompile with -Xlint:unchecked for details.
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ ici-local ---
+[INFO] skip non existing resourceDirectory /private/tmp/ici-sprint2-backend/ICILocal2.0/backend/src/test/resources
+[INFO]
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ ici-local ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 17 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] /private/tmp/ici-sprint2-backend/ICILocal2.0/backend/src/test/java/ph/edu/ici/HistoryWithdrawalTest.java: /private/tmp/ici-sprint2-backend/ICILocal2.0/backend/src/test/java/ph/edu/ici/HistoryWithdrawalTest.java uses or overrides a deprecated API.
+[INFO] /private/tmp/ici-sprint2-backend/ICILocal2.0/backend/src/test/java/ph/edu/ici/HistoryWithdrawalTest.java: Recompile with -Xlint:deprecation for details.
+[INFO] /private/tmp/ici-sprint2-backend/ICILocal2.0/backend/src/test/java/ph/edu/ici/AcademicAssignmentsTest.java: Some input files use unchecked or unsafe operations.
+[INFO] /private/tmp/ici-sprint2-backend/ICILocal2.0/backend/src/test/java/ph/edu/ici/AcademicAssignmentsTest.java: Recompile with -Xlint:unchecked for details.
+[INFO]
+[INFO] --- surefire:3.5.4:test (default-test) @ ici-local ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO]
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running ph.edu.ici.AccessPolicyRequestTest
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (/Users/ladi/.m2/repository/net/bytebuddy/byte-buddy-agent/1.17.8/byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.648 s -- in ph.edu.ici.AccessPolicyRequestTest
+[INFO] Running ph.edu.ici.FoundationAuthenticationTest
+20:32:54.073 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [ph.edu.ici.FoundationAuthenticationTest]: FoundationAuthenticationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+20:32:54.135 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration ph.edu.ici.IciLocalApplication for test class ph.edu.ici.FoundationAuthenticationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2026-11-18T20:32:54.339+08:00  INFO 15325 --- [ici-local] [           main] p.edu.ici.FoundationAuthenticationTest   : Starting FoundationAuthenticationTest using Java 25.0.2 with PID 15325 (started by Linus in /private/tmp/ici-sprint2-backend/ICILocal2.0/backend)
+2026-11-18T20:32:54.343+08:00  INFO 15325 --- [ici-local] [           main] p.edu.ici.FoundationAuthenticationTest   : No active profile set, falling back to 1 default profile: "default"
+2026-11-18T20:32:54.579+08:00  INFO 15325 --- [ici-local] [           main] i.z.t.d.p.embedded.EmbeddedPostgres      : Detected a Darwin aarch64 system
+2026-11-18T20:32:54.580+08:00  INFO 15325 --- [ici-local] [           main] .z.t.d.p.e.DefaultPostgresBinaryResolver : Detected distribution: 'Unknown'
+2026-11-18T20:32:54.581+08:00  INFO 15325 --- [ici-local] [           main] .z.t.d.p.e.DefaultPostgresBinaryResolver : System specific postgres binaries found: 'postgres-darwin-arm_64.txz'
+2026-11-18T20:32:54.673+08:00  INFO 15325 --- [ici-local] [           main] i.z.t.d.p.embedded.EmbeddedPostgres      : Postgres binaries at /var/folders/13/237tfjzn33vfz31x1kjfypdm0000gn/T/embedded-pg/PG-eb0efa0aeda68f73a8f34f19c9a4e817
+2026-11-18T20:32:54.741+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      : The files belonging to this database system will be owned by user "Linus".
+2026-11-18T20:32:54.741+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      : This user must also own the server process.
+2026-11-18T20:32:54.741+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      :
+2026-11-18T20:32:54.741+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      : The database cluster will be initialized with locale "C.UTF-8".
+2026-11-18T20:32:54.741+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      : The default text search configuration will be set to "english".
+2026-11-18T20:32:54.741+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      :
+2026-11-18T20:32:54.741+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      : Data page checksums are disabled.
+2026-11-18T20:32:54.741+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      :
+2026-11-18T20:32:54.741+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      : fixing permissions on existing directory /var/folders/13/237tfjzn33vfz31x1kjfypdm0000gn/T/epg4562479719340953720 ... ok
+2026-11-18T20:32:54.742+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      : creating subdirectories ... ok
+2026-11-18T20:32:54.742+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      : selecting dynamic shared memory implementation ... posix
+2026-11-18T20:32:54.797+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      : selecting default "max_connections" ... 100
+2026-11-18T20:32:54.821+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      : selecting default "shared_buffers" ... 128MB
+2026-11-18T20:32:54.823+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      : selecting default time zone ... Asia/Manila
+2026-11-18T20:32:54.825+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      : creating configuration files ... ok
+2026-11-18T20:32:54.996+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      : running bootstrap script ... ok
+2026-11-18T20:32:55.431+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      : performing post-bootstrap initialization ... ok
+2026-11-18T20:32:55.454+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      : syncing data to disk ... ok
+2026-11-18T20:32:55.454+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      :
+2026-11-18T20:32:55.454+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      : Success. You can now start the database server using:
+2026-11-18T20:32:55.454+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      :
+2026-11-18T20:32:55.454+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      :     /var/folders/13/237tfjzn33vfz31x1kjfypdm0000gn/T/embedded-pg/PG-eb0efa0aeda68f73a8f34f19c9a4e817/bin/pg_ctl -D /var/folders/13/237tfjzn33vfz31x1kjfypdm0000gn/T/epg4562479719340953720 -l logfile start
+2026-11-18T20:32:55.454+08:00  INFO 15325 --- [ici-local] [itdb:pid(15365)] i.z.t.d.p.embedded.EmbeddedPostgres      :
+2026-11-18T20:32:55.454+08:00  INFO 15325 --- [ici-local] [           main] i.z.t.d.p.embedded.EmbeddedPostgres      : d273c89e-2ad6-4a1c-a6c2-c53ae9f08ba0 initdb completed in 00:00:00.779
+2026-11-18T20:32:55.461+08:00  INFO 15325 --- [ici-local] [           main] i.z.t.d.p.embedded.EmbeddedPostgres      : d273c89e-2ad6-4a1c-a6c2-c53ae9f08ba0 postmaster started as Process[pid=15375, exitValue="not exited"] on port 54752.  Waiting up to PT10S for server startup to finish.
+2026-11-18T20:32:55.511+08:00  INFO 15325 --- [ici-local] [gres:pid(15375)] i.z.t.d.p.embedded.EmbeddedPostgres      : waiting for server to start....2026-11-18 20:32:55.511 PST [15377] LOG:  starting PostgreSQL 17.6 on x86_64-apple-darwin23.6.0, compiled by Apple clang version 16.0.0 (clang-1600.0.26.6), 64-bit
+2026-11-18T20:32:55.512+08:00  INFO 15325 --- [ici-local] [gres:pid(15375)] i.z.t.d.p.embedded.EmbeddedPostgres      : 2026-11-18 20:32:55.512 PST [15377] LOG:  listening on IPv6 address "::1", port 54752
+2026-11-18T20:32:55.512+08:00  INFO 15325 --- [ici-local] [gres:pid(15375)] i.z.t.d.p.embedded.EmbeddedPostgres      : 2026-11-18 20:32:55.512 PST [15377] LOG:  listening on IPv4 address "127.0.0.1", port 54752
+2026-11-18T20:32:55.513+08:00  INFO 15325 --- [ici-local] [gres:pid(15375)] i.z.t.d.p.embedded.EmbeddedPostgres      : 2026-11-18 20:32:55.513 PST [15377] LOG:  listening on Unix socket "/tmp/.s.PGSQL.54752"
+2026-11-18T20:32:55.515+08:00  INFO 15325 --- [ici-local] [gres:pid(15375)] i.z.t.d.p.embedded.EmbeddedPostgres      : 2026-11-18 20:32:55.515 PST [15380] LOG:  database system was shut down at 2026-11-18 20:32:55 PST
+2026-11-18T20:32:55.517+08:00  INFO 15325 --- [ici-local] [gres:pid(15375)] i.z.t.d.p.embedded.EmbeddedPostgres      : 2026-11-18 20:32:55.517 PST [15377] LOG:  database system is ready to accept connections
+2026-11-18T20:32:55.592+08:00  INFO 15325 --- [ici-local] [gres:pid(15375)] i.z.t.d.p.embedded.EmbeddedPostgres      :  done
+2026-11-18T20:32:55.592+08:00  INFO 15325 --- [ici-local] [gres:pid(15375)] i.z.t.d.p.embedded.EmbeddedPostgres      : server started
+2026-11-18T20:32:55.625+08:00  INFO 15325 --- [ici-local] [           main] i.z.t.d.p.embedded.EmbeddedPostgres      : d273c89e-2ad6-4a1c-a6c2-c53ae9f08ba0 postmaster startup finished in 00:00:00.167
+2026-11-18T20:32:56.023+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-11-18T20:32:56.030+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-11-18T20:32:56.030+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2026-11-18T20:32:56.052+08:00  INFO 15325 --- [ici-local] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-11-18T20:32:56.052+08:00  INFO 15325 --- [ici-local] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1701 ms
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2026-11-18T20:32:56.157+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-11-18T20:32:56.164+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@66a93b25
+2026-11-18T20:32:56.165+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-11-18T20:32:56.200+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/postgres?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:32:56.222+08:00  INFO 15325 --- [ici-local] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2026-11-18T20:32:56.224+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.012s)
+2026-11-18T20:32:56.229+08:00  INFO 15325 --- [ici-local] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2026-11-18T20:32:56.251+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2026-11-18T20:32:56.266+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - institutional foundation"
+2026-11-18T20:32:56.338+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - reference data and integrity"
+2026-11-18T20:32:56.355+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - audit metadata and academic setup"
+2026-11-18T20:32:56.376+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:56.376+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:56.376+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:56.376+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "application_requirements" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:56.376+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:56.376+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:56.376+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:56.376+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:56.376+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "user_role_grants" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:56.376+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:56.376+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:56.376+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:56.376+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:56.376+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "enrollments" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:56.376+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "grades" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:56.376+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "grades" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:56.376+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "student_notes" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:56.392+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "4 - authentication revocations"
+2026-11-18T20:32:56.399+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "5 - student master profiles"
+2026-11-18T20:32:56.407+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "6 - admin enrollment permission"
+2026-11-18T20:32:56.411+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "7 - user token version"
+2026-11-18T20:32:56.415+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "8 - requirement verification metadata"
+2026-11-18T20:32:56.420+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "9 - enrollment workflow versions"
+2026-11-18T20:32:56.425+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "10 - plain catalog labels"
+2026-11-18T20:32:56.431+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "11 - identity resolution and account security"
+2026-11-18T20:32:56.438+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "12 - academic assignments and withdrawal endorsements"
+2026-11-18T20:32:56.444+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "13 - section grading controls"
+2026-11-18T20:32:56.450+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "14 - grade corrections and incomplete cases"
+2026-11-18T20:32:56.461+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "15 - withdrawal clearance workflow"
+2026-11-18T20:32:56.468+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "16 - reporting guidance and daily attendance"
+2026-11-18T20:32:56.485+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 16 migrations to schema "public", now at version v16 (execution time 00:00.153s)
+2026-11-18T20:32:57.411+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 54766 (http) with context path '/'
+2026-11-18T20:32:57.418+08:00  INFO 15325 --- [ici-local] [           main] p.edu.ici.FoundationAuthenticationTest   : Started FoundationAuthenticationTest in 3.216 seconds (process running for 4.454)
+2026-11-18T20:32:57.790+08:00  INFO 15325 --- [ici-local] [1-auto-1-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-11-18T20:32:57.790+08:00  INFO 15325 --- [ici-local] [1-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-11-18T20:32:57.790+08:00  INFO 15325 --- [ici-local] [1-auto-1-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-11-18T20:32:58.287+08:00  INFO 15325 --- [ici-local] [gres:pid(15375)] i.z.t.d.p.embedded.EmbeddedPostgres      : 2026-11-18 20:32:58.287 PST [15386] ERROR:  duplicate key value violates unique constraint "subjects_code_key"
+2026-11-18T20:32:58.287+08:00  INFO 15325 --- [ici-local] [gres:pid(15375)] i.z.t.d.p.embedded.EmbeddedPostgres      : 2026-11-18 20:32:58.287 PST [15386] DETAIL:  Key (code)=(SUB-897603B8) already exists.
+2026-11-18T20:32:58.287+08:00  INFO 15325 --- [ici-local] [gres:pid(15375)] i.z.t.d.p.embedded.EmbeddedPostgres      : 2026-11-18 20:32:58.287 PST [15386] STATEMENT:  INSERT INTO subjects (code,name,units,active) VALUES ($1,$2,$3,$4) RETURNING id
+2026-11-18T20:32:59.062+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/upgrade_2fa544b90c9844209b1ade7eb4036e75?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:32:59.069+08:00  INFO 15325 --- [ici-local] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2026-11-18T20:32:59.069+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.003s)
+2026-11-18T20:32:59.071+08:00  INFO 15325 --- [ici-local] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2026-11-18T20:32:59.080+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2026-11-18T20:32:59.086+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - institutional foundation"
+2026-11-18T20:32:59.148+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - reference data and integrity"
+2026-11-18T20:32:59.156+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 2 migrations to schema "public", now at version v2 (execution time 00:00.060s)
+2026-11-18T20:32:59.171+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/upgrade_2fa544b90c9844209b1ade7eb4036e75?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:32:59.178+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.004s)
+2026-11-18T20:32:59.184+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 2
+2026-11-18T20:32:59.186+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - audit metadata and academic setup"
+2026-11-18T20:32:59.205+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:59.205+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:59.205+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:59.205+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "application_requirements" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:59.205+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:59.205+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:59.205+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:59.205+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:59.205+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "user_role_grants" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:59.205+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:59.205+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:59.205+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:59.205+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:59.205+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "enrollments" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:59.205+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "grades" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:59.205+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "grades" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:59.205+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "student_notes" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:32:59.218+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "4 - authentication revocations"
+2026-11-18T20:32:59.222+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "5 - student master profiles"
+2026-11-18T20:32:59.229+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "6 - admin enrollment permission"
+2026-11-18T20:32:59.233+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "7 - user token version"
+2026-11-18T20:32:59.236+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "8 - requirement verification metadata"
+2026-11-18T20:32:59.240+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "9 - enrollment workflow versions"
+2026-11-18T20:32:59.245+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "10 - plain catalog labels"
+2026-11-18T20:32:59.249+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "11 - identity resolution and account security"
+2026-11-18T20:32:59.256+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "12 - academic assignments and withdrawal endorsements"
+2026-11-18T20:32:59.261+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "13 - section grading controls"
+2026-11-18T20:32:59.267+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "14 - grade corrections and incomplete cases"
+2026-11-18T20:32:59.278+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "15 - withdrawal clearance workflow"
+2026-11-18T20:32:59.284+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "16 - reporting guidance and daily attendance"
+2026-11-18T20:32:59.302+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 14 migrations to schema "public", now at version v16 (execution time 00:00.078s)
+2026-11-18T20:32:59.315+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.004s)
+2026-11-18T20:33:20.115+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.002s)
+2026-11-18T20:33:20.121+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.002s)
+2026-11-18T20:33:20.123+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-11-18T20:33:20.123+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 29.59 s -- in ph.edu.ici.FoundationAuthenticationTest
+[INFO] Running ph.edu.ici.ReportingGuidanceTest
+2026-11-18T20:33:23.630+08:00  INFO 15325 --- [ici-local] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [ph.edu.ici.ReportingGuidanceTest]: ReportingGuidanceTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-18T20:33:23.631+08:00  INFO 15325 --- [ici-local] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration ph.edu.ici.IciLocalApplication for test class ph.edu.ici.ReportingGuidanceTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2026-11-18T20:33:23.649+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.ReportingGuidanceTest         : Starting ReportingGuidanceTest using Java 25.0.2 with PID 15325 (started by Linus in /private/tmp/ici-sprint2-backend/ICILocal2.0/backend)
+2026-11-18T20:33:23.649+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.ReportingGuidanceTest         : No active profile set, falling back to 1 default profile: "default"
+2026-11-18T20:33:23.771+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-11-18T20:33:23.772+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-11-18T20:33:23.772+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2026-11-18T20:33:23.779+08:00  INFO 15325 --- [ici-local] [           main] o.a.c.c.C.[Tomcat-1].[localhost].[/]     : Initializing Spring embedded WebApplicationContext
+2026-11-18T20:33:23.779+08:00  INFO 15325 --- [ici-local] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 129 ms
+2026-11-18T20:33:23.792+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-11-18T20:33:23.798+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection org.postgresql.jdbc.PgConnection@34fe89a5
+2026-11-18T20:33:23.798+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2026-11-18T20:33:23.800+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/postgres?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:33:23.809+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.006s)
+2026-11-18T20:33:23.815+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-11-18T20:33:23.815+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-11-18T20:33:24.234+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 54817 (http) with context path '/'
+2026-11-18T20:33:24.236+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.ReportingGuidanceTest         : Started ReportingGuidanceTest in 0.603 seconds (process running for 31.273)
+2026-11-18T20:33:24.558+08:00  INFO 15325 --- [ici-local] [1-auto-2-exec-1] o.a.c.c.C.[Tomcat-1].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-11-18T20:33:24.558+08:00  INFO 15325 --- [ici-local] [1-auto-2-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-11-18T20:33:24.558+08:00  INFO 15325 --- [ici-local] [1-auto-2-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 37.44 s -- in ph.edu.ici.ReportingGuidanceTest
+[INFO] Running ph.edu.ici.RequirementTrackingTest
+2026-11-18T20:34:01.069+08:00  INFO 15325 --- [ici-local] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [ph.edu.ici.RequirementTrackingTest]: RequirementTrackingTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-18T20:34:01.070+08:00  INFO 15325 --- [ici-local] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration ph.edu.ici.IciLocalApplication for test class ph.edu.ici.RequirementTrackingTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2026-11-18T20:34:01.083+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.RequirementTrackingTest       : Starting RequirementTrackingTest using Java 25.0.2 with PID 15325 (started by Linus in /private/tmp/ici-sprint2-backend/ICILocal2.0/backend)
+2026-11-18T20:34:01.083+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.RequirementTrackingTest       : No active profile set, falling back to 1 default profile: "default"
+2026-11-18T20:34:01.189+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-11-18T20:34:01.189+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-11-18T20:34:01.189+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2026-11-18T20:34:01.195+08:00  INFO 15325 --- [ici-local] [           main] o.a.c.c.C.[Tomcat-2].[localhost].[/]     : Initializing Spring embedded WebApplicationContext
+2026-11-18T20:34:01.195+08:00  INFO 15325 --- [ici-local] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 112 ms
+2026-11-18T20:34:01.208+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2026-11-18T20:34:01.214+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection org.postgresql.jdbc.PgConnection@eb3b4d7
+2026-11-18T20:34:01.214+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2026-11-18T20:34:01.216+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/postgres?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:34:01.224+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.005s)
+2026-11-18T20:34:01.230+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-11-18T20:34:01.230+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-11-18T20:34:01.639+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 54902 (http) with context path '/'
+2026-11-18T20:34:01.640+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.RequirementTrackingTest       : Started RequirementTrackingTest in 0.567 seconds (process running for 68.68)
+2026-11-18T20:34:01.961+08:00  INFO 15325 --- [ici-local] [1-auto-3-exec-2] o.a.c.c.C.[Tomcat-2].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-11-18T20:34:01.961+08:00  INFO 15325 --- [ici-local] [1-auto-3-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-11-18T20:34:01.961+08:00  INFO 15325 --- [ici-local] [1-auto-3-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.627 s -- in ph.edu.ici.RequirementTrackingTest
+[INFO] Running ph.edu.ici.StudentMasterTest
+2026-11-18T20:34:07.696+08:00  INFO 15325 --- [ici-local] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [ph.edu.ici.StudentMasterTest]: StudentMasterTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-18T20:34:07.696+08:00  INFO 15325 --- [ici-local] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration ph.edu.ici.IciLocalApplication for test class ph.edu.ici.StudentMasterTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2026-11-18T20:34:07.706+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.StudentMasterTest             : Starting StudentMasterTest using Java 25.0.2 with PID 15325 (started by Linus in /private/tmp/ici-sprint2-backend/ICILocal2.0/backend)
+2026-11-18T20:34:07.706+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.StudentMasterTest             : No active profile set, falling back to 1 default profile: "default"
+2026-11-18T20:34:07.792+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-11-18T20:34:07.792+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-11-18T20:34:07.792+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2026-11-18T20:34:07.798+08:00  INFO 15325 --- [ici-local] [           main] o.a.c.c.C.[Tomcat-3].[localhost].[/]     : Initializing Spring embedded WebApplicationContext
+2026-11-18T20:34:07.799+08:00  INFO 15325 --- [ici-local] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 93 ms
+2026-11-18T20:34:07.809+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Starting...
+2026-11-18T20:34:07.813+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-4 - Added connection org.postgresql.jdbc.PgConnection@5bb48619
+2026-11-18T20:34:07.813+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Start completed.
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2026-11-18T20:34:07.815+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/postgres?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:34:07.823+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.004s)
+2026-11-18T20:34:07.828+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-11-18T20:34:07.828+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-11-18T20:34:08.229+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 54926 (http) with context path '/'
+2026-11-18T20:34:08.230+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.StudentMasterTest             : Started StudentMasterTest in 0.533 seconds (process running for 75.27)
+2026-11-18T20:34:08.544+08:00  INFO 15325 --- [ici-local] [1-auto-4-exec-1] o.a.c.c.C.[Tomcat-3].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-11-18T20:34:08.545+08:00  INFO 15325 --- [ici-local] [1-auto-4-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-11-18T20:34:08.545+08:00  INFO 15325 --- [ici-local] [1-auto-4-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.910 s -- in ph.edu.ici.StudentMasterTest
+[INFO] Running ph.edu.ici.MigrationReconciliationTest
+2026-11-18T20:34:13.704+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/migration_36ef6ab0d51d49b28c7c841caeef4adb?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:34:13.710+08:00  INFO 15325 --- [ici-local] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2026-11-18T20:34:13.710+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.003s)
+2026-11-18T20:34:13.712+08:00  INFO 15325 --- [ici-local] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2026-11-18T20:34:13.719+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2026-11-18T20:34:13.722+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - institutional foundation"
+2026-11-18T20:34:13.783+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - reference data and integrity"
+2026-11-18T20:34:13.807+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - audit metadata and academic setup"
+2026-11-18T20:34:13.823+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:13.823+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:13.823+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:13.823+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "application_requirements" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:13.823+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:13.823+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:13.823+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:13.823+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:13.823+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "user_role_grants" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:13.824+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:13.824+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:13.824+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:13.824+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:13.824+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "enrollments" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:13.824+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "grades" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:13.824+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "grades" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:13.824+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "student_notes" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:13.832+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "4 - authentication revocations"
+2026-11-18T20:34:13.836+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "5 - student master profiles"
+2026-11-18T20:34:13.841+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "6 - admin enrollment permission"
+2026-11-18T20:34:13.844+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "7 - user token version"
+2026-11-18T20:34:13.847+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "8 - requirement verification metadata"
+2026-11-18T20:34:13.849+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "9 - enrollment workflow versions"
+2026-11-18T20:34:13.856+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "10 - plain catalog labels"
+2026-11-18T20:34:13.859+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "11 - identity resolution and account security"
+2026-11-18T20:34:13.865+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "12 - academic assignments and withdrawal endorsements"
+2026-11-18T20:34:13.868+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 12 migrations to schema "public", now at version v12 (execution time 00:00.114s)
+2026-11-18T20:34:13.923+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/migration_36ef6ab0d51d49b28c7c841caeef4adb?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:34:13.928+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.002s)
+2026-11-18T20:34:13.933+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 12
+2026-11-18T20:34:13.934+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "13 - section grading controls"
+2026-11-18T20:34:13.941+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "14 - grade corrections and incomplete cases"
+2026-11-18T20:34:13.952+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "15 - withdrawal clearance workflow"
+2026-11-18T20:34:13.959+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "16 - reporting guidance and daily attendance"
+2026-11-18T20:34:13.972+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 4 migrations to schema "public", now at version v16 (execution time 00:00.028s)
+2026-11-18T20:34:13.981+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.002s)
+2026-11-18T20:34:13.999+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.003s)
+2026-11-18T20:34:14.004+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-11-18T20:34:14.005+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-11-18T20:34:14.094+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/migration_ce4eaca997094d06b73188dc2caff2a5?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:34:14.098+08:00  INFO 15325 --- [ici-local] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2026-11-18T20:34:14.099+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 9 migrations (execution time 00:00.002s)
+2026-11-18T20:34:14.101+08:00  INFO 15325 --- [ici-local] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2026-11-18T20:34:14.111+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2026-11-18T20:34:14.114+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - institutional foundation"
+2026-11-18T20:34:14.171+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - reference data and integrity"
+2026-11-18T20:34:14.180+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - audit metadata and academic setup"
+2026-11-18T20:34:14.196+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.196+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.196+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.196+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "application_requirements" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.196+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.196+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.196+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.196+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.196+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "user_role_grants" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.196+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.196+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.196+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.196+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.196+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "enrollments" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.197+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "grades" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.197+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "grades" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.197+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "student_notes" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.205+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "4 - authentication revocations"
+2026-11-18T20:34:14.208+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "5 - student master profiles"
+2026-11-18T20:34:14.213+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "6 - requirement verification metadata"
+2026-11-18T20:34:14.216+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "7 - enrollment workflow versions"
+2026-11-18T20:34:14.219+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "8 - plain catalog labels"
+2026-11-18T20:34:14.223+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "9 - identity resolution and account security"
+2026-11-18T20:34:14.228+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 9 migrations to schema "public", now at version v9 (execution time 00:00.092s)
+2026-11-18T20:34:14.282+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/migration_ce4eaca997094d06b73188dc2caff2a5?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:34:14.291+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.006s)
+2026-11-18T20:34:14.297+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 11
+2026-11-18T20:34:14.298+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "12 - academic assignments and withdrawal endorsements"
+2026-11-18T20:34:14.305+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "13 - section grading controls"
+2026-11-18T20:34:14.311+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "14 - grade corrections and incomplete cases"
+2026-11-18T20:34:14.321+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "15 - withdrawal clearance workflow"
+2026-11-18T20:34:14.328+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "16 - reporting guidance and daily attendance"
+2026-11-18T20:34:14.341+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 5 migrations to schema "public", now at version v16 (execution time 00:00.029s)
+2026-11-18T20:34:14.350+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.002s)
+2026-11-18T20:34:14.392+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.002s)
+2026-11-18T20:34:14.486+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/migration_940a9528d5fc421280c779cfd6e2c5a5?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:34:14.489+08:00  INFO 15325 --- [ici-local] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2026-11-18T20:34:14.490+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 9 migrations (execution time 00:00.001s)
+2026-11-18T20:34:14.492+08:00  INFO 15325 --- [ici-local] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2026-11-18T20:34:14.500+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2026-11-18T20:34:14.505+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - institutional foundation"
+2026-11-18T20:34:14.571+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - reference data and integrity"
+2026-11-18T20:34:14.580+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - audit metadata and academic setup"
+2026-11-18T20:34:14.595+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.596+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.596+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.596+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "application_requirements" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.596+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.596+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.596+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.596+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.596+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "user_role_grants" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.596+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.596+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.596+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.596+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.596+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "enrollments" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.596+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "grades" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.596+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "grades" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.596+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "student_notes" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.604+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "4 - authentication revocations"
+2026-11-18T20:34:14.608+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "5 - student master profiles"
+2026-11-18T20:34:14.613+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "6 - requirement verification metadata"
+2026-11-18T20:34:14.616+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "7 - enrollment workflow versions"
+2026-11-18T20:34:14.619+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "8 - plain catalog labels"
+2026-11-18T20:34:14.624+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "9 - identity resolution and account security"
+2026-11-18T20:34:14.629+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 9 migrations to schema "public", now at version v9 (execution time 00:00.103s)
+2026-11-18T20:34:14.722+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/migration_92499319ef254322aef0f77101e09964?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:34:14.726+08:00  INFO 15325 --- [ici-local] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2026-11-18T20:34:14.726+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 9 migrations (execution time 00:00.001s)
+2026-11-18T20:34:14.728+08:00  INFO 15325 --- [ici-local] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2026-11-18T20:34:14.735+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2026-11-18T20:34:14.738+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - institutional foundation"
+2026-11-18T20:34:14.796+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - reference data and integrity"
+2026-11-18T20:34:14.806+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - audit metadata and academic setup"
+2026-11-18T20:34:14.822+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.822+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.822+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.822+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "application_requirements" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.822+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.822+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.822+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.822+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.822+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "user_role_grants" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.822+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.822+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.822+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.822+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.822+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "enrollments" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.822+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "grades" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.822+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "grades" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.822+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "student_notes" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:14.830+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "4 - authentication revocations"
+2026-11-18T20:34:14.833+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "5 - student master profiles"
+2026-11-18T20:34:14.839+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "6 - requirement verification metadata"
+2026-11-18T20:34:14.842+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "7 - enrollment workflow versions"
+2026-11-18T20:34:14.845+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "8 - plain catalog labels"
+2026-11-18T20:34:14.849+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "9 - identity resolution and account security"
+2026-11-18T20:34:14.854+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 9 migrations to schema "public", now at version v9 (execution time 00:00.093s)
+2026-11-18T20:34:14.971+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/migration_66c0d165b131425eb0eb501d6f6c1c1d?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:34:14.976+08:00  INFO 15325 --- [ici-local] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2026-11-18T20:34:14.976+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.002s)
+2026-11-18T20:34:14.979+08:00  INFO 15325 --- [ici-local] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2026-11-18T20:34:14.986+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2026-11-18T20:34:14.989+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - institutional foundation"
+2026-11-18T20:34:15.050+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - reference data and integrity"
+2026-11-18T20:34:15.059+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - audit metadata and academic setup"
+2026-11-18T20:34:15.077+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.077+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.077+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.077+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "application_requirements" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.077+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.077+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.077+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.077+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.077+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "user_role_grants" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.077+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.077+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.077+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.077+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.077+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "enrollments" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.077+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "grades" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.077+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "grades" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.077+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "student_notes" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.085+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "4 - authentication revocations"
+2026-11-18T20:34:15.088+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "5 - student master profiles"
+2026-11-18T20:34:15.093+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "6 - admin enrollment permission"
+2026-11-18T20:34:15.096+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "7 - user token version"
+2026-11-18T20:34:15.098+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 7 migrations to schema "public", now at version v7 (execution time 00:00.089s)
+2026-11-18T20:34:15.114+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/migration_66c0d165b131425eb0eb501d6f6c1c1d?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:34:15.118+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.002s)
+2026-11-18T20:34:15.124+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 7
+2026-11-18T20:34:15.125+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "8 - requirement verification metadata"
+2026-11-18T20:34:15.130+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "9 - enrollment workflow versions"
+2026-11-18T20:34:15.135+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "10 - plain catalog labels"
+2026-11-18T20:34:15.141+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "11 - identity resolution and account security"
+2026-11-18T20:34:15.148+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "12 - academic assignments and withdrawal endorsements"
+2026-11-18T20:34:15.152+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "13 - section grading controls"
+2026-11-18T20:34:15.158+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "14 - grade corrections and incomplete cases"
+2026-11-18T20:34:15.167+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "15 - withdrawal clearance workflow"
+2026-11-18T20:34:15.173+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "16 - reporting guidance and daily attendance"
+2026-11-18T20:34:15.185+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 9 migrations to schema "public", now at version v16 (execution time 00:00.038s)
+2026-11-18T20:34:15.194+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.002s)
+2026-11-18T20:34:15.272+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/migration_242f962f4a1c4f6386ce897d9049ce4e?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:34:15.276+08:00  INFO 15325 --- [ici-local] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2026-11-18T20:34:15.277+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.002s)
+2026-11-18T20:34:15.279+08:00  INFO 15325 --- [ici-local] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2026-11-18T20:34:15.286+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2026-11-18T20:34:15.288+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - institutional foundation"
+2026-11-18T20:34:15.355+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - reference data and integrity"
+2026-11-18T20:34:15.364+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - audit metadata and academic setup"
+2026-11-18T20:34:15.381+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.381+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.381+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "applications" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.381+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "application_requirements" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.381+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.381+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.381+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.381+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "users" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.381+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "user_role_grants" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.381+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.381+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.381+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_by" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.381+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "students" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.381+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "enrollments" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.381+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_at" of relation "grades" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.381+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "updated_by" of relation "grades" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.381+08:00  WARN 15325 --- [ici-local] [           main] o.f.c.i.s.DefaultSqlScriptExecutor       : DB: column "created_at" of relation "student_notes" already exists, skipping (SQL State: 42701 - Error Code: 0)
+2026-11-18T20:34:15.389+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "4 - authentication revocations"
+2026-11-18T20:34:15.393+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "5 - student master profiles"
+2026-11-18T20:34:15.398+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "6 - admin enrollment permission"
+2026-11-18T20:34:15.401+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "7 - user token version"
+2026-11-18T20:34:15.404+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "8 - requirement verification metadata"
+2026-11-18T20:34:15.407+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "9 - enrollment workflow versions"
+2026-11-18T20:34:15.411+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "10 - plain catalog labels"
+2026-11-18T20:34:15.414+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "11 - identity resolution and account security"
+2026-11-18T20:34:15.420+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "12 - academic assignments and withdrawal endorsements"
+2026-11-18T20:34:15.423+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "13 - section grading controls"
+2026-11-18T20:34:15.427+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 13 migrations to schema "public", now at version v13 (execution time 00:00.108s)
+2026-11-18T20:34:15.524+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/migration_242f962f4a1c4f6386ce897d9049ce4e?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:34:15.529+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.003s)
+2026-11-18T20:34:15.534+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 13
+2026-11-18T20:34:15.536+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "14 - grade corrections and incomplete cases"
+2026-11-18T20:34:15.554+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "15 - withdrawal clearance workflow"
+2026-11-18T20:34:15.562+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "16 - reporting guidance and daily attendance"
+2026-11-18T20:34:15.578+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 3 migrations to schema "public", now at version v16 (execution time 00:00.033s)
+2026-11-18T20:34:15.586+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.002s)
+2026-11-18T20:34:15.624+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.002s)
+2026-11-18T20:34:15.631+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-11-18T20:34:15.631+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.027 s -- in ph.edu.ici.MigrationReconciliationTest
+[INFO] Running ph.edu.ici.HistoryWithdrawalTest
+2026-11-18T20:34:15.634+08:00  INFO 15325 --- [ici-local] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [ph.edu.ici.HistoryWithdrawalTest]: HistoryWithdrawalTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-18T20:34:15.634+08:00  INFO 15325 --- [ici-local] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration ph.edu.ici.IciLocalApplication for test class ph.edu.ici.HistoryWithdrawalTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2026-11-18T20:34:15.646+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.HistoryWithdrawalTest         : Starting HistoryWithdrawalTest using Java 25.0.2 with PID 15325 (started by Linus in /private/tmp/ici-sprint2-backend/ICILocal2.0/backend)
+2026-11-18T20:34:15.646+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.HistoryWithdrawalTest         : No active profile set, falling back to 1 default profile: "default"
+2026-11-18T20:34:15.743+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-11-18T20:34:15.744+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-11-18T20:34:15.744+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2026-11-18T20:34:15.750+08:00  INFO 15325 --- [ici-local] [           main] o.a.c.c.C.[Tomcat-4].[localhost].[/]     : Initializing Spring embedded WebApplicationContext
+2026-11-18T20:34:15.750+08:00  INFO 15325 --- [ici-local] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 104 ms
+2026-11-18T20:34:15.763+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Starting...
+2026-11-18T20:34:15.767+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-5 - Added connection org.postgresql.jdbc.PgConnection@25cd6dc5
+2026-11-18T20:34:15.767+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Start completed.
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2026-11-18T20:34:15.769+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/postgres?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:34:15.775+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.003s)
+2026-11-18T20:34:15.780+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-11-18T20:34:15.780+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-11-18T20:34:16.188+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 55055 (http) with context path '/'
+2026-11-18T20:34:16.189+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.HistoryWithdrawalTest         : Started HistoryWithdrawalTest in 0.553 seconds (process running for 83.229)
+2026-11-18T20:34:18.047+08:00  INFO 15325 --- [ici-local] [1-auto-5-exec-1] o.a.c.c.C.[Tomcat-4].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-11-18T20:34:18.047+08:00  INFO 15325 --- [ici-local] [1-auto-5-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-11-18T20:34:18.048+08:00  INFO 15325 --- [ici-local] [1-auto-5-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 25.86 s -- in ph.edu.ici.HistoryWithdrawalTest
+[INFO] Running ph.edu.ici.ReconciledAccessTest
+2026-11-18T20:34:41.501+08:00  INFO 15325 --- [ici-local] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [ph.edu.ici.ReconciledAccessTest]: ReconciledAccessTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-18T20:34:41.504+08:00  INFO 15325 --- [ici-local] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration ph.edu.ici.IciLocalApplication for test class ph.edu.ici.ReconciledAccessTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2026-11-18T20:34:41.528+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.ReconciledAccessTest          : Starting ReconciledAccessTest using Java 25.0.2 with PID 15325 (started by Linus in /private/tmp/ici-sprint2-backend/ICILocal2.0/backend)
+2026-11-18T20:34:41.529+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.ReconciledAccessTest          : No active profile set, falling back to 1 default profile: "default"
+2026-11-18T20:34:41.634+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-11-18T20:34:41.635+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-11-18T20:34:41.635+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2026-11-18T20:34:41.642+08:00  INFO 15325 --- [ici-local] [           main] o.a.c.c.C.[Tomcat-5].[localhost].[/]     : Initializing Spring embedded WebApplicationContext
+2026-11-18T20:34:41.642+08:00  INFO 15325 --- [ici-local] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 112 ms
+2026-11-18T20:34:41.652+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-6 - Starting...
+2026-11-18T20:34:41.658+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-6 - Added connection org.postgresql.jdbc.PgConnection@5013c293
+2026-11-18T20:34:41.658+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-6 - Start completed.
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2026-11-18T20:34:41.661+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/postgres?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:34:41.667+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.004s)
+2026-11-18T20:34:41.676+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-11-18T20:34:41.677+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-11-18T20:34:42.064+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 55096 (http) with context path '/'
+2026-11-18T20:34:42.066+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.ReconciledAccessTest          : Started ReconciledAccessTest in 0.559 seconds (process running for 109.107)
+2026-11-18T20:34:42.385+08:00  INFO 15325 --- [ici-local] [1-auto-6-exec-1] o.a.c.c.C.[Tomcat-5].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-11-18T20:34:42.385+08:00  INFO 15325 --- [ici-local] [1-auto-6-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-11-18T20:34:42.386+08:00  INFO 15325 --- [ici-local] [1-auto-6-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.993 s -- in ph.edu.ici.ReconciledAccessTest
+[INFO] Running ph.edu.ici.AcademicAssignmentsTest
+2026-11-18T20:34:46.493+08:00  INFO 15325 --- [ici-local] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [ph.edu.ici.AcademicAssignmentsTest]: AcademicAssignmentsTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-18T20:34:46.494+08:00  INFO 15325 --- [ici-local] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration ph.edu.ici.IciLocalApplication for test class ph.edu.ici.AcademicAssignmentsTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2026-11-18T20:34:46.504+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.AcademicAssignmentsTest       : Starting AcademicAssignmentsTest using Java 25.0.2 with PID 15325 (started by Linus in /private/tmp/ici-sprint2-backend/ICILocal2.0/backend)
+2026-11-18T20:34:46.505+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.AcademicAssignmentsTest       : No active profile set, falling back to 1 default profile: "default"
+2026-11-18T20:34:46.571+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-11-18T20:34:46.571+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-11-18T20:34:46.572+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2026-11-18T20:34:46.576+08:00  INFO 15325 --- [ici-local] [           main] o.a.c.c.C.[Tomcat-6].[localhost].[/]     : Initializing Spring embedded WebApplicationContext
+2026-11-18T20:34:46.577+08:00  INFO 15325 --- [ici-local] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 72 ms
+2026-11-18T20:34:46.585+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-7 - Starting...
+2026-11-18T20:34:46.588+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-7 - Added connection org.postgresql.jdbc.PgConnection@13f124a
+2026-11-18T20:34:46.588+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-7 - Start completed.
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2026-11-18T20:34:46.590+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/postgres?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:34:46.595+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.002s)
+2026-11-18T20:34:46.609+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-11-18T20:34:46.609+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-11-18T20:34:47.005+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 55110 (http) with context path '/'
+2026-11-18T20:34:47.007+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.AcademicAssignmentsTest       : Started AcademicAssignmentsTest in 0.512 seconds (process running for 114.048)
+2026-11-18T20:34:48.865+08:00  INFO 15325 --- [ici-local] [1-auto-7-exec-1] o.a.c.c.C.[Tomcat-6].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-11-18T20:34:48.866+08:00  INFO 15325 --- [ici-local] [1-auto-7-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-11-18T20:34:48.866+08:00  INFO 15325 --- [ici-local] [1-auto-7-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 17.70 s -- in ph.edu.ici.AcademicAssignmentsTest
+[INFO] Running ph.edu.ici.GradingWindowTest
+2026-11-18T20:35:04.195+08:00  INFO 15325 --- [ici-local] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [ph.edu.ici.GradingWindowTest]: GradingWindowTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-18T20:35:04.196+08:00  INFO 15325 --- [ici-local] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration ph.edu.ici.IciLocalApplication for test class ph.edu.ici.GradingWindowTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2026-11-18T20:35:04.206+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.GradingWindowTest             : Starting GradingWindowTest using Java 25.0.2 with PID 15325 (started by Linus in /private/tmp/ici-sprint2-backend/ICILocal2.0/backend)
+2026-11-18T20:35:04.206+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.GradingWindowTest             : No active profile set, falling back to 1 default profile: "default"
+2026-11-18T20:35:04.312+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-11-18T20:35:04.313+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-11-18T20:35:04.313+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2026-11-18T20:35:04.317+08:00  INFO 15325 --- [ici-local] [           main] o.a.c.c.C.[Tomcat-7].[localhost].[/]     : Initializing Spring embedded WebApplicationContext
+2026-11-18T20:35:04.318+08:00  INFO 15325 --- [ici-local] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 112 ms
+2026-11-18T20:35:04.328+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-8 - Starting...
+2026-11-18T20:35:04.337+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-8 - Added connection org.postgresql.jdbc.PgConnection@2f94abcc
+2026-11-18T20:35:04.337+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-8 - Start completed.
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2026-11-18T20:35:04.341+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/postgres?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:35:04.348+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.004s)
+2026-11-18T20:35:04.353+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-11-18T20:35:04.354+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-11-18T20:35:04.748+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 55133 (http) with context path '/'
+2026-11-18T20:35:04.749+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.GradingWindowTest             : Started GradingWindowTest in 0.552 seconds (process running for 131.792)
+2026-11-18T20:35:05.670+08:00  INFO 15325 --- [ici-local] [1-auto-8-exec-1] o.a.c.c.C.[Tomcat-7].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-11-18T20:35:05.671+08:00  INFO 15325 --- [ici-local] [1-auto-8-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-11-18T20:35:05.671+08:00  INFO 15325 --- [ici-local] [1-auto-8-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 24.49 s -- in ph.edu.ici.GradingWindowTest
+[INFO] Running ph.edu.ici.GradeResolutionTest
+2026-11-18T20:35:28.687+08:00  INFO 15325 --- [ici-local] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [ph.edu.ici.GradeResolutionTest]: GradeResolutionTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-18T20:35:28.688+08:00  INFO 15325 --- [ici-local] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration ph.edu.ici.IciLocalApplication for test class ph.edu.ici.GradeResolutionTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2026-11-18T20:35:28.710+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.GradeResolutionTest           : Starting GradeResolutionTest using Java 25.0.2 with PID 15325 (started by Linus in /private/tmp/ici-sprint2-backend/ICILocal2.0/backend)
+2026-11-18T20:35:28.710+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.GradeResolutionTest           : No active profile set, falling back to 1 default profile: "default"
+2026-11-18T20:35:28.811+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-11-18T20:35:28.812+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-11-18T20:35:28.812+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2026-11-18T20:35:28.817+08:00  INFO 15325 --- [ici-local] [           main] o.a.c.c.C.[Tomcat-8].[localhost].[/]     : Initializing Spring embedded WebApplicationContext
+2026-11-18T20:35:28.818+08:00  INFO 15325 --- [ici-local] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 107 ms
+2026-11-18T20:35:28.829+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-9 - Starting...
+2026-11-18T20:35:28.838+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-9 - Added connection org.postgresql.jdbc.PgConnection@2bbd6eea
+2026-11-18T20:35:28.838+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-9 - Start completed.
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2026-11-18T20:35:28.841+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/postgres?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:35:28.852+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.009s)
+2026-11-18T20:35:28.862+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-11-18T20:35:28.863+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-11-18T20:35:29.252+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 55155 (http) with context path '/'
+2026-11-18T20:35:29.253+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.GradeResolutionTest           : Started GradeResolutionTest in 0.561 seconds (process running for 156.297)
+2026-11-18T20:35:30.226+08:00  INFO 15325 --- [ici-local] [1-auto-9-exec-1] o.a.c.c.C.[Tomcat-8].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-11-18T20:35:30.226+08:00  INFO 15325 --- [ici-local] [1-auto-9-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-11-18T20:35:30.226+08:00  INFO 15325 --- [ici-local] [1-auto-9-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 13.36 s -- in ph.edu.ici.GradeResolutionTest
+[INFO] Running ph.edu.ici.AccountManagementTest
+2026-11-18T20:35:42.047+08:00  INFO 15325 --- [ici-local] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [ph.edu.ici.AccountManagementTest]: AccountManagementTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-18T20:35:42.048+08:00  INFO 15325 --- [ici-local] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration ph.edu.ici.IciLocalApplication for test class ph.edu.ici.AccountManagementTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2026-11-18T20:35:42.059+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.AccountManagementTest         : Starting AccountManagementTest using Java 25.0.2 with PID 15325 (started by Linus in /private/tmp/ici-sprint2-backend/ICILocal2.0/backend)
+2026-11-18T20:35:42.059+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.AccountManagementTest         : No active profile set, falling back to 1 default profile: "default"
+2026-11-18T20:35:42.139+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-11-18T20:35:42.139+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-11-18T20:35:42.139+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2026-11-18T20:35:42.146+08:00  INFO 15325 --- [ici-local] [           main] o.a.c.c.C.[Tomcat-9].[localhost].[/]     : Initializing Spring embedded WebApplicationContext
+2026-11-18T20:35:42.146+08:00  INFO 15325 --- [ici-local] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 86 ms
+2026-11-18T20:35:42.160+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-10 - Starting...
+2026-11-18T20:35:42.167+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-10 - Added connection org.postgresql.jdbc.PgConnection@7c625a1d
+2026-11-18T20:35:42.167+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-10 - Start completed.
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2026-11-18T20:35:42.170+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/postgres?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:35:42.176+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.003s)
+2026-11-18T20:35:42.185+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-11-18T20:35:42.185+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-11-18T20:35:42.578+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 55190 (http) with context path '/'
+2026-11-18T20:35:42.579+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.AccountManagementTest         : Started AccountManagementTest in 0.529 seconds (process running for 169.624)
+2026-11-18T20:35:42.897+08:00  INFO 15325 --- [ici-local] [-auto-10-exec-1] o.a.c.c.C.[Tomcat-9].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-11-18T20:35:42.898+08:00  INFO 15325 --- [ici-local] [-auto-10-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-11-18T20:35:42.898+08:00  INFO 15325 --- [ici-local] [-auto-10-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.167 s -- in ph.edu.ici.AccountManagementTest
+[INFO] Running ph.edu.ici.EnrollmentWorkflowTest
+2026-11-18T20:35:49.215+08:00  INFO 15325 --- [ici-local] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [ph.edu.ici.EnrollmentWorkflowTest]: EnrollmentWorkflowTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-18T20:35:49.216+08:00  INFO 15325 --- [ici-local] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration ph.edu.ici.IciLocalApplication for test class ph.edu.ici.EnrollmentWorkflowTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2026-11-18T20:35:49.224+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.EnrollmentWorkflowTest        : Starting EnrollmentWorkflowTest using Java 25.0.2 with PID 15325 (started by Linus in /private/tmp/ici-sprint2-backend/ICILocal2.0/backend)
+2026-11-18T20:35:49.224+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.EnrollmentWorkflowTest        : No active profile set, falling back to 1 default profile: "default"
+2026-11-18T20:35:49.300+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-11-18T20:35:49.300+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-11-18T20:35:49.300+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2026-11-18T20:35:49.305+08:00  INFO 15325 --- [ici-local] [           main] o.a.c.c.C.[Tomcat-10].[localhost].[/]    : Initializing Spring embedded WebApplicationContext
+2026-11-18T20:35:49.305+08:00  INFO 15325 --- [ici-local] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 80 ms
+2026-11-18T20:35:49.314+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-11 - Starting...
+2026-11-18T20:35:49.317+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-11 - Added connection org.postgresql.jdbc.PgConnection@78af3e88
+2026-11-18T20:35:49.317+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-11 - Start completed.
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2026-11-18T20:35:49.319+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/postgres?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:35:49.326+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.003s)
+2026-11-18T20:35:49.331+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-11-18T20:35:49.331+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-11-18T20:35:49.718+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 55215 (http) with context path '/'
+2026-11-18T20:35:49.719+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.EnrollmentWorkflowTest        : Started EnrollmentWorkflowTest in 0.502 seconds (process running for 176.764)
+2026-11-18T20:35:50.064+08:00  INFO 15325 --- [ici-local] [-auto-11-exec-1] o.a.c.c.C.[Tomcat-10].[localhost].[/]    : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-11-18T20:35:50.065+08:00  INFO 15325 --- [ici-local] [-auto-11-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-11-18T20:35:50.065+08:00  INFO 15325 --- [ici-local] [-auto-11-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+[INFO] Tests run: 27, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 18.31 s -- in ph.edu.ici.EnrollmentWorkflowTest
+[INFO] Running ph.edu.ici.GradeSubmissionTest
+2026-11-18T20:36:07.521+08:00  INFO 15325 --- [ici-local] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [ph.edu.ici.GradeSubmissionTest]: GradeSubmissionTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-18T20:36:07.522+08:00  INFO 15325 --- [ici-local] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration ph.edu.ici.IciLocalApplication for test class ph.edu.ici.GradeSubmissionTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2026-11-18T20:36:07.531+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.GradeSubmissionTest           : Starting GradeSubmissionTest using Java 25.0.2 with PID 15325 (started by Linus in /private/tmp/ici-sprint2-backend/ICILocal2.0/backend)
+2026-11-18T20:36:07.531+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.GradeSubmissionTest           : No active profile set, falling back to 1 default profile: "default"
+2026-11-18T20:36:07.610+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 0 (http)
+2026-11-18T20:36:07.611+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-11-18T20:36:07.611+08:00  INFO 15325 --- [ici-local] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2026-11-18T20:36:07.615+08:00  INFO 15325 --- [ici-local] [           main] o.a.c.c.C.[Tomcat-11].[localhost].[/]    : Initializing Spring embedded WebApplicationContext
+2026-11-18T20:36:07.615+08:00  INFO 15325 --- [ici-local] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 83 ms
+2026-11-18T20:36:07.624+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-12 - Starting...
+2026-11-18T20:36:07.629+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-12 - Added connection org.postgresql.jdbc.PgConnection@527def92
+2026-11-18T20:36:07.629+08:00  INFO 15325 --- [ici-local] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-12 - Start completed.
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2026-11-18T20:36:07.631+08:00  INFO 15325 --- [ici-local] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:54752/postgres?user=postgres (PostgreSQL 17.6)
+2026-11-18T20:36:07.637+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 16 migrations (execution time 00:00.003s)
+2026-11-18T20:36:07.643+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 16
+2026-11-18T20:36:07.643+08:00  INFO 15325 --- [ici-local] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-11-18T20:36:08.029+08:00  INFO 15325 --- [ici-local] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 55248 (http) with context path '/'
+2026-11-18T20:36:08.031+08:00  INFO 15325 --- [ici-local] [           main] ph.edu.ici.GradeSubmissionTest           : Started GradeSubmissionTest in 0.507 seconds (process running for 195.077)
+2026-11-18T20:36:08.979+08:00  INFO 15325 --- [ici-local] [-auto-12-exec-1] o.a.c.c.C.[Tomcat-11].[localhost].[/]    : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-11-18T20:36:08.979+08:00  INFO 15325 --- [ici-local] [-auto-12-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-11-18T20:36:08.980+08:00  INFO 15325 --- [ici-local] [-auto-12-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.121 s -- in ph.edu.ici.GradeSubmissionTest
+[INFO] Running ph.edu.ici.ReadQueryBudgetTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.273 s -- in ph.edu.ici.ReadQueryBudgetTest
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 121, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO]
+[INFO] --- jar:3.4.2:jar (default-jar) @ ici-local ---
+[INFO] Building jar: /private/tmp/ici-sprint2-backend/ICILocal2.0/backend/target/ici-local-0.1.0-SNAPSHOT.jar
+[INFO]
+[INFO] --- spring-boot:3.5.7:repackage (repackage) @ ici-local ---
+[INFO] Replacing main artifact /private/tmp/ici-sprint2-backend/ICILocal2.0/backend/target/ici-local-0.1.0-SNAPSHOT.jar with repackaged archive, adding nested dependencies in BOOT-INF/.
+[INFO] The original artifact has been renamed to /private/tmp/ici-sprint2-backend/ICILocal2.0/backend/target/ici-local-0.1.0-SNAPSHOT.jar.original
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  03:28 min
+[INFO] Finished at: 2026-11-18T20:36:18+08:00
+[INFO] ------------------------------------------------------------------------

@@ -8,24 +8,42 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ph.edu.ici.auth.AccessPolicy;
-import ph.edu.ici.requirements.RequirementService;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 /** Read-only consolidated academic history for one student (ICI2-29). */
 @Service
 public class AcademicHistoryService {
     private final NamedParameterJdbcTemplate db;
     private final AccessPolicy accessPolicy;
-    private final RequirementService requirements;
 
-    public AcademicHistoryService(NamedParameterJdbcTemplate db,AccessPolicy accessPolicy,RequirementService requirements){
-        this.db=db;this.accessPolicy=accessPolicy;this.requirements=requirements;
+    public AcademicHistoryService(NamedParameterJdbcTemplate db,AccessPolicy accessPolicy){
+        this.db=db;this.accessPolicy=accessPolicy;
     }
 
     private long number(Map<String,Object> row,String key){return ((Number)row.get(key)).longValue();}
 
+    private List<Long> scope(){
+        var allowed=new TreeSet<Long>(accessPolicy.campuses("enrollment.manage"));
+        allowed.addAll(accessPolicy.campuses("reports.read"));
+        if(allowed.isEmpty())throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Academic history access is required.");
+        return List.copyOf(allowed);
+    }
+
+    @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
+    public Map<String,Object> students(String search,int page,int size){
+        if(page<0||page>1000000||size<1||size>100||search.length()>150)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Use a search up to 150 characters, page >= 0 and size 1 to 100.");
+        var params=new MapSqlParameterSource("scope",scope()).addValue("search","%"+search.trim().replace("!","!!").replace("%","!%").replace("_","!_")+"%")
+                .addValue("limit",size).addValue("offset",(long)page*size);
+        String where=" WHERE st.campus_id IN (:scope) AND (concat_ws(' ',st.first_name,st.middle_name,st.last_name) ILIKE :search ESCAPE '!' OR st.student_number ILIKE :search ESCAPE '!' OR st.lrn ILIKE :search ESCAPE '!')";
+        long total=db.queryForObject("SELECT count(*) FROM students st"+where,params,Long.class);
+        var items=db.queryForList("SELECT st.id,st.first_name,st.middle_name,st.last_name,st.student_number,st.lrn,st.active FROM students st"+where+" ORDER BY st.last_name,st.first_name,st.id LIMIT :limit OFFSET :offset",params);
+        return Map.of("items",items,"total",total,"page",page,"size",size);
+    }
+
     @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
     public Map<String,Object> history(long studentId){
-        var scope=accessPolicy.campuses("enrollment.manage");
+        var scope=scope();
         var students=scope.isEmpty()?List.<Map<String,Object>>of():db.queryForList("""
             SELECT st.id,st.student_number AS "studentNumber",
                    concat_ws(' ',st.first_name,st.middle_name,st.last_name,st.suffix) AS name,
@@ -39,7 +57,7 @@ public class AcademicHistoryService {
 
         // One row per enrolled term, newest first.
         var enrollments=db.queryForList("""
-            SELECT e.id AS "enrollmentId",e.status,y.label AS "academicYear",t.name AS term,
+            SELECT e.id AS "enrollmentId",e.section_id AS "sectionId",e.term_id AS "termId",e.status,y.label AS "academicYear",t.name AS term,
                    p.code AS program,s.name AS section,s.grade_level AS "gradeLevel",s.room,u.full_name AS adviser
             FROM enrollments e
             JOIN academic_terms t ON t.id=e.term_id JOIN academic_years y ON y.id=t.academic_year_id
@@ -113,25 +131,59 @@ public class AcademicHistoryService {
             ORDER BY submitted_at DESC NULLS LAST,id DESC LIMIT 1
             """,params);
         if(!applications.isEmpty()){
-            var checklist=requirements.checklistForApplication(applications.getFirst());
-            var summary=checklist.summary();
-            credentials=new LinkedHashMap<>();
-            credentials.put("applicationNumber",checklist.applicationNumber());
-            credentials.put("overallStatus",summary.overallStatus());
-            credentials.put("mandatoryTotal",summary.mandatoryTotal());
-            credentials.put("submitted",summary.submitted());
-            credentials.put("complete",summary.credentialsComplete());
-            credentials.put("items",checklist.items().stream().map(item->{
-                var entry=new LinkedHashMap<String,Object>();
-                entry.put("code",item.code());entry.put("name",item.name());
-                entry.put("mandatory",item.mandatory());entry.put("status",item.status());
-                return entry;
-            }).toList());
+            var application=applications.getFirst();
+            var items=db.queryForList("""
+                SELECT rt.code,rt.name,rt.mandatory,coalesce(ar.status,'pending') AS status
+                FROM requirement_types rt LEFT JOIN application_requirements ar
+                  ON ar.requirement_code=rt.code AND ar.application_id=:application
+                ORDER BY rt.code
+                """,Map.of("application",application.get("id")));
+            long mandatory=items.stream().filter(item->Boolean.TRUE.equals(item.get("mandatory"))).count();
+            long submitted=items.stream().filter(item->Boolean.TRUE.equals(item.get("mandatory"))&&"submitted".equals(item.get("status"))).count();
+            boolean incomplete=items.stream().anyMatch(item->Boolean.TRUE.equals(item.get("mandatory"))&&Set.of("missing","invalid").contains(item.get("status")));
+            boolean complete=mandatory>0&&mandatory==submitted;
+            credentials=new LinkedHashMap<>();credentials.put("applicationNumber",application.get("application_number"));
+            credentials.put("overallStatus",complete?"Complete":incomplete?"Incomplete":"Pending");
+            credentials.put("mandatoryTotal",mandatory);credentials.put("submitted",submitted);credentials.put("complete",complete);credentials.put("items",items);
         }
+        var incompleteCases=db.queryForList("""
+            SELECT ic.id,ic.status,ic.resolved_at AS "resolvedAt",g.id AS "gradeId",g.mark,g.value,g.state,
+                   sub.code AS "subjectCode",gp.code AS period,e.id AS "enrollmentId"
+            FROM incomplete_cases ic JOIN grades g ON g.id=ic.grade_id
+            JOIN enrollments e ON e.id=g.enrollment_id JOIN class_offerings co ON co.id=g.class_id
+            JOIN subjects sub ON sub.id=co.subject_id JOIN grading_periods gp ON gp.id=g.grading_period_id
+            WHERE e.student_id=:student AND e.campus_id IN (:scope) ORDER BY gp.sequence,ic.id
+            """,params);
+        var withdrawals=db.queryForList("""
+            SELECT w.id,w.enrollment_id AS "enrollmentId",w.status,w.requested_at AS "requestedAt"
+            FROM withdrawals w JOIN enrollments e ON e.id=w.enrollment_id
+            WHERE e.student_id=:student AND e.campus_id IN (:scope) ORDER BY w.requested_at,w.id
+            """,params);
+        // Release is a student-wide gate, while the displayed details remain campus scoped.
+        boolean withdrawalReleaseEligible=Boolean.TRUE.equals(db.queryForObject("""
+            SELECT NOT EXISTS(SELECT 1 FROM withdrawals w JOIN enrollments e ON e.id=w.enrollment_id
+                              WHERE e.student_id=:student AND w.status<>'completed')
+            """,params,Boolean.class));
+        // Explicit history only: never expose adviser/guidance/incomplete counseling note bodies here.
+        var adviserChanges=enrollmentIds.isEmpty()?List.<Map<String,Object>>of():db.queryForList("""
+            SELECT a.occurred_at AS "occurredAt",s.id AS "sectionId",s.name AS section,
+                   previous.full_name AS "previousAdviser",current_staff.full_name AS "newAdviser",u.full_name AS actor
+            FROM audit_logs a JOIN sections s ON s.id=CAST(coalesce(a.new_data->>'id',a.old_data->>'id') AS bigint)
+            LEFT JOIN users previous ON previous.id=CAST(a.old_data->>'adviser_id' AS bigint)
+            LEFT JOIN users current_staff ON current_staff.id=CAST(a.new_data->>'adviser_id' AS bigint)
+            LEFT JOIN users u ON u.id=a.actor_id
+            WHERE a.table_name='sections' AND s.campus_id IN (:scope)
+              AND s.id IN (SELECT section_id FROM enrollments WHERE student_id=:student AND campus_id IN (:scope))
+              AND a.old_data->>'adviser_id' IS DISTINCT FROM a.new_data->>'adviser_id'
+            ORDER BY a.occurred_at,a.id
+            """,params);
 
         var result=new LinkedHashMap<String,Object>();
         result.put("student",students.getFirst());result.put("terms",terms);
         result.put("sectionChanges",sectionChanges);result.put("credentials",credentials);
+        result.put("adviserChanges",adviserChanges);result.put("incompleteCases",incompleteCases);result.put("withdrawals",withdrawals);
+        result.put("withdrawalReleaseEligible",withdrawalReleaseEligible);
+        result.put("finalRatingPolicy","Only recorded submitted/finalized marks are returned; no unapproved weighted rating is computed.");
         return result;
     }
 }

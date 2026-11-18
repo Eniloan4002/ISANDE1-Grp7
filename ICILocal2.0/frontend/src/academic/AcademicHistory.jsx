@@ -10,7 +10,7 @@ const fullName=row=>[row.first_name,row.middle_name,row.last_name].filter(Boolea
 function StudentPicker({selected,onSelect}){
   const [search,setSearch]=useState(''),[page,setPage]=useState(0);
   const query=useDebouncedValue(search.trim());
-  const list=useResource(`/api/students?${new URLSearchParams({search:query,page:String(page),size:'10'})}`);
+  const list=useResource(`/api/academic/history/students?${new URLSearchParams({search:query,page:String(page),size:'10'})}`);
   const rows=list.data?.items??[];
   return <section className="panel"><h2>Find a student</h2><div className="panel-body">
     <label htmlFor="history-search">Name, LRN or student number</label>

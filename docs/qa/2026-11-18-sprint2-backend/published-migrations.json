@@ -1,0 +1,67 @@
+[
+  {
+    "migration": "V10__plain_catalog_labels.sql",
+    "sha256": "2786673215cdf2940d2ecfd5f5f76a537d772342221e2f562eea6f47f6e394b9",
+    "unchanged": true
+  },
+  {
+    "migration": "V11__identity_resolution_and_account_security.sql",
+    "sha256": "89c85749394692f6d23cbf57da9f21732920e7c125c827ee3578cfe7776fcc6a",
+    "unchanged": true
+  },
+  {
+    "migration": "V12__academic_assignments_and_withdrawal_endorsements.sql",
+    "sha256": "1e3df5d520e17b4d1ff48bc46932769c2fa7a13bace809646a86a5a6405c328c",
+    "unchanged": true
+  },
+  {
+    "migration": "V13__section_grading_controls.sql",
+    "sha256": "098f94017c2af9d9cfb0c85449f82081890555b6dbbdab24f14d9ce3dc60e17e",
+    "unchanged": true
+  },
+  {
+    "migration": "V1__institutional_foundation.sql",
+    "sha256": "1c04cd642f538c23383c001d6bbd4de356e45f5d3decfb120319db9e1e0f4fb2",
+    "unchanged": true
+  },
+  {
+    "migration": "V2__reference_data_and_integrity.sql",
+    "sha256": "3c579fa375f4ce29aee74070cafadabd677d26349dec665e619c01fb32fca9b3",
+    "unchanged": true
+  },
+  {
+    "migration": "V3__audit_metadata_and_academic_setup.sql",
+    "sha256": "0eb3098a02fc690915277964b57afa88731c5aa5fc27827bd3ed293c9eeb8a54",
+    "unchanged": true
+  },
+  {
+    "migration": "V4__authentication_revocations.sql",
+    "sha256": "3f012afc01f6485a069db29ea8bf5d2935576e81178a060388f6113bb482fc26",
+    "unchanged": true
+  },
+  {
+    "migration": "V5__student_master_profiles.sql",
+    "sha256": "94865e58dba511cfc82f9a383d3ca973f0d1877c251a0fc69ee78fc2e43c9e5c",
+    "unchanged": true
+  },
+  {
+    "migration": "V6__admin_enrollment_permission.sql",
+    "sha256": "728dc57d9feac1bf052d3aff23f9faa0982314fe4abba9feb97e099b56c56a77",
+    "unchanged": true
+  },
+  {
+    "migration": "V7__user_token_version.sql",
+    "sha256": "3429f2083d3dc3ea76415168eb10241b39fa6838525813b681d75c5eba2c0fe2",
+    "unchanged": true
+  },
+  {
+    "migration": "V8__requirement_verification_metadata.sql",
+    "sha256": "7894cbc585673dc3a49ffca81aa4866bce4e181967ee42c674f94c18e20ee96c",
+    "unchanged": true
+  },
+  {
+    "migration": "V9__enrollment_workflow_versions.sql",
+    "sha256": "5a726a216833eaf3cccda29c5dd4c2e3fd4fc2ad5d51a6716dac88bda4b8b4d3",
+    "unchanged": true
+  }
+]

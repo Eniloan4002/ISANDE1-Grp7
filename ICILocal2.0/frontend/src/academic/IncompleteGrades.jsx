@@ -14,10 +14,10 @@ const formatDate = value => new Date(value).toLocaleString(undefined, { dateStyl
 const Status = ({ value }) => <span className={`status ${value === 'completed' ? 'status-success' : value === 'grade_correction' ? 'status-danger' : 'status-warning'}`}>{statusLabel[value] || value}</span>;
 
 export default function IncompleteGrades() {
-  const { roles, user } = useAuth();
+  const { roles } = useAuth();
   const isTeacher = !roles.includes('registrar') && roles.includes('teacher');
   const role = isTeacher ? 'teacher' : 'registrar';
-  const actor = user?.fullName || (isTeacher ? 'Subject teacher' : 'Registrar staff');
+
   const [data, setData] = useState(null);
   const [selectedId, setSelectedId] = useState('');
   const [selected, setSelected] = useState(null);
@@ -79,9 +79,9 @@ export default function IncompleteGrades() {
     if (!selected || !followUp.note.trim()) return;
     setBusy(true); setNotice(''); setDetailError('');
     try {
-      const updated = await addFollowUp(selected.id, { ...followUp, actor });
+      const updated = await addFollowUp(selected.id, { ...followUp, version: selected.version });
       setSelected(updated); setFollowUp({ note: '', method: 'Email' });
-      setNotice('Follow-up saved in mock data. No message was sent to the teacher.');
+      setNotice('Follow-up saved. No message was sent to the teacher.');
       await reload();
     } catch (requestError) { setDetailError(requestError.message); }
     finally { setBusy(false); }
@@ -93,11 +93,11 @@ export default function IncompleteGrades() {
     if (!Number.isFinite(grade) || grade < 0 || grade > 100) { setDetailError('Enter a proposed grade between 0 and 100.'); return; }
     setBusy(true); setNotice(''); setDetailError('');
     try {
-      const updated = await proposeCompletion(selected.id, { ...completion, actor });
+      const updated = await proposeCompletion(selected.id, { ...completion, version: selected.version, gradeVersion: selected.gradeVersion });
       setCompletion({ grade: '', note: '' }); setSelected(updated);
       setNotice(updated.periodLocked
-        ? 'Proposal recorded in mock data. The locked period requires ICI-27 grade correction approval; this screen did not apply the mark.'
-        : 'Proposed grade recorded in mock data for registrar review.');
+        ? 'Proposal saved. The locked period requires ICI2-27 correction evidence and approval; the grade was not changed.'
+        : 'Proposed grade saved for registrar review.');
       await reload();
     } catch (requestError) { setDetailError(requestError.message); }
     finally { setBusy(false); }
@@ -109,9 +109,9 @@ export default function IncompleteGrades() {
     if (grade !== undefined && (!Number.isFinite(grade) || grade < 0 || grade > 100)) { setDetailError('Enter a final grade between 0 and 100.'); return; }
     setBusy(true); setNotice(''); setDetailError('');
     try {
-      const updated = await finalizeCompletion(selected.id, { grade, note: completion.note, actor });
+      const updated = await finalizeCompletion(selected.id, { grade, note: completion.note, version: selected.version, gradeVersion: selected.gradeVersion });
       setSelected(updated); setCompletion({ grade: '', note: '' });
-      setNotice('Final mark and closure recorded in mock data only.');
+      setNotice('Final mark and case closure saved.');
       await reload();
     } catch (requestError) { setDetailError(requestError.message); }
     finally { setBusy(false); }
@@ -125,13 +125,13 @@ export default function IncompleteGrades() {
       <p>Track unresolved INC marks across active and historical academic periods.</p>
     </header>
 
-    <div className="incomplete-mock-banner" role="status"><strong>MOCK DATA</strong><span>Changes are temporary in this browser session. No backend records are read or updated, and no communication is sent.</span></div>
+    <div className="incomplete-mock-banner" role="status"><strong>LIVE RECORDS</strong><span>Changes are saved to the school database with staff attribution. Follow-up logging does not send a message.</span></div>
 
     {notice && <p className="notice" role="status">{notice}</p>}
     {error && <div className="notice notice-error" role="alert">{error} <button className="button button-outline" onClick={() => reload()}>Retry</button></div>}
 
     <section className="panel" aria-labelledby="incomplete-list-title">
-      <div className="incomplete-panel-heading"><div><h2 id="incomplete-list-title">Incomplete Grade Cases</h2><p>Review students with incomplete grades, monitor completion progress, and record follow-up actions.</p></div><button className="button button-outline" onClick={() => reload()}>Reload mock cases</button></div>
+      <div className="incomplete-panel-heading"><div><h2 id="incomplete-list-title">Incomplete Grade Cases</h2><p>Review students with incomplete grades, monitor completion progress, and record follow-up actions.</p></div><button className="button button-outline" onClick={() => reload()}>Reload cases</button></div>
       <div className="incomplete-filters">
         <label>Search<input type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Student, case, subject or teacher" /></label>
         {visibleFilterFields.map(([key, label]) => <label key={key}>{label}<select value={filters[key]} onChange={event => setFilter(key, event.target.value)}><option value="">All {label.toLowerCase()}s</option>{(data?.filters[key] || []).map(value => <option key={value} value={value}>{key === 'status' ? statusLabel[value] : value}</option>)}</select></label>)}
@@ -159,7 +159,7 @@ export default function IncompleteGrades() {
           <div><dt>Student</dt><dd>{picked.studentName}<small>{picked.studentNumber}</small></dd></div><div><dt>Grade / section</dt><dd>{picked.gradeLevel} / {picked.section}</dd></div>
           <div><dt>Subject</dt><dd>{picked.subjectCode} / {picked.subject}</dd></div><div><dt>Assigned teacher</dt><dd>{picked.teacher}</dd></div>
           <div><dt>Academic period</dt><dd>{picked.academicYear} / {picked.gradingPeriod}</dd></div><div><dt>Current mark</dt><dd>{selected?.currentMark || picked.currentMark}</dd></div>
-          <div><dt>Grade period</dt><dd>{picked.periodLocked ? 'Locked' : 'Editable (mock rule)'}</dd></div><div><dt>Proposed grade</dt><dd>{selected?.proposedGrade ?? picked.proposedGrade ?? 'None recorded'}</dd></div>
+          <div><dt>Grade period</dt><dd>{picked.periodLocked ? 'Locked' : 'Editable'}</dd></div><div><dt>Proposed grade</dt><dd>{selected?.proposedGrade ?? picked.proposedGrade ?? 'None recorded'}</dd></div>
         </dl>
         <h3>Follow-up history</h3>
         {selected?.followUps?.length ? <ol className="incomplete-history">{selected.followUps.map(entry => <li key={entry.id}><strong>{entry.note}</strong><small>{entry.by} / {entry.method} / {formatDate(entry.at)}</small></li>)}</ol> : <p>No follow-up history recorded.</p>}
@@ -169,14 +169,14 @@ export default function IncompleteGrades() {
       <section className="panel"><div className="incomplete-panel-heading"><div><h2>Case actions</h2><p>{isTeacher ? 'Record a follow-up or submit a completion proposal for registrar review.' : 'Record follow-ups, review proposals, and finalize eligible cases.'}</p></div></div><div className="panel-body">
         {detailError && <p className="notice notice-error" role="alert">{detailError}</p>}
         {detailLoading && <p role="status">Loading case details…</p>}
-        {selected?.status === 'completed' && <p className="notice">This case is completed. The mock final mark is {selected.currentMark}.</p>}
-        {selected?.periodLocked && selected?.status !== 'completed' && <p className="notice notice-error">This period is locked. Finalization is unavailable here; use ICI-27 grade correction review. The correction workflow is not implemented in this mock.</p>}
+        {selected?.status === 'completed' && <p className="notice">This case is completed. The final mark is {selected.currentMark}.</p>}
+        {selected?.periodLocked && selected?.status !== 'completed' && <p className="notice notice-error">This period is locked. Finalization is unavailable here; use ICI-27 grade correction review. Formal correction evidence and approval are required.</p>}
 
-        <form className="incomplete-action-form" onSubmit={saveFollowUp}><h3>Log a follow-up</h3><label>Communication type<select value={followUp.method} onChange={event => setFollowUp(value => ({ ...value, method: event.target.value }))} disabled={busy}><option>Email</option><option>Phone</option><option>In person</option><option>System note</option></select></label><label>Follow-up note<textarea required maxLength={2000} value={followUp.note} onChange={event => setFollowUp(value => ({ ...value, note: event.target.value }))} placeholder="Record the contact, update, or next completion step." disabled={busy}/></label><button className="button button-outline" disabled={busy || !followUp.note.trim()}>{busy ? 'Saving…' : 'Save follow-up'}</button></form>
+        {selected?.status !== 'completed' && <form className="incomplete-action-form" onSubmit={saveFollowUp}><h3>Log a follow-up</h3><label>Communication type<select value={followUp.method} onChange={event => setFollowUp(value => ({ ...value, method: event.target.value }))} disabled={busy}><option>Email</option><option>Phone</option><option>In person</option><option>System note</option></select></label><label>Follow-up note<textarea required maxLength={2000} value={followUp.note} onChange={event => setFollowUp(value => ({ ...value, note: event.target.value }))} placeholder="Record the contact, update, or next completion step." disabled={busy}/></label><button className="button button-outline" disabled={busy || !followUp.note.trim()}>{busy ? 'Saving…' : 'Save follow-up'}</button></form>}
 
-        {isTeacher && selected?.status !== 'completed' && <form className="incomplete-action-form" onSubmit={submitCompletion}><h3>Propose completed grade</h3><label>Proposed grade<input required type="number" min="0" max="100" step="0.01" value={completion.grade} onChange={event => setCompletion(value => ({ ...value, grade: event.target.value }))} disabled={busy}/></label><label>Completion note<textarea maxLength="2000" value={completion.note} onChange={event => setCompletion(value => ({ ...value, note: event.target.value }))} placeholder="Summarize the completed work and verification." disabled={busy}/></label><button className="button" disabled={busy}>{busy ? 'Submitting…' : 'Submit proposal'}</button><p className="field-help">The proposal is mock data and does not change the grade record.</p></form>}
+        {selected?.canPropose && selected?.status !== 'completed' && <form className="incomplete-action-form" onSubmit={submitCompletion}><h3>Propose completed grade</h3><label>Proposed grade<input required type="number" min="0" max="100" step="0.01" value={completion.grade} onChange={event => setCompletion(value => ({ ...value, grade: event.target.value }))} disabled={busy}/></label><label>Completion note<textarea required maxLength="2000" value={completion.note} onChange={event => setCompletion(value => ({ ...value, note: event.target.value }))} placeholder="Summarize the completed work and verification." disabled={busy}/></label><button className="button" disabled={busy}>{busy ? 'Submitting…' : 'Submit proposal'}</button><p className="field-help">The proposal is saved for review and does not directly change the grade record.</p></form>}
 
-        {!isTeacher && selected?.status !== 'completed' && !selected?.periodLocked && <form className="incomplete-action-form" onSubmit={finalize}><h3>Finalize completion</h3><label>Final grade<input type="number" min="0" max="100" step="0.01" value={completion.grade} onChange={event => setCompletion(value => ({ ...value, grade: event.target.value }))} placeholder={selected?.proposedGrade == null ? 'Enter final grade' : String(selected.proposedGrade)} disabled={busy}/></label><label>Resolution note<textarea maxLength="2000" value={completion.note} onChange={event => setCompletion(value => ({ ...value, note: event.target.value }))} placeholder="Record the verification and resolution." disabled={busy}/></label><button className="button" disabled={busy}>{busy ? 'Finalizing…' : 'Record final mark and close'}</button><p className="field-help">Available only for editable periods. This action updates mock data only.</p></form>}
+        {selected?.canComplete && selected?.status !== 'completed' && !selected?.periodLocked && <form className="incomplete-action-form" onSubmit={finalize}><h3>Finalize completion</h3><label>Final grade<input type="number" min="0" max="100" step="0.01" value={completion.grade} onChange={event => setCompletion(value => ({ ...value, grade: event.target.value }))} placeholder={selected?.proposedGrade == null ? 'Enter final grade' : String(selected.proposedGrade)} disabled={busy}/></label><label>Resolution note<textarea required maxLength="2000" value={completion.note} onChange={event => setCompletion(value => ({ ...value, note: event.target.value }))} placeholder="Record the verification and resolution." disabled={busy}/></label><button className="button" disabled={busy}>{busy ? 'Finalizing…' : 'Record final mark and close'}</button><p className="field-help">Available only for editable periods. This action saves the verified final mark and closes the case.</p></form>}
       </div></section>
     </section>}
   </div>;
