@@ -1,0 +1,78 @@
+[
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/documents/OfficialDocumentController.java",
+    "sha256": "144c9f7108497d8ee92ec14dbb4caec6a45a281ac23ee234f0e744c020afc99b"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/documents/OfficialDocumentErrors.java",
+    "sha256": "31e5b53fecf654521ef0f09fb0c77ea4eff3b4f84042dedb56a578d150b89de7"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/documents/OfficialDocumentPdf.java",
+    "sha256": "85b23736184a48da2b5bb251ddd7d0f5752d7d46c6543071ac93d3fd09bcfad7"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/documents/OfficialDocumentService.java",
+    "sha256": "d44508c063dac9d69785737894176cf29db90be69ca87e4e86277a1e56315d4c"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/honors/HonorController.java",
+    "sha256": "405a4711bc68d5cc574ef6bfea1dbda5befac8dac56c0787582febccca48deb0"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/honors/HonorService.java",
+    "sha256": "f01d4a6658e068cd1042e1022107a6661b4d38533c8d2a689609d91d74717845"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/reporting/CashierRosterController.java",
+    "sha256": "a00656e4204ed400bcb37c2f16c0bf146fc57d9c70942f827361563149aeae3d"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/reporting/CashierRosterFilter.java",
+    "sha256": "b53f4d13ea9e078ce185c068274e90bbcb362a53fc3da9e301130566cf0cccba"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/reporting/CashierRosterService.java",
+    "sha256": "3ed021abd9ac89ed86ad3c97d28e28b4803ee2dc77a4722eb39a5a42e5db6902"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/resources/db/migration/V17__honor_roll_policies.sql",
+    "sha256": "dad4b6bd29d8c58cf5abb64cb73a5922673e38911fe26b9f591d228a429d5874"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/resources/db/migration/V18__official_document_generation.sql",
+    "sha256": "857f5094b4cea5eba98e72b9663fd520f3f1fb81e8a4c9617926b23fcb10932d"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/test/java/ph/edu/ici/CashierRosterTest.java",
+    "sha256": "1edcd39b179667b95e6b99567d6222d3bddbb64817391f84475a61124f2b66e4"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/test/java/ph/edu/ici/FoundationAuthenticationTest.java",
+    "sha256": "ae01483b881ae7f0cd150bd4631ccd9b018928de769e13c5ea4422266cc0a142"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/test/java/ph/edu/ici/HonorRollTest.java",
+    "sha256": "1ad59bdc74b28d57d942c4f407ed43b78141fd8108d747e82097e75031d77610"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/test/java/ph/edu/ici/MigrationReconciliationTest.java",
+    "sha256": "142fdaf906e2b488b1c2464c26aa7323bbbb367b32c33e352278f146954b8ee3"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/test/java/ph/edu/ici/OfficialDocumentTest.java",
+    "sha256": "e0f34021bd0d4a98a87d3c1aed183cb2b1e3b91843e8961eb7aea0602dd8ecc6"
+  },
+  {
+    "path": "docs/cashier-roster-api.md",
+    "sha256": "059cce2d346082dcec20cadcf9877e32b7dc465435e70bd563fc7231ae7fe15b"
+  },
+  {
+    "path": "docs/honor-roll-api.md",
+    "sha256": "7aa6ab6eaf01bfec8227d1b137c50f5d05495b9a2b55cf8bb71faac3d5a898f0"
+  },
+  {
+    "path": "docs/official-documents-api.md",
+    "sha256": "212b9bfe51c8aded9bd302783e10b101bdb4f33102fb15f3725408e77cb18bae"
+  }
+]
