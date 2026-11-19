@@ -1,0 +1,5 @@
+Student No,LRN,Last Name,First Name,Middle Name,Birth Date,Sex,Previous School,Voucher,Strand,Campus
+SYN-%N%-01,,Camposame%L%,Ana,,2009-03-14,,,QVR,STEM,ILIGAN
+SYN-%N%-02,,Campusother%L%,Ben,,2009-03-15,,,QVR,STEM,BUGO
+SYN-%N%-03,,Campusunknown%L%,Cal,,2009-03-16,,,QVR,STEM,Unknownville
+SYN-%N%-04,,Campusblank%L%,Dan,,2009-03-17,,,QVR,STEM,

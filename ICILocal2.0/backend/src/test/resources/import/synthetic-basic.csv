@@ -1,0 +1,4 @@
+Student No,LRN,Last Name,First Name,Middle Name,Birth Date,Sex,Previous School,Voucher,Strand
+SYN-%N%-01,99%N%01,Alphaone%L%,Ana,Santos,2009-03-14,F,Synthetic Junior High,QVR,STEM
+SYN-%N%-02,99%N%02,Betatwo%L%,Ben,,2008-11-02,M,,ESC,ABM
+SYN-%N%-03,,Gammathree%L%,Carla,Reyes,2009-07-30,,Synthetic Junior High,REGULAR,TVL_ICT

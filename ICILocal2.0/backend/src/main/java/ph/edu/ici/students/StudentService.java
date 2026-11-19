@@ -39,9 +39,11 @@ public class StudentService {
         var programs=db.queryForList("SELECT code,category FROM programs WHERE id=:id",Map.of("id",input.programId()));
         if(programs.isEmpty())throw invalid("Select an existing program.");
         var program=programs.getFirst();String code=(String)program.get("code");
-        String expected="TVET".equals(program.get("category"))?"TVET":code.startsWith("TVL_")?"TVL":"ACADEMIC";
+        String expected=trackFor((String)program.get("category"),code);
         if(!expected.equals(input.track()))throw invalid("Track must match the selected program.");
     }
+    /** Track implied by a program; shared with the legacy import so both derive it identically. */
+    public static String trackFor(String category,String programCode){return "TVET".equals(category)?"TVET":programCode.startsWith("TVL_")?"TVL":"ACADEMIC";}
     private void actor(){db.queryForObject("SELECT set_config('app.actor_id',:actor,true)",Map.of("actor",Long.toString(identity().userId())),String.class);}
     private Map<String,Object> decode(Map<String,Object> row){
         try{row.put("address",json.readValue(row.get("address").toString(),Map.class));}catch(Exception e){throw new IllegalStateException("Stored address is invalid",e);}
@@ -71,8 +73,10 @@ public class StudentService {
         var rows=db.queryForList("SELECT id,student_number,lrn,first_name,middle_name,last_name,campus_id,program_id,voucher_code,active,version FROM students"+where+" ORDER BY last_name,first_name,id LIMIT :limit OFFSET :offset",p);
         return Map.of("items",rows,"total",total,"page",page,"size",size);
     }
-    @Transactional public Map<String,Object> create(StudentInput input){
-        validate(input);actor();var p=fields(input);p.put("number","STU-"+UUID.randomUUID());
+    @Transactional public Map<String,Object> create(StudentInput input){return create(input,"STU-"+UUID.randomUUID());}
+    /** Creates a student with a caller-supplied student number (legacy imports keep the legacy number). */
+    @Transactional public Map<String,Object> create(StudentInput input,String studentNumber){
+        validate(input);actor();var p=fields(input);p.put("number",studentNumber);
         long id=db.queryForObject("INSERT INTO students(student_number,campus_id,program_id,voucher_code,track,lrn,first_name,middle_name,last_name,suffix,birth_date,sex,phone,email,address,previous_school_name,previous_school_id,previous_school_address,household_income_bracket,active) VALUES (:number,:campus,:program,:voucher,:track,:lrn,:first,:middle,:last,:suffix,:birth,:sex,:phone,:email,CAST(:address AS jsonb),:school,:schoolId,:schoolAddress,:income,:active) RETURNING id",p,Long.class);
         guardians(id,input.guardians());return get(id);
     }

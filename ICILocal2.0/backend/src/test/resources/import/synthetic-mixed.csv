@@ -1,0 +1,18 @@
+Student No,LRN,Last Name,First Name,Middle Name,Birth Date,Sex,Previous School,Voucher,Strand
+SYN-%N%-11,99%N%11,GARCIA%U%,JOSÉ  MARIA,,03/14/2009,male,  Escuela   Synthetic ,qvr,stem
+SYN-%N%-12,99%N%12,peña%L%,ana lyn,dela Cruz,2009-03-15,,,ESC,GAS
+SYN-%N%-13,99%N%13,"Quoted, Name%L%",Quin,,2009-03-16,,"School ""Synthetic"" Annex",ALS,HUMSS
+SYN-%N%-14,,Dateerr%L%,Twodigit,,14/03/09,,,QVR,STEM
+SYN-%N%-15,,Dateerr%L%,Serial,,40251,,,QVR,STEM
+SYN-%N%-16,,Dateerr%L%,Monthname,,March 14 2009,,,QVR,STEM
+SYN-%N%-17,,Dateerr%L%,Future,,2999-01-01,,,QVR,STEM
+SYN-%N%-18,,Dateerr%L%,Ancient,,1850-01-01,,,QVR,STEM
+SYN-%N%-19,,Dateerr%L%,Impossible,,02/30/2009,,,QVR,STEM
+SYN-%N%-20,,Dateerr%L%,Singledigit,,3/4/2009,,,QVR,STEM
+SYN-%N%-21,12345,Othererr%L%,Badlrn,,2009-03-14,,,QVR,STEM
+SYN-%N%-22,,,Nolast,,2009-03-14,,,QVR,STEM
+SYN-%N%-23,,Othererr%L%,Unmappedvoucher,,2009-03-14,,,UNKNOWNV,STEM
+SYN-%N%-24,,Othererr%L%,Unknownstrand,,2009-03-14,,,QVR,ROBOTICS
+SYN-%N%-25,,Othererr%L%,Blankboth,,2009-03-14,,,,
+,,Othererr%L%,Nonumber,,2009-03-14,,,QVR,STEM
+SYN-%N%-27,,Othererr%L%,Short,2009-03-14

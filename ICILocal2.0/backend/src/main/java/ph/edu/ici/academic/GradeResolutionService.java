@@ -65,6 +65,8 @@ public class GradeResolutionService {
     public Map<String,Object> createCorrection(CorrectionInput input,MultipartFile file){
         var grade=grade(input.gradeId(),true,false,true);expected(grade,"gradeVersion",input.gradeVersion());
         if("draft".equals(grade.get("gradeState"))||!Boolean.TRUE.equals(grade.get("periodLocked")))throw error(HttpStatus.CONFLICT,"Formal corrections require a submitted grade in a locked period.");
+        // The servlet multipart cap is shared with legacy imports (5 MB), so this route enforces its own 1,000,000-byte limit.
+        if(file.getSize()>1000000)throw error(HttpStatus.PAYLOAD_TOO_LARGE,"Evidence must be at most 1,000,000 bytes.");
         byte[] bytes;try{bytes=file.getBytes();}catch(IOException exception){throw error(HttpStatus.BAD_REQUEST,"Evidence could not be read.");}
         if(bytes.length==0||bytes.length>1000000)throw error(HttpStatus.BAD_REQUEST,"Evidence must contain between 1 and 1,000,000 bytes.");
         String filename=Optional.ofNullable(file.getOriginalFilename()).orElse("");

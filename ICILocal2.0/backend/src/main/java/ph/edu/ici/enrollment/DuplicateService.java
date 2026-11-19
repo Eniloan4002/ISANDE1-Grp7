@@ -1,7 +1,6 @@
 package ph.edu.ici.enrollment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.text.Normalizer;
 import java.util.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -11,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ph.edu.ici.auth.StaffIdentity;
 import ph.edu.ici.auth.AccessPolicy;
+import static ph.edu.ici.enrollment.IdentityMatcher.*;
 
 /** Adjudicates application identities without deleting or overwriting master/academic records. */
 @Service
@@ -26,10 +26,6 @@ public class DuplicateService {
     private void serial(){db.queryForObject("SELECT pg_advisory_xact_lock(142014)",Map.of(),Object.class);}
     private Map<String,Object> app(long id,boolean lock){var rows=db.queryForList("SELECT * FROM applications WHERE id=:id AND campus_id IN (:scope)"+(lock?" FOR UPDATE":""),Map.of("id",id,"scope",scope()));if(rows.isEmpty())throw error(HttpStatus.NOT_FOUND,"Application not found.");return rows.getFirst();}
     private Map<String,Object> student(long id,boolean lock){var rows=db.queryForList("SELECT * FROM students WHERE id=:id AND campus_id IN (:scope)"+(lock?" FOR UPDATE":""),Map.of("id",id,"scope",scope()));if(rows.isEmpty())throw error(HttpStatus.NOT_FOUND,"Student not found in your campus scope.");return rows.getFirst();}
-    private String normalize(Object value){return Normalizer.normalize(Objects.toString(value,""),Normalizer.Form.NFD).replaceAll("\\p{M}","").toLowerCase(Locale.ROOT).replaceAll("[^a-z\\s]","").trim().replaceAll("\\s+"," ");}
-    private double similarity(Object left,Object right){String a=normalize(left),b=normalize(right);if(a.isEmpty()||b.isEmpty())return 0;int[] prev=new int[b.length()+1];for(int j=0;j<prev.length;j++)prev[j]=j;for(int i=1;i<=a.length();i++){int[] next=new int[b.length()+1];next[0]=i;for(int j=1;j<=b.length();j++)next[j]=Math.min(Math.min(next[j-1]+1,prev[j]+1),prev[j-1]+(a.charAt(i-1)==b.charAt(j-1)?0:1));prev=next;}return 1.0-(double)prev[b.length()]/Math.max(a.length(),b.length());}
-    private boolean sameLrn(Map<String,Object> a,Map<String,Object> b){return a.get("lrn")!=null&&a.get("lrn").equals(b.get("lrn"));}
-    private boolean sameNameDob(Map<String,Object> a,Map<String,Object> b){return Objects.equals(a.get("birth_date"),b.get("birth_date"))&&similarity(a.get("last_name"),b.get("last_name"))>=0.8&&similarity(normalize(a.get("first_name")).split(" ")[0],normalize(b.get("first_name")).split(" ")[0])>=0.8;}
     private List<Map<String,Object>> candidates(Map<String,Object> a){
         var rows=db.queryForList("""
             SELECT 'student' AS kind,id,campus_id,first_name,last_name,birth_date,lrn,id AS canonical_student_id FROM students
@@ -60,7 +56,7 @@ public class DuplicateService {
         actor();for(var b:candidates(a)){
             String field="student".equals(b.get("kind"))?"matched_student_id":"matched_application_id";
             if(settled(id,b)||Boolean.TRUE.equals(db.queryForObject("SELECT EXISTS(SELECT 1 FROM duplicate_cases WHERE application_id=:app AND "+field+"=:target)",Map.of("app",id,"target",b.get("id")),Boolean.class)))continue;
-            var evidence=Map.of("type",sameLrn(a,b)?"LRN_EXACT":"NAME_DOB","nameScore",Math.min(similarity(a.get("last_name"),b.get("last_name")),similarity(normalize(a.get("first_name")).split(" ")[0],normalize(b.get("first_name")).split(" ")[0])));
+            var evidence=Map.of("type",sameLrn(a,b)?LRN_EXACT:NAME_DOB,"nameScore",nameScore(a,b));
             db.update("INSERT INTO duplicate_cases(application_id,"+field+",evidence) VALUES(:app,:target,CAST(:evidence AS jsonb))",Map.of("app",id,"target",b.get("id"),"evidence",encode(evidence)));
         }
         // Only change standing/version when new checks actually change standing.
