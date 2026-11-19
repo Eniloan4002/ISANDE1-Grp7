@@ -18,10 +18,10 @@ class MigrationReconciliationTest {
         var root=new JdbcTemplate(new DriverManagerDataSource(PostgresSupport.DATABASE.getJdbcUrl("postgres","postgres"),"postgres",""));root.execute("CREATE DATABASE "+name);
         return new DriverManagerDataSource(PostgresSupport.DATABASE.getJdbcUrl("postgres",name),"postgres","");
     }
-    @Test void publishedUpstreamV7UpgradesToV18WithoutLosingExistingAccounts(){
+    @Test void publishedUpstreamV7UpgradesToV19WithoutLosingExistingAccounts(){
         var ds=database();Flyway.configure().dataSource(ds).target("7").load().migrate();var db=new JdbcTemplate(ds);
         db.update("INSERT INTO users(username,email,full_name,password_hash,token_version) VALUES('existing','existing@example.invalid','Existing account','retained-hash',4)");
-        var latest=Flyway.configure().dataSource(ds).load();LocalMigrationBridge.reconcile(latest,false);assertThat(latest.migrate().migrationsExecuted).isEqualTo(11);latest.validate();
+        var latest=Flyway.configure().dataSource(ds).load();LocalMigrationBridge.reconcile(latest,false);assertThat(latest.migrate().migrationsExecuted).isEqualTo(12);latest.validate();
         assertThat(db.queryForObject("SELECT password_hash FROM users WHERE username='existing'",String.class)).isEqualTo("retained-hash");
         assertThat(db.queryForObject("SELECT token_version FROM users WHERE username='existing'",Integer.class)).isEqualTo(4);
         assertThat(db.queryForObject("SELECT count(*) FROM enrollment_attendance_windows",Integer.class)).isZero();
@@ -37,7 +37,7 @@ class MigrationReconciliationTest {
         long offering=db.queryForObject("INSERT INTO class_offerings(section_id,term_id,subject_id,teacher_id) VALUES (?,?,?,?) RETURNING id",Long.class,section,term,subject,staff);
         db.update("INSERT INTO grading_windows(class_id,grading_period_id,term_id,deadline,locked_at,locked_by) VALUES (?,?,?,now(),now(),?)",offering,period,term,staff);
         var before=db.queryForMap("SELECT deadline,locked_at,locked_by FROM grading_windows WHERE class_id=?",offering);
-        var latest=Flyway.configure().dataSource(ds).load();assertThat(latest.migrate().migrationsExecuted).isEqualTo(6);latest.validate();
+        var latest=Flyway.configure().dataSource(ds).load();assertThat(latest.migrate().migrationsExecuted).isEqualTo(7);latest.validate();
         assertThat(db.queryForMap("SELECT deadline,locked_at,locked_by FROM grading_windows WHERE class_id=?",offering)).isEqualTo(before);
         assertThat(db.queryForObject("SELECT count(*) FROM section_grading_windows",Integer.class)).isZero();
         assertThat(latest.migrate().migrationsExecuted).isZero();
@@ -60,7 +60,7 @@ class MigrationReconciliationTest {
         long grade=db.queryForObject("INSERT INTO grades(class_id,enrollment_id,term_id,grading_period_id,mark,state,version) VALUES (?,?,?,?,'INC','submitted',3) RETURNING id",Long.class,offering,enrollment,term,period);
         long correction=db.queryForObject("INSERT INTO grade_corrections(grade_id,original_mark,proposed_value,justification,evidence_storage_key,requested_by) VALUES (?,'INC',85,'Existing justification','legacy-evidence',?) RETURNING id",Long.class,grade,staff);
         var gradeBefore=db.queryForMap("SELECT * FROM grades WHERE id=?",grade);
-        var latest=Flyway.configure().dataSource(ds).load();assertThat(latest.migrate().migrationsExecuted).isEqualTo(5);latest.validate();
+        var latest=Flyway.configure().dataSource(ds).load();assertThat(latest.migrate().migrationsExecuted).isEqualTo(6);latest.validate();
         assertThat(db.queryForMap("SELECT deadline,locked_at,locked_by FROM grading_windows WHERE class_id=?",offering)).isEqualTo(before);
         assertThat(db.queryForObject("SELECT count(*) FROM section_grading_windows",Integer.class)).isZero();
         assertThat(db.queryForMap("SELECT * FROM grades WHERE id=?",grade)).isEqualTo(gradeBefore);
@@ -92,7 +92,7 @@ class MigrationReconciliationTest {
         db.update("INSERT INTO daily_academic_attendance(enrollment_id,attendance_date,status,note) VALUES (?,'2026-06-02','absent','Retained attendance note')",enrollment);
         var before=new LinkedHashMap<String,List<Map<String,Object>>>();
         for(String table:List.of("users","grades","incomplete_cases","withdrawals","guidance_cases","guidance_case_notes","guidance_policies","school_calendar_days","daily_academic_attendance","audit_logs"))before.put(table,db.queryForList("SELECT * FROM "+table));
-        var latest=Flyway.configure().dataSource(ds).load();assertThat(latest.migrate().migrationsExecuted).isEqualTo(2);latest.validate();
+        var latest=Flyway.configure().dataSource(ds).load();assertThat(latest.migrate().migrationsExecuted).isEqualTo(3);latest.validate();
         for(var entry:before.entrySet()){
             var after=db.queryForList("SELECT * FROM "+entry.getKey());
             if(entry.getKey().equals("audit_logs"))assertThat(after).as("Existing audits remain append-only").containsAll(entry.getValue());
@@ -104,6 +104,33 @@ class MigrationReconciliationTest {
         assertThat(db.queryForObject("SELECT status FROM withdrawals WHERE id=?",String.class,withdrawal)).isEqualTo("pending");
         assertThat(db.queryForObject("SELECT value FROM grades WHERE id=?",java.math.BigDecimal.class,grade)).isNull();
         assertThat(latest.migrate().migrationsExecuted).isZero();
+    }
+    @Test void publishedV18PreservesStudentsAndAddsLegacyImportStagingAndPermissions(){
+        var ds=database();Flyway.configure().dataSource(ds).target("18").load().migrate();var db=new JdbcTemplate(ds);
+        long student=db.queryForObject("INSERT INTO students(student_number,first_name,last_name,birth_date) VALUES ('PRE-V19','Prior','Student','2009-01-01') RETURNING id",Long.class);
+        long batch=db.queryForObject("INSERT INTO import_batches(source_name,checksum,source_count) VALUES ('prior.csv',repeat('a',64),3) RETURNING id",Long.class);
+        db.update("INSERT INTO import_exceptions(batch_id,row_number,error_code,detail) VALUES (?,2,'PRIOR','Retained exception')",batch);
+        var before=db.queryForList("SELECT * FROM students");
+        var latest=Flyway.configure().dataSource(ds).load();assertThat(latest.migrate().migrationsExecuted).isEqualTo(1);latest.validate();
+        assertThat(db.queryForList("SELECT * FROM students")).containsExactlyInAnyOrderElementsOf(before);
+        assertThat(db.queryForObject("SELECT source_type FROM import_batches WHERE id=?",String.class,batch)).isEqualTo("legacy_student_csv");
+        assertThat(db.queryForObject("SELECT severity FROM import_exceptions WHERE batch_id=?",String.class,batch)).isEqualTo("error");
+        assertThat(db.queryForObject("SELECT count(*) FROM import_rows",Integer.class)).isZero();
+        assertThat(db.queryForList("SELECT role_code||':'||permission_code FROM role_permissions WHERE permission_code LIKE 'imports.%'",String.class))
+            .containsExactlyInAnyOrder("ROLE_ADMIN:imports.read","ROLE_ADMIN:imports.manage","ROLE_REGISTRAR:imports.read","ROLE_REGISTRAR:imports.manage");
+        assertThat(db.queryForMap("SELECT is_default,real_file_validated FROM import_column_mappings WHERE source_type='legacy_student_csv'")).containsEntry("is_default",true).containsEntry("real_file_validated",false);
+        assertThat(student).isPositive();assertThat(latest.migrate().migrationsExecuted).isZero();
+    }
+    @Test void importStagingConstraintsRejectInconsistentRowsAndDuplicateFiles(){
+        var ds=database();Flyway.configure().dataSource(ds).load().migrate();var db=new JdbcTemplate(ds);
+        long batch=db.queryForObject("INSERT INTO import_batches(source_name,checksum,source_count,status,valid_count) VALUES ('a.csv',repeat('b',64),1,'validated',1) RETURNING id",Long.class);
+        assertThatThrownBy(()->db.update("INSERT INTO import_batches(source_name,checksum,source_count) VALUES ('copy.csv',repeat('b',64),1)")).hasMessageContaining("import_batch_checksum_once");
+        assertThatThrownBy(()->db.update("INSERT INTO import_batches(source_name,checksum,source_count,status,valid_count) VALUES ('c.csv',repeat('c',64),2,'validated',1)")).hasMessageContaining("import_batch_counts_balance");
+        db.update("INSERT INTO import_rows(batch_id,row_number,status,normalized_values,raw_values) VALUES (?,2,'valid','{}','{\"lrn\":\"secret-raw\"}')",batch);
+        assertThatThrownBy(()->db.update("INSERT INTO import_rows(batch_id,row_number,status,normalized_values) VALUES (?,2,'valid','{}')",batch)).hasMessageContaining("import_rows_batch_id_row_number_key");
+        assertThatThrownBy(()->db.update("INSERT INTO import_rows(batch_id,row_number,status) VALUES (?,3,'imported')",batch)).isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+        assertThat(db.queryForObject("SELECT count(*) FROM audit_logs WHERE table_name='import_rows' AND (new_data ? 'raw_values' OR new_data::text LIKE '%secret-raw%')",Integer.class)).isZero();
+        assertThat(db.queryForObject("SELECT count(*) FROM audit_logs WHERE table_name='import_rows' AND operation='INSERT'",Integer.class)).isEqualTo(1);
     }
     private Flyway legacy(DriverManagerDataSource ds)throws Exception{
         var folder=Files.createTempDirectory("ici-legacy-fixture");
@@ -119,8 +146,8 @@ class MigrationReconciliationTest {
         var latest=Flyway.configure().dataSource(ds).load();
         assertThatThrownBy(()->LocalMigrationBridge.reconcile(latest,false)).hasMessageContaining("explicitly set");
         assertThat(db.queryForObject("SELECT script FROM flyway_schema_history WHERE version='6'",String.class)).isEqualTo("V6__requirement_verification_metadata.sql");
-        LocalMigrationBridge.reconcile(latest,true);assertThat(latest.migrate().migrationsExecuted).isEqualTo(7);latest.validate();
-        assertThat(latest.info().current().getVersion().getVersion()).isEqualTo("18");
+        LocalMigrationBridge.reconcile(latest,true);assertThat(latest.migrate().migrationsExecuted).isEqualTo(8);latest.validate();
+        assertThat(latest.info().current().getVersion().getVersion()).isEqualTo("19");
         assertThat(db.queryForObject("SELECT token_version FROM users WHERE id=?",Integer.class,id)).isEqualTo(8);
         assertThat(db.queryForObject("SELECT password_hash FROM users WHERE id=?",String.class,id)).isEqualTo("unchanged-hash");
         assertThat(db.queryForObject("SELECT count(*) FROM audit_logs",Integer.class)).isGreaterThanOrEqualTo(audits);
