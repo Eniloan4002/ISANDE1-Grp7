@@ -180,7 +180,7 @@ public class ImportValidationService {
         for(Row r:alive){int shown=0;for(var e:r.evidence){if(shown++>=MAX_DUPLICATE_MESSAGES)break;r.problems.add(RowProblem.warning("DUPLICATE_CANDIDATE",null,describe(e)));}}
     }
     private String stagedSql(String where){return "SELECT r.batch_id,r.row_number,b.campus_id,r.normalized_values->>'lrn' AS lrn,r.normalized_values->>'firstName' AS first_name,r.normalized_values->>'lastName' AS last_name,(r.normalized_values->>'birthDate')::date AS birth_date "+
-        "FROM import_rows r JOIN import_batches b ON b.id=r.batch_id WHERE b.status='validated' AND b.campus_id<>:campus AND r.status IN ('valid','duplicate_flagged') AND "+where;}
+        "FROM import_rows r JOIN import_batches b ON b.id=r.batch_id WHERE b.source_type='legacy_student_csv' AND b.status='validated' AND b.campus_id<>:campus AND r.status IN ('valid','duplicate_flagged') AND "+where;}
     private Candidate application(Map<String,Object> m){return new Candidate("application",((Number)m.get("id")).longValue(),m.get("student_id")==null?null:((Number)m.get("student_id")).longValue(),null,null,campus(m),identityOf(m));}
     private Candidate staged(Map<String,Object> m){return new Candidate("staged_row",0,null,((Number)m.get("batch_id")).longValue(),((Number)m.get("row_number")).intValue(),campus(m),identityOf(m));}
     /** Only identifiers of records in the reviewer's campuses are exposed; other campuses show rule and score only. */

@@ -1,5 +1,6 @@
 package ph.edu.ici.imports;
 
+import java.util.Map;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -8,12 +9,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@RestControllerAdvice(assignableTypes=LegacyImportController.class)
+@RestControllerAdvice(assignableTypes={LegacyImportController.class,GradeMatrixImportController.class})
 public class LegacyImportErrors {
     @ExceptionHandler(ImportFileException.class)
     public ResponseEntity<ProblemDetail> file(ImportFileException e){
         var problem=ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(e.error().status),e.getMessage());
         problem.setProperty("code",e.error().name());if(e.batchId()!=null)problem.setProperty("batchId",e.batchId());
+        if(!e.problems().isEmpty())problem.setProperty("problems",e.problems().stream().map(p->Map.of("code",p.code(),"header",p.header(),"detail",p.detail())).toList());
         return ResponseEntity.status(e.error().status).body(problem);
     }
     @ExceptionHandler(ImportConflictException.class)
