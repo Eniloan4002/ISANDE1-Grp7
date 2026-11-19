@@ -5,7 +5,7 @@ import java.util.*;
 
 /** Parsed form of a stored grade-matrix mapping and its settings. Parsing is tolerant; {@link GradeMatrixMappingService} enforces strictness on save. */
 public record GradeMatrixMapping(Map<String,ImportMapping.FieldSpec> fields,String layout,String separator,Set<String> reportedFinalLabels,
-                                 Map<String,Map<String,String>> valueMaps,Settings settings) {
+                                 Map<String,Map<String,String>> valueMaps,Settings settings,CleaningProfile cleaning) {
     public record Settings(String encoding,char delimiter,int headerRow,char decimalSeparator,Set<String> ignoredColumns) {}
 
     public static final String LAYOUT="subject_period_flat";
@@ -30,7 +30,7 @@ public record GradeMatrixMapping(Map<String,ImportMapping.FieldSpec> fields,Stri
         Set<String> ignored=new LinkedHashSet<>();settings.path("ignoredColumns").forEach(l->{if(l.isTextual())ignored.add(ImportText.header(l.asText()));});
         String delimiter=settings.path("delimiter").asText(",");String decimal=settings.path("decimalSeparator").asText(".");
         return new GradeMatrixMapping(fields,mapping.path("grid").path("layout").asText(LAYOUT),mapping.path("grid").path("separator").asText(" - "),Set.copyOf(finals),maps,
-            new Settings(settings.path("encoding").asText("UTF-8"),delimiter.isEmpty()?',':delimiter.charAt(0),settings.path("headerRow").asInt(1),decimal.isEmpty()?'.':decimal.charAt(0),Set.copyOf(ignored)));
+            new Settings(settings.path("encoding").asText("UTF-8"),delimiter.isEmpty()?',':delimiter.charAt(0),settings.path("headerRow").asInt(1),decimal.isEmpty()?'.':decimal.charAt(0),Set.copyOf(ignored)),CleaningProfile.parse(settings));
     }
     /** Settings in the shape {@link CsvParser} reads (dates are not used by the grade matrix). */
     ImportMapping.Settings csv(){return new ImportMapping.Settings(settings.encoding(),settings.delimiter(),settings.headerRow(),List.of(),false);}

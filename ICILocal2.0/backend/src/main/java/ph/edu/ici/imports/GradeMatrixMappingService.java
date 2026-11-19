@@ -20,7 +20,7 @@ import ph.edu.ici.imports.ImportMappingService.StoredMapping;
 @Service
 public class GradeMatrixMappingService {
     public static final String SOURCE="legacy_grade_matrix_csv";
-    private static final Set<String> SETTING_KEYS=Set.of("encoding","delimiter","headerRow","decimalSeparator","ignoredColumns");
+    private static final Set<String> SETTING_KEYS=Set.of("encoding","delimiter","headerRow","decimalSeparator","ignoredColumns","nativeDates","cleaning","sheet");
     private final NamedParameterJdbcTemplate db;private final ObjectMapper json;private final AccessPolicy access;
 
     public GradeMatrixMappingService(NamedParameterJdbcTemplate db,ObjectMapper json,AccessPolicy access){this.db=db;this.json=json;this.access=access;}
@@ -128,6 +128,7 @@ public class GradeMatrixMappingService {
                 else if(aliasKeys.contains(key))problems.add("'"+key+"' is both an ignored column and a field alias; a column can have only one classification.");
             }
         }
+        CleaningProfile.validate(settings,GradeMatrixMapping.FIELDS,maps,problems);
         return problems;
     }
     private static String noun(String group){return switch(group){case "subject"->"subject code";case "period"->"grading period code";case "term"->"term code";case "schoolYear"->"academic year label";default->"mark (INC, NG or DRP)";};}

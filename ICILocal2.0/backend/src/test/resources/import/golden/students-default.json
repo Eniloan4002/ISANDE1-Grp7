@@ -1,0 +1,996 @@
+{
+  "ambiguous-header" : {
+    "batchMessages" : [ {
+      "detail" : "More than one column matches lrn: ['LRN', 'Legacy LRN'].",
+      "error_code" : "AMBIGUOUS_HEADER",
+      "field_name" : null,
+      "severity" : "error"
+    } ],
+    "error" : "AMBIGUOUS_HEADER",
+    "message" : "More than one column matches lrn: ['LRN', 'Legacy LRN'].",
+    "problems" : [ ]
+  },
+  "basic" : {
+    "batch" : {
+      "flagged_count" : 0,
+      "imported_count" : 0,
+      "invalid_count" : 0,
+      "skipped_count" : 0,
+      "source_count" : 3,
+      "status" : "validated",
+      "valid_count" : 3
+    },
+    "batchMessages" : [ ],
+    "rows" : [ {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : "997100000101",
+        "sex" : "F",
+        "track" : "ACADEMIC",
+        "campusId" : "ILIGAN",
+        "lastName" : "Alphaonebkhkwdqyxxhv",
+        "birthDate" : "2009-03-14",
+        "firstName" : "Ana",
+        "programId" : "STEM",
+        "middleName" : "Santos",
+        "programCode" : "STEM",
+        "voucherCode" : "QVR",
+        "studentNumber" : "SYN-71000001-01",
+        "previousSchool" : "Synthetic Junior High"
+      },
+      "raw" : {
+        "LRN" : "997100000101",
+        "Sex" : "F",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Alphaonebkhkwdqyxxhv",
+        "Birth Date" : "2009-03-14",
+        "First Name" : "Ana",
+        "Student No" : "SYN-71000001-01",
+        "Middle Name" : "Santos",
+        "Previous School" : "Synthetic Junior High"
+      },
+      "row" : 2,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : "997100000102",
+        "sex" : "M",
+        "track" : "ACADEMIC",
+        "campusId" : "ILIGAN",
+        "lastName" : "Betatwobkhkwdqyxxhv",
+        "birthDate" : "2008-11-02",
+        "firstName" : "Ben",
+        "programId" : "ABM",
+        "middleName" : null,
+        "programCode" : "ABM",
+        "voucherCode" : "ESC",
+        "studentNumber" : "SYN-71000001-02",
+        "previousSchool" : null
+      },
+      "raw" : {
+        "LRN" : "997100000102",
+        "Sex" : "M",
+        "Strand" : "ABM",
+        "Voucher" : "ESC",
+        "Last Name" : "Betatwobkhkwdqyxxhv",
+        "Birth Date" : "2008-11-02",
+        "First Name" : "Ben",
+        "Student No" : "SYN-71000001-02",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 3,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : null,
+        "sex" : null,
+        "track" : "TVL",
+        "campusId" : "ILIGAN",
+        "lastName" : "Gammathreebkhkwdqyxxhv",
+        "birthDate" : "2009-07-30",
+        "firstName" : "Carla",
+        "programId" : "TVL_ICT",
+        "middleName" : "Reyes",
+        "programCode" : "TVL_ICT",
+        "voucherCode" : "REGULAR",
+        "studentNumber" : "SYN-71000001-03",
+        "previousSchool" : "Synthetic Junior High"
+      },
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "TVL_ICT",
+        "Voucher" : "REGULAR",
+        "Last Name" : "Gammathreebkhkwdqyxxhv",
+        "Birth Date" : "2009-07-30",
+        "First Name" : "Carla",
+        "Student No" : "SYN-71000001-03",
+        "Middle Name" : "Reyes",
+        "Previous School" : "Synthetic Junior High"
+      },
+      "row" : 4,
+      "status" : "valid"
+    } ]
+  },
+  "campus-column" : {
+    "batch" : {
+      "flagged_count" : 0,
+      "imported_count" : 0,
+      "invalid_count" : 2,
+      "skipped_count" : 0,
+      "source_count" : 4,
+      "status" : "validated",
+      "valid_count" : 2
+    },
+    "batchMessages" : [ ],
+    "rows" : [ {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : null,
+        "sex" : null,
+        "track" : "ACADEMIC",
+        "campusId" : "ILIGAN",
+        "lastName" : "Camposameowkjksamgngm",
+        "birthDate" : "2009-03-14",
+        "firstName" : "Ana",
+        "programId" : "STEM",
+        "middleName" : null,
+        "programCode" : "STEM",
+        "voucherCode" : "QVR",
+        "studentNumber" : "SYN-71000002-01",
+        "previousSchool" : null
+      },
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Campus" : "ILIGAN",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Camposameowkjksamgngm",
+        "Birth Date" : "2009-03-14",
+        "First Name" : "Ana",
+        "Student No" : "SYN-71000002-01",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 2,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The row's campus (BUGO) differs from the upload's campus.",
+        "error_code" : "CAMPUS_MISMATCH",
+        "field_name" : "campus",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : { },
+      "row" : 3,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The value 'Unknownville' is not a known code and has no entry in the campus value map.",
+        "error_code" : "UNKNOWN_CAMPUS",
+        "field_name" : "campus",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Campus" : "Unknownville",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Campusunknownowkjksamgngm",
+        "Birth Date" : "2009-03-16",
+        "First Name" : "Cal",
+        "Student No" : "SYN-71000002-03",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 4,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : null,
+        "sex" : null,
+        "track" : "ACADEMIC",
+        "campusId" : "ILIGAN",
+        "lastName" : "Campusblankowkjksamgngm",
+        "birthDate" : "2009-03-17",
+        "firstName" : "Dan",
+        "programId" : "STEM",
+        "middleName" : null,
+        "programCode" : "STEM",
+        "voucherCode" : "QVR",
+        "studentNumber" : "SYN-71000002-04",
+        "previousSchool" : null
+      },
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Campus" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Campusblankowkjksamgngm",
+        "Birth Date" : "2009-03-17",
+        "First Name" : "Dan",
+        "Student No" : "SYN-71000002-04",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 5,
+      "status" : "valid"
+    } ]
+  },
+  "duplicates" : {
+    "batch" : {
+      "flagged_count" : 4,
+      "imported_count" : 0,
+      "invalid_count" : 1,
+      "skipped_count" : 0,
+      "source_count" : 7,
+      "status" : "validated",
+      "valid_count" : 2
+    },
+    "batchMessages" : [ ],
+    "rows" : [ {
+      "evidence" : [ {
+        "kind" : "row",
+        "rule" : "LRN_EXACT",
+        "nameScore" : 0.33,
+        "rowNumber" : 3,
+        "campusVisible" : true
+      } ],
+      "messages" : [ {
+        "detail" : "Possible duplicate of another row in this file (same LRN). Review before importing.",
+        "error_code" : "DUPLICATE_CANDIDATE",
+        "field_name" : null,
+        "severity" : "warning"
+      } ],
+      "normalized" : {
+        "lrn" : "997100000301",
+        "sex" : null,
+        "track" : "ACADEMIC",
+        "campusId" : "ILIGAN",
+        "lastName" : "Duponevquainhcgqxj",
+        "birthDate" : "2009-01-10",
+        "firstName" : "Ana",
+        "programId" : "STEM",
+        "middleName" : null,
+        "programCode" : "STEM",
+        "voucherCode" : "QVR",
+        "studentNumber" : "SYN-71000003-01",
+        "previousSchool" : null
+      },
+      "raw" : {
+        "LRN" : "997100000301",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Duponevquainhcgqxj",
+        "Birth Date" : "2009-01-10",
+        "First Name" : "Ana",
+        "Student No" : "SYN-71000003-01",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 2,
+      "status" : "duplicate_flagged"
+    }, {
+      "evidence" : [ {
+        "kind" : "row",
+        "rule" : "LRN_EXACT",
+        "nameScore" : 0.33,
+        "rowNumber" : 2,
+        "campusVisible" : true
+      } ],
+      "messages" : [ {
+        "detail" : "Possible duplicate of another row in this file (same LRN). Review before importing.",
+        "error_code" : "DUPLICATE_CANDIDATE",
+        "field_name" : null,
+        "severity" : "warning"
+      } ],
+      "normalized" : {
+        "lrn" : "997100000301",
+        "sex" : null,
+        "track" : "ACADEMIC",
+        "campusId" : "ILIGAN",
+        "lastName" : "Duptwovquainhcgqxj",
+        "birthDate" : "2009-05-05",
+        "firstName" : "Bea",
+        "programId" : "STEM",
+        "middleName" : null,
+        "programCode" : "STEM",
+        "voucherCode" : "QVR",
+        "studentNumber" : "SYN-71000003-02",
+        "previousSchool" : null
+      },
+      "raw" : {
+        "LRN" : "997100000301",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Duptwovquainhcgqxj",
+        "Birth Date" : "2009-05-05",
+        "First Name" : "Bea",
+        "Student No" : "SYN-71000003-02",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 3,
+      "status" : "duplicate_flagged"
+    }, {
+      "evidence" : [ {
+        "kind" : "row",
+        "rule" : "NAME_DOB",
+        "nameScore" : 0.95,
+        "rowNumber" : 5,
+        "campusVisible" : true
+      } ],
+      "messages" : [ {
+        "detail" : "Possible duplicate of another row in this file (same birth date and similar name). Review before importing.",
+        "error_code" : "DUPLICATE_CANDIDATE",
+        "field_name" : null,
+        "severity" : "warning"
+      } ],
+      "normalized" : {
+        "lrn" : null,
+        "sex" : null,
+        "track" : "ACADEMIC",
+        "campusId" : "ILIGAN",
+        "lastName" : "Delacruzvquainhcgqxj",
+        "birthDate" : "2009-02-02",
+        "firstName" : "Maria",
+        "programId" : "ABM",
+        "middleName" : null,
+        "programCode" : "ABM",
+        "voucherCode" : "ESC",
+        "studentNumber" : "SYN-71000003-03",
+        "previousSchool" : null
+      },
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "ABM",
+        "Voucher" : "ESC",
+        "Last Name" : "Delacruzvquainhcgqxj",
+        "Birth Date" : "2009-02-02",
+        "First Name" : "Maria",
+        "Student No" : "SYN-71000003-03",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 4,
+      "status" : "duplicate_flagged"
+    }, {
+      "evidence" : [ {
+        "kind" : "row",
+        "rule" : "NAME_DOB",
+        "nameScore" : 0.95,
+        "rowNumber" : 4,
+        "campusVisible" : true
+      } ],
+      "messages" : [ {
+        "detail" : "Possible duplicate of another row in this file (same birth date and similar name). Review before importing.",
+        "error_code" : "DUPLICATE_CANDIDATE",
+        "field_name" : null,
+        "severity" : "warning"
+      } ],
+      "normalized" : {
+        "lrn" : null,
+        "sex" : null,
+        "track" : "ACADEMIC",
+        "campusId" : "ILIGAN",
+        "lastName" : "Delacruyvquainhcgqxj",
+        "birthDate" : "2009-02-02",
+        "firstName" : "Maria",
+        "programId" : "ABM",
+        "middleName" : null,
+        "programCode" : "ABM",
+        "voucherCode" : "ESC",
+        "studentNumber" : "SYN-71000003-04",
+        "previousSchool" : null
+      },
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "ABM",
+        "Voucher" : "ESC",
+        "Last Name" : "Delacruyvquainhcgqxj",
+        "Birth Date" : "2009-02-02",
+        "First Name" : "Maria",
+        "Student No" : "SYN-71000003-04",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 5,
+      "status" : "duplicate_flagged"
+    }, {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : "997100000305",
+        "sex" : null,
+        "track" : "ACADEMIC",
+        "campusId" : "ILIGAN",
+        "lastName" : "Uniqueumavquainhcgqxj",
+        "birthDate" : "2009-04-04",
+        "firstName" : "Uma",
+        "programId" : "GAS",
+        "middleName" : null,
+        "programCode" : "GAS",
+        "voucherCode" : "QVR",
+        "studentNumber" : "SYN-71000003-05",
+        "previousSchool" : null
+      },
+      "raw" : {
+        "LRN" : "997100000305",
+        "Sex" : "",
+        "Strand" : "GAS",
+        "Voucher" : "QVR",
+        "Last Name" : "Uniqueumavquainhcgqxj",
+        "Birth Date" : "2009-04-04",
+        "First Name" : "Uma",
+        "Student No" : "SYN-71000003-05",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 6,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : null,
+        "sex" : null,
+        "track" : "ACADEMIC",
+        "campusId" : "ILIGAN",
+        "lastName" : "Repeatritavquainhcgqxj",
+        "birthDate" : "2008-08-08",
+        "firstName" : "Rita",
+        "programId" : "STEM",
+        "middleName" : null,
+        "programCode" : "STEM",
+        "voucherCode" : "QVR",
+        "studentNumber" : "SYN-71000003-06",
+        "previousSchool" : null
+      },
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Repeatritavquainhcgqxj",
+        "Birth Date" : "2008-08-08",
+        "First Name" : "Rita",
+        "Student No" : "SYN-71000003-06",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 7,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "This student number was already used on row 7 for a different person.",
+        "error_code" : "DUPLICATE_IN_BATCH",
+        "field_name" : "studentNumber",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Differentsamvquainhcgqxj",
+        "Birth Date" : "2007-07-07",
+        "First Name" : "Sam",
+        "Student No" : "SYN-71000003-06",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 8,
+      "status" : "invalid"
+    } ]
+  },
+  "missing-header" : {
+    "batchMessages" : [ {
+      "detail" : "Required columns not found: [birthDate]. Check the file's header row or the mapping's aliases.",
+      "error_code" : "MISSING_COLUMN",
+      "field_name" : null,
+      "severity" : "error"
+    } ],
+    "error" : "MISSING_COLUMN",
+    "message" : "Required columns not found: [birthDate]. Check the file's header row or the mapping's aliases.",
+    "problems" : [ ]
+  },
+  "mixed-default-case" : {
+    "batch" : {
+      "flagged_count" : 0,
+      "imported_count" : 0,
+      "invalid_count" : 14,
+      "skipped_count" : 0,
+      "source_count" : 17,
+      "status" : "validated",
+      "valid_count" : 3
+    },
+    "batchMessages" : [ ],
+    "rows" : [ {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : "997100000411",
+        "sex" : "male",
+        "track" : "ACADEMIC",
+        "campusId" : "ILIGAN",
+        "lastName" : "GARCIAFDIDJQMFWDXU",
+        "birthDate" : "2009-03-14",
+        "firstName" : "JOSÉ MARIA",
+        "programId" : "STEM",
+        "middleName" : null,
+        "programCode" : "STEM",
+        "voucherCode" : "QVR",
+        "studentNumber" : "SYN-71000004-11",
+        "previousSchool" : "Escuela Synthetic"
+      },
+      "raw" : {
+        "LRN" : "997100000411",
+        "Sex" : "male",
+        "Strand" : "stem",
+        "Voucher" : "qvr",
+        "Last Name" : "GARCIAFDIDJQMFWDXU",
+        "Birth Date" : "03/14/2009",
+        "First Name" : "JOSÉ  MARIA",
+        "Student No" : "SYN-71000004-11",
+        "Middle Name" : "",
+        "Previous School" : "  Escuela   Synthetic "
+      },
+      "row" : 2,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : "997100000412",
+        "sex" : null,
+        "track" : "ACADEMIC",
+        "campusId" : "ILIGAN",
+        "lastName" : "peñafdidjqmfwdxu",
+        "birthDate" : "2009-03-15",
+        "firstName" : "ana lyn",
+        "programId" : "GAS",
+        "middleName" : "dela Cruz",
+        "programCode" : "GAS",
+        "voucherCode" : "ESC",
+        "studentNumber" : "SYN-71000004-12",
+        "previousSchool" : null
+      },
+      "raw" : {
+        "LRN" : "997100000412",
+        "Sex" : "",
+        "Strand" : "GAS",
+        "Voucher" : "ESC",
+        "Last Name" : "peñafdidjqmfwdxu",
+        "Birth Date" : "2009-03-15",
+        "First Name" : "ana lyn",
+        "Student No" : "SYN-71000004-12",
+        "Middle Name" : "dela Cruz",
+        "Previous School" : ""
+      },
+      "row" : 3,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : "997100000413",
+        "sex" : null,
+        "track" : "ACADEMIC",
+        "campusId" : "ILIGAN",
+        "lastName" : "Quoted, Namefdidjqmfwdxu",
+        "birthDate" : "2009-03-16",
+        "firstName" : "Quin",
+        "programId" : "HUMSS",
+        "middleName" : null,
+        "programCode" : "HUMSS",
+        "voucherCode" : "ALS",
+        "studentNumber" : "SYN-71000004-13",
+        "previousSchool" : "School \"Synthetic\" Annex"
+      },
+      "raw" : {
+        "LRN" : "997100000413",
+        "Sex" : "",
+        "Strand" : "HUMSS",
+        "Voucher" : "ALS",
+        "Last Name" : "Quoted, Namefdidjqmfwdxu",
+        "Birth Date" : "2009-03-16",
+        "First Name" : "Quin",
+        "Student No" : "SYN-71000004-13",
+        "Middle Name" : "",
+        "Previous School" : "School \"Synthetic\" Annex"
+      },
+      "row" : 4,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "Two-digit years are not accepted. Accepted formats: yyyy-MM-dd, MM/dd/yyyy.",
+        "error_code" : "INVALID_DATE",
+        "field_name" : "birthDate",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Dateerrfdidjqmfwdxu",
+        "Birth Date" : "14/03/09",
+        "First Name" : "Twodigit",
+        "Student No" : "SYN-71000004-14",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 5,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "Spreadsheet serial numbers are not accepted. Accepted formats: yyyy-MM-dd, MM/dd/yyyy.",
+        "error_code" : "INVALID_DATE",
+        "field_name" : "birthDate",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Dateerrfdidjqmfwdxu",
+        "Birth Date" : "40251",
+        "First Name" : "Serial",
+        "Student No" : "SYN-71000004-15",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 6,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "Month names are not accepted. Accepted formats: yyyy-MM-dd, MM/dd/yyyy.",
+        "error_code" : "INVALID_DATE",
+        "field_name" : "birthDate",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Dateerrfdidjqmfwdxu",
+        "Birth Date" : "March 14 2009",
+        "First Name" : "Monthname",
+        "Student No" : "SYN-71000004-16",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 7,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The birth date must be in the past.",
+        "error_code" : "FUTURE_DATE",
+        "field_name" : "birthDate",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Dateerrfdidjqmfwdxu",
+        "Birth Date" : "2999-01-01",
+        "First Name" : "Future",
+        "Student No" : "SYN-71000004-17",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 8,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "Dates before 1900 are not accepted.",
+        "error_code" : "INVALID_DATE",
+        "field_name" : "birthDate",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Dateerrfdidjqmfwdxu",
+        "Birth Date" : "1850-01-01",
+        "First Name" : "Ancient",
+        "Student No" : "SYN-71000004-18",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 9,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The date does not exist. Accepted formats: yyyy-MM-dd, MM/dd/yyyy.",
+        "error_code" : "INVALID_DATE",
+        "field_name" : "birthDate",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Dateerrfdidjqmfwdxu",
+        "Birth Date" : "02/30/2009",
+        "First Name" : "Impossible",
+        "Student No" : "SYN-71000004-19",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 10,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The value does not match an accepted format. Accepted formats: yyyy-MM-dd, MM/dd/yyyy.",
+        "error_code" : "INVALID_DATE",
+        "field_name" : "birthDate",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Dateerrfdidjqmfwdxu",
+        "Birth Date" : "3/4/2009",
+        "First Name" : "Singledigit",
+        "Student No" : "SYN-71000004-20",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 11,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "LRN must be exactly 12 digits.",
+        "error_code" : "INVALID_LRN",
+        "field_name" : "lrn",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "12345",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Othererrfdidjqmfwdxu",
+        "Birth Date" : "2009-03-14",
+        "First Name" : "Badlrn",
+        "Student No" : "SYN-71000004-21",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 12,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "A value is required.",
+        "error_code" : "REQUIRED_MISSING",
+        "field_name" : "lastName",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "",
+        "Birth Date" : "2009-03-14",
+        "First Name" : "Nolast",
+        "Student No" : "SYN-71000004-22",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 13,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The value 'UNKNOWNV' is not a known code and has no entry in the voucher value map.",
+        "error_code" : "UNMAPPED_VALUE",
+        "field_name" : "voucher",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "UNKNOWNV",
+        "Last Name" : "Othererrfdidjqmfwdxu",
+        "Birth Date" : "2009-03-14",
+        "First Name" : "Unmappedvoucher",
+        "Student No" : "SYN-71000004-23",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 14,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The value 'ROBOTICS' is not a known code and has no entry in the specialization value map.",
+        "error_code" : "UNMAPPED_VALUE",
+        "field_name" : "specialization",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "ROBOTICS",
+        "Voucher" : "QVR",
+        "Last Name" : "Othererrfdidjqmfwdxu",
+        "Birth Date" : "2009-03-14",
+        "First Name" : "Unknownstrand",
+        "Student No" : "SYN-71000004-24",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 15,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "A value is required.",
+        "error_code" : "REQUIRED_MISSING",
+        "field_name" : "voucher",
+        "severity" : "error"
+      }, {
+        "detail" : "A value is required.",
+        "error_code" : "REQUIRED_MISSING",
+        "field_name" : "specialization",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "",
+        "Voucher" : "",
+        "Last Name" : "Othererrfdidjqmfwdxu",
+        "Birth Date" : "2009-03-14",
+        "First Name" : "Blankboth",
+        "Student No" : "SYN-71000004-25",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 16,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "A value is required.",
+        "error_code" : "REQUIRED_MISSING",
+        "field_name" : "studentNumber",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Othererrfdidjqmfwdxu",
+        "Birth Date" : "2009-03-14",
+        "First Name" : "Nonumber",
+        "Student No" : "",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 17,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The row has 5 values but the header has 10.",
+        "error_code" : "COLUMN_COUNT_MISMATCH",
+        "field_name" : null,
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Last Name" : "Othererrfdidjqmfwdxu",
+        "First Name" : "Short",
+        "Student No" : "SYN-71000004-27",
+        "Middle Name" : "2009-03-14"
+      },
+      "row" : 18,
+      "status" : "invalid"
+    } ]
+  },
+  "windows-1252-read-as-utf8" : {
+    "batch" : {
+      "flagged_count" : 0,
+      "imported_count" : 0,
+      "invalid_count" : 0,
+      "skipped_count" : 0,
+      "source_count" : 1,
+      "status" : "validated",
+      "valid_count" : 1
+    },
+    "batchMessages" : [ ],
+    "rows" : [ {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : null,
+        "sex" : null,
+        "track" : "ACADEMIC",
+        "campusId" : "ILIGAN",
+        "lastName" : "Caf�qarsohfrihoz",
+        "birthDate" : "2009-03-14",
+        "firstName" : "Jos�",
+        "programId" : "STEM",
+        "middleName" : null,
+        "programCode" : "STEM",
+        "voucherCode" : "QVR",
+        "studentNumber" : "SYN-71000007-01",
+        "previousSchool" : null
+      },
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Caf�qarsohfrihoz",
+        "Birth Date" : "2009-03-14",
+        "First Name" : "Jos�",
+        "Student No" : "SYN-71000007-01",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 2,
+      "status" : "valid"
+    } ]
+  }
+}

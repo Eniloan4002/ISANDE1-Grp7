@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.*;
 
 /** Parsed form of a stored mapping plus its parse settings. Parsing is tolerant; {@link ImportMappingService} enforces strictness on save. */
-public record ImportMapping(Map<String,FieldSpec> fields,Map<String,Map<String,String>> valueMaps,Settings settings) {
+public record ImportMapping(Map<String,FieldSpec> fields,Map<String,Map<String,String>> valueMaps,Settings settings,CleaningProfile cleaning) {
     public record FieldSpec(boolean required,List<String> aliases) {}
     public record Settings(String encoding,char delimiter,int headerRow,List<String> dateFormats,boolean normalizeNameCase) {}
 
@@ -31,6 +31,6 @@ public record ImportMapping(Map<String,FieldSpec> fields,Map<String,Map<String,S
         List<String> dates=new ArrayList<>();settings.path("dateFormats").forEach(d->dates.add(d.asText()));
         if(!settings.has("dateFormats"))dates.addAll(List.of("yyyy-MM-dd","MM/dd/yyyy"));
         return new ImportMapping(fields,maps,new Settings(settings.path("encoding").asText("UTF-8"),delimiter.isEmpty()?',':delimiter.charAt(0),
-            settings.path("headerRow").asInt(1),List.copyOf(dates),settings.path("normalizeNameCase").asBoolean(false)));
+            settings.path("headerRow").asInt(1),List.copyOf(dates),settings.path("normalizeNameCase").asBoolean(false)),CleaningProfile.parse(settings));
     }
 }

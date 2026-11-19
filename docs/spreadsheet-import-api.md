@@ -1,6 +1,6 @@
 # Spreadsheet data cleaning & import utility — ICI2-39 (design draft)
 
-**Status: design only (phase 1, amended by phase 1b).** Nothing in this document is implemented. No production code, migration or commit accompanies it. Phase 1 scoped a generic `.xlsx` reader for the ICI2-37/38 imports; **phase 1b re-targets the ticket to its real goal, two new import types: (A) section allocations, §12, and (B) document tracking logs, §13**, with shared design in §14 and a summary of what stayed and what was reversed in §15. Everything builds on ICI2-37 (`legacy-student-import-api.md`) and ICI2-38 (`legacy-grade-matrix-import-api.md`) and must not change their behavior unless a mapping opts in.
+**Status: design (phase 1, amended by phase 1b); phase 2, the shared foundation, is built and described in §16.** Types A and B, the xlsx reader and the upload endpoints are not built. Phase 1 scoped a generic `.xlsx` reader for the ICI2-37/38 imports; **phase 1b re-targets the ticket to its real goal, two new import types: (A) section allocations, §12, and (B) document tracking logs, §13**, with shared design in §14 and a summary of what stayed and what was reversed in §15. Everything builds on ICI2-37 (`legacy-student-import-api.md`) and ICI2-38 (`legacy-grade-matrix-import-api.md`) and must not change their behavior unless a mapping opts in.
 
 As in ICI2-37/38, **no real legacy file has been received**. Every value, alias, format or limit below is an engineering default or an open question, never school policy. Anything the registrar must decide is a stored-mapping setting that defaults to "off" or "refuse".
 
@@ -55,7 +55,7 @@ Each phase is mergeable on its own, ends with all existing tests green, and adds
 
 | Phase | Delivers | Migration | Tests added |
 | --- | --- | --- | --- |
-| **2. Shared foundation** | `GridReader` interface (CSV reader implements it, output identical) and a `Grid` record with per-cell metadata; `CellCleaner`, `CleaningProfile`, trivial/non-trivial split (§5); new mapping settings validated on save in both existing mapping services; **behavior-identical extractions**: the campus-scoped student resolver from `GradeMatrixValidationService`, and generic batch reads (list, detail, rows, errors) parameterized by source type, so A and B do not become third and fourth copies of 38's services; `cleaning` and `cleaningSummary` exposed on the existing read routes. No spreadsheet code. | **V22** (§14) | **Golden regression**: every existing synthetic fixture with default settings yields byte-identical `normalized_values` and exceptions; per-rule cleaning tests (NBSP, zero-width, placeholders, dates, name case); mapping-save validation; audit-privacy test; the extractions covered by the existing 84 tests |
+| **2. Shared foundation (built, §16)** | `GridReader` interface (CSV reader implements it, output identical) and a `Grid` record with per-cell metadata; `CellCleaner`, `CleaningProfile`, trivial/non-trivial split (§5); new mapping settings validated on save in both existing mapping services; **behavior-identical extractions**: the campus-scoped student resolver from `GradeMatrixValidationService`, and generic batch reads (list, detail, rows, errors) parameterized by source type, so A and B do not become third and fourth copies of 38's services; `cleaning` and `cleaningSummary` exposed on the existing read routes. No spreadsheet code. | **V22** (§14) | **Golden regression**: every existing synthetic fixture with default settings yields byte-identical `normalized_values` and exceptions; per-rule cleaning tests (NBSP, zero-width, placeholders, dates, name case); mapping-save validation; audit-privacy test; the extractions covered by the existing 84 tests |
 | **3. Type A, section allocation** | Source type `section_allocation`: mapping service, staging, batch reads/review/commit/discard, controller (everything except the upload route). **Small, behavior-preserving refactor in the enrollment package**: split `EnrollmentService.assign` into a read-only `assignmentBlockers(enrollmentId, sectionId)` and the existing write, so staging reports the service's own refusals instead of re-implementing them. Staging takes a `Grid`; tests build grids in code (and from CSV fixtures through the CSV reader as a test-only stand-in). | **V23** | Staging matrix for every row outcome in §12.4; capacity simulation incl. swaps; commit all-or-nothing, rollback on a forced service refusal, stale-version demotion, idempotency, concurrency with a manual assignment; permission/campus matrix; privacy; **existing enrollment tests unchanged and green** |
 | **4. Type B, document tracking log** | Source type `document_log`: same set of pieces for B, committing through `RequirementService.update`; commit reports applications whose checklist became complete. | **V24** | Row outcomes in §13.4; regression/conflict review; state and document value maps; notes provenance; stale-version demotion; completeness effect; audit attribution (`/api/applications/{id}/requirements/audit` shows the committing user); existing requirement tests green |
 | **5. JDK-only `.xlsx` reader** | `XlsxGridReader` and its pre-scan (§6, §7). No endpoint yet. | none | Adversarial fixtures generated in test code (no binary files, no test-scope POI): the full list from §6, plus 1900/1904 dates, serial 60, shared and inline strings, rich text, formula with and without cached value, error cells, sparse cell at column XFD, lying `<dimension>` |
@@ -68,10 +68,10 @@ Why this order: the cleaning engine and both new types can be built and tested a
 
 Next free Flyway version is **V22** (V21 is the last); types A and B add V23 and V24 (§14.2). Published migrations are not edited.
 
-- `import_batches.source_format varchar(10) NOT NULL DEFAULT 'csv' CHECK (source_format IN ('csv','xlsx'))`, plus `sheet_name varchar(255)` (nullable) and `formula_cell_count integer` (nullable) for review display.
+- `import_batches.source_format varchar(10) NOT NULL DEFAULT 'csv' CHECK (source_format IN ('csv','xlsx'))`. **As built, V22 stops here.** `sheet_name` and `formula_cell_count` (review display for spreadsheet files) move to the migration of the phase that fills them (the xlsx reader or the upload endpoints); nothing writes them before that.
 - `import_batches.cleaning_summary jsonb`: rule counts for the whole batch, **including trivial rules** (§14.3), which are not written per cell.
-- `import_rows.cleaning jsonb CHECK (cleaning IS NULL OR jsonb_typeof(cleaning)='array')`: one entry per **non-trivial** applied change (shape below). `import_rows.applied jsonb`: what a commit wrote (types A and B, §12.5 and §13.5).
-- `CREATE OR REPLACE FUNCTION import_row_audit()` to also omit `cleaning` and `applied` (personal values, exactly like `raw_values`). Existing trigger keeps pointing at the function.
+- `import_rows.cleaning jsonb CHECK (cleaning IS NULL OR jsonb_typeof(cleaning)='array')`: one entry per **non-trivial** applied change (shape below). `import_rows.applied jsonb` (what a commit wrote, §12.5 and §13.5) is **not in V22**: no phase 2 code writes it, so it arrives with type A in V23 together with the audit function change that omits it.
+- `CREATE OR REPLACE FUNCTION import_row_audit()` to also omit `cleaning` (personal values, exactly like `raw_values`); V23 replaces it once more to omit `applied`. The existing trigger keeps pointing at the function.
 - **No new `source_type` for xlsx versions of ICI2-37/38 (types A and B do get their own, §14.1).** Keeping `legacy_student_csv` / `legacy_grade_matrix_csv` (the names are now historical) avoids touching ~15 queries and constraints that filter on them: the unique checksum index, `import_rows` FK `(batch_id, source_type)`, V21's `legacy_grade_records.import_source_type` check and provenance FK, mapping lookups, and the cross-campus duplicate query `stagedSql` (which filters `source_type='legacy_student_csv'`; a new type would silently drop xlsx-staged rows from cross-campus duplicate detection). One mapping then serves a CSV and an xlsx export of the same legacy table; format-specific settings are ignored for the other format.
 - Why a column and not `normalized_values._cleaning`: `normalized_values` is stored only for non-invalid rows, so an invalid row would lose the explanation of what was changed; a dedicated column also keeps the commit services' view of `normalized_values` unchanged.
 
@@ -105,7 +105,7 @@ Headers are not rewritten: header matching keeps its existing NFKC/underscore no
 | `placeholder_to_blank` | a value equal (after `ImportText.value` normalization) to a configured placeholder becomes blank | per field, or all fields | **off, empty list** | logged, plus warning `VALUE_CLEANED` |
 | `name_case` | existing behavior: all-upper or all-lower names title-cased; mixed case untouched | `lastName`, `firstName`, `middleName` | **off** (`normalizeNameCase`, kept as is) | logged |
 | `name_particles` | with `name_case` on, listed particles (e.g. `de`, `dela`, `van`) stay lower-case | same | empty list = none | logged |
-| `date_formats_extended` | `dateFormats` additionally accept `M`/`d` (single digit) and `MMM`/`MMMM` (English month names), under the existing ambiguity rules | birth date | formats as configured; new tokens only if listed | logged (`date_parsed:<format>`) |
+| `date_formats_extended` | `dateFormats` additionally accept `M`/`d` (single digit) and `MMM`/`MMMM` (English month names), under the existing ambiguity rules | birth date | **off**: needs `cleaning.extendedDateFormats: true` (§16.4), otherwise such formats are refused on save as before | logged (`date_parsed:<format>`), only when an extended pattern matched |
 | `xlsx_native_date` | a date-typed numeric cell becomes ISO `yyyy-MM-dd`; bypasses `dateFormats` because there is no day/month ambiguity | date fields | `accept` for xlsx (see Q17) | logged |
 | `xlsx_number_to_text` | an integral numeric cell in a text/identifier field becomes plain digits (no `1.2E+11`) | text and ID fields | on for xlsx | logged |
 | `pad_numeric_id` | left-pad a **numeric-typed** identifier to a configured width (Excel drops leading zeros) | per field | **off** (needs registrar answer) | logged, plus warning |
@@ -126,6 +126,7 @@ All keys optional; **absent means today's behavior**, so every stored mapping an
   "sheet": "Students",
   "nativeDates": "accept",
   "cleaning": {
+    "extendedDateFormats": false,
     "unicodeSpaces": true,
     "stripInvisible": true,
     "blankValues": ["n/a", "-"],
@@ -279,7 +280,7 @@ Resolved by the product owner (no longer open): `.xlsx` only; one sheet per file
 
 ## 11. Implementation map (proposed)
 
-Phase 2 (`ph.edu.ici.imports`): `GridReader` and `Grid` (CSV reader implements it), `GridReaders` (format selection), `CellCleaner`, `CleaningProfile`, `CleaningLog`; `StudentResolver` (extracted from `GradeMatrixValidationService`); generic batch reads parameterized by source type (replacing the copy-pasted list/detail/rows/errors in `ImportBatchService` and `GradeMatrixBatchService`); shared mapping-settings validation used by the student and grade mapping services.
+Phase 2 (`ph.edu.ici.imports`, built; file list in §16.1): `GridReader`, `CsvGridReader`, `CellMeta`, `CleaningProfile`, `CleaningLog`, `CleaningSummary`, `CellCleaner`, `StudentResolver`, `BatchReads`; `RowNormalizer`, the two staging services, the two batch services and the two mapping services changed.
 
 Phase 3: `SectionAllocationMapping*`, `SectionAllocationValidationService` (staging), `SectionAllocationCommitService`, `SectionAllocationImportController`; in `ph.edu.ici.enrollment`: `EnrollmentService.assignmentBlockers` extracted from `assign`.
 
@@ -471,8 +472,8 @@ The names are deliberately **format-neutral** (no `_csv`/`_xlsx`): the format is
 
 | Version | Phase | Content |
 | --- | --- | --- |
-| **V22** | 2 | `import_batches`: `source_format varchar(10) NOT NULL DEFAULT 'csv' CHECK IN ('csv','xlsx')`, `sheet_name`, `formula_cell_count`, **`cleaning_summary jsonb`** (rule counts including trivial rules, which are not in the row log). `import_rows`: **`cleaning jsonb`** (non-trivial changes) and **`applied jsonb`** (what a commit wrote). `CREATE OR REPLACE FUNCTION import_row_audit()` to also omit `cleaning` and `applied` besides `raw_values` and `normalized_values` |
-| **V23** | 3 | Source type `section_allocation` in both checks; review decision `apply` and its scope check; permission `imports.enrollment.manage` for Admin and Registrar; one seeded, unvalidated default mapping |
+| **V22** | 2 (built) | `import_batches`: `source_format` (`csv`/`xlsx`, default `csv`) and **`cleaning_summary jsonb`** (rule counts including trivial rules, which are not in the row log). `import_rows`: **`cleaning jsonb`** (non-trivial changes). `import_row_audit()` replaced to also omit `cleaning`. Exact SQL in §16.2. `sheet_name`, `formula_cell_count` and `applied` are **not** in V22 (phase 1b planned them here); they ship with the phase that writes them |
+| **V23** | 3 | `import_rows.applied jsonb` and the audit function omitting it; source type `section_allocation` in both checks; review decision `apply` and its scope check; permission `imports.enrollment.manage` for Admin and Registrar; one seeded, unvalidated default mapping |
 | **V24** | 4 | Source type `document_log` in both checks; one seeded, unvalidated default mapping |
 
 Published migrations are not edited. If another branch claims a number first, the next free one is used and this table updated; folding V23/V24 into one migration is acceptable if both phases ship together.
@@ -531,3 +532,92 @@ One new permission covers both types: they share an audience (only Admin and Reg
 | `.csv` and `.xlsx` accepted on upload | **`.xlsx` only** for A and B (415 otherwise); CSV stays only in the ICI2-37/38 routes and as a test stand-in |
 | Reuse ICI2-37/38 controllers | Two **new controllers** for A and B; the legacy ones untouched |
 | Phase 1 open questions Q9 to Q16 | Phase 1 Q10 (formulas), Q11 (hidden), Q12 (xls/multisheet), Q13 (cleaning log), Q16 (dependency) resolved by the decisions above; the rest folded into §10, with new numbering |
+
+## 16. Phase 2 as built (shared foundation)
+
+Backend and docs only; no frontend, no new library, nothing committed. Types A and B, the xlsx reader and the upload endpoints are **not** started.
+
+### 16.1 Files
+
+| Area | Files (`ICILocal2.0/backend/src/main/java/ph/edu/ici/imports/` unless noted) |
+| --- | --- |
+| Grid | new `GridReader` (interface), `CsvGridReader` (wraps `CsvParser`), `CellMeta`; `CsvParser.Record` gained an optional third component `meta` with a two-argument constructor, so `CsvParser`, `Record` and `Parsed` stay source-compatible |
+| Cleaning | new `CleaningProfile` (settings parse and save validation), `CleaningLog`, `CleaningSummary`, `CellCleaner`; changed `RowNormalizer` |
+| Extractions | new `StudentResolver` (out of `GradeMatrixValidationService`), `BatchReads` (out of `ImportBatchService` and `GradeMatrixBatchService`) |
+| Wiring | changed `ImportValidationService`, `GradeMatrixValidationService` (both read through `GridReader`, clean through `CellCleaner`, persist `cleaning`, `cleaning_summary`, `source_format`), `ImportBatchService`, `GradeMatrixBatchService` (delegate reads to `BatchReads`; its constructor gained an `ObjectMapper`), `ImportMapping` and `GradeMatrixMapping` (new `cleaning` component), `ImportMappingService`, `GradeMatrixMappingService` (new settings keys) |
+| Migration | `src/main/resources/db/migration/V22__spreadsheet_import_foundation.sql` |
+| Tests | new `GoldenRegressionTest` (+ `src/test/resources/import/golden/*.json`), `CellCleanerTest`, `CleaningFoundationTest`, `CleaningApiTest`; changed `FoundationAuthenticationTest` and `MigrationReconciliationTest` (pinned migration counts and latest version, see §16.6 item 9) |
+
+### 16.2 V22 (exact SQL)
+
+```sql
+-- ICI2-39 phase 2: shared foundation for spreadsheet import and deterministic cleaning.
+-- Reuses the ICI2-37/38 batch and row tables; adds only what cleaning and a second source format need.
+-- Cleaning of trivial (lossless whitespace/Unicode) changes is only COUNTED per batch; every other change is LOGGED per row
+-- with the raw and cleaned value and the rule applied, so review can show it. The log holds personal values, so it is kept
+-- out of audit_logs exactly like raw_values and normalized_values.
+
+-- csv for every batch staged before and after this migration until a spreadsheet reader exists.
+ALTER TABLE import_batches ADD COLUMN source_format varchar(10) NOT NULL DEFAULT 'csv'
+ CONSTRAINT import_batches_source_format_check CHECK(source_format IN ('csv','xlsx'));
+-- Rule id to number of cells it changed, for the whole batch (trivial and non-trivial rules). Counts only, no values.
+ALTER TABLE import_batches ADD COLUMN cleaning_summary jsonb
+ CONSTRAINT import_batches_cleaning_summary_check CHECK(cleaning_summary IS NULL OR jsonb_typeof(cleaning_summary)='object');
+-- Non-trivial cleaning changes of one row: [{field, column, rule, before, after}], capped per row by the application.
+ALTER TABLE import_rows ADD COLUMN cleaning jsonb
+ CONSTRAINT import_rows_cleaning_check CHECK(cleaning IS NULL OR jsonb_typeof(cleaning)='array');
+
+-- Same function as V19 plus the new column; the existing record_audit trigger keeps pointing at it.
+CREATE OR REPLACE FUNCTION import_row_audit() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE actor bigint := nullif(current_setting('app.actor_id',true),'')::bigint; before_row jsonb; after_row jsonb;
+BEGIN
+ IF TG_OP<>'INSERT' THEN before_row:=to_jsonb(OLD)-'raw_values'-'normalized_values'-'cleaning'; END IF;
+ IF TG_OP<>'DELETE' THEN after_row:=to_jsonb(NEW)-'raw_values'-'normalized_values'-'cleaning'; END IF;
+ INSERT INTO audit_logs(table_name,record_id,operation,old_data,new_data,actor_id)
+ VALUES(TG_TABLE_NAME,jsonb_build_object('id',CASE WHEN TG_OP='DELETE' THEN OLD.id ELSE NEW.id END)::text,TG_OP,before_row,after_row,actor);
+ RETURN NULL;
+END $$;
+```
+
+No other constraint changes belong to the foundation: the source-type, review-decision and permission changes of the doc belong to V23 and V24. Remote branches were checked first (`git fetch --all`, every local and remote ref): none contains a migration above V21 (highest is V21 on `main`, `ICI2-38` and this branch), so V22 is free; V23 and V24 were not allocated.
+
+### 16.3 Behavior
+
+- **Both staging services read through `GridReader`** (`CsvGridReader`). With default settings their output is unchanged, proved by the golden test (§16.5).
+- **`CellCleaner`** replaces `ImportText.clean` at every staged cell. Pipeline per cell: spreadsheet-type handling (only when a `CellMeta` is present), then hygiene (`unicode_spaces`, `strip_invisible` if enabled; always NFC, trim, collapse), then placeholder, then field rules (`lrn_strip_separators`, `pad_numeric_id`). Names go through `nameCase` (`name_case`, then `name_particles`). Birth dates through the date step (`date_parsed:<format>` when an extended pattern matched; `xlsx_native_date`).
+- **Trivial** rules (`unicode_nfc`, `trim`, `collapse_spaces`, `unicode_spaces`, `strip_invisible`) are counted per rule in `import_batches.cleaning_summary` and never logged per cell; a blank cell counts nothing. **Non-trivial** rules are counted too and logged in `import_rows.cleaning` as `{field, column, rule, before, after}` (at most 50 entries per row, then one `MORE_CHANGES` entry; `before`/`after` cut to 200 characters with `beforeTruncated`/`afterTruncated`).
+- **Never-guess codes** (unit-tested with synthetic `CellMeta`, since the CSV reader never produces metadata): errors `ERROR_CELL`, `FORMULA_NO_CACHED_VALUE`, `PERCENT_FORMAT`, `DATE_IN_GRADE_CELL`, `NUMERIC_NOT_INTEGRAL`, `NATIVE_DATE_REJECTED`; warnings `FORMULA_CACHED`, `VALUE_CLEANED` (a placeholder became blank), `VALUE_PADDED`. A refused cell never also reports `REQUIRED_MISSING`. Messages never echo values.
+- **Redaction:** a row whose campus column names a campus the uploader cannot manage keeps no `raw_values` (ICI2-37) and, new, no `cleaning` either.
+- **Read fields (additive JSON):** batch views gain `sourceFormat` and `cleaningSummary: [{rule, count, trivial}]`; row views gain `cleaning` (array or null). Both ICI2-37 and ICI2-38 routes return them.
+- **Mapping save:** both mapping services accept `nativeDates` (`accept`/`reject`), `sheet` and `cleaning` (known keys, types, lists of at most 50 values, placeholders never equal to a value-map key, `padNumeric` only for identifier fields) and still reject every other key. Mappings stored before this phase stay valid and behave as before.
+
+### 16.4 Defaults chosen for the three open questions you asked me to default
+
+| Question | Default used |
+| --- | --- |
+| Q9, several events for one document | Refused (`DUPLICATE_IN_BATCH`); only relevant to type B, not built yet |
+| Q17, native Excel date cells | Accepted without a configured text format (`nativeDates: accept`), logged as `xlsx_native_date`; `reject` is available per mapping |
+| Q19, inspect endpoint | Not built; remains phase 7, optional |
+
+### 16.5 Tests
+
+Baseline before any change (`./mvnw -o -Dtest='ph.edu.ici.imports.*Test' test`): **84 tests, 0 failures** (GradeMatrixApiTest 16, GradeMatrixStagingTest 21, LegacyImportApiTest 14, LegacyImportParsingTest 15, LegacyImportStagingTest 18). Same command after phase 2: **124 tests, 0 failures, exit 0**; the 84 existing tests are unchanged and green. The **whole backend suite** (`./mvnw -o test`, 28 test classes) is 274 tests, 0 failures, after the pinned migration numbers below were updated.
+
+| New test class | Tests | What it proves |
+| --- | --- | --- |
+| `GoldenRegressionTest` | 4 | Every ICI2-37/38 synthetic fixture staged with default settings (11 student cases incl. the file-level errors and the windows-1252 and name-case mappings; 10 grade cases incl. the file-level errors and the legacy-label mapping) gives the same rows, statuses, raw and normalized values, evidence, exception codes, fields and messages as snapshots recorded from the code **before** the refactor. Re-record only with `-Dgolden.record=true` |
+| `CellCleanerTest` | 24 | Default profile equals `ImportText.clean` on a corpus; each trivial rule (counted, not logged); each non-trivial rule (placeholder, name case and particles, LRN separators, numeric padding, number to text, native date) with raw/cleaned/rule in the log; each never-guess error (`ERROR_CELL`, `FORMULA_NO_CACHED_VALUE`, `PERCENT_FORMAT`, `DATE_IN_GRADE_CELL`, `NUMERIC_NOT_INTEGRAL`, `NATIVE_DATE_REJECTED`) and warning (`FORMULA_CACHED`, `VALUE_CLEANED`, `VALUE_PADDED`); log and text caps; settings parse and save validation; extended date formats and their ambiguity rules |
+| `CleaningFoundationTest` | 9 | V22 columns, defaults and checks; both mapping services accept the new keys and reject unknown ones; student and grade staging with opt-in rules write `cleaning`, `cleaning_summary` and `source_format`; the default mapping logs nothing non-trivial; other-campus rows keep no cleaning log; **audit omission** (`cleaning` and raw/normalized values never in `audit_logs`, also on UPDATE; batch audit holds counts only) |
+| `CleaningApiTest` | 3 | Over HTTP: mapping save of the new settings (201/400/403), `sourceFormat`, `cleaningSummary` and per-row `cleaning` on both the student and the grade routes, list view, other-campus 404, teacher 403, anonymous 401 |
+
+### 16.6 Deviations from the design in §§3, 4, 5 and 14, and why
+
+1. **`Grid` is `CsvParser.Parsed`.** A new type would have forced a conversion in both services; the optional per-cell `meta` on `Record` carries what the reader will add later.
+2. **V22 is smaller than planned.** `applied`, `sheet_name` and `formula_cell_count` are not in V22 because no phase 2 code writes them; `applied` moves to V23 with type A, the other two to the phase that fills them.
+3. **Extended date formats need an explicit opt-in, `cleaning.extendedDateFormats: true`.** The doc implied "new tokens only if listed", but an existing test asserts that `dd MMM yyyy` is refused on save; the flag keeps that true by default and makes the opt-in visible in the mapping.
+4. **`date_parsed` is logged only for extended patterns**, not for the classic `MM/dd/yyyy` conversion, so existing mappings do not start logging every birth date.
+5. **Spreadsheet-only rules exist but cannot fire from CSV.** `xlsx_native_date`, `xlsx_number_to_text`, `formula_cached`, the never-guess errors above and `pad_numeric_id` are implemented and unit-tested with synthetic `CellMeta`; they become reachable when the reader supplies metadata. `pad_numeric_id` only acts on a numeric-typed cell (a CSV cell is text, so padding it would be a guess), and `xlsx_number_to_text` only on `studentNumber` and `lrn`.
+6. **`cleaning` is not stored for other-campus rows** (redaction), which the design did not spell out.
+7. **The golden snapshots replace database ids with codes** (student number, subject, period, term, campus, program) so they are stable; they were recorded from the unmodified code before any refactor and the test fails on any difference. One golden mapping writes the mark target as `inc`: the service upper-cases it, and a lower-case stored value keeps that test from tripping `GradeMatrixApiTest`'s search of the shared audit log for the literal `"INC"`.
+8. **Settings keys `sheet` and `nativeDates` are accepted now** (they have no effect until the reader exists), so a mapping can be authored ahead of the xlsx phases.
+9. **Two pre-existing tests pin the migration list and had to change.** `FoundationAuthenticationTest` and `MigrationReconciliationTest` assert how many migrations run on upgrade and that the latest version is `21`; any new migration moves those numbers (V21 did the same). Only the numbers changed (`migrationsExecuted` +1 in eight places, latest version `"22"`); no test logic and no published migration was touched. Expect the same edit for V23 and V24.

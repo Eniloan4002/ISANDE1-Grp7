@@ -13,3 +13,7 @@ Placeholders are replaced per test so repeated runs never collide in the shared 
 marks. No real legacy grade file has been supplied; the layout (one row per student, `Subject - Period` columns) is the *assumed* format in
 docs/legacy-grade-matrix-import-api.md, so real-file validation is still pending. The tests create the matching students, subjects, academic
 years, terms and grading periods themselves, using the same `%N%`/`%L%` placeholders.
+
+## Golden snapshots (ICI2-39 phase 2)
+
+`golden/*.json` are the recorded outcomes of staging every fixture above with default settings (statuses, raw and normalized values, duplicate evidence and every exception), with database ids replaced by codes. `GoldenRegressionTest` compares against them and fails on any difference, which is how ICI2-39 proves it did not change ICI2-37/38 behavior. They were recorded from the code before the phase 2 refactor. The test uses fixed fixture numbers, so it expects a fresh test database (the embedded one). Re-record only for an intended, reviewed behavior change: `./mvnw -Dgolden.record=true -Dtest=GoldenRegressionTest test`.
