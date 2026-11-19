@@ -201,6 +201,13 @@ class MigrationReconciliationTest {
         assertThat(db.queryForObject("SELECT count(*) FROM audit_logs WHERE table_name='legacy_grade_records'",Integer.class)).isPositive();
         assertThat(db.queryForObject("SELECT count(*) FROM audit_logs WHERE table_name='legacy_grade_records' AND (new_data ? 'value' OR new_data ? 'mark' OR old_data ? 'value' OR old_data ? 'mark' OR new_data::text LIKE '%88.5%')",Integer.class)).as("no grade values or marks in the audit trail").isZero();
         assertThat(db.queryForObject("SELECT count(*) FROM legacy_grade_records WHERE created_by IS NULL AND created_at IS NULL",Integer.class)).isZero();
+        assertThat(db.queryForObject("SELECT settings->>'ignoredColumns' FROM import_column_mappings WHERE source_type='legacy_grade_matrix_csv'",String.class)).as("explicit ignoredColumns list in the seeded settings").isEqualTo("[]");
+        assertThat(db.queryForObject("SELECT mapping->'grid' ? 'ignoreColumns' FROM import_column_mappings WHERE source_type='legacy_grade_matrix_csv'",Boolean.class)).isFalse();
+        // Only a committed grade batch can be voided, and a void needs actor and reason.
+        assertThatThrownBy(()->db.update("UPDATE import_batches SET voided_at=now(),voided_by=?,void_reason='x' WHERE id=?",actor,oldBatch)).as("student import batches are never voided").isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+        assertThatThrownBy(()->db.update("UPDATE import_batches SET voided_at=now() WHERE id=?",batch)).isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+        // A live grade batch blocks an identical checksum; a failed or voided one does not.
+        assertThatThrownBy(()->db.update("INSERT INTO import_batches(source_name,checksum,source_count,campus_id,source_type) SELECT 'again.csv',checksum,0,campus_id,source_type FROM import_batches WHERE id=?",batch)).hasMessageContaining("import_batch_checksum_once");
         assertThat(latest.migrate().migrationsExecuted).isZero();
     }
     private Flyway legacy(DriverManagerDataSource ds)throws Exception{

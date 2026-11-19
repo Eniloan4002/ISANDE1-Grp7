@@ -22,6 +22,17 @@ ALTER TABLE import_batches ADD CONSTRAINT import_batches_source_type_check
 ALTER TABLE import_batches ADD COLUMN upload_context jsonb CHECK(upload_context IS NULL OR jsonb_typeof(upload_context)='object');
 ALTER TABLE import_batches ADD CONSTRAINT import_batches_id_source_type UNIQUE(id,source_type);
 
+-- Voiding every record of a committed grade batch frees its checksum so the same file can be uploaded again;
+-- the batch, its rows and its voided records stay as history.
+ALTER TABLE import_batches ADD COLUMN voided_at timestamptz;
+ALTER TABLE import_batches ADD COLUMN voided_by bigint REFERENCES users(id);
+ALTER TABLE import_batches ADD COLUMN void_reason text;
+ALTER TABLE import_batches ADD CONSTRAINT import_batch_void_complete CHECK(num_nonnulls(voided_at,voided_by,void_reason) IN (0,3));
+ALTER TABLE import_batches ADD CONSTRAINT import_batch_void_reason_bounded CHECK(void_reason IS NULL OR length(btrim(void_reason)) BETWEEN 1 AND 2000);
+ALTER TABLE import_batches ADD CONSTRAINT import_batch_void_scope CHECK(voided_at IS NULL OR (source_type='legacy_grade_matrix_csv' AND status='imported'));
+DROP INDEX import_batch_checksum_once;
+CREATE UNIQUE INDEX import_batch_checksum_once ON import_batches(source_type,checksum) WHERE status<>'failed' AND voided_at IS NULL;
+
 -- Grade headers can be longer than the 40 characters student-field names needed.
 ALTER TABLE import_exceptions ALTER COLUMN field_name TYPE varchar(200);
 
@@ -106,6 +117,21 @@ BEGIN
 END $$;
 CREATE TRIGGER record_audit AFTER INSERT OR UPDATE OR DELETE ON legacy_grade_records FOR EACH ROW EXECUTE FUNCTION legacy_grade_record_audit();
 
+-- A batch can only be marked voided once none of its records is live, and a void is final.
+CREATE FUNCTION guard_batch_void() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF OLD.voided_at IS NOT NULL THEN
+  IF (NEW.voided_at,NEW.voided_by,NEW.void_reason,NEW.status,NEW.checksum,NEW.source_type) IS DISTINCT FROM (OLD.voided_at,OLD.voided_by,OLD.void_reason,OLD.status,OLD.checksum,OLD.source_type) THEN
+   RAISE EXCEPTION 'A voided import batch cannot be changed' USING ERRCODE='23514';
+  END IF;
+ ELSIF NEW.voided_at IS NOT NULL AND EXISTS(SELECT 1 FROM legacy_grade_records r JOIN import_rows ir ON ir.id=r.import_row_id
+                                           WHERE ir.batch_id=NEW.id AND r.voided_at IS NULL) THEN
+  RAISE EXCEPTION 'Every record of the batch must be voided before the batch is voided' USING ERRCODE='23514';
+ END IF;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER import_batch_void_guard BEFORE UPDATE ON import_batches FOR EACH ROW EXECUTE FUNCTION guard_batch_void();
+
 -- Assumed default layout for the grade matrix. Aliases are guesses; every value map is empty so only canonical codes translate.
 INSERT INTO import_column_mappings(source_type,name,is_default,real_file_validated,mapping,settings) VALUES (
  'legacy_grade_matrix_csv','Assumed grade matrix default (unvalidated)',true,false,
@@ -119,6 +145,6 @@ INSERT INTO import_column_mappings(source_type,name,is_default,real_file_validat
    "gradeLevel":{"required":false,"aliases":["grade_level","grade","year_level"]},
    "section":{"required":false,"aliases":["section","section_name"]}
   },
-  "grid":{"layout":"subject_period_flat","separator":" - ","ignoreColumns":[],"reportedFinalLabels":[]},
+  "grid":{"layout":"subject_period_flat","separator":" - ","reportedFinalLabels":[]},
   "valueMaps":{"subject":{},"period":{},"term":{},"schoolYear":{},"mark":{}}}',
- '{"encoding":"UTF-8","delimiter":",","headerRow":1,"decimalSeparator":"."}');
+ '{"encoding":"UTF-8","delimiter":",","headerRow":1,"decimalSeparator":".","ignoredColumns":[]}');
