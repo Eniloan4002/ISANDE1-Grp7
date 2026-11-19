@@ -58,8 +58,8 @@ class LegacyImportStagingTest {
     byte[] fixture(String name,String n,Charset cs){
         try{
             String text=new String(new ClassPathResource("import/"+name).getContentAsByteArray(),cs);
-            StringBuilder letters=new StringBuilder();for(char c:n.toCharArray())letters.append((char)('a'+(c-'0')));
-            return text.replace("%N%",n).replace("%L%",letters).replace("%U%",letters.toString().toUpperCase()).getBytes(cs);
+            String letters=ImportFixtures.letters(n);
+            return text.replace("%N%",n).replace("%L%",letters).replace("%U%",letters.toUpperCase()).getBytes(cs);
         }catch(IOException e){throw new IllegalStateException(e);}
     }
     ImportValidationService.Staged stage(byte[] bytes){return service.stage(iligan,"synthetic.csv",bytes,null);}
@@ -95,7 +95,7 @@ class LegacyImportStagingTest {
         String n=n();var r=stage(fixture("synthetic-mixed.csv",n));long b=r.batchId();
         assertThat(r.valid()).isEqualTo(3);assertThat(r.invalid()).isEqualTo(14);assertThat(r.flagged()).isZero();
         var v=normalized(b,number(n,"11"));
-        assertThat(v.get("lastName").asText()).as("name casing is off by default").isEqualTo("GARCIA"+n.chars().mapToObj(c->""+(char)('A'+(c-'0'))).reduce("",String::concat));
+        assertThat(v.get("lastName").asText()).as("name casing is off by default").isEqualTo("GARCIA"+ImportFixtures.letters(n).toUpperCase());
         assertThat(v.get("firstName").asText()).isEqualTo("JOSÉ MARIA");assertThat(v.get("birthDate").asText()).isEqualTo("2009-03-14");assertThat(v.get("previousSchool").asText()).isEqualTo("Escuela Synthetic");
         assertThat(v.get("voucherCode").asText()).isEqualTo("QVR");assertThat(v.get("programCode").asText()).isEqualTo("STEM");assertThat(v.get("track").asText()).isEqualTo("ACADEMIC");assertThat(v.get("sex").asText()).isEqualTo("male");assertThat(v.get("campusId").asLong()).isEqualTo(iligan);
         assertThat(normalized(b,number(n,"12")).get("lastName").asText()).startsWith("peña");assertThat(normalized(b,number(n,"12")).get("firstName").asText()).isEqualTo("ana lyn");assertThat(normalized(b,number(n,"12")).get("middleName").asText()).isEqualTo("dela Cruz");
@@ -131,7 +131,7 @@ class LegacyImportStagingTest {
         return db.queryForObject("INSERT INTO students(student_number,lrn,first_name,last_name,birth_date,campus_id) VALUES (?,?,?,?,?::date,?) RETURNING id",Long.class,number,lrn,first,last,birth,campus);
     }
     @Test void flagsRowsMatchingExistingStudentsApplicationsAndNeverTouchesThem()throws Exception{
-        String n=n();String letters=n.chars().mapToObj(c->""+(char)('a'+(c-'0'))).reduce("",String::concat);
+        String n=n();String letters=ImportFixtures.letters(n);
         long lrnStudent=student("OLD-"+n+"-A","99"+n+"01","Different","Person","2001-01-01",iligan);
         long nameStudent=student("OLD-"+n+"-B",null,"Ben","Betatwo"+letters,"2008-11-02",iligan);
         long conflict=student(number(n,"03"),null,"Someone","Else","1999-09-09",iligan);
@@ -153,7 +153,7 @@ class LegacyImportStagingTest {
         assertThat(application).isPositive();
     }
     @Test void sameLearnerInAnotherCampusIsFlaggedWithoutRevealingThatCampusToAnUnauthorizedReviewer()throws Exception{
-        String n=n();long other=student("OLD-"+n,"99"+n+"71","Olivia","Overlap"+n.chars().mapToObj(c->""+(char)('a'+(c-'0'))).reduce("",String::concat),"2009-09-09",bugo);
+        String n=n();long other=student("OLD-"+n,"99"+n+"71","Olivia","Overlap"+ImportFixtures.letters(n),"2009-09-09",bugo);
         var r=stage(fixture("synthetic-overlap-b.csv",n));long b=r.batchId();
         assertThat(status(b,"SYN-B-"+n+"-01")).isEqualTo("duplicate_flagged");var hidden=evidence(b,"SYN-B-"+n+"-01").get(0);
         assertThat(hidden.get("campusVisible").asBoolean()).isFalse();assertThat(hidden.has("id")).isFalse();assertThat(hidden.get("rule").asText()).isEqualTo("LRN_EXACT");

@@ -10,7 +10,14 @@ import org.springframework.core.io.ClassPathResource;
 final class ImportFixtures {
     private ImportFixtures(){}
     static String n(){return String.format("%08d",ThreadLocalRandom.current().nextInt(100_000_000));}
-    static String letters(String n){StringBuilder s=new StringBuilder();for(char c:n.toCharArray())s.append((char)('a'+(c-'0')));return s.toString();}
+    /**
+     * 12 lower-case letters derived from the numeric token. Names that differ only by this suffix must never look alike to the
+     * ICI2-13 matcher (similarity >= 0.8) across the many fixtures sharing one database, so it uses the whole alphabet and enough length.
+     */
+    static String letters(String n){
+        var random=new java.util.Random(Long.parseLong(n)*7919L+13);StringBuilder s=new StringBuilder();
+        for(int i=0;i<12;i++)s.append((char)('a'+random.nextInt(26)));return s.toString();
+    }
     static byte[] fixture(String name,String n){return fixture(name,n,StandardCharsets.UTF_8);}
     static byte[] fixture(String name,String n,Charset cs){
         try{
