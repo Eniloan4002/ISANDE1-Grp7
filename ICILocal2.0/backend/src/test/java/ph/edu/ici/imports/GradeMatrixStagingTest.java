@@ -434,7 +434,7 @@ class GradeMatrixStagingTest {
         var r=stage(s,text("Student No,Grade Level,SYNMATH"+s.n()+" - Q1,SYNMATH"+s.n()+" - Q2\r\nSYN-"+s.n()+"-01,Grade 7,90,91\r\nSYN-"+s.n()+"-02,Grade 7,90,91\r\nSYN-"+s.n()+"-03,Grade 7,90,91\r\n"));long b=r.batchId();
         assertThat(r.valid()).as("warnings never invalidate a row").isEqualTo(3);assertThat(r.invalid()).isZero();
         assertThat(codes(b,2)).containsExactly("OVERLAPS_LIVE_GRADE","OVERLAPS_LIVE_ENROLLMENT");
-        assertThat(db.queryForObject("SELECT detail FROM import_exceptions WHERE batch_id=? AND row_number=2 AND error_code='OVERLAPS_LIVE_GRADE'",String.class,b)).startsWith("1 value(s)");
+        assertThat(db.queryForObject("SELECT detail FROM import_exceptions WHERE batch_id=? AND row_number=2 AND error_code='OVERLAPS_LIVE_GRADE'",String.class,b)).startsWith("1 value(s)").contains("drafts count","live state: finalized").doesNotContain("85");
         assertThat(codes(b,3)).as("an enrollment without the same subject and period is only an enrollment overlap").containsExactly("OVERLAPS_LIVE_ENROLLMENT");
         assertThat(codes(b,4)).isEmpty();
         assertThat(db.queryForList("SELECT severity FROM import_exceptions WHERE batch_id=? AND error_code LIKE 'OVERLAPS%'",String.class,b)).containsOnly("warning");

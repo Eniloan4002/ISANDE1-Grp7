@@ -296,30 +296,31 @@ public class GradeMatrixValidationService {
         }
         Set<Long> ids=new LinkedHashSet<>();for(Row r:rows)if(r.eligible()&&r.student!=null)ids.add(r.student.id());
         if(ids.isEmpty())return;
-        Map<String,String> recorded=new HashMap<>();Set<String> liveGrades=new HashSet<>();Set<String> enrollments=new HashSet<>();
+        Map<String,String> recorded=new HashMap<>();Map<String,Set<String>> liveGrades=new HashMap<>();Set<String> enrollments=new HashSet<>();
         for(var part:chunks(ids)){
             for(var m:db.queryForList("SELECT student_id,term_id,subject_id,record_kind,grading_period_id,value,mark FROM legacy_grade_records WHERE voided_at IS NULL AND student_id IN (:v)",Map.of("v",part)))
                 recorded.put(m.get("student_id")+"|"+m.get("term_id")+"|"+m.get("subject_id")+"|"+("reported_final".equals(m.get("record_kind"))?"final":m.get("grading_period_id")),
                     m.get("value")!=null?"v"+((BigDecimal)m.get("value")).setScale(2).toPlainString():"m"+m.get("mark"));
             for(var m:db.queryForList("""
-                SELECT e.student_id,g.term_id,co.subject_id,g.grading_period_id FROM grades g JOIN enrollments e ON e.id=g.enrollment_id JOIN class_offerings co ON co.id=g.class_id
+                SELECT e.student_id,g.term_id,co.subject_id,g.grading_period_id,g.state FROM grades g JOIN enrollments e ON e.id=g.enrollment_id JOIN class_offerings co ON co.id=g.class_id
                 WHERE e.student_id IN (:v) AND (g.value IS NOT NULL OR g.mark IS NOT NULL)""",Map.of("v",part)))
-                liveGrades.add(m.get("student_id")+"|"+m.get("term_id")+"|"+m.get("subject_id")+"|"+m.get("grading_period_id"));
+                liveGrades.computeIfAbsent(m.get("student_id")+"|"+m.get("term_id")+"|"+m.get("subject_id")+"|"+m.get("grading_period_id"),k->new TreeSet<>()).add((String)m.get("state"));
             for(var m:db.queryForList("SELECT student_id,term_id FROM enrollments WHERE student_id IN (:v)",Map.of("v",part)))enrollments.add(m.get("student_id")+"|"+m.get("term_id"));
         }
         for(Row r:rows){
             if(!r.eligible()||r.student==null)continue;
-            int already=0,overlap=0;
+            int already=0,overlap=0;Set<String> liveStates=new TreeSet<>();
             for(Cell c:r.cells){
                 String previous=recorded.get(r.key(c));
                 if(previous!=null){
                     String now=c.value()!=null?"v"+c.value().toPlainString():"m"+c.mark();
                     if(previous.equals(now))already++;else r.error("CONFLICTS_WITH_RECORDED",c.column().header(),"A different legacy grade is already recorded for this student, subject and period. Void the earlier record first.");
                 }
-                if(!c.column().reportedFinal()&&liveGrades.contains(r.student.id()+"|"+r.termId+"|"+c.column().subjectId()+"|"+c.periodId()))overlap++;
+                var live=c.column().reportedFinal()?null:liveGrades.get(r.student.id()+"|"+r.termId+"|"+c.column().subjectId()+"|"+c.periodId());
+                if(live!=null){overlap++;liveStates.addAll(live);}
             }
             if(already>0)r.warn("ALREADY_RECORDED",null,already+" value(s) are already recorded identically and will be skipped.");
-            if(overlap>0)r.warn("OVERLAPS_LIVE_GRADE",null,overlap+" value(s) also exist as live grades for the same subject and grading period. Official documents must resolve this before issuance.");
+            if(overlap>0)r.warn("OVERLAPS_LIVE_GRADE",null,overlap+" value(s) also exist as live grades (drafts count) for the same subject and grading period; live state: "+String.join(", ",liveStates)+". Official documents must resolve this before issuance.");
             if(enrollments.contains(r.student.id()+"|"+r.termId))r.warn("OVERLAPS_LIVE_ENROLLMENT",null,"The student also has a live enrollment in this term.");
         }
     }
