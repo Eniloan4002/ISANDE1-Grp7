@@ -42,7 +42,7 @@ Spring Security/JWT, BCrypt, durable logout and the protected academic setup rou
 
 Transactional services must implement grade deadline locks, approved correction application, optimistic grade versions, INC resolution, document release prerequisites, withdrawal office approvals and synchronized application/enrollment states. The schema stores their metadata but does not enforce staff-role authorization or certify document release. Application/student reassignment after enrollment must be restricted to a controlled merge workflow.
 
-Also outstanding: institution-specific requirement catalogs, assessment-component storage/calculations, sensitive guidance-note access and retention, reconciliation sign-off reporting. Legacy student CSV imports (ICI2-37) are staged in `import_batches`, `import_rows`, `import_exceptions` and `import_column_mappings` (V19–V20) with per-row provenance, status, errors and review decisions; see legacy-student-import-api.md. The format is an assumed spec until a real export is validated.
+Also outstanding: institution-specific requirement catalogs, assessment-component storage/calculations, sensitive guidance-note access and retention, reconciliation sign-off reporting. Legacy student CSV imports (ICI2-37) are staged in `import_batches`, `import_rows`, `import_exceptions` and `import_column_mappings` (V19–V20) with per-row provenance, status, errors and review decisions; see legacy-student-import-api.md. The format is an assumed spec until a real export is validated. Legacy historical grade matrices (ICI2-38, V21) reuse those tables and commit into the dedicated, immutable `legacy_grade_records` (not `grades`); see legacy-grade-matrix-import-api.md.
 
 ## Migration workflow
 
