@@ -33,7 +33,7 @@ public class ImportMappingService {
     private ResponseStatusException error(HttpStatus status,String message){return new ResponseStatusException(status,message);}
     private void actor(){db.queryForObject("SELECT set_config('app.actor_id',:actor,true)",Map.of("actor",Long.toString(identity().userId())),String.class);}
     private void administrator(){if(!access.hasPermission("imports.mappings.manage"))throw error(HttpStatus.FORBIDDEN,"Only administrators can change import mappings.");}
-    private void reader(){if(!access.hasPermission("imports.read")&&!access.hasPermission("imports.manage"))throw error(HttpStatus.FORBIDDEN,"Your account cannot view import mappings.");}
+    private void reader(){if(!access.hasPermission("imports.read"))throw error(HttpStatus.FORBIDDEN,"Your account cannot view import mappings.");}
     private String encode(JsonNode node){try{return json.writeValueAsString(node);}catch(JsonProcessingException e){throw error(HttpStatus.BAD_REQUEST,"Invalid JSON.");}}
     private JsonNode decode(Object value){try{return json.readTree(value.toString());}catch(Exception e){throw new IllegalStateException("Stored mapping is invalid",e);}}
 
@@ -133,10 +133,10 @@ public class ImportMappingService {
     private void checkValid(MappingInput in){
         if(in==null||in.name()==null||in.name().isBlank()||in.name().trim().length()>120)throw error(HttpStatus.BAD_REQUEST,"Name is required (120 characters at most).");
         var problems=validate(in.mapping(),in.settings());if(!problems.isEmpty())throw error(HttpStatus.BAD_REQUEST,"Mapping is invalid: "+String.join(" ",problems));
-        if(in.isDefault()&&!in.active())throw error(HttpStatus.BAD_REQUEST,"A default mapping must be active.");
     }
     @Transactional public StoredMapping create(MappingInput in){
         administrator();checkValid(in);actor();
+        if(in.isDefault()&&!in.active())throw error(HttpStatus.BAD_REQUEST,"A default mapping must be active.");
         try{
             if(in.isDefault())db.update("UPDATE import_column_mappings SET is_default=false WHERE source_type=:s AND is_default",Map.of("s",SOURCE));
             long id=db.queryForObject("INSERT INTO import_column_mappings(source_type,name,mapping,settings,is_default,active,real_file_validated) VALUES (:s,:name,CAST(:mapping AS jsonb),CAST(:settings AS jsonb),:def,:active,:real) RETURNING id",
@@ -149,7 +149,8 @@ public class ImportMappingService {
         var rows=db.queryForList("SELECT * FROM import_column_mappings WHERE id=:id AND source_type=:s FOR UPDATE",Map.of("id",id,"s",SOURCE));
         if(rows.isEmpty())throw error(HttpStatus.NOT_FOUND,"Mapping not found.");var current=rows.getFirst();
         if(((Number)current.get("version")).intValue()!=version)throw error(HttpStatus.CONFLICT,"Mapping changed. Reload before saving.");
-        if(Boolean.TRUE.equals(current.get("is_default"))&&!in.isDefault())throw error(HttpStatus.CONFLICT,"Choose another default mapping instead of unsetting this one.");
+        if(Boolean.TRUE.equals(current.get("is_default"))&&(!in.isDefault()||!in.active()))throw error(HttpStatus.CONFLICT,"This is the default mapping; make another mapping the default instead of unsetting or deactivating it.");
+        if(in.isDefault()&&!in.active())throw error(HttpStatus.BAD_REQUEST,"A default mapping must be active.");
         if(!in.active()&&Boolean.TRUE.equals(db.queryForObject("SELECT EXISTS(SELECT 1 FROM import_batches WHERE mapping_id=:id AND status='validated')",Map.of("id",id),Boolean.class)))
             throw error(HttpStatus.CONFLICT,"This mapping is used by a batch that has not been committed.");
         try{

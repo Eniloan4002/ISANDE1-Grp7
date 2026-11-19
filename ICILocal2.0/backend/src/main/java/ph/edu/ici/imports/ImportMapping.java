@@ -31,6 +31,6 @@ public record ImportMapping(Map<String,FieldSpec> fields,Map<String,Map<String,S
         List<String> dates=new ArrayList<>();settings.path("dateFormats").forEach(d->dates.add(d.asText()));
         if(!settings.has("dateFormats"))dates.addAll(List.of("yyyy-MM-dd","MM/dd/yyyy"));
         return new ImportMapping(fields,maps,new Settings(settings.path("encoding").asText("UTF-8"),delimiter.isEmpty()?',':delimiter.charAt(0),
-            settings.path("headerRow").asInt(1),List.copyOf(dates),settings.path("normalizeNameCase").asBoolean(true)));
+            settings.path("headerRow").asInt(1),List.copyOf(dates),settings.path("normalizeNameCase").asBoolean(false)));
     }
 }

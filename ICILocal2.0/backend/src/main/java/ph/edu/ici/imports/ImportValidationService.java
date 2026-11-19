@@ -101,18 +101,46 @@ public class ImportValidationService {
 
     private void detectDuplicates(List<Row> rows,long campusId,Set<Long> visible){
         List<Row> eligible=rows.stream().filter(Row::eligible).toList();if(eligible.isEmpty())return;
+        existing(eligible,campusId,visible,null);
+        inFile(eligible);
+    }
+    /** A row that conflicts with records written after staging, found when it is about to be committed. */
+    record Recheck(String status,List<RowProblem> problems,List<Map<String,Object>> evidence) {}
+    record Pending(long rowId,Map<String,Object> values) {}
+    /**
+     * Commit-time recheck of rows about to be inserted. Only students/applications changed after {@code since} can newly match
+     * (earlier matches were flagged and reviewed at staging); student-number ownership is always rechecked.
+     * @return row id to its new outcome, only for rows that now conflict
+     */
+    Map<Long,Recheck> recheck(long campusId,Set<Long> visible,java.time.Instant since,List<Pending> pending){
+        List<Row> rows=new ArrayList<>();Map<Row,Long> ids=new IdentityHashMap<>();
+        for(var p:pending){var row=new Row(0,Map.of());row.values=p.values();rows.add(row);ids.put(row,p.rowId());}
+        existing(rows,campusId,visible,since);
+        Map<Long,Recheck> out=new LinkedHashMap<>();
+        for(Row r:rows){
+            boolean invalid=!r.eligible();
+            if(invalid||!r.evidence.isEmpty()){
+                for(var e:r.evidence)if(r.problems.size()<MAX_DUPLICATE_MESSAGES)r.problems.add(RowProblem.warning("DUPLICATE_CANDIDATE",null,describe(e)));
+                out.put(ids.get(r),new Recheck(invalid?"invalid":"duplicate_flagged",r.problems,r.evidence));
+            }
+        }
+        return out;
+    }
+    /** since==null: staging (all existing records plus other campuses' staged rows). Otherwise commit recheck. */
+    private void existing(List<Row> eligible,long campusId,Set<Long> visible,java.time.Instant since){
         Set<String> lrns=new LinkedHashSet<>();Set<LocalDate> births=new LinkedHashSet<>();Set<String> numbers=new LinkedHashSet<>();
         for(Row r:eligible){if(r.values.get("lrn")!=null)lrns.add((String)r.values.get("lrn"));births.add(LocalDate.parse((String)r.values.get("birthDate")));numbers.add((String)r.values.get("studentNumber"));}
 
         Map<String,Candidate> found=new LinkedHashMap<>();
-        for(var part:chunks(lrns))for(var m:db.queryForList("SELECT id,campus_id,lrn,first_name,last_name,birth_date FROM students WHERE lrn IN (:v)",Map.of("v",part)))found.putIfAbsent("s"+m.get("id"),new Candidate("student",((Number)m.get("id")).longValue(),((Number)m.get("id")).longValue(),null,null,campus(m),identityOf(m)));
-        for(var part:chunks(births))for(var m:db.queryForList("SELECT id,campus_id,lrn,first_name,last_name,birth_date FROM students WHERE birth_date IN (:v)",Map.of("v",part)))found.putIfAbsent("s"+m.get("id"),new Candidate("student",((Number)m.get("id")).longValue(),((Number)m.get("id")).longValue(),null,null,campus(m),identityOf(m)));
-        for(var part:chunks(lrns))for(var m:db.queryForList("SELECT id,campus_id,student_id,lrn,first_name,last_name,birth_date FROM applications WHERE status NOT IN ('rejected','withdrawn') AND lrn IN (:v)",Map.of("v",part)))found.putIfAbsent("a"+m.get("id"),application(m));
-        for(var part:chunks(births))for(var m:db.queryForList("SELECT id,campus_id,student_id,lrn,first_name,last_name,birth_date FROM applications WHERE status NOT IN ('rejected','withdrawn') AND birth_date IN (:v)",Map.of("v",part)))found.putIfAbsent("a"+m.get("id"),application(m));
+        String f=since==null?"":" AND updated_at > :since";
+        for(var part:chunks(lrns))for(var m:db.queryForList("SELECT id,campus_id,lrn,first_name,last_name,birth_date FROM students WHERE lrn IN (:v)"+f,params(part,since)))found.putIfAbsent("s"+m.get("id"),new Candidate("student",((Number)m.get("id")).longValue(),((Number)m.get("id")).longValue(),null,null,campus(m),identityOf(m)));
+        for(var part:chunks(births))for(var m:db.queryForList("SELECT id,campus_id,lrn,first_name,last_name,birth_date FROM students WHERE birth_date IN (:v)"+f,params(part,since)))found.putIfAbsent("s"+m.get("id"),new Candidate("student",((Number)m.get("id")).longValue(),((Number)m.get("id")).longValue(),null,null,campus(m),identityOf(m)));
+        for(var part:chunks(lrns))for(var m:db.queryForList("SELECT id,campus_id,student_id,lrn,first_name,last_name,birth_date FROM applications WHERE status NOT IN ('rejected','withdrawn') AND lrn IN (:v)"+f,params(part,since)))found.putIfAbsent("a"+m.get("id"),application(m));
+        for(var part:chunks(births))for(var m:db.queryForList("SELECT id,campus_id,student_id,lrn,first_name,last_name,birth_date FROM applications WHERE status NOT IN ('rejected','withdrawn') AND birth_date IN (:v)"+f,params(part,since)))found.putIfAbsent("a"+m.get("id"),application(m));
         // Uncommitted batches for other campuses: the same learner may appear in two campuses' exports before either is committed.
         List<String> birthText=births.stream().map(LocalDate::toString).toList();
-        for(var part:chunks(lrns))for(var m:db.queryForList(stagedSql("r.normalized_values->>'lrn' IN (:v)"),Map.of("v",part,"campus",campusId)))found.putIfAbsent("r"+m.get("batch_id")+"/"+m.get("row_number"),staged(m));
-        for(var part:chunks(birthText))for(var m:db.queryForList(stagedSql("r.normalized_values->>'birthDate' IN (:v)"),Map.of("v",part,"campus",campusId)))found.putIfAbsent("r"+m.get("batch_id")+"/"+m.get("row_number"),staged(m));
+        if(since==null)for(var part:chunks(lrns))for(var m:db.queryForList(stagedSql("r.normalized_values->>'lrn' IN (:v)"),Map.of("v",part,"campus",campusId)))found.putIfAbsent("r"+m.get("batch_id")+"/"+m.get("row_number"),staged(m));
+        if(since==null)for(var part:chunks(birthText))for(var m:db.queryForList(stagedSql("r.normalized_values->>'birthDate' IN (:v)"),Map.of("v",part,"campus",campusId)))found.putIfAbsent("r"+m.get("batch_id")+"/"+m.get("row_number"),staged(m));
 
         Map<String,List<Candidate>> byLrn=new HashMap<>();Map<LocalDate,List<Candidate>> byBirth=new HashMap<>();
         for(var c:found.values()){if(c.identity().get("lrn")!=null)byLrn.computeIfAbsent((String)c.identity().get("lrn"),k->new ArrayList<>()).add(c);byBirth.computeIfAbsent((LocalDate)c.identity().get("birth_date"),k->new ArrayList<>()).add(c);}
@@ -131,6 +159,9 @@ public class ImportValidationService {
         for(var part:chunks(numbers))for(var m:db.queryForList("SELECT id,student_number FROM students WHERE student_number IN (:v)",Map.of("v",part)))taken.put((String)m.get("student_number"),((Number)m.get("id")).longValue());
         for(Row r:eligible){Long owner=taken.get((String)r.values.get("studentNumber"));
             if(owner!=null&&!r.matchedStudents.contains(owner)){r.problems.add(RowProblem.error("STUDENT_NUMBER_CONFLICT","studentNumber","This student number already belongs to a different student."));r.evidence.clear();}}
+    }
+    private static Map<String,Object> params(List<?> part,java.time.Instant since){Map<String,Object> m=new HashMap<>();m.put("v",part);if(since!=null)m.put("since",java.sql.Timestamp.from(since));return m;}
+    private void inFile(List<Row> eligible){
         // The same number twice in one file is only acceptable when both rows describe the same person (then both are flagged below).
         Map<String,Row> firstByNumber=new HashMap<>();
         for(Row r:eligible){if(!r.eligible())continue;String number=(String)r.values.get("studentNumber");var first=firstByNumber.putIfAbsent(number,r);

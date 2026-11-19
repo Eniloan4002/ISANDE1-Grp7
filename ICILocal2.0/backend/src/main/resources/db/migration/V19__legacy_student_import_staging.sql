@@ -47,7 +47,7 @@ INSERT INTO import_column_mappings(source_type,name,is_default,real_file_validat
    "campus":{"required":false,"aliases":["campus","campus_code","branch"]}
   },
   "valueMaps":{"voucher":{},"specialization":{},"campus":{},"sex":{}}}',
- '{"encoding":"UTF-8","delimiter":",","headerRow":1,"dateFormats":["yyyy-MM-dd","MM/dd/yyyy"],"normalizeNameCase":true}');
+ '{"encoding":"UTF-8","delimiter":",","headerRow":1,"dateFormats":["yyyy-MM-dd","MM/dd/yyyy"],"normalizeNameCase":false}');
 
 ALTER TABLE import_batches ADD COLUMN source_type varchar(40) NOT NULL DEFAULT 'legacy_student_csv' CHECK(source_type IN ('legacy_student_csv'));
 -- Each campus has its own legacy database, so an upload is for exactly one campus.

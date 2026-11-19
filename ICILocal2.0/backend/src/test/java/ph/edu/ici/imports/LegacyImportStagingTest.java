@@ -87,7 +87,7 @@ class LegacyImportStagingTest {
         assertThat(db.queryForList("SELECT row_number FROM import_rows WHERE batch_id=? ORDER BY row_number",Integer.class,result.batchId())).containsExactly(2,3,4);
         assertThat(row(result.batchId(),number(n,"01"))).containsEntry("campus_id",iligan).containsEntry("status","valid");
         assertThat(row(result.batchId(),number(n,"01")).get("raw_values").toString()).contains("Alphaone");
-        assertThat(db.queryForObject("SELECT count(*) FROM import_rows WHERE student_id IS NOT NULL",Integer.class)).isZero();
+        assertThat(db.queryForObject("SELECT count(*) FROM import_rows WHERE batch_id=? AND student_id IS NOT NULL",Integer.class,result.batchId())).isZero();
         assertThat(db.queryForObject("SELECT count(*) FROM audit_logs WHERE table_name='import_rows' AND (new_data::text LIKE '%Alphaone%' OR new_data::text LIKE '%raw_values%' OR new_data::text LIKE '%normalized_values%')",Integer.class)).isZero();
         assertThat(db.queryForObject("SELECT count(*) FROM audit_logs WHERE table_name='import_rows' AND operation='INSERT' AND actor_id=?",Integer.class,registrar)).isGreaterThanOrEqualTo(3);
     }
@@ -95,10 +95,10 @@ class LegacyImportStagingTest {
         String n=n();var r=stage(fixture("synthetic-mixed.csv",n));long b=r.batchId();
         assertThat(r.valid()).isEqualTo(3);assertThat(r.invalid()).isEqualTo(14);assertThat(r.flagged()).isZero();
         var v=normalized(b,number(n,"11"));
-        assertThat(v.get("lastName").asText()).isEqualTo("Garcia"+n.chars().mapToObj(c->""+(char)('a'+(c-'0'))).reduce("",String::concat));
-        assertThat(v.get("firstName").asText()).isEqualTo("José Maria");assertThat(v.get("birthDate").asText()).isEqualTo("2009-03-14");assertThat(v.get("previousSchool").asText()).isEqualTo("Escuela Synthetic");
+        assertThat(v.get("lastName").asText()).as("name casing is off by default").isEqualTo("GARCIA"+n.chars().mapToObj(c->""+(char)('A'+(c-'0'))).reduce("",String::concat));
+        assertThat(v.get("firstName").asText()).isEqualTo("JOSÉ MARIA");assertThat(v.get("birthDate").asText()).isEqualTo("2009-03-14");assertThat(v.get("previousSchool").asText()).isEqualTo("Escuela Synthetic");
         assertThat(v.get("voucherCode").asText()).isEqualTo("QVR");assertThat(v.get("programCode").asText()).isEqualTo("STEM");assertThat(v.get("track").asText()).isEqualTo("ACADEMIC");assertThat(v.get("sex").asText()).isEqualTo("male");assertThat(v.get("campusId").asLong()).isEqualTo(iligan);
-        assertThat(normalized(b,number(n,"12")).get("lastName").asText()).startsWith("Peña").doesNotContain("PEÑA");assertThat(normalized(b,number(n,"12")).get("middleName").asText()).isEqualTo("dela Cruz");
+        assertThat(normalized(b,number(n,"12")).get("lastName").asText()).startsWith("peña");assertThat(normalized(b,number(n,"12")).get("firstName").asText()).isEqualTo("ana lyn");assertThat(normalized(b,number(n,"12")).get("middleName").asText()).isEqualTo("dela Cruz");
         assertThat(normalized(b,number(n,"13")).get("lastName").asText()).startsWith("Quoted, Name");assertThat(normalized(b,number(n,"13")).get("previousSchool").asText()).isEqualTo("School \"Synthetic\" Annex");
         Map<String,String> expected=new LinkedHashMap<>();
         expected.put("14","INVALID_DATE");expected.put("15","INVALID_DATE");expected.put("16","INVALID_DATE");expected.put("17","FUTURE_DATE");expected.put("18","INVALID_DATE");expected.put("19","INVALID_DATE");expected.put("20","INVALID_DATE");
