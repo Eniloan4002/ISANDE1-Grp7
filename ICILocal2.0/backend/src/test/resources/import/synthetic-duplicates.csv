@@ -1,0 +1,8 @@
+Student No,LRN,Last Name,First Name,Middle Name,Birth Date,Sex,Previous School,Voucher,Strand
+SYN-%N%-01,99%N%01,Dupone%L%,Ana,,2009-01-10,,,QVR,STEM
+SYN-%N%-02,99%N%01,Duptwo%L%,Bea,,2009-05-05,,,QVR,STEM
+SYN-%N%-03,,Delacruz%L%,Maria,,2009-02-02,,,ESC,ABM
+SYN-%N%-04,,Delacruy%L%,Maria,,2009-02-02,,,ESC,ABM
+SYN-%N%-05,99%N%05,Uniqueuma%L%,Uma,,2009-04-04,,,QVR,GAS
+SYN-%N%-06,,Repeatrita%L%,Rita,,2008-08-08,,,QVR,STEM
+SYN-%N%-06,,Differentsam%L%,Sam,,2007-07-07,,,QVR,STEM

@@ -3,11 +3,14 @@
 -- The real legacy export has not been supplied. The seeded mapping is an ASSUMED default
 -- (real_file_validated=false) and contains no invented legacy value translations.
 INSERT INTO permissions(code,description) VALUES
- ('imports.read','View legacy import batches, staged rows and validation results'),
- ('imports.manage','Upload, validate, commit and configure legacy student imports');
+ ('imports.read','View legacy import batches, staged rows, mappings and validation results'),
+ ('imports.manage','Upload, validate and commit legacy student imports using an existing mapping'),
+ ('imports.mappings.manage','Create, edit and activate legacy import column mappings');
+-- Mapping changes alter how every later file is read, so they are Administrator-only.
 INSERT INTO role_permissions(role_code,permission_code) VALUES
  ('ROLE_ADMIN','imports.read'),('ROLE_REGISTRAR','imports.read'),
- ('ROLE_ADMIN','imports.manage'),('ROLE_REGISTRAR','imports.manage');
+ ('ROLE_ADMIN','imports.manage'),('ROLE_REGISTRAR','imports.manage'),
+ ('ROLE_ADMIN','imports.mappings.manage');
 
 CREATE TABLE import_column_mappings (
  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -41,12 +44,15 @@ INSERT INTO import_column_mappings(source_type,name,is_default,real_file_validat
    "previousSchool":{"required":false,"aliases":["previous_school","last_school_attended","school_last_attended"]},
    "voucher":{"required":true,"aliases":["voucher","voucher_type","voucher_classification","voucher_status"]},
    "specialization":{"required":true,"aliases":["specialization","strand","program"]},
-   "campus":{"required":true,"aliases":["campus","campus_code","branch"]}
+   "campus":{"required":false,"aliases":["campus","campus_code","branch"]}
   },
   "valueMaps":{"voucher":{},"specialization":{},"campus":{},"sex":{}}}',
- '{"encoding":"UTF-8","delimiter":",","headerRow":1,"dateFormats":["yyyy-MM-dd","MM/dd/yyyy"]}');
+ '{"encoding":"UTF-8","delimiter":",","headerRow":1,"dateFormats":["yyyy-MM-dd","MM/dd/yyyy"],"normalizeNameCase":true}');
 
 ALTER TABLE import_batches ADD COLUMN source_type varchar(40) NOT NULL DEFAULT 'legacy_student_csv' CHECK(source_type IN ('legacy_student_csv'));
+-- Each campus has its own legacy database, so an upload is for exactly one campus.
+ALTER TABLE import_batches ADD COLUMN campus_id bigint REFERENCES campuses(id);
+ALTER TABLE import_batches ADD CONSTRAINT import_batch_campus_required CHECK(campus_id IS NOT NULL) NOT VALID;
 ALTER TABLE import_batches ADD COLUMN mapping_id bigint REFERENCES import_column_mappings(id);
 ALTER TABLE import_batches ADD COLUMN mapping_snapshot jsonb CHECK(mapping_snapshot IS NULL OR jsonb_typeof(mapping_snapshot)='object');
 ALTER TABLE import_batches ADD COLUMN file_size_bytes bigint CHECK(file_size_bytes IS NULL OR file_size_bytes>=0);
@@ -57,14 +63,14 @@ ALTER TABLE import_batches ADD COLUMN skipped_count integer NOT NULL DEFAULT 0 C
 ALTER TABLE import_batches ADD COLUMN imported_by bigint REFERENCES users(id);
 ALTER TABLE import_batches ADD COLUMN imported_at timestamptz;
 ALTER TABLE import_batches ADD COLUMN version integer NOT NULL DEFAULT 0 CHECK(version>=0);
+-- NOT VALID: constrain new/changed rows without failing on any pre-existing V1 batch rows.
 ALTER TABLE import_batches ADD CONSTRAINT import_batch_counts_balance
  CHECK(status IN ('staged','failed') OR valid_count+invalid_count+flagged_count+skipped_count+imported_count=source_count) NOT VALID;
 ALTER TABLE import_batches ADD CONSTRAINT import_batch_commit_actor
  CHECK(status NOT IN ('imported','reconciled') OR (imported_by IS NOT NULL AND imported_at IS NOT NULL)) NOT VALID;
--- NOT VALID: constrain new/changed rows without failing on any pre-existing V1 batch rows.
 -- The same file content cannot be staged twice unless the earlier attempt failed.
 CREATE UNIQUE INDEX import_batch_checksum_once ON import_batches(source_type,checksum) WHERE status<>'failed';
-CREATE INDEX import_batches_history ON import_batches(source_type,started_at DESC,id DESC);
+CREATE INDEX import_batches_history ON import_batches(source_type,campus_id,started_at DESC,id DESC);
 
 CREATE TABLE import_rows (
  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -84,7 +90,7 @@ CREATE TABLE import_rows (
  UNIQUE(batch_id,row_number),
  CHECK((status='imported')=(student_id IS NOT NULL)),
  CHECK(num_nonnulls(review_decision,reviewed_by,reviewed_at)IN(0,3)),
- CHECK(review_decision IS NULL OR length(btrim(review_reason)) BETWEEN 1 AND 2000),
+ CHECK(review_decision IS NULL OR (review_reason IS NOT NULL AND length(btrim(review_reason)) BETWEEN 1 AND 2000)),
  CHECK(status NOT IN ('valid','duplicate_flagged','imported') OR normalized_values IS NOT NULL),
  CHECK(status<>'duplicate_flagged' OR duplicate_evidence IS NOT NULL)
 );

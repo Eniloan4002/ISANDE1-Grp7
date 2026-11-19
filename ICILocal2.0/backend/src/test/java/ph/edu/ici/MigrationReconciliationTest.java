@@ -117,20 +117,27 @@ class MigrationReconciliationTest {
         assertThat(db.queryForObject("SELECT severity FROM import_exceptions WHERE batch_id=?",String.class,batch)).isEqualTo("error");
         assertThat(db.queryForObject("SELECT count(*) FROM import_rows",Integer.class)).isZero();
         assertThat(db.queryForList("SELECT role_code||':'||permission_code FROM role_permissions WHERE permission_code LIKE 'imports.%'",String.class))
-            .containsExactlyInAnyOrder("ROLE_ADMIN:imports.read","ROLE_ADMIN:imports.manage","ROLE_REGISTRAR:imports.read","ROLE_REGISTRAR:imports.manage");
+            .containsExactlyInAnyOrder("ROLE_ADMIN:imports.read","ROLE_ADMIN:imports.manage","ROLE_ADMIN:imports.mappings.manage","ROLE_REGISTRAR:imports.read","ROLE_REGISTRAR:imports.manage");
         assertThat(db.queryForMap("SELECT is_default,real_file_validated FROM import_column_mappings WHERE source_type='legacy_student_csv'")).containsEntry("is_default",true).containsEntry("real_file_validated",false);
+        assertThat(db.queryForObject("SELECT mapping->'fields'->'campus'->>'required' FROM import_column_mappings WHERE is_default",String.class)).isEqualTo("false");
+        assertThat(db.queryForObject("SELECT campus_id FROM import_batches WHERE id=?",Long.class,batch)).as("pre-existing batches are not rewritten").isNull();
         assertThat(student).isPositive();assertThat(latest.migrate().migrationsExecuted).isZero();
     }
     @Test void importStagingConstraintsRejectInconsistentRowsAndDuplicateFiles(){
         var ds=database();Flyway.configure().dataSource(ds).load().migrate();var db=new JdbcTemplate(ds);
-        long batch=db.queryForObject("INSERT INTO import_batches(source_name,checksum,source_count,status,valid_count) VALUES ('a.csv',repeat('b',64),1,'validated',1) RETURNING id",Long.class);
-        assertThatThrownBy(()->db.update("INSERT INTO import_batches(source_name,checksum,source_count) VALUES ('copy.csv',repeat('b',64),1)")).hasMessageContaining("import_batch_checksum_once");
-        assertThatThrownBy(()->db.update("INSERT INTO import_batches(source_name,checksum,source_count,status,valid_count) VALUES ('c.csv',repeat('c',64),2,'validated',1)")).hasMessageContaining("import_batch_counts_balance");
+        long batch=db.queryForObject("INSERT INTO import_batches(source_name,checksum,source_count,status,valid_count,campus_id) SELECT 'a.csv',repeat('b',64),1,'validated',1,min(id) FROM campuses RETURNING id",Long.class);
+        assertThatThrownBy(()->db.update("INSERT INTO import_batches(source_name,checksum,source_count,campus_id) SELECT 'copy.csv',repeat('b',64),1,min(id) FROM campuses")).hasMessageContaining("import_batch_checksum_once");
+        assertThatThrownBy(()->db.update("INSERT INTO import_batches(source_name,checksum,source_count,status,valid_count,campus_id) SELECT 'c.csv',repeat('c',64),2,'validated',1,min(id) FROM campuses")).hasMessageContaining("import_batch_counts_balance");
         db.update("INSERT INTO import_rows(batch_id,row_number,status,normalized_values,raw_values) VALUES (?,2,'valid','{}','{\"lrn\":\"secret-raw\"}')",batch);
         assertThatThrownBy(()->db.update("INSERT INTO import_rows(batch_id,row_number,status,normalized_values) VALUES (?,2,'valid','{}')",batch)).hasMessageContaining("import_rows_batch_id_row_number_key");
         assertThatThrownBy(()->db.update("INSERT INTO import_rows(batch_id,row_number,status) VALUES (?,3,'imported')",batch)).isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+        long reviewer=db.queryForObject("INSERT INTO users(username,email,full_name,password_hash) VALUES ('reviewer','reviewer@example.invalid','Synthetic reviewer','x') RETURNING id",Long.class);
+        for(String reason:new String[]{null,"   "})
+            assertThatThrownBy(()->db.update("INSERT INTO import_rows(batch_id,row_number,status,normalized_values,review_decision,reviewed_by,reviewed_at,review_reason) VALUES (?,9,'valid','{}','distinct',?,now(),?)",batch,reviewer,reason)).as("review decision needs a reason").isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+        assertThat(db.update("INSERT INTO import_rows(batch_id,row_number,status,normalized_values,review_decision,reviewed_by,reviewed_at,review_reason) VALUES (?,9,'valid','{}','distinct',?,now(),'Different person')",batch,reviewer)).isEqualTo(1);
+        assertThatThrownBy(()->db.update("INSERT INTO import_batches(source_name,checksum,source_count) VALUES ('nocampus.csv',repeat('d',64),1)")).hasMessageContaining("import_batch_campus_required");
         assertThat(db.queryForObject("SELECT count(*) FROM audit_logs WHERE table_name='import_rows' AND (new_data ? 'raw_values' OR new_data::text LIKE '%secret-raw%')",Integer.class)).isZero();
-        assertThat(db.queryForObject("SELECT count(*) FROM audit_logs WHERE table_name='import_rows' AND operation='INSERT'",Integer.class)).isEqualTo(1);
+        assertThat(db.queryForObject("SELECT count(*) FROM audit_logs WHERE table_name='import_rows' AND operation='INSERT'",Integer.class)).as("two rows inserted, each audited without personal values").isEqualTo(2);
     }
     private Flyway legacy(DriverManagerDataSource ds)throws Exception{
         var folder=Files.createTempDirectory("ici-legacy-fixture");

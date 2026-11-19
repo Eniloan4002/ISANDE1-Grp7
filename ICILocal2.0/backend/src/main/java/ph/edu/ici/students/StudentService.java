@@ -39,9 +39,11 @@ public class StudentService {
         var programs=db.queryForList("SELECT code,category FROM programs WHERE id=:id",Map.of("id",input.programId()));
         if(programs.isEmpty())throw invalid("Select an existing program.");
         var program=programs.getFirst();String code=(String)program.get("code");
-        String expected="TVET".equals(program.get("category"))?"TVET":code.startsWith("TVL_")?"TVL":"ACADEMIC";
+        String expected=trackFor((String)program.get("category"),code);
         if(!expected.equals(input.track()))throw invalid("Track must match the selected program.");
     }
+    /** Track implied by a program; shared with the legacy import so both derive it identically. */
+    public static String trackFor(String category,String programCode){return "TVET".equals(category)?"TVET":programCode.startsWith("TVL_")?"TVL":"ACADEMIC";}
     private void actor(){db.queryForObject("SELECT set_config('app.actor_id',:actor,true)",Map.of("actor",Long.toString(identity().userId())),String.class);}
     private Map<String,Object> decode(Map<String,Object> row){
         try{row.put("address",json.readValue(row.get("address").toString(),Map.class));}catch(Exception e){throw new IllegalStateException("Stored address is invalid",e);}
