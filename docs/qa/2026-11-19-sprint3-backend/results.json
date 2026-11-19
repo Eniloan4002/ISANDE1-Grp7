@@ -1,0 +1,201 @@
+{
+  "verified_at": "2026-11-18T21:07:51.011089+00:00",
+  "base_commit": "8acd3883f91db2423edf5b5d031c8642e99a62ad",
+  "worktree": "/tmp/ici-sprint3-backend",
+  "backend": {
+    "command": "./mvnw clean verify",
+    "directory": "ICILocal2.0/backend",
+    "exit_code": 0,
+    "result": "BUILD SUCCESS",
+    "disposable_embedded_postgresql": true,
+    "suite_count": 18,
+    "totals": {
+      "tests": 142,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suites": [
+      {
+        "name": "ph.edu.ici.AcademicAssignmentsTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "17.535"
+      },
+      {
+        "name": "ph.edu.ici.AccessPolicyRequestTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.714"
+      },
+      {
+        "name": "ph.edu.ici.AccountManagementTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "7.404"
+      },
+      {
+        "name": "ph.edu.ici.CashierRosterTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "11.937"
+      },
+      {
+        "name": "ph.edu.ici.EnrollmentWorkflowTest",
+        "tests": "27",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "18.033"
+      },
+      {
+        "name": "ph.edu.ici.FoundationAuthenticationTest",
+        "tests": "18",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "29.101"
+      },
+      {
+        "name": "ph.edu.ici.GradeResolutionTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "12.985"
+      },
+      {
+        "name": "ph.edu.ici.GradeSubmissionTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "7.941"
+      },
+      {
+        "name": "ph.edu.ici.GradingWindowTest",
+        "tests": "11",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "24.014"
+      },
+      {
+        "name": "ph.edu.ici.HistoryWithdrawalTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "25.149"
+      },
+      {
+        "name": "ph.edu.ici.HonorRollTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "20.285"
+      },
+      {
+        "name": "ph.edu.ici.MigrationReconciliationTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "2.891"
+      },
+      {
+        "name": "ph.edu.ici.OfficialDocumentTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "13.864"
+      },
+      {
+        "name": "ph.edu.ici.ReadQueryBudgetTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.223"
+      },
+      {
+        "name": "ph.edu.ici.ReconciledAccessTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "4.862"
+      },
+      {
+        "name": "ph.edu.ici.ReportingGuidanceTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "36.011"
+      },
+      {
+        "name": "ph.edu.ici.RequirementTrackingTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "6.249"
+      },
+      {
+        "name": "ph.edu.ici.StudentMasterTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "5.616"
+      }
+    ]
+  },
+  "frontend": {
+    "unchanged_from_base": true,
+    "tracked_changes": [],
+    "untracked_files": [],
+    "tests_and_build": "Not repeated: frontend tree unchanged; this phase changes backend only."
+  },
+  "published_migrations": {
+    "versions": "V1\u2013V16",
+    "count": 16,
+    "all_byte_identical": true
+  },
+  "diff_check": {
+    "tracked": "git diff --check passed",
+    "untracked": "All new files checked with git diff --no-index --check against /dev/null; no whitespace issues."
+  },
+  "source_fingerprint": {
+    "manifest": "source-sha256.json",
+    "files": 19,
+    "unchanged_since_verification_start": true
+  },
+  "independent_reviews": {
+    "quality": "Legacy approved-but-unapplied correction eligibility gap fixed; regression verifies approved excluded, applied/rejected allowed. No remaining blockers reported.",
+    "verification_review": "Independent inspection confirms pending/approved correction check, server-derived actors, scoped grants, bounded exports, immutable issuance, source-lock eligibility and repeating draft PDF markings.",
+    "anti_pattern": "No TODO/stub/mock persistence, frontend changes, client-selected identity, unsafe value interpolation or silent export truncation in new service code."
+  },
+  "shared_database_modified": false,
+  "runtime_restarted": false,
+  "commit_or_push_performed": false,
+  "limitations": [
+    "Real institution-approved honor rules and examples remain required before acceptance; no official thresholds are seeded.",
+    "The renderer produces a structured printable academic record; actual school/registrar approval of its Form 137/TOR layout and applicability remains required and DepEd compliance is not independently certified.",
+    "Approval references are authenticated staff attestations, not proof of external approval.",
+    "Official issuance conservatively excludes concurrent writes across source tables and returns 409 while records are busy.",
+    "Official PDF uses embedded Liberation Sans and fails with 422 for unrepresentable characters rather than altering names.",
+    "No frontend integration, browser acceptance, deployment or Jira status update is certified by these backend checks."
+  ]
+}

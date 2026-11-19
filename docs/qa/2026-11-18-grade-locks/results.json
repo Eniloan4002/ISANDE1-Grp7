@@ -1,0 +1,110 @@
+{
+  "baseCommit": "b6eb6f669760c5bdd9ad324b40c4204f8b53f6c0",
+  "branch": "codex/sprint2-grade-locks",
+  "backend": {
+    "suites": [
+      {
+        "suite": "ph.edu.ici.AcademicAssignmentsTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "ph.edu.ici.AccessPolicyRequestTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "ph.edu.ici.AccountManagementTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "ph.edu.ici.EnrollmentWorkflowTest",
+        "tests": 27,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "ph.edu.ici.FoundationAuthenticationTest",
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "ph.edu.ici.GradeSubmissionTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "ph.edu.ici.GradingWindowTest",
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "ph.edu.ici.MigrationReconciliationTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "ph.edu.ici.ReadQueryBudgetTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "ph.edu.ici.ReconciledAccessTest",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "ph.edu.ici.RequirementTrackingTest",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "ph.edu.ici.StudentMasterTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "totals": {
+      "tests": 99,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "fullVerifyPackage": "passed; final added tests verified in focused runs"
+  },
+  "frontendUnit": {
+    "passed": 107,
+    "failed": 0
+  },
+  "schemaArchive": {
+    "passed": 15,
+    "failed": 0
+  },
+  "database": "disposable embedded PostgreSQL; shared Supabase not changed",
+  "jiraChanged": false,
+  "deployed": false
+}

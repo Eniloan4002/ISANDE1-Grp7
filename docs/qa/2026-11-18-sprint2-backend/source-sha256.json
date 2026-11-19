@@ -1,0 +1,130 @@
+[
+  {
+    "path": "ICILocal2.0/backend/pom.xml",
+    "sha256": "7d67b6eb2ae14ffba8ce23f874aaeb01058ad9b02ed4e6e5d603ae1723c0fb36"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/AcademicHistoryController.java",
+    "sha256": "f7af4dddd56266e5627fd3c9fd301f08cd0cd0f74ca6e73e5347cd159a7c10a9"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/AcademicHistoryService.java",
+    "sha256": "c32cc4c851b4e2a73dadbd8229c16ffde00414fdc24512d6bb50c1dd11023cc8"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/AcademicService.java",
+    "sha256": "895a34f4fbec93dbcc735be9fb5bf93b8868f363252da458e29c40a271a17f04"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/GradeResolutionController.java",
+    "sha256": "38095965df1770b70465323a3c33dd6f8d682e7b9af43830f3ff7c8bb074ca96"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/GradeResolutionErrors.java",
+    "sha256": "d449bae989a2e6189b602dc42b246b275b8f795f47de751532de2729f6bfb613"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/GradeResolutionService.java",
+    "sha256": "26d86f1ad900d388a033dd094ca6d174680398797b5dd19ae5aca132ba8a54f8"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/WithdrawalController.java",
+    "sha256": "5646d595d32ce1ebe0ea67fd95786e4d026f31e1c04484f66cb489e94f6dc22a"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/academic/WithdrawalService.java",
+    "sha256": "e4971bdb649d88f44dd9ccc82bdf579a880c8ecc7afaeed7a39b9b4c802f2058"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/reporting/GuidanceController.java",
+    "sha256": "596218c622305a5b162529abe1d1fcb45b456532023a857aa969d9453aae44e8"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/reporting/GuidanceService.java",
+    "sha256": "a00a1a5fe7b361cc39ac83d5554af5e05ea6bb67937ab87a785f8bd69c14a34d"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/reporting/ReportController.java",
+    "sha256": "e71e99583e50f26c15b362a5871863ccd4477f845e2fb7abe59ae10eac29e184"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/reporting/ReportDocuments.java",
+    "sha256": "7f32e75e0370e4eea0c2e946d9deaf7acce8cf53a41080e49754ba845f8d84e5"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/reporting/ReportFilter.java",
+    "sha256": "411f124b9e3db321818785751dbf270978deadaf07f44ba4c5c46dffbecf9987"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/reporting/ReportService.java",
+    "sha256": "2710fe27e05f51e42c3fba2f156e66db2bf8eb3de5cb75abf29935ce52fd757b"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/java/ph/edu/ici/reporting/ReportingErrors.java",
+    "sha256": "f8a781b65977f12baf6edaee90d1e5686d3dfc475444478a9962b421f523416f"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/resources/application.yml",
+    "sha256": "634f8cd2e02be26eac6aec345557b42d608944aa183e2595507fb2564f944885"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/resources/db/migration/V14__grade_corrections_and_incomplete_cases.sql",
+    "sha256": "3def1805bf395ad85ef092e8200fa114a7c46db7bedb349ca1e0a887b9c70200"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/resources/db/migration/V15__withdrawal_clearance_workflow.sql",
+    "sha256": "c5176939e790c856f750a283625d1edc4ca3967b65337d30db8c77ae39f15f0e"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/main/resources/db/migration/V16__reporting_guidance_and_daily_attendance.sql",
+    "sha256": "1357ac2f0dff3035eaa5b02235e3cb79b0515381dbbc00a4f88b655f0704ed80"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/test/java/ph/edu/ici/FoundationAuthenticationTest.java",
+    "sha256": "2dab88f26a215c6e5992fb492a9ad9acede50da3a4fb76346f43d07d8c6ed865"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/test/java/ph/edu/ici/GradeResolutionTest.java",
+    "sha256": "b714e16e95b674c4e17f991a8fc43660896b39ca3794fea056df7eeb694accf3"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/test/java/ph/edu/ici/HistoryWithdrawalTest.java",
+    "sha256": "c80d05150a7e80714380f746a45fc0c9e4e79548bcc5e8a58334c9193fda0534"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/test/java/ph/edu/ici/MigrationReconciliationTest.java",
+    "sha256": "0e5f1cf20136c78cac8ecf88169d6b8f5609f971242d9eef8b025ad1875b6035"
+  },
+  {
+    "path": "ICILocal2.0/backend/src/test/java/ph/edu/ici/ReportingGuidanceTest.java",
+    "sha256": "bedd5f9e7a9d046cbcd159684f4c1a763345c4f6c6438a3ac116315753c9d38e"
+  },
+  {
+    "path": "ICILocal2.0/frontend/src/academic/AcademicHistory.jsx",
+    "sha256": "2de4ec98d6e92ddbc66c406d9f3a82a2ec2c41141f2e9a611e9097e18858655e"
+  },
+  {
+    "path": "ICILocal2.0/frontend/src/academic/IncompleteGrades.jsx",
+    "sha256": "2e8dab3c76b2c7eeec4f97bd0e816427d2c5a97cf165dd2cd82a8b8bd705c946"
+  },
+  {
+    "path": "ICILocal2.0/frontend/src/academic/incompleteGradesApi.js",
+    "sha256": "a4c450bd7df55cc8f88904a4f70083b3aa21887bc87907b7e377a640038820bb"
+  },
+  {
+    "path": "ICILocal2.0/frontend/src/test/incomplete-api.test.jsx",
+    "sha256": "d4235f8998f5b2637a7a50322d90af334ff4fa9932c7dc693ce3741fbceb9139"
+  },
+  {
+    "path": "docs/grade-corrections-inc-api.md",
+    "sha256": "a803e187450b57e9266ffffbedf7f413300f58075cada03e4e89a80edfe86af0"
+  },
+  {
+    "path": "docs/history-withdrawal-api.md",
+    "sha256": "e619f8e6eb5cbf7476dc6274abe057d3023a1ba3973c1feaa5662a15df90162f"
+  },
+  {
+    "path": "docs/reporting-guidance-api.md",
+    "sha256": "44534b2cdd7b535c8b4cc44f9c0a0911bbfbb4ce58e93c9149d09fb7553cb930"
+  }
+]

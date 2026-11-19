@@ -1,0 +1,183 @@
+{
+  "verified_at": "2026-11-18T12:36:44.494447+00:00",
+  "base_commit": "be04272b55e32c94940910b30ef5250c48aab787",
+  "worktree": "/tmp/ici-sprint2-backend",
+  "backend": {
+    "command": "./mvnw clean verify",
+    "directory": "ICILocal2.0/backend",
+    "exit_code": 0,
+    "result": "BUILD SUCCESS",
+    "disposable_embedded_postgresql": true,
+    "totals": {
+      "tests": 121,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suites": [
+      {
+        "name": "ph.edu.ici.AcademicAssignmentsTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "17.701"
+      },
+      {
+        "name": "ph.edu.ici.AccessPolicyRequestTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.648"
+      },
+      {
+        "name": "ph.edu.ici.AccountManagementTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "7.167"
+      },
+      {
+        "name": "ph.edu.ici.EnrollmentWorkflowTest",
+        "tests": "27",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "18.305"
+      },
+      {
+        "name": "ph.edu.ici.FoundationAuthenticationTest",
+        "tests": "18",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "29.588"
+      },
+      {
+        "name": "ph.edu.ici.GradeResolutionTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "13.361"
+      },
+      {
+        "name": "ph.edu.ici.GradeSubmissionTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "8.121"
+      },
+      {
+        "name": "ph.edu.ici.GradingWindowTest",
+        "tests": "11",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "24.487"
+      },
+      {
+        "name": "ph.edu.ici.HistoryWithdrawalTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "25.864"
+      },
+      {
+        "name": "ph.edu.ici.MigrationReconciliationTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "2.027"
+      },
+      {
+        "name": "ph.edu.ici.ReadQueryBudgetTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.273"
+      },
+      {
+        "name": "ph.edu.ici.ReconciledAccessTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "4.993"
+      },
+      {
+        "name": "ph.edu.ici.ReportingGuidanceTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "37.437"
+      },
+      {
+        "name": "ph.edu.ici.RequirementTrackingTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "6.627"
+      },
+      {
+        "name": "ph.edu.ici.StudentMasterTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "5.91"
+      }
+    ]
+  },
+  "frontend": {
+    "commands": [
+      "npm ci",
+      "npm test",
+      "npm run build"
+    ],
+    "directory": "ICILocal2.0/frontend",
+    "exit_codes": [
+      0,
+      0,
+      0
+    ],
+    "unit_tests": 111,
+    "unit_files": 11,
+    "schema_checks": 15,
+    "build_modules": 382,
+    "dependencies": "Installed locked dependencies in isolated worktree after removing original node_modules symlink; original node_modules unchanged."
+  },
+  "migration_byte_comparison": {
+    "versions": "V1\u2013V13",
+    "count": 13,
+    "unchanged": true
+  },
+  "diff_check": {
+    "command": "git diff --check",
+    "exit_code": 0
+  },
+  "independent_reviews": {
+    "quality_review": "Calendar/attendance lock ordering, proportional PDF wrapping and withdrawal/document gate concurrency findings resolved and regression tested.",
+    "anti_pattern_audit": "Parent reports final independent audit passed without blockers."
+  },
+  "source_fingerprint": {
+    "manifest": "source-sha256.json",
+    "files": 32,
+    "unchanged_since_verification_start": true
+  },
+  "ui_scope": "No CSS, layout or screen redesign. History directory URL and necessary live INC API/version/permission/label wiring only.",
+  "shared_database_modified": false,
+  "commit_or_push_performed": false,
+  "limitations": [
+    "Backend checks do not certify frontend acceptance or sprint-wide Jira Done status.",
+    "Institution-approved guidance policy/calendar configuration and frontend integration remain separate."
+  ]
+}

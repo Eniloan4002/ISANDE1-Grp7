@@ -55,9 +55,14 @@ public class GradeService {
     private Map<String,Object> period(long classId,long termId,long periodId){
         var rows=db.queryForList("""
             SELECT gp.id,gp.code,gp.sequence,gp.starts_on AS "startsOn",gp.ends_on AS "endsOn",
-                   gw.deadline,CASE WHEN gw.locked_at IS NULL THEN 'open' ELSE 'locked' END AS status
+                   LEAST(gw.deadline,sw.deadline) AS deadline,
+                   CASE WHEN gw.locked_at IS NOT NULL OR sw.locked_at IS NOT NULL
+                             OR gw.deadline<=clock_timestamp() OR sw.deadline<=clock_timestamp()
+                        THEN 'locked' ELSE 'open' END AS status
             FROM grading_periods gp
             LEFT JOIN grading_windows gw ON gw.grading_period_id=gp.id AND gw.class_id=:class
+            LEFT JOIN class_offerings co ON co.id=:class
+            LEFT JOIN section_grading_windows sw ON sw.section_id=co.section_id AND sw.grading_period_id=gp.id
             WHERE gp.id=:period AND gp.term_id=:term
             """,Map.of("class",classId,"period",periodId,"term",termId));
         if(rows.isEmpty())throw error(HttpStatus.BAD_REQUEST,"The grading period does not belong to the selected term.");
@@ -69,9 +74,14 @@ public class GradeService {
         var offering=assignedClass(id,academicYearId,termId,false);
         var periods=db.queryForList("""
             SELECT gp.id,gp.code,gp.sequence,gp.starts_on AS "startsOn",gp.ends_on AS "endsOn",
-                   gw.deadline,CASE WHEN gw.locked_at IS NULL THEN 'open' ELSE 'locked' END AS status
+                   LEAST(gw.deadline,sw.deadline) AS deadline,
+                   CASE WHEN gw.locked_at IS NOT NULL OR sw.locked_at IS NOT NULL
+                             OR gw.deadline<=clock_timestamp() OR sw.deadline<=clock_timestamp()
+                        THEN 'locked' ELSE 'open' END AS status
             FROM grading_periods gp
             LEFT JOIN grading_windows gw ON gw.grading_period_id=gp.id AND gw.class_id=:class
+            LEFT JOIN class_offerings co ON co.id=:class
+            LEFT JOIN section_grading_windows sw ON sw.section_id=co.section_id AND sw.grading_period_id=gp.id
             WHERE gp.term_id=:term ORDER BY gp.sequence
             """,Map.of("class",id,"term",termId));
         return Map.of("class",offering,"periods",periods);
@@ -122,7 +132,7 @@ public class GradeService {
 
     private void requireOpen(Map<String,Object> period){
         if("locked".equals(period.get("status")))
-            throw error(HttpStatus.CONFLICT,"This grading period is locked for the class.");
+            throw error(HttpStatus.FORBIDDEN,"This grading period is locked or its submission deadline has passed.");
     }
 
     @Transactional
@@ -165,7 +175,10 @@ public class GradeService {
                 WHERE id=:grade
                 """,params(id,entry.enrollmentId(),input.termId(),input.gradingPeriodId(),value,mark).addValue("grade",number(row,"id")));
         }
-        return view(offering,period,id);
+        // A batch that crosses its cutoff rolls back instead of committing late marks.
+        var latestPeriod=period(id,input.termId(),input.gradingPeriodId());
+        requireOpen(latestPeriod);
+        return view(offering,latestPeriod,id);
     }
 
     private MapSqlParameterSource params(long classId,long enrollment,long term,long period,BigDecimal value,String mark){
@@ -191,6 +204,8 @@ public class GradeService {
             WHERE class_id=:class AND grading_period_id=:period AND state='draft'
             """,new MapSqlParameterSource().addValue("class",id).addValue("period",input.gradingPeriodId())
                 .addValue("actor",identity().userId()));
-        return view(offering,period,id);
+        var latestPeriod=period(id,input.termId(),input.gradingPeriodId());
+        requireOpen(latestPeriod);
+        return view(offering,latestPeriod,id);
     }
 }
