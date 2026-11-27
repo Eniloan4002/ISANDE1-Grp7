@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @Order(Ordered.HIGHEST_PRECEDENCE)
-@RestControllerAdvice(assignableTypes={LegacyImportController.class,GradeMatrixImportController.class})
+@RestControllerAdvice(assignableTypes={LegacyImportController.class,GradeMatrixImportController.class,SectionAllocationImportController.class,DocumentLogImportController.class})
 public class LegacyImportErrors {
     @ExceptionHandler(ImportFileException.class)
     public ResponseEntity<ProblemDetail> file(ImportFileException e){

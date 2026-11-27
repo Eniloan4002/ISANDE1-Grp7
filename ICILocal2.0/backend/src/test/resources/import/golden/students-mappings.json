@@ -1,0 +1,478 @@
+{
+  "mixed-name-case" : {
+    "batch" : {
+      "flagged_count" : 0,
+      "imported_count" : 0,
+      "invalid_count" : 14,
+      "skipped_count" : 0,
+      "source_count" : 17,
+      "status" : "validated",
+      "valid_count" : 3
+    },
+    "batchMessages" : [ ],
+    "rows" : [ {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : "997100001111",
+        "sex" : "male",
+        "track" : "ACADEMIC",
+        "campusId" : "ILIGAN",
+        "lastName" : "Garciaavokigmteaeg",
+        "birthDate" : "2009-03-14",
+        "firstName" : "José Maria",
+        "programId" : "STEM",
+        "middleName" : null,
+        "programCode" : "STEM",
+        "voucherCode" : "QVR",
+        "studentNumber" : "SYN-71000011-11",
+        "previousSchool" : "Escuela Synthetic"
+      },
+      "raw" : {
+        "LRN" : "997100001111",
+        "Sex" : "male",
+        "Strand" : "stem",
+        "Voucher" : "qvr",
+        "Last Name" : "GARCIAAVOKIGMTEAEG",
+        "Birth Date" : "03/14/2009",
+        "First Name" : "JOSÉ  MARIA",
+        "Student No" : "SYN-71000011-11",
+        "Middle Name" : "",
+        "Previous School" : "  Escuela   Synthetic "
+      },
+      "row" : 2,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : "997100001112",
+        "sex" : null,
+        "track" : "ACADEMIC",
+        "campusId" : "ILIGAN",
+        "lastName" : "Peñaavokigmteaeg",
+        "birthDate" : "2009-03-15",
+        "firstName" : "Ana Lyn",
+        "programId" : "GAS",
+        "middleName" : "dela Cruz",
+        "programCode" : "GAS",
+        "voucherCode" : "ESC",
+        "studentNumber" : "SYN-71000011-12",
+        "previousSchool" : null
+      },
+      "raw" : {
+        "LRN" : "997100001112",
+        "Sex" : "",
+        "Strand" : "GAS",
+        "Voucher" : "ESC",
+        "Last Name" : "peñaavokigmteaeg",
+        "Birth Date" : "2009-03-15",
+        "First Name" : "ana lyn",
+        "Student No" : "SYN-71000011-12",
+        "Middle Name" : "dela Cruz",
+        "Previous School" : ""
+      },
+      "row" : 3,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : "997100001113",
+        "sex" : null,
+        "track" : "ACADEMIC",
+        "campusId" : "ILIGAN",
+        "lastName" : "Quoted, Nameavokigmteaeg",
+        "birthDate" : "2009-03-16",
+        "firstName" : "Quin",
+        "programId" : "HUMSS",
+        "middleName" : null,
+        "programCode" : "HUMSS",
+        "voucherCode" : "ALS",
+        "studentNumber" : "SYN-71000011-13",
+        "previousSchool" : "School \"Synthetic\" Annex"
+      },
+      "raw" : {
+        "LRN" : "997100001113",
+        "Sex" : "",
+        "Strand" : "HUMSS",
+        "Voucher" : "ALS",
+        "Last Name" : "Quoted, Nameavokigmteaeg",
+        "Birth Date" : "2009-03-16",
+        "First Name" : "Quin",
+        "Student No" : "SYN-71000011-13",
+        "Middle Name" : "",
+        "Previous School" : "School \"Synthetic\" Annex"
+      },
+      "row" : 4,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "Two-digit years are not accepted. Accepted formats: yyyy-MM-dd, MM/dd/yyyy.",
+        "error_code" : "INVALID_DATE",
+        "field_name" : "birthDate",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Dateerravokigmteaeg",
+        "Birth Date" : "14/03/09",
+        "First Name" : "Twodigit",
+        "Student No" : "SYN-71000011-14",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 5,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "Spreadsheet serial numbers are not accepted. Accepted formats: yyyy-MM-dd, MM/dd/yyyy.",
+        "error_code" : "INVALID_DATE",
+        "field_name" : "birthDate",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Dateerravokigmteaeg",
+        "Birth Date" : "40251",
+        "First Name" : "Serial",
+        "Student No" : "SYN-71000011-15",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 6,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "Month names are not accepted. Accepted formats: yyyy-MM-dd, MM/dd/yyyy.",
+        "error_code" : "INVALID_DATE",
+        "field_name" : "birthDate",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Dateerravokigmteaeg",
+        "Birth Date" : "March 14 2009",
+        "First Name" : "Monthname",
+        "Student No" : "SYN-71000011-16",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 7,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The birth date must be in the past.",
+        "error_code" : "FUTURE_DATE",
+        "field_name" : "birthDate",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Dateerravokigmteaeg",
+        "Birth Date" : "2999-01-01",
+        "First Name" : "Future",
+        "Student No" : "SYN-71000011-17",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 8,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "Dates before 1900 are not accepted.",
+        "error_code" : "INVALID_DATE",
+        "field_name" : "birthDate",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Dateerravokigmteaeg",
+        "Birth Date" : "1850-01-01",
+        "First Name" : "Ancient",
+        "Student No" : "SYN-71000011-18",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 9,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The date does not exist. Accepted formats: yyyy-MM-dd, MM/dd/yyyy.",
+        "error_code" : "INVALID_DATE",
+        "field_name" : "birthDate",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Dateerravokigmteaeg",
+        "Birth Date" : "02/30/2009",
+        "First Name" : "Impossible",
+        "Student No" : "SYN-71000011-19",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 10,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The value does not match an accepted format. Accepted formats: yyyy-MM-dd, MM/dd/yyyy.",
+        "error_code" : "INVALID_DATE",
+        "field_name" : "birthDate",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Dateerravokigmteaeg",
+        "Birth Date" : "3/4/2009",
+        "First Name" : "Singledigit",
+        "Student No" : "SYN-71000011-20",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 11,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "LRN must be exactly 12 digits.",
+        "error_code" : "INVALID_LRN",
+        "field_name" : "lrn",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "12345",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Othererravokigmteaeg",
+        "Birth Date" : "2009-03-14",
+        "First Name" : "Badlrn",
+        "Student No" : "SYN-71000011-21",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 12,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "A value is required.",
+        "error_code" : "REQUIRED_MISSING",
+        "field_name" : "lastName",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "",
+        "Birth Date" : "2009-03-14",
+        "First Name" : "Nolast",
+        "Student No" : "SYN-71000011-22",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 13,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The value 'UNKNOWNV' is not a known code and has no entry in the voucher value map.",
+        "error_code" : "UNMAPPED_VALUE",
+        "field_name" : "voucher",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "UNKNOWNV",
+        "Last Name" : "Othererravokigmteaeg",
+        "Birth Date" : "2009-03-14",
+        "First Name" : "Unmappedvoucher",
+        "Student No" : "SYN-71000011-23",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 14,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The value 'ROBOTICS' is not a known code and has no entry in the specialization value map.",
+        "error_code" : "UNMAPPED_VALUE",
+        "field_name" : "specialization",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "ROBOTICS",
+        "Voucher" : "QVR",
+        "Last Name" : "Othererravokigmteaeg",
+        "Birth Date" : "2009-03-14",
+        "First Name" : "Unknownstrand",
+        "Student No" : "SYN-71000011-24",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 15,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "A value is required.",
+        "error_code" : "REQUIRED_MISSING",
+        "field_name" : "voucher",
+        "severity" : "error"
+      }, {
+        "detail" : "A value is required.",
+        "error_code" : "REQUIRED_MISSING",
+        "field_name" : "specialization",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "",
+        "Voucher" : "",
+        "Last Name" : "Othererravokigmteaeg",
+        "Birth Date" : "2009-03-14",
+        "First Name" : "Blankboth",
+        "Student No" : "SYN-71000011-25",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 16,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "A value is required.",
+        "error_code" : "REQUIRED_MISSING",
+        "field_name" : "studentNumber",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Othererravokigmteaeg",
+        "Birth Date" : "2009-03-14",
+        "First Name" : "Nonumber",
+        "Student No" : "",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 17,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The row has 5 values but the header has 10.",
+        "error_code" : "COLUMN_COUNT_MISMATCH",
+        "field_name" : null,
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Last Name" : "Othererravokigmteaeg",
+        "First Name" : "Short",
+        "Student No" : "SYN-71000011-27",
+        "Middle Name" : "2009-03-14"
+      },
+      "row" : 18,
+      "status" : "invalid"
+    } ]
+  },
+  "windows-1252" : {
+    "batch" : {
+      "flagged_count" : 0,
+      "imported_count" : 0,
+      "invalid_count" : 0,
+      "skipped_count" : 0,
+      "source_count" : 1,
+      "status" : "validated",
+      "valid_count" : 1
+    },
+    "batchMessages" : [ ],
+    "rows" : [ {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : null,
+        "sex" : null,
+        "track" : "ACADEMIC",
+        "campusId" : "ILIGAN",
+        "lastName" : "Cafï¿½elktinnhpwga",
+        "birthDate" : "2009-03-14",
+        "firstName" : "Josï¿½",
+        "programId" : "STEM",
+        "middleName" : null,
+        "programCode" : "STEM",
+        "voucherCode" : "QVR",
+        "studentNumber" : "SYN-71000012-01",
+        "previousSchool" : null
+      },
+      "raw" : {
+        "LRN" : "",
+        "Sex" : "",
+        "Strand" : "STEM",
+        "Voucher" : "QVR",
+        "Last Name" : "Cafï¿½elktinnhpwga",
+        "Birth Date" : "2009-03-14",
+        "First Name" : "Josï¿½",
+        "Student No" : "SYN-71000012-01",
+        "Middle Name" : "",
+        "Previous School" : ""
+      },
+      "row" : 2,
+      "status" : "valid"
+    } ]
+  }
+}

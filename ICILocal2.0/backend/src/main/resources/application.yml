@@ -26,6 +26,12 @@ ici:
     max-rows: 20000
     max-columns: 64
     max-cell-chars: 1000
+    xlsx:
+      max-entries: 200
+      max-entry-bytes: 10000000
+      min-inflate-ratio: 0.01
+      max-text-chars: 10000000
+      max-cells: 250000
   bootstrap:
     enabled: ${BOOTSTRAP_ADMIN_ENABLED:false}
     username: ${BOOTSTRAP_ADMIN_USERNAME:}
