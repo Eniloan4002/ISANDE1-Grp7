@@ -1,6 +1,6 @@
 # Spreadsheet data cleaning & import utility — ICI2-39 (design draft)
 
-**Status: design (phase 1, amended by phase 1b); phase 2, the shared foundation, is built and described in §16; phase 3, import type A (section allocation), is built and described in §17.** Type B, the xlsx reader and the upload endpoints are not built. Phase 1 scoped a generic `.xlsx` reader for the ICI2-37/38 imports; **phase 1b re-targets the ticket to its real goal, two new import types: (A) section allocations, §12, and (B) document tracking logs, §13**, with shared design in §14 and a summary of what stayed and what was reversed in §15. **Phase 1c switches the planned `.xlsx` reader from JDK-only to Apache POI (§7).** Everything builds on ICI2-37 (`legacy-student-import-api.md`) and ICI2-38 (`legacy-grade-matrix-import-api.md`) and must not change their behavior unless a mapping opts in.
+**Status: built.** Phase 2 (shared foundation) is described in §16, phase 3 (import type A, section allocation) in §17, and phases 4 to 6 (import type B, document tracking log; the Apache POI `.xlsx` reader; the upload endpoints) in §18. Only the optional inspect endpoint (phase 7) is not built, and nothing has been validated against a real registrar file yet. Phase 1 scoped a generic `.xlsx` reader for the ICI2-37/38 imports; **phase 1b re-targets the ticket to its real goal, two new import types: (A) section allocations, §12, and (B) document tracking logs, §13**, with shared design in §14 and a summary of what stayed and what was reversed in §15. **Phase 1c switches the planned `.xlsx` reader from JDK-only to Apache POI (§7).** Everything builds on ICI2-37 (`legacy-student-import-api.md`) and ICI2-38 (`legacy-grade-matrix-import-api.md`) and must not change their behavior unless a mapping opts in.
 
 As in ICI2-37/38, **no real legacy file has been received**. Every value, alias, format or limit below is an engineering default or an open question, never school policy. Anything the registrar must decide is a stored-mapping setting that defaults to "off" or "refuse".
 
@@ -568,7 +568,7 @@ Unchanged by 1c: every rule in §6, the grid and `CellMeta` contract, the cleani
 
 ## 16. Phase 2 as built (shared foundation)
 
-Backend and docs only; no frontend, no new library, nothing committed. Types A and B, the xlsx reader and the upload endpoints are **not** started.
+Backend and docs only; no frontend, no new library. Types A and B, the xlsx reader and the upload endpoints were built in later phases (§17, §18).
 
 ### 16.1 Files
 
@@ -657,7 +657,7 @@ Baseline before any change (`./mvnw -o -Dtest='ph.edu.ici.imports.*Test' test`):
 
 ## 17. Phase 3 as built (import type A: section allocation)
 
-Backend and docs only; no frontend, no new library, nothing committed. **No upload route yet**: a file is staged through `SectionAllocationValidationService.stage(...)` with a `GridReader` (the CSV reader stands in for tests; the `.xlsx` reader of phase 5 plugs in there), and everything after staging is HTTP. Type B, the xlsx reader and the upload endpoints are **not** started.
+Backend and docs only; no frontend, no new library. As first built, phase 3 had no upload route: a file was staged through `SectionAllocationValidationService.stage(...)` with a `GridReader` (the CSV reader stands in for tests), and everything after staging was HTTP. The `.xlsx` upload route was added in phase 6 (§18).
 
 ### 17.1 Files
 
@@ -710,4 +710,54 @@ Backend and docs only; no frontend, no new library, nothing committed. **No uplo
 
 ### 17.5 Not built, still open
 
-Type B (V24), the `.xlsx` reader and upload route (phases 5 and 6), the inspect endpoint, any screen, and validation against a real registrar file. The open questions of §10 (real layouts, file-order seat rule Q11, unassign-then-assign audit Q12) are unchanged.
+At the end of phase 3: type B (V24), the `.xlsx` reader and upload route (phases 5 and 6), the inspect endpoint, any screen, and validation against a real registrar file. Phases 4 to 6 are now built (§18). The open questions of §10 (real layouts, file-order seat rule Q11, unassign-then-assign audit Q12) are unchanged.
+
+## 18. Phases 4 to 6 as built (document log, `.xlsx` reader, uploads)
+
+Backend and docs only; no frontend. One new library: Apache POI `poi-ooxml` **5.5.1** (§7). 6.0.0 was released about a month before this phase; a new major version was not adopted untested. Its transitive libraries resolved without conflict: `commons-compress` 1.28.0 is now also what the embedded-Postgres test dependency uses, and the whole suite passes with it.
+
+### 18.1 Files
+
+| Area | Files (`ICILocal2.0/backend/src/main/java/ph/edu/ici/imports/` unless noted) |
+| --- | --- |
+| Reader (phase 5) | new `XlsxGridReader` (Spring component, implements `GridReader`), `XlsxLimits` (`ici.import.xlsx.*`, defaults also in `application.yml`); `GridReader` gained `read(bytes, settings, sheet)` (a default method, so the CSV reader is unchanged); `ImportFileException.FileError` gained `XLSX_LIMIT_EXCEEDED` (413), `UNSUPPORTED_FORMAT`, `MALFORMED_XLSX`, `MACRO_ENABLED`, `EXTERNAL_CONTENT`, `MULTIPLE_SHEETS`, `SHEET_NOT_FOUND`, `HIDDEN_CONTENT`, `MERGED_CELLS` (422, failed batch recorded) |
+| Uploads (phase 6) | `POST /batches` on `SectionAllocationImportController` and the new `DocumentLogImportController`; `SectionAllocationMapping.Settings` gained `sheet`; `LegacyImportErrors` also advises the new controller; `pom.xml` (`poi-ooxml`) |
+| Type B (phase 4) | new `DocumentLogMapping`, `DocumentLogMappingService`, `DocumentLogPlanner`, `DocumentLogValidationService`, `DocumentLogBatchService`, `DocumentLogCommitService`, `DocumentLogImportController` at `/api/document-log-imports` |
+| Shared | new `TypedMappingService`: list, read, upload default, snapshot, create and update of a type's mappings, moved unchanged out of `SectionAllocationMappingService` (which now extends it and keeps only its validation) so type B does not add a second copy |
+| Migration | `src/main/resources/db/migration/V24__document_log_import.sql` |
+| Tests | new `XlsxGridReaderTest`, `XlsxFixtures` (POI-written workbooks and raw-zip rewrites), `DocumentLogTest`; `SectionAllocationTest` gained the upload tests; `FoundationAuthenticationTest`, `MigrationReconciliationTest` pinned numbers moved to V24 (§16.6 item 9) |
+
+### 18.2 V24
+
+`document_log` added to the `import_batches` and `import_column_mappings` source-type checks, and one seeded, unvalidated default mapping (layout `long`, empty `document` and `status` value maps, `dateFormats: ["yyyy-MM-dd"]`). No new permission: type B uses `imports.enrollment.manage` (V23), as recommended in Q14. The `apply` decision scope check of V23 already names `document_log`. No other table changes.
+
+### 18.3 Reader and uploads
+
+- Implemented as §7 describes: format by magic bytes, POI zip limits, package-part checks for macros and external content, sheet selection and hidden-sheet check, merged regions, hidden columns (`<cols hidden>`) and hidden rows, cell typing to text plus `CellMeta`. Formulas are never evaluated.
+- Numeric cells are rendered from the stored `<v>` value as a plain decimal (no exponent, no trailing zeros; `1.23456789012E11` becomes `123456789012`, `11.0` becomes `11`). Date-formatted cells become ISO dates in the workbook's date system; 1900-system serials below 61 stay numbers flagged as date-formatted, so date fields refuse them and grade cells report `DATE_IN_GRADE_CELL`. A date-time cell keeps its date part.
+- Reads are serialized (one workbook at a time) because `ZipSecureFile` limits are process-wide statics; the reader applies its own limits before every read.
+- Upload routes: `POST /api/section-allocation-imports/batches` and `POST /api/document-log-imports/batches`, multipart `campusId`, optional `mappingId`, `termId`, `academicYearId`, `file`; permission `imports.enrollment.manage` plus `enrollment.manage` at the campus. A file that is neither OOXML nor OLE2 by magic bytes is 415, whatever its name. OLE2 (legacy `.xls` or encrypted) goes on to staging and is recorded as a failed batch with `UNSUPPORTED_FORMAT`. 413s persist nothing; 422s record a failed batch whose id is in the problem's `batchId`. The ICI2-37/38 upload routes still accept CSV only (Q18 not taken up).
+
+### 18.4 Type B behavior
+
+- **Staging** classifies headers as type A does (a wide layout with one column per document fails `UNMAPPED_COLUMN`). Documents map through `valueMaps.document` (exact `requirement_types.code`) or match a code ignoring case; states through `valueMaps.status` or the four canonical words; anything else is `UNMAPPED_VALUE`. Dates are native date cells, or text in exactly one of the mapping's `dateFormats` (`AMBIGUOUS_DATE`, `INVALID_DATE`, `FUTURE_DATE`, before 1900 refused). The application is found by `applicationNumber` at the campus, or by student and term (`APPLICATION_NOT_FOUND`, `AMBIGUOUS_APPLICATION`, `CONTEXT_MISMATCH` when number, student or term disagree, `APPLICATION_CLOSED` for rejected or withdrawn). The current item is read through `RequirementService.checklist`. Row outcomes follow §13.4, with the deviations below.
+- **Review:** `same_person`, `apply` (for `conflict`, `notes` or `changed` evidence; reason required), `skip`; `distinct` is a 409.
+- **Commit** re-plans every valid row with the same planner. A changed item version, a different application, a new conflict without `apply`, or a duplicate `(application, document)` demotes rows and imports nothing (409). Otherwise documents are recorded through `RequirementService.update` with the staged item version, ordered by application id then code. Rows keep `applied = {action, applicationId, code, before: {recorded, status, version, notes}, after: {status, version}}` (or `noop`). The result is `{applied, alreadyRecorded, skipped, invalid, applicationsNowComplete, applicationsNoLongerComplete, importedCount, version, alreadyImported}`. The verifier and the requirement audit actor are the committing registrar.
+
+### 18.5 Deviations from §§7, 13 and 14, and why
+
+1. **The stored note does not name the batch and row.** §13.3 composed `Legacy document log (batch <id>, row <n>): ...`, but then the same data in any later file would never equal the recorded note, so every re-import would be `NOTES_WOULD_CHANGE` instead of the idempotent `ALREADY_RECORDED` that §14.5 promises. The note is `Legacy document log: status "<label>", dated <yyyy-MM-dd>. <legacy note>`. The batch link is `import_rows.applied` plus the audit event's actor and time, as for type A.
+2. **An application with no linked student is refused** (`APPLICATION_NOT_LINKED`). V19 requires every imported row to carry a `student_id`, so such an application could never be committed. Link it through intake first.
+3. **A blank state cell is a valid no-op** (`NOTHING_TO_RECORD`), not an invalid row: it means "no record", as §13.2 says. The same warning covers "not recorded, file says pending".
+4. **`dateFormats` is a fixed list** of eight four-digit-year patterns (`yyyy-MM-dd`, `yyyy/MM/dd`, `MM/dd/yyyy`, `dd/MM/yyyy`, `M/d/yyyy`, `d/M/yyyy`, `MM-dd-yyyy`, `dd-MM-yyyy`), parsed strictly. Listing both a day-first and a month-first pattern makes dates like `06/07/2026` ambiguous, never guessed.
+5. **Rows awaiting identity review are planned at commit**, not at staging, as for type A (§17.4 item 3).
+6. **`repeatedEntries` accepts only `reject`**; `latest_by_date` remains unbuilt (Q9).
+7. **Mapping storage was extracted** into `TypedMappingService` (behavior-identical; the type A mapping tests are the regression).
+
+### 18.6 Tests
+
+| Class | Tests | What it proves |
+| --- | --- | --- |
+| `XlsxGridReaderTest` (no database) | 14 | Row numbers, blank rows, padding and over-wide rows; plain numbers, percent and other formats; native dates in both date systems and early serials not guessed; formulas with and without a stored result, never evaluated or kept; error cells, rich text, booleans; sheet selection, `MULTIPLE_SHEETS`, `SHEET_NOT_FOUND`; hidden sheets, rows and columns; merged cells; macros, `.xlsm` content type, external links, embedded objects; OLE2, CSV bytes, truncated and empty files; `<!DOCTYPE>` in the workbook and the sheet (refused, no entity expanded); a 20 MB zero-filled part (ratio), an oversized part, too many parts; a lone cell at column XFD, row, cell-length and cell-count limits |
+| `SectionAllocationTest` (+3) | 19 | Upload, stage and commit from real `.xlsx` bytes over HTTP; duplicate bytes 409; CSV bytes with an `.xlsx` name 415; merged cells and legacy `.xls` 422 with a recorded failed batch; a zip bomb 413 with nothing persisted; upload permission matrix |
+| `DocumentLogTest` | 11 | Seeded mapping and save validation; every row outcome of §13.4 with its own code and no write; value maps, application numbers, linked and unlinked applications, ambiguous dates; file-level failures; commit through the checklist service with verifier, requirement audit actor and note, completeness report, idempotency and audit privacy; conflicts that need `apply`, a regression that clears the verifier; a checklist changed after staging demoting the row with nothing imported, then applied; skip and discard; `.xlsx` upload end to end and 415; permission and campus matrix, other source types invisible |

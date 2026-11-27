@@ -5,7 +5,8 @@ import java.util.*;
 
 /** Parsed form of a stored section-allocation mapping (ICI2-39 type A) and its settings. Parsing is tolerant; {@link SectionAllocationMappingService} enforces strictness on save. */
 public record SectionAllocationMapping(Map<String,ImportMapping.FieldSpec> fields,Map<String,Map<String,String>> valueMaps,Settings settings,CleaningProfile cleaning) {
-    public record Settings(String encoding,char delimiter,int headerRow,Set<String> ignoredColumns) {}
+    /** @param sheet the .xlsx sheet to read (settings.sheet), or null when the workbook must have exactly one sheet */
+    public record Settings(String encoding,char delimiter,int headerRow,Set<String> ignoredColumns,String sheet) {}
 
     public static final String LAYOUT="student_list";
     public static final List<String> FIELDS=List.of("studentNumber","lrn","lastName","firstName","section","gradeLevel","program","term","schoolYear");
@@ -27,7 +28,8 @@ public record SectionAllocationMapping(Map<String,ImportMapping.FieldSpec> field
         }
         Set<String> ignored=new LinkedHashSet<>();settings.path("ignoredColumns").forEach(l->{if(l.isTextual())ignored.add(ImportText.header(l.asText()));});
         String delimiter=settings.path("delimiter").asText(",");
-        return new SectionAllocationMapping(fields,maps,new Settings(settings.path("encoding").asText("UTF-8"),delimiter.isEmpty()?',':delimiter.charAt(0),settings.path("headerRow").asInt(1),Set.copyOf(ignored)),CleaningProfile.parse(settings));
+        return new SectionAllocationMapping(fields,maps,new Settings(settings.path("encoding").asText("UTF-8"),delimiter.isEmpty()?',':delimiter.charAt(0),settings.path("headerRow").asInt(1),Set.copyOf(ignored),
+            settings.path("sheet").isTextual()&&!settings.path("sheet").asText().isBlank()?settings.path("sheet").asText().trim():null),CleaningProfile.parse(settings));
     }
     /** Settings in the shape {@link CsvParser} reads; a spreadsheet reader takes its own settings (the sheet name) from the stored settings instead. */
     ImportMapping.Settings csv(){return new ImportMapping.Settings(settings.encoding(),settings.delimiter(),settings.headerRow(),List.of(),false);}

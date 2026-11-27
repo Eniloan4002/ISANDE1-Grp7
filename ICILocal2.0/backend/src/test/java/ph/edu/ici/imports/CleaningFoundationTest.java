@@ -65,7 +65,8 @@ class CleaningFoundationTest {
     @Test void v22AddsTheColumnsDefaultsExistingBatchesToCsvAndChecksTheirShape()throws Exception{
         String n=n();long id=students.stage(iligan,"v22.csv",text(studentCsv("SYN-"+n+"-01,99"+n+"01,Alphaone"+ImportFixtures.letters(n)+",Ana,,2009-03-14,,,QVR,STEM")),null).batchId();
         assertThat(db.queryForObject("SELECT source_format FROM import_batches WHERE id=?",String.class,id)).isEqualTo("csv");
-        assertThat(db.queryForObject("SELECT count(*) FROM import_batches WHERE source_format<>'csv'",Integer.class)).as("every batch staged so far is csv").isZero();
+        // The ICI2-37/38 routes still accept CSV only; .xlsx batches exist only for the ICI2-39 types (section allocation, document log).
+        assertThat(db.queryForObject("SELECT count(*) FROM import_batches WHERE source_format<>'csv' AND source_type IN ('legacy_student_csv','legacy_grade_matrix_csv')",Integer.class)).as("every ICI2-37/38 batch is csv").isZero();
         assertThat(db.queryForList("SELECT column_name FROM information_schema.columns WHERE table_name IN ('import_batches','import_rows') AND column_name IN ('source_format','cleaning_summary','cleaning') ORDER BY column_name",String.class)).containsExactly("cleaning","cleaning_summary","source_format");
         assertThatThrownBy(()->db.update("UPDATE import_batches SET source_format='pdf' WHERE id=?",id)).isInstanceOf(DataIntegrityViolationException.class);
         db.update("UPDATE import_batches SET source_format='xlsx' WHERE id=?",id);db.update("UPDATE import_batches SET source_format='csv' WHERE id=?",id);

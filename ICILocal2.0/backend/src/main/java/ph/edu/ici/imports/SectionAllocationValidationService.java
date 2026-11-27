@@ -68,8 +68,8 @@ public class SectionAllocationValidationService {
     private static ResponseStatusException bad(String message){return new ResponseStatusException(HttpStatus.BAD_REQUEST,message);}
 
     /**
-     * Parse, validate and stage one allocation file for one campus. The caller supplies the reader for the file's format (an .xlsx reader once
-     * it exists; the CSV reader stands in for tests). Throws {@link ImportFileException} (413/422) or {@link ImportConflictException} (409).
+     * Parse, validate and stage one allocation file for one campus. The caller supplies the reader for the file's format ({@link XlsxGridReader}
+     * for uploads; the CSV reader stands in for service-level tests). Throws {@link ImportFileException} (413/422) or {@link ImportConflictException} (409).
      */
     public Staged stage(long campusId,UploadContext upload,String fileName,byte[] bytes,GridReader reader,Long mappingId){
         if(!access.campuses("imports.enrollment.manage").contains(campusId)||!access.campuses("enrollment.manage").contains(campusId))
@@ -86,7 +86,7 @@ public class SectionAllocationValidationService {
 
         CsvParser.Parsed parsed;Map<String,Integer> fields;
         try{
-            parsed=reader.read(bytes,mapping.csv());
+            parsed=reader.read(bytes,mapping.csv(),mapping.settings().sheet());
             fields=classify(parsed,mapping,ctx);
         }catch(ImportFileException e){
             if(e.error().recorded)e.batchId(recordFailure(campusId,name,hash,bytes.length,stored.id(),snapshot,contextJson,reader.format(),e));

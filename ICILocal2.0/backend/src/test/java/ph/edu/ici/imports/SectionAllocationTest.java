@@ -10,6 +10,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.util.LinkedMultiValueMap;
 import ph.edu.ici.PostgresSupport;
 import ph.edu.ici.auth.StaffIdentity;
 import ph.edu.ici.imports.ImportFileException.FileError;
@@ -377,5 +379,53 @@ class SectionAllocationTest {
         assertThat(get("/batches/"+gradeBatch,registrarToken).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         List<Long> listed=((List<?>)get("/batches?campusId="+iligan,registrarToken).getBody().get("items")).stream().map(i->((Number)((Map<?,?>)i).get("id")).longValue()).toList();
         assertThat(listed).contains(batch).doesNotContain(gradeBatch);
+    }
+
+    // ---- .xlsx upload (phase 6) ------------------------------------------------------------------------------------------
+    byte[] xlsx(Setup s,String[]... rows){List<List<Object>> list=new ArrayList<>();list.add(List.of("Student No","Section"));for(String[] r:rows)list.add(List.of(number(s,r[0]),r[1]));return XlsxFixtures.sheet(list);}
+    ResponseEntity<Map> upload(String token,long campus,Setup s,String filename,byte[] bytes){
+        var h=new HttpHeaders();if(token!=null)h.setBearerAuth(token);h.setContentType(MediaType.MULTIPART_FORM_DATA);
+        var form=new LinkedMultiValueMap<String,Object>();form.add("campusId",Long.toString(campus));form.add("termId",Long.toString(s.term()));
+        form.add("file",new ByteArrayResource(bytes){@Override public String getFilename(){return filename;}});
+        return rest.exchange(BASE+"/batches",HttpMethod.POST,new HttpEntity<>(form,h),Map.class);
+    }
+
+    @Test void anXlsxUploadIsStagedReviewedAndCommittedEndToEnd(){
+        var s=setup();long a=enrolled(s,"X1",null),b=enrolled(s,"X2",null);
+        var r=upload(registrarToken,iligan,s,"sections.xlsx",xlsx(s,new String[]{"X1","Alpha"},new String[]{"X2","Beta"}));
+        assertThat(r.getStatusCode()).as(r.toString()).isEqualTo(HttpStatus.CREATED);
+        assertThat(r.getBody().get("sourceFormat")).isEqualTo("xlsx");assertThat(r.getBody().get("validCount")).isEqualTo(2);
+        long batch=((Number)r.getBody().get("id")).longValue();
+        assertThat(commit(registrarToken,batch,2).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(sectionOf(a)).isEqualTo(s.alpha());assertThat(sectionOf(b)).isEqualTo(s.beta());
+        assertThat(upload(registrarToken,iligan,s,"again.xlsx",xlsx(s,new String[]{"X1","Alpha"},new String[]{"X2","Beta"})).getStatusCode()).as("identical bytes").isEqualTo(HttpStatus.CONFLICT);
+    }
+
+    @Test void uploadsAreXlsxOnlyAndRefusedFilesAreRecordedOrNotAsTheirStatusSays(){
+        var s=setup();enrolled(s,"Y1",null);
+        var csv=upload(registrarToken,iligan,s,"sections.xlsx",csv(s,line(s,"Y1","Alpha")));
+        assertThat(csv.getStatusCode()).as("CSV bytes with an .xlsx name").isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+        long before=count("SELECT count(*) FROM import_batches WHERE source_type='section_allocation'");
+        byte[] merged=XlsxFixtures.workbook(wb->{var sh=wb.createSheet("Sheet1");XlsxFixtures.fill(wb,sh,List.of(List.of("Student No","Section"),List.of(number(s,"Y1"),"Alpha")));sh.addMergedRegion(new org.apache.poi.ss.util.CellRangeAddress(1,1,0,1));});
+        var m=upload(registrarToken,iligan,s,"merged.xlsx",merged);
+        assertThat(m.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);assertThat(m.getBody().get("code")).isEqualTo("MERGED_CELLS");
+        long failed=((Number)m.getBody().get("batchId")).longValue();
+        assertThat(batchStatus(failed)).isEqualTo("failed");assertThat(db.queryForObject("SELECT source_format FROM import_batches WHERE id=?",String.class,failed)).isEqualTo("xlsx");
+        byte[] ole2=new byte[512];byte[] magic={(byte)0xD0,(byte)0xCF,0x11,(byte)0xE0,(byte)0xA1,(byte)0xB1,0x1A,(byte)0xE1};System.arraycopy(magic,0,ole2,0,8);
+        var legacy=upload(registrarToken,iligan,s,"old.xls",ole2);
+        assertThat(legacy.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);assertThat(legacy.getBody().get("code")).isEqualTo("UNSUPPORTED_FORMAT");
+        byte[] bomb=XlsxFixtures.rezip(xlsx(s,new String[]{"Y1","Alpha"}),Map.of("xl/media/padding.bin",new byte[4_000_000]),x->x);
+        var big=upload(registrarToken,iligan,s,"bomb.xlsx",bomb);
+        assertThat(big.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);assertThat(big.getBody().get("code")).isEqualTo("XLSX_LIMIT_EXCEEDED");
+        assertThat(count("SELECT count(*) FROM import_batches WHERE source_type='section_allocation'")).as("two recorded failures, nothing for the 413 or 415").isEqualTo(before+2);
+    }
+
+    @Test void uploadPermissionsFollowTheCampusAndTheEnrollmentImportPermission(){
+        var s=setup();enrolled(s,"Z1",null);byte[] file=xlsx(s,new String[]{"Z1","Alpha"});
+        assertThat(upload(teacherToken,iligan,s,"z.xlsx",file).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(upload(importOnlyToken,iligan,s,"z.xlsx",file).getStatusCode()).as("imports.manage is not enough").isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(upload(bugoToken,iligan,s,"z.xlsx",file).getStatusCode()).as("registrar of another campus").isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(upload(null,iligan,s,"z.xlsx",file).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(count("SELECT count(*) FROM import_batches WHERE source_type='section_allocation' AND file_size_bytes=?",(long)file.length)).isZero();
     }
 }
