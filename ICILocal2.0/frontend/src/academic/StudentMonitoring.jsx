@@ -385,7 +385,7 @@ export default function StudentMonitoring() {
       seenNumbers.add(student.studentNumber);
       const risk = byNumber.get(student.studentNumber);
       return {
-        key: risk?.enrollmentId ? String(risk.enrollmentId) : student.studentNumber,
+        key: student.studentNumber || (risk?.enrollmentId ? String(risk.enrollmentId) : ''),
         enrollmentId: risk?.enrollmentId ?? null,
         studentNumber: student.studentNumber,
         name: risk?.name || student.name,
@@ -408,7 +408,7 @@ export default function StudentMonitoring() {
     for (const risk of riskItems) {
       if (!seenNumbers.has(risk.studentNumber)) {
         combined.push({
-          key: String(risk.enrollmentId),
+          key: risk.studentNumber || String(risk.enrollmentId),
           enrollmentId: risk.enrollmentId,
           studentNumber: risk.studentNumber,
           name: risk.name,

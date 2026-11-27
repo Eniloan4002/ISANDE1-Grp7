@@ -117,14 +117,14 @@ describe('Adviser Student Monitoring screen (ICI2-67)', () => {
     );
 
     expect(await screen.findByRole('heading', { name: 'Student Monitoring' })).toBeInTheDocument();
-    expect(await screen.findByText('Ana Santos')).toBeInTheDocument();
-    expect(screen.getByText('Ben Cruz')).toBeInTheDocument();
-
     await waitFor(() =>
       expect(monitoringApi.loadAdviserRisks).toHaveBeenCalledWith(
         expect.objectContaining({ academicYearId: '9', termId: '14', sectionId: '21' })
       )
     );
+    expect(await screen.findByRole('button', { name: 'View Ben Cruz' })).toBeInTheDocument();
+    expect(screen.getByText('Ana Santos')).toBeInTheDocument();
+    expect(screen.getByText('Ben Cruz')).toBeInTheDocument();
 
     // Filter by incomplete grades
     fireEvent.change(screen.getByLabelText('Signal filter'), { target: { value: 'incomplete_grades' } });
