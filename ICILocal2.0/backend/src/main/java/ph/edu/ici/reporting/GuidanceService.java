@@ -91,7 +91,14 @@ public class GuidanceService {
     public Map<String,Object> risks(ReportFilter filter,LocalDate asOf,int page,int size){
         if(page<0||size<1||size>100)throw error(HttpStatus.BAD_REQUEST,"Use page >= 0 and size between 1 and 100.");
         LocalDate day=asOf==null?db.queryForObject("SELECT current_date",Map.of(),LocalDate.class):asOf;
-        var candidates=reports.bounded(filter,"guidance.manage");if(candidates.isEmpty())return Map.of("items",List.of(),"total",0,"page",page,"size",size,"asOf",day);
+        boolean guidanceRole=access.hasPermission("guidance.manage");
+        var candidates=reports.bounded(filter,guidanceRole?"guidance.manage":"advisory.read");
+        if(!guidanceRole){
+            var adviserCampuses=access.campuses("advisory.read");
+            var ownedSections=adviserCampuses.isEmpty()?Set.<Long>of():new HashSet<>(db.queryForList("SELECT id FROM sections WHERE adviser_id=:actor AND campus_id IN (:scope)",Map.of("actor",actor(),"scope",adviserCampuses),Long.class));
+            candidates=candidates.stream().filter(r->r.get("sectionId")!=null&&ownedSections.contains(((Number)r.get("sectionId")).longValue())).toList();
+        }
+        if(candidates.isEmpty())return Map.of("items",List.of(),"total",0,"atRiskTotal",0,"page",page,"size",size,"asOf",day);
         var ids=candidates.stream().map(r->((Number)r.get("enrollmentId")).longValue()).toList();
         var grades=db.queryForList("SELECT enrollment_id,value,mark FROM grades WHERE enrollment_id IN (:ids) AND state IN ('submitted','finalized')"+(filter.gradingPeriodId()==null?"":" AND grading_period_id=:period"),new MapSqlParameterSource("ids",ids).addValue("period",filter.gradingPeriodId()));
         var attendance=db.queryForList("SELECT enrollment_id,attendance_date,status FROM daily_academic_attendance WHERE enrollment_id IN (:ids) AND attendance_date<=:day",Map.of("ids",ids,"day",day));
@@ -118,7 +125,7 @@ public class GuidanceService {
                 }
                 if(!calendarComplete)unconfigured.add("school_calendar_gaps");if(consecutive>=((Number)policy.get("consecutiveAbsences")).intValue())signals.add("consecutive_unexcused_absences");
             }
-            var item=new LinkedHashMap<String,Object>(row);item.put("signals",signals);item.put("unconfiguredSignals",unconfigured);item.put("incompleteGrades",inc);item.put("failingGrades",failures);item.put("consecutiveUnexcusedAbsences",consecutive);item.put("case",caseMap.get(id));item.put("atRisk",!signals.isEmpty());riskRows.add(item);
+            var item=new LinkedHashMap<String,Object>(row);item.put("signals",signals);item.put("unconfiguredSignals",unconfigured);item.put("incompleteGrades",inc);item.put("failingGrades",failures);item.put("consecutiveUnexcusedAbsences",consecutive);item.put("referredToGuidance",caseMap.containsKey(id));item.put("case",guidanceRole?caseMap.get(id):null);item.put("atRisk",!signals.isEmpty());riskRows.add(item);
         }
         int offset=(int)Math.min((long)page*size,riskRows.size());return Map.of("items",riskRows.subList(offset,Math.min(offset+size,riskRows.size())),"total",riskRows.size(),"atRiskTotal",riskRows.stream().filter(r->Boolean.TRUE.equals(r.get("atRisk"))).count(),"page",page,"size",size,"asOf",day);
     }
@@ -130,12 +137,27 @@ public class GuidanceService {
     public Map<String,Object> createCase(CaseInput input){
         enrollment(input.enrollmentId(),true,true);audit();long id=db.queryForObject("INSERT INTO guidance_cases(enrollment_id,reason) VALUES(:enrollment,:reason) RETURNING id",Map.of("enrollment",input.enrollmentId(),"reason",input.reason().trim()),Long.class);return caseDetail(id);
     }
+    @Transactional
+    public Map<String,Object> refer(CaseInput input){
+        var adviserScope=scope("advisory.read");
+        var rows=db.queryForList("""
+            SELECT e.id,e.status FROM enrollments e JOIN sections s ON s.id=e.section_id
+            WHERE e.id=:enrollment AND s.adviser_id=:actor AND e.campus_id IN (:scope) FOR UPDATE OF e
+            """,Map.of("enrollment",input.enrollmentId(),"actor",actor(),"scope",adviserScope));
+        if(rows.isEmpty())throw error(HttpStatus.NOT_FOUND,"Advisory student enrollment not found.");
+        if(!Set.of("provisional","enrolled").contains(rows.getFirst().get("status")))throw error(HttpStatus.CONFLICT,"Only active enrollments can be referred to Guidance.");
+        if(Boolean.TRUE.equals(db.queryForObject("SELECT EXISTS(SELECT 1 FROM guidance_cases WHERE enrollment_id=:enrollment)",Map.of("enrollment",input.enrollmentId()),Boolean.class)))
+            throw error(HttpStatus.CONFLICT,"This student has already been referred to Guidance for this term.");
+        audit();
+        db.update("INSERT INTO guidance_cases(enrollment_id,reason) VALUES(:enrollment,:reason)",Map.of("enrollment",input.enrollmentId(),"reason",input.reason().trim()));
+        return Map.of("referred",true,"enrollmentId",input.enrollmentId());
+    }
     @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
-    public Map<String,Object> cases(String status,int page,int size){
+    public Map<String,Object> cases(String status,Long studentId,int page,int size){
         if(page<0||size<1||size>100)throw error(HttpStatus.BAD_REQUEST,"Use page >= 0 and size between 1 and 100.");if(status!=null&&!Set.of("open","monitoring","closed").contains(status))throw error(HttpStatus.BAD_REQUEST,"Invalid counseling status.");
-        var p=new MapSqlParameterSource("scope",scope("guidance.manage")).addValue("status",status).addValue("size",size).addValue("offset",(long)page*size);
-        String from=" FROM guidance_cases c JOIN enrollments e ON e.id=c.enrollment_id JOIN students st ON st.id=e.student_id WHERE e.campus_id IN (:scope)"+(status==null?"":" AND c.status=:status");
-        return Map.of("items",db.queryForList("SELECT c.id,c.enrollment_id AS \"enrollmentId\",c.status,c.version,st.student_number AS \"studentNumber\",concat_ws(' ',st.first_name,st.middle_name,st.last_name) AS name"+from+" ORDER BY c.id DESC LIMIT :size OFFSET :offset",p),"total",db.queryForObject("SELECT count(*)"+from,p,Long.class),"page",page,"size",size);
+        var p=new MapSqlParameterSource("scope",scope("guidance.manage")).addValue("status",status).addValue("studentId",studentId).addValue("size",size).addValue("offset",(long)page*size);
+        String from=" FROM guidance_cases c JOIN enrollments e ON e.id=c.enrollment_id JOIN students st ON st.id=e.student_id WHERE e.campus_id IN (:scope)"+(status==null?"":" AND c.status=:status")+(studentId==null?"":" AND e.student_id=:studentId");
+        return Map.of("items",db.queryForList("SELECT c.id,c.enrollment_id AS \"enrollmentId\",e.student_id AS \"studentId\",c.status,c.reason,c.version,c.created_at AS \"createdAt\",st.student_number AS \"studentNumber\",concat_ws(' ',st.first_name,st.middle_name,st.last_name) AS name"+from+" ORDER BY c.id DESC LIMIT :size OFFSET :offset",p),"total",db.queryForObject("SELECT count(*)"+from,p,Long.class),"page",page,"size",size);
     }
     @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
     public Map<String,Object> caseDetail(long id){

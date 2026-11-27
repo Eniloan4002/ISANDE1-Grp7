@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {apiRequest} from './api.js';
+import {useAuth} from './auth/AuthContext.jsx';
+import GuidancePolicyPanel from './reporting/GuidancePolicyPanel.jsx';
 
 const definitions = {
   subjects: {label:'Subjects',singular:'subject',endpoint:'subjects',fields:[
@@ -32,9 +34,12 @@ async function request(path, options) {
 
 const fresh=definition=>Object.fromEntries(definition.fields.map(field=>[field.key,field.type==='active'?'true':'']));
 export default function AcademicSetup() {
+  const {user}=useAuth();
   const [tab,setTab]=useState('subjects');
-  const definition=definitions[tab];
+  const isGuidanceTab=tab==='guidance';
+  const definition=definitions[tab]||definitions.subjects;
   const [data,setData]=useState({subjects:[],years:[],terms:[],periods:[]});
+  const [campuses,setCampuses]=useState([]);
   const [form,setForm]=useState(()=>fresh(definitions.subjects));
   const [editing,setEditing]=useState(null);
   const [loading,setLoading]=useState(true);
@@ -54,6 +59,9 @@ export default function AcademicSetup() {
     try {
       const values=await Promise.all(Object.values(definitions).map(item=>request(item.endpoint)));
       if(mounted.current) setData(Object.fromEntries(Object.keys(definitions).map((key,index)=>[key,values[index]])));
+      apiRequest('/api/enrollment/reference-data').then(ref=>{
+        if(mounted.current&&ref?.campuses?.length)setCampuses(ref.campuses);
+      }).catch(()=>{});
     }catch(error){if(mounted.current)setError(error.message);}
     finally {if(mounted.current)setLoading(false);}
   }
@@ -63,7 +71,7 @@ export default function AcademicSetup() {
     if(deleting){dialog.current.showModal();return()=>{dialog.current?.close();deleteTrigger.current?.focus();};}
   },[deleting]);
 
-  function reset(next=tab) {setEditing(null);setForm(fresh(definitions[next]));setErrors({});setError('');}
+  function reset(next=tab) {setEditing(null);if(definitions[next])setForm(fresh(definitions[next]));setErrors({});setError('');}
   function chooseTab(next) {if(busy)return;setTab(next);reset(next);setNotice('');}
   function parentLabel(source,id) {
     const row=data[source].find(row=>String(row.id)===String(id));
@@ -108,15 +116,19 @@ export default function AcademicSetup() {
     finally {setBusy(false);}
   }
   const missingParent=definition.fields.find(field=>field.type==='parent'&&!data[field.source].length);
+  const policyCampuses=campuses.length?campuses:Array.from(new Map((user?.grants||[]).filter(g=>g.campusId!=null).map(g=>[g.campusId,{id:g.campusId,name:g.campusName||g.campusCode||`Campus #${g.campusId}`}])).values());
+  const policyTerms=data.terms.map(t=>({id:t.id,name:t.name,academicYear:data.years.find(y=>String(y.id)===String(t.academic_year_id))?.label||''}));
+  const allTabs=[...Object.entries(definitions).map(([key,item])=>[key,`${item.label} (${data[key].length})`]),['guidance','Guidance thresholds']];
   return <><div className="page-heading"><h1>Academic setup</h1><p>Manage the subjects and calendar used by class assignments and student grades.</p></div>
-    <div className="setup-tabs" role="tablist" aria-label="Academic configuration">{Object.entries(definitions).map(([key,item],index,items)=><button ref={node=>tabButtons.current[key]=node} key={key} id={`tab-${key}`} role="tab" tabIndex={tab===key?0:-1} aria-selected={tab===key} aria-controls="setup-panel" disabled={busy} onClick={()=>chooseTab(key)} onKeyDown={event=>{
+    <div className="setup-tabs" role="tablist" aria-label="Academic configuration">{allTabs.map(([key,label],index,items)=><button ref={node=>tabButtons.current[key]=node} key={key} id={`tab-${key}`} role="tab" tabIndex={tab===key?0:-1} aria-selected={tab===key} aria-controls="setup-panel" disabled={busy} onClick={()=>chooseTab(key)} onKeyDown={event=>{
       let next;if(event.key==='ArrowRight')next=items[(index+1)%items.length][0];else if(event.key==='ArrowLeft')next=items[(index+items.length-1)%items.length][0];else if(event.key==='Home')next=items[0][0];else if(event.key==='End')next=items.at(-1)[0];
       if(next){event.preventDefault();chooseTab(next);tabButtons.current[next]?.focus();}
-    }}>{item.label} <span>({data[key].length})</span></button>)}</div>
+    }}>{label}</button>)}</div>
     <div id="setup-panel" role="tabpanel" aria-labelledby={`tab-${tab}`}>
     {error&&<div className="notice notice-error" role="alert">{error}<button className="button button-outline retry-button" onClick={load} disabled={busy||loading}>Reload records</button></div>}
     {loading&&<p role="status">Loading setup records…</p>}
-    {!loading&&<div className="setup-layout"><section className="panel"><h2>{editing?`Edit ${definition.singular}`:`Add ${definition.singular}`}</h2><form className="panel-body" onSubmit={save}>
+    {!loading&&isGuidanceTab&&<GuidancePolicyPanel campuses={policyCampuses} terms={policyTerms} canConfigure />}
+    {!loading&&!isGuidanceTab&&<div className="setup-layout"><section className="panel"><h2>{editing?`Edit ${definition.singular}`:`Add ${definition.singular}`}</h2><form className="panel-body" onSubmit={save}>
       {missingParent&&<p className="notice">Create {missingParent.source==='years'?'an academic year':'a term'} before adding {definition.label.toLowerCase()}.</p>}
       {definition.fields.map((field,index)=><div key={`${tab}-${field.key}`}><label htmlFor={`setup-${field.key}`}>{field.label}</label>{field.type==='parent'||field.type==='active'?<select ref={index===0?firstField:undefined} id={`setup-${field.key}`} required value={form[field.key]??''} disabled={busy||Boolean(editing&&field.type==='parent')} aria-invalid={Boolean(errors?.[field.key])} onChange={event=>setForm({...form,[field.key]:event.target.value})}>
         {field.type==='active'?<><option value="true">Active</option><option value="false">Inactive</option></>:<><option value="">Select {field.label.toLowerCase()}…</option>{data[field.source].map(row=><option key={row.id} value={row.id}>{parentLabel(field.source,row.id)}</option>)}</>}

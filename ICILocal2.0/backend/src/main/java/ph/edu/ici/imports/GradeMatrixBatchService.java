@@ -1,6 +1,7 @@
 package ph.edu.ici.imports;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -16,22 +17,15 @@ import ph.edu.ici.auth.AccessPolicy;
 @Service
 public class GradeMatrixBatchService {
     static final String SOURCE=GradeMatrixMappingService.SOURCE;
-    private final NamedParameterJdbcTemplate db;private final AccessPolicy access;private final ImportBatchService common;
+    private final NamedParameterJdbcTemplate db;private final AccessPolicy access;private final ImportBatchService common;private final BatchReads reads;
 
-    public GradeMatrixBatchService(NamedParameterJdbcTemplate db,AccessPolicy access,ImportBatchService common){this.db=db;this.access=access;this.common=common;}
+    public GradeMatrixBatchService(NamedParameterJdbcTemplate db,ObjectMapper json,AccessPolicy access,ImportBatchService common){this.db=db;this.access=access;this.common=common;this.reads=new BatchReads(db,json,access,SOURCE,"imports.grades.manage","grade imports");}
     private ResponseStatusException error(HttpStatus status,String message){return new ResponseStatusException(status,message);}
     private long n(Object value){return ((Number)value).longValue();}
     private void paging(int page,int size){if(page<0||page>1_000_000||size<1||size>100)throw error(HttpStatus.BAD_REQUEST,"Use a nonnegative page and a size of 1 to 100.");}
 
     /** Loads a grade batch the caller may see; for writes the caller must hold imports.grades.manage for its campus. A batch of another campus or source type is a 404. */
-    Map<String,Object> batch(long id,boolean write,boolean lock){
-        var rows=db.queryForList("SELECT * FROM import_batches WHERE id=:id AND source_type=:s"+(lock?" FOR UPDATE":""),Map.of("id",id,"s",SOURCE));
-        if(rows.isEmpty()||rows.getFirst().get("campus_id")==null)throw error(HttpStatus.NOT_FOUND,"Import batch not found.");
-        long campus=n(rows.getFirst().get("campus_id"));
-        if(!access.campuses("imports.read").contains(campus)&&!access.campuses("imports.grades.manage").contains(campus))throw error(HttpStatus.NOT_FOUND,"Import batch not found.");
-        if(write&&!access.campuses("imports.grades.manage").contains(campus))throw error(HttpStatus.FORBIDDEN,"Your account cannot change grade imports for this campus.");
-        return rows.getFirst();
-    }
+    Map<String,Object> batch(long id,boolean write,boolean lock){return reads.batch(id,write,lock);}
 
     // ---- reads ---------------------------------------------------------------------------------------------------------
 
@@ -51,16 +45,7 @@ public class GradeMatrixBatchService {
         return rows.isEmpty()?null:rows.getFirst();
     }
 
-    @Transactional(readOnly=true) public Map<String,Object> list(Long campusId,String status,int page,int size){
-        paging(page,size);var scope=access.campuses("imports.read");
-        if(campusId!=null&&!scope.contains(campusId))throw error(HttpStatus.FORBIDDEN,"Your account cannot view grade imports for this campus.");
-        if(status!=null&&!List.of("staged","validated","imported","reconciled","failed").contains(status))throw error(HttpStatus.BAD_REQUEST,"Unknown batch status.");
-        if(scope.isEmpty())return Map.of("items",List.of(),"total",0,"page",page,"size",size);
-        Map<String,Object> p=new HashMap<>();p.put("s",SOURCE);p.put("scope",campusId==null?scope:List.of(campusId));p.put("limit",size);p.put("offset",(long)page*size);
-        String where=" WHERE source_type=:s AND campus_id IN (:scope)";if(status!=null){where+=" AND status=:status";p.put("status",status);}
-        var items=db.queryForList("SELECT * FROM import_batches"+where+" ORDER BY started_at DESC,id DESC LIMIT :limit OFFSET :offset",p).stream().map(this::summary).toList();
-        return Map.of("items",items,"total",db.queryForObject("SELECT count(*) FROM import_batches"+where,p,Long.class),"page",page,"size",size);
-    }
+    @Transactional(readOnly=true) public Map<String,Object> list(Long campusId,String status,int page,int size){return reads.list(campusId,status,page,size,this::summary);}
 
     @Transactional(readOnly=true) public Map<String,Object> detail(long id){
         var b=batch(id,false,false);var m=summary(b);
@@ -79,26 +64,8 @@ public class GradeMatrixBatchService {
         m.put("dependentBatches",dependents(id));
         return m;
     }
-    @Transactional(readOnly=true) public Map<String,Object> rows(long id,String status,int page,int size){
-        paging(page,size);batch(id,false,false);
-        if(status!=null&&!ImportBatchService.ROW_STATUSES.contains(status))throw error(HttpStatus.BAD_REQUEST,"Unknown row status.");
-        Map<String,Object> p=new HashMap<>();p.put("id",id);p.put("limit",size);p.put("offset",(long)page*size);String where=" WHERE batch_id=:id";if(status!=null){where+=" AND status=:status";p.put("status",status);}
-        var rows=db.queryForList("SELECT * FROM import_rows"+where+" ORDER BY row_number LIMIT :limit OFFSET :offset",p);
-        Map<Long,List<Map<String,Object>>> messages=new HashMap<>();
-        if(!rows.isEmpty())for(var e:db.queryForList("SELECT import_row_id,error_code AS code,field_name AS field,severity,detail FROM import_exceptions WHERE import_row_id IN (:ids) ORDER BY id",Map.of("ids",rows.stream().map(r->r.get("id")).toList()))){
-            long rowId=n(e.remove("import_row_id"));messages.computeIfAbsent(rowId,k->new ArrayList<>()).add(e);
-        }
-        var items=rows.stream().map(r->common.rowView(r,messages.getOrDefault(n(r.get("id")),List.of()))).toList();
-        return Map.of("items",items,"total",db.queryForObject("SELECT count(*) FROM import_rows"+where,p,Long.class),"page",page,"size",size);
-    }
-    @Transactional(readOnly=true) public Map<String,Object> errors(long id,String severity,Integer rowNumber,int page,int size){
-        paging(page,size);batch(id,false,false);
-        if(severity!=null&&!List.of("error","warning").contains(severity))throw error(HttpStatus.BAD_REQUEST,"Severity must be error or warning.");
-        Map<String,Object> p=new HashMap<>();p.put("id",id);p.put("limit",size);p.put("offset",(long)page*size);String where=" WHERE batch_id=:id";
-        if(severity!=null){where+=" AND severity=:severity";p.put("severity",severity);}if(rowNumber!=null){where+=" AND row_number=:rn";p.put("rn",rowNumber);}
-        return Map.of("items",db.queryForList("SELECT id,row_number AS \"rowNumber\",import_row_id AS \"rowId\",error_code AS code,field_name AS field,severity,detail,resolved FROM import_exceptions"+where+" ORDER BY row_number NULLS FIRST,id LIMIT :limit OFFSET :offset",p),
-            "total",db.queryForObject("SELECT count(*) FROM import_exceptions"+where,p,Long.class),"page",page,"size",size);
-    }
+    @Transactional(readOnly=true) public Map<String,Object> rows(long id,String status,int page,int size){return reads.rows(id,status,page,size);}
+    @Transactional(readOnly=true) public Map<String,Object> errors(long id,String severity,Integer rowNumber,int page,int size){return reads.errors(id,severity,rowNumber,page,size);}
 
     // ---- review --------------------------------------------------------------------------------------------------------
 

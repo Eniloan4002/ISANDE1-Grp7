@@ -30,9 +30,13 @@ export const roleSections = [
         { path: '/academic/incomplete-grades', label: 'Incomplete Grades' },
         { path: '/academic/grade-approvals', label: 'Grade Approvals' },
         { path: '/academic/finalize-grades', label: 'Grade Finalization' },
+        { path: '/academic/withdrawal-approvals', label: 'Withdrawal Approvals' },
       ] },
       { label: 'Reporting', pages: [
         { path: '/enrollment/reporting-monitoring', label: 'Reporting & Monitoring' },
+      ] },
+      { label: 'Data Migration', pages: [
+        { path: '/migration/legacy-imports', label: 'Legacy Import Review' },
       ] },
     ],
   },
@@ -42,6 +46,7 @@ export const roleSections = [
       { path: '/academic/advisory', label: 'Advisory Class' },
       { path: '/academic/class-records', label: 'Class Records' },
       { path: '/academic/student-monitoring', label: 'Student Monitoring' },
+      { path: '/academic/withdrawal-approvals', label: 'Withdrawal Approvals' },
     ] }],
   },
   {
@@ -95,6 +100,8 @@ export const roleSections = [
       { path: '/administration/users', label: 'User Accounts' },
       { path: '/administration/system-settings', label: 'System Settings' },
       { path: '/administration/audit-log', label: 'Audit Log' },
+    ] }, { label: 'Data Migration', pages: [
+      { path: '/migration/legacy-imports', label: 'Legacy Import Review' },
     ] }],
   },
 ];

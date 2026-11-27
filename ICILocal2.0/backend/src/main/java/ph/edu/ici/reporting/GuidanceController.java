@@ -44,15 +44,19 @@ public class GuidanceController {
     @PreAuthorize("@accessPolicy.hasPermission('enrollment.manage') or @accessPolicy.hasPermission('grades.encode')")
     public Map<String,Object> attendance(@Valid @RequestBody AttendanceImport input){return guidance.attendance(input);}
     @GetMapping("/guidance/risks")
-    @PreAuthorize("@accessPolicy.hasPermission('guidance.manage')")
+    @PreAuthorize("@accessPolicy.hasPermission('guidance.manage') or @accessPolicy.hasPermission('advisory.read')")
     public Map<String,Object> risks(@ModelAttribute ReportFilter filter,@RequestParam(required=false) LocalDate asOf,@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="25") int size){return guidance.risks(filter,asOf,page,size);}
+    @PostMapping("/guidance/referrals")
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("@accessPolicy.hasPermission('advisory.read')")
+    public Map<String,Object> refer(@Valid @RequestBody CaseInput input){return guidance.refer(input);}
     @PostMapping("/guidance/cases")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("@accessPolicy.hasPermission('guidance.manage')")
     public Map<String,Object> createCase(@Valid @RequestBody CaseInput input){return guidance.createCase(input);}
     @GetMapping("/guidance/cases")
     @PreAuthorize("@accessPolicy.hasPermission('guidance.manage')")
-    public Map<String,Object> cases(@RequestParam(required=false) String status,@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="25") int size){return guidance.cases(status,page,size);}
+    public Map<String,Object> cases(@RequestParam(required=false) String status,@RequestParam(required=false) Long studentId,@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="25") int size){return guidance.cases(status,studentId,page,size);}
     @GetMapping("/guidance/cases/{id}")
     @PreAuthorize("@accessPolicy.hasPermission('guidance.manage')")
     public Map<String,Object> caseDetail(@PathVariable long id){return guidance.caseDetail(id);}

@@ -25,6 +25,7 @@ public class AcademicHistoryService {
     private List<Long> scope(){
         var allowed=new TreeSet<Long>(accessPolicy.campuses("enrollment.manage"));
         allowed.addAll(accessPolicy.campuses("reports.read"));
+        allowed.addAll(accessPolicy.campuses("guidance.manage"));
         if(allowed.isEmpty())throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Academic history access is required.");
         return List.copyOf(allowed);
     }

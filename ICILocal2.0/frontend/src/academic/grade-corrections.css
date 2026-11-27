@@ -1,0 +1,176 @@
+/* ICI2-55 Subject Teacher Grade Corrections screen — aligned with foundation.css and academic screens. */
+.corrections-workspace {
+  max-width: 1450px;
+}
+
+.corrections-policy {
+  border-left: 4px solid #b17a16;
+  background: #fff7e4;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  line-height: 1.55;
+}
+
+.corrections-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.corrections-grid .panel {
+  margin-top: 0;
+}
+
+.corrections-context-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 4px;
+}
+
+.corrections-context-grid label {
+  font-size: 14px;
+}
+
+.corrections-selected-grade {
+  background: var(--brand-mist);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+
+.corrections-selected-grade dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 24px;
+  margin: 0;
+}
+
+.corrections-selected-grade dt {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.corrections-selected-grade dd {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.corrections-textarea {
+  display: block;
+  width: 100%;
+  min-height: 96px;
+  resize: vertical;
+  border: 1px solid #8b9da9;
+  padding: 11px;
+  border-radius: 3px;
+  font: inherit;
+  margin-bottom: 16px;
+  color: var(--brand-charcoal);
+}
+
+.corrections-textarea[aria-invalid='true'] {
+  border-color: #8c303c;
+}
+
+.corrections-file-meta {
+  display: block;
+  margin: -10px 0 14px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.corrections-timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.corrections-timeline li {
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border);
+  border-radius: 3px;
+  background: #fff;
+}
+
+.corrections-timeline li.is-done {
+  border-left-color: #277a55;
+  background: #f5fbf7;
+}
+
+.corrections-timeline li.is-current {
+  border-left-color: #b17a16;
+  background: #fffaf0;
+}
+
+.corrections-timeline li.is-rejected {
+  border-left-color: #8c303c;
+  background: #fff4f5;
+}
+
+.corrections-timeline li small {
+  display: block;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.corrections-remarks-box {
+  background: var(--brand-mist);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px 16px;
+  margin: 14px 0 18px;
+}
+
+.corrections-remarks-box p {
+  margin: 6px 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.corrections-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 18px;
+}
+
+.corrections-filters > div {
+  flex: 0 1 220px;
+  min-width: 0;
+}
+
+.corrections-filters label {
+  font-size: 14px;
+}
+
+.corrections-filters select {
+  margin-bottom: 0;
+}
+
+.corrections-filters .button {
+  min-height: 44px;
+}
+
+@media (max-width: 1050px) {
+  .corrections-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .corrections-context-grid {
+    grid-template-columns: 1fr;
+  }
+  .corrections-filters > div {
+    flex: 1 1 100%;
+  }
+}

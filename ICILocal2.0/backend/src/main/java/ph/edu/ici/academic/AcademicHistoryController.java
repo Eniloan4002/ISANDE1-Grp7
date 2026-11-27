@@ -5,7 +5,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@PreAuthorize("@accessPolicy.hasPermission('enrollment.manage') or @accessPolicy.hasPermission('reports.read')")
+@PreAuthorize("@accessPolicy.hasPermission('enrollment.manage') or @accessPolicy.hasPermission('reports.read') or @accessPolicy.hasPermission('guidance.manage')")
 public class AcademicHistoryController {
     private final AcademicHistoryService service;
     public AcademicHistoryController(AcademicHistoryService service){this.service=service;}

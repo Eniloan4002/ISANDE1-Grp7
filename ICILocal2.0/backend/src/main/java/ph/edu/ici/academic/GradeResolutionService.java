@@ -114,7 +114,7 @@ public class GradeResolutionService {
         var p=params().addValue("status",status).addValue("size",size).addValue("offset",(long)page*size);
         String from=FROM+" JOIN grade_corrections c ON c.grade_id=g.id WHERE "+SCOPE+(status.equals("all")?"":" AND c.status=:status");
         long total=db.queryForObject("SELECT count(*) "+from,p,Long.class);
-        var items=db.queryForList("SELECT "+FIELDS+",c.id,c.status,c.version,c.proposed_value AS \"proposedValue\",c.justification,c.requested_at AS \"requestedAt\" "+from+" ORDER BY c.requested_at DESC,c.id DESC LIMIT :size OFFSET :offset",p);
+        var items=db.queryForList("SELECT "+FIELDS+",c.id,c.status,c.version,c.original_value AS \"originalValue\",c.original_mark AS \"originalMark\",c.proposed_value AS \"proposedValue\",c.justification,c.requested_at AS \"requestedAt\",c.review_reason AS \"reviewReason\",c.reviewed_at AS \"reviewedAt\" "+from+" ORDER BY c.requested_at DESC,c.id DESC LIMIT :size OFFSET :offset",p);
         return Map.of("items",items,"total",total,"page",page,"size",size);
     }
     @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)

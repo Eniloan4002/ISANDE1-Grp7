@@ -1,0 +1,63 @@
+{
+  "batch" : {
+    "flagged_count" : 0,
+    "imported_count" : 0,
+    "invalid_count" : 0,
+    "skipped_count" : 0,
+    "source_count" : 1,
+    "status" : "validated",
+    "valid_count" : 1
+  },
+  "batchMessages" : [ ],
+  "rows" : [ {
+    "evidence" : null,
+    "messages" : [ ],
+    "normalized" : {
+      "lrn" : null,
+      "cells" : [ {
+        "kind" : "period",
+        "mark" : "INC",
+        "index" : 4,
+        "column" : "Mathematics 7 - 1st Quarter",
+        "periodId" : "Q1",
+        "subjectId" : "SYNMATH72000100"
+      }, {
+        "kind" : "reported_final",
+        "index" : 5,
+        "value" : "88.00",
+        "column" : "Mathematics 7 - Final Grade",
+        "periodId" : null,
+        "subjectId" : "SYNMATH72000100"
+      }, {
+        "kind" : "period",
+        "index" : 6,
+        "value" : "90.00",
+        "column" : "Science 7 - 1st Quarter",
+        "periodId" : "Q1",
+        "subjectId" : "SYNSCI72000100"
+      } ],
+      "context" : {
+        "termId" : "S1",
+        "section" : null,
+        "gradeLevel" : "Grade 7",
+        "academicYearId" : "SY72000100"
+      },
+      "matchedBy" : "studentNumber",
+      "studentId" : "SYN-72000100-01",
+      "blankCells" : 1,
+      "studentNumber" : "SYN-72000100-01"
+    },
+    "raw" : {
+      "AY" : "AY 2018-19",
+      "Semester" : "First Semester",
+      "Student No" : "SYN-72000100-01",
+      "Grade Level" : "Grade 7",
+      "Science 7 - 1st Quarter" : "90",
+      "Science 7 - Final Grade" : "",
+      "Mathematics 7 - 1st Quarter" : "Inc.",
+      "Mathematics 7 - Final Grade" : "88"
+    },
+    "row" : 2,
+    "status" : "valid"
+  } ]
+}
