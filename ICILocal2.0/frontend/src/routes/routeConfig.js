@@ -106,9 +106,48 @@ for(const {role,groups} of roleSections)for(const group of groups)for(const page
   if(!routeMap.has(page.path))routeMap.set(page.path,{...page,allowedRoles:[]});
   routeMap.get(page.path).allowedRoles.push(role);
 }
+// Icon keys are drawn by ui/icons.jsx; a missing key falls back to a neutral dot.
+const iconByPath={
+  '/enrollment/submission':'intake','/enrollment/queue':'queue','/enrollment/intake':'intake','/enrollment/evaluate':'reqs','/enrollment/duplicate':'dupes',
+  '/enrollment/requirements':'reqs','/enrollment/attendance':'attend','/enrollment/academic-records':'book','/enrollment/enrolled':'place','/enrollment/sections':'sections',
+  '/enrollment/reporting-monitoring':'chart','/academic/assignments':'people','/academic/registrar-records':'history','/academic/incomplete-grades':'alert',
+  '/academic/grade-approvals':'shield','/academic/finalize-grades':'lock','/academic/advisory':'people','/academic/class-records':'book','/academic/student-monitoring':'chart',
+  '/academic/grade-entry':'edit','/academic/class-list':'book','/academic/progress-reports':'shield','/academic/withdrawal-approvals':'alert',
+  '/reporting/guidance':'book','/reporting/student-profiles':'people','/reporting/reports':'chart','/cashiering/students':'people','/cashiering/clearances':'shield',
+  '/administration/users':'people','/administration/system-settings':'settings','/administration/audit-log':'history',
+  '/setup':'settings','/design-system':'place','/account/security':'lock',
+};
 const prototypePages=[...routeMap.values()];
 
 export const pages=[...prototypePages,{path:'/setup',label:'Academic setup',allowedRoles:['admin','registrar']},{path:'/design-system',label:'Interface components',allowedRoles:knownRoles},{path:'/account/security',label:'Account Security',allowedRoles:knownRoles}];
+
+const sharedPaths=['/setup','/design-system','/account/security'];
+
+/**
+ * One menu model for every role: the groups of each granted role (merged by label, each page once),
+ * then a Shared group. Optional `badge` on a page entry shows a count in the side panel.
+ */
+export function navGroupsFor(roles){
+  const groups=new Map();
+  const seen=new Set();
+  const add=(label,page)=>{
+    if(seen.has(page.path))return;
+    seen.add(page.path);
+    if(!groups.has(label))groups.set(label,[]);
+    groups.get(label).push({path:page.path,label:page.label,icon:iconByPath[page.path]??'dot',badge:page.badge});
+  };
+  for(const section of roleSections){
+    if(!roles.includes(section.role))continue;
+    for(const group of section.groups)for(const page of group.pages)add(group.label,page);
+  }
+  for(const page of pages)if(sharedPaths.includes(page.path)&&page.allowedRoles.some(role=>roles.includes(role)))add('Shared',page);
+  return [...groups].map(([label,items])=>({label,items}));
+}
+
+/** The nav entry that should look active for a pathname (applicant details belong to the queue). */
+export function activeNavPath(pathname){
+  return /^\/enrollment\/applicants\/\d+$/.test(pathname??'')?'/enrollment/queue':pathname;
+}
 
 export function firstAllowedPath(roles) {
   if(roles.includes('admin'))return '/setup';

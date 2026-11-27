@@ -74,7 +74,7 @@ describe('routes', () => {
 
   it('opens and closes mobile navigation', async () => {
     const original = window.matchMedia;
-    window.matchMedia = query => ({ matches: query === '(max-width: 700px)', addEventListener: () => {}, removeEventListener: () => {} });
+    window.matchMedia = query => ({ matches: query === '(max-width: 900px)', addEventListener: () => {}, removeEventListener: () => {} });
     try {
       const { container } = await show('/academic/grade-entry', tokenFor({ role: 'teacher', exp: future() }));
       expect(screen.getByRole('button',{name:'Toggle navigation'})).toHaveAttribute('aria-expanded','false');
