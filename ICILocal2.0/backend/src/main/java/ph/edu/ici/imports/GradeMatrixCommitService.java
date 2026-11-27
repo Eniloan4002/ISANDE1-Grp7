@@ -121,10 +121,13 @@ public class GradeMatrixCommitService {
         for(int i=0;i<all.size();i+=5000){Map<String,Object> p=new HashMap<>();p.put("v",all.subList(i,Math.min(all.size(),i+5000)));p.put("campus",campus);for(var m:db.queryForList(sql,p))out.add(((Number)m.get("id")).longValue());}
         return out;
     }
-    /** Live legacy records of these students, keyed like {@link #key}, valued "v88.50" or "mINC". */
+    /**
+     * Live legacy records of these students, keyed like {@link #key}, valued "v88.50" or "mINC". Read FOR SHARE so the batch
+     * that owns a record this commit skips cannot be voided until the commit ends (GradeMatrixBatchService.voidBatch, ICI2-89).
+     */
     private Map<String,String> recorded(Collection<Long> students){
         Map<String,String> out=new HashMap<>();List<Long> all=new ArrayList<>(students);
-        for(int i=0;i<all.size();i+=5000)for(var m:db.queryForList("SELECT student_id,term_id,subject_id,record_kind,grading_period_id,value,mark FROM legacy_grade_records WHERE voided_at IS NULL AND student_id IN (:v)",Map.of("v",all.subList(i,Math.min(all.size(),i+5000)))))
+        for(int i=0;i<all.size();i+=5000)for(var m:db.queryForList("SELECT student_id,term_id,subject_id,record_kind,grading_period_id,value,mark FROM legacy_grade_records WHERE voided_at IS NULL AND student_id IN (:v) ORDER BY id FOR SHARE",Map.of("v",all.subList(i,Math.min(all.size(),i+5000)))))
             out.put(m.get("student_id")+"|"+m.get("term_id")+"|"+m.get("subject_id")+"|"+("reported_final".equals(m.get("record_kind"))?"final":m.get("grading_period_id")),
                 m.get("value")!=null?"v"+((BigDecimal)m.get("value")).setScale(2).toPlainString():"m"+m.get("mark"));
         return out;

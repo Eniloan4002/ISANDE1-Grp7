@@ -346,6 +346,34 @@ class GradeMatrixApiTest {
         assertThat(liveRecords(b2)).isEqualTo(3);assertThat(count("SELECT count(*) FROM legacy_grade_records WHERE student_id=? AND voided_at IS NULL",s1)).isEqualTo(3);
         assertThat(count("SELECT count(*) FROM legacy_grade_records WHERE student_id=?",s1)).isEqualTo(6);
     }
+    @SuppressWarnings("unchecked")
+    @Test void voidingABatchThatALaterBatchReliesOnIsRefusedUntilTheLaterBatchIsVoided()throws Exception{
+        // ICI2-89: B is a corrected superset of A. Its cells for student 01 match A's, so B skips them as already recorded and owns no
+        // record for them. Voiding A alone would erase those grades while B still says imported.
+        var s=setup();long s1=student(s,"01");long s2=student(s,"02");
+        long a=stage(s,csv(s,"SYN-%N%-01,Grade 7,88.50,90,INC"));assertThat(commit(registrarToken,a,1).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat((List<Map>)get("/batches/"+a,registrarToken).getBody().get("dependentBatches")).as("nothing relies on A yet").isEmpty();
+        long b=stage(s,csv(s,"SYN-%N%-01,Grade 7,88.50,90,INC","SYN-%N%-02,Grade 7,80,81,82"));
+        assertThat(commit(registrarToken,b,2).getBody()).containsEntry("recordsCreated",3).containsEntry("recordsAlreadyRecorded",3);
+
+        var listed=(List<Map>)get("/batches/"+a,registrarToken).getBody().get("dependentBatches");
+        assertThat(listed).singleElement().satisfies(d->{assertThat(((Number)d.get("batchId")).longValue()).isEqualTo(b);assertThat(((Number)d.get("sharedRecords")).longValue()).isEqualTo(3);});
+        assertThat((List<Map>)get("/batches/"+b,registrarToken).getBody().get("dependentBatches")).as("B owns its own records; nothing relies on it").isEmpty();
+
+        var refused=voidBatch(registrarToken,a,"Replaced by the corrected file");
+        assertThat(refused.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(refused.getBody()).containsEntry("code","VOID_HAS_DEPENDENT_BATCHES");
+        assertThat(refused.getBody().get("detail").toString()).contains("#"+b,"(3 grade(s))","Void that batch first");
+        assertThat((List<Map>)refused.getBody().get("dependentBatches")).singleElement().satisfies(d->assertThat(((Number)d.get("batchId")).longValue()).isEqualTo(b));
+        assertThat(liveRecords(a)).as("nothing was voided").isEqualTo(3);
+        assertThat(db.queryForObject("SELECT voided_at FROM import_batches WHERE id=?",java.sql.Timestamp.class,a)).isNull();
+
+        assertThat(voidBatch(registrarToken,b,"Re-uploading the corrected file").getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat((List<Map>)get("/batches/"+a,registrarToken).getBody().get("dependentBatches")).as("a voided batch no longer relies on A").isEmpty();
+        var voided=voidBatch(registrarToken,a,"Replaced by the corrected file");
+        assertThat(voided.getStatusCode()).isEqualTo(HttpStatus.OK);assertThat(voided.getBody()).containsEntry("voidedRecords",3);
+        assertThat(count("SELECT count(*) FROM legacy_grade_records WHERE student_id IN (?,?) AND voided_at IS NULL",s1,s2)).isZero();
+    }
     @Test void discardingAnUncommittedBatchFreesTheFileKeepsHistoryAndNeverTouchesCommittedOnes()throws Exception{
         var s=setup();student(s,"01");byte[] file=csv(s,"SYN-%N%-01,Grade 7,90,91,92");long b=stage(s,file);
         assertThat(call(HttpMethod.POST,"/batches/"+b+"/discard",Map.of("version",batchVersion(b),"reason"," "),registrarToken).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);

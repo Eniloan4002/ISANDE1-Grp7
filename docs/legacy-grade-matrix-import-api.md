@@ -222,7 +222,7 @@ Base `/api/legacy-grade-imports`, existing Bearer authentication, JSON (upload i
 | `POST /mappings`, `PUT /mappings/{id}` | `imports.mappings.manage` (Admin) | Create (201) / edit, activate, make default (`version` required) |
 | `POST /batches` | `imports.grades.manage` for `campusId` | Upload: **always a dry run** (201). Fields: `campusId`, optional `mappingId`, `academicYearId`, `termId`, `gradeLevel`, `section`, and `file` (`.csv`) |
 | `GET /batches?campusId=&status=&page=&size=` | `imports.read` | History, newest first (size ≤ 100) |
-| `GET /batches/{id}` | `imports.read` | Counts, mapping, upload context, batch exceptions, error summary, per-column record counts, live/voided record counts, void/discard info |
+| `GET /batches/{id}` | `imports.read` | Counts, mapping, upload context, batch exceptions, error summary, per-column record counts, live/voided record counts, void/discard info, `dependentBatches` (batches whose skipped cells rely on this batch's records) |
 | `GET /batches/{id}/rows?status=&page=&size=` | `imports.read` | Staged rows with parsed `cells` (size ≤ 100) |
 | `GET /batches/{id}/errors?severity=&rowNumber=&page=&size=` | `imports.read` | Row and batch problems and warnings |
 | `POST /batches/{id}/rows/{rowId}/review` | `imports.grades.manage` | `same_person` or `skip` |
@@ -246,7 +246,7 @@ curl -H "Authorization: Bearer $TOKEN" -F campusId=1 -F termId=14 -F gradeLevel=
       "uploadContext": { "academicYearId": 9, "termId": 14, "gradeLevel": "Grade 7" },
       "voidedAt": null, "voidedBy": null, "voidReason": null, "discarded": false,
       "batchExceptions": [], "errorSummary": [ { "code": "NO_GRADES_ON_ROW", "severity": "warning", "count": 1 } ],
-      "recordCount": 7, "blankCellCount": 5, "liveRecordCount": 0, "voidedRecordCount": 0,
+      "recordCount": 7, "blankCellCount": 5, "liveRecordCount": 0, "voidedRecordCount": 0, "dependentBatches": [],
       "columns": [ { "column": "SYNMATH… - Q1", "records": 2 }, { "column": "SYNMATH… - Q2", "records": 2 } ] }
 ```
 
@@ -300,6 +300,16 @@ Any failure in the transaction rolls back everything (`409 … Nothing was impor
 
 A repeat returns `200` with `"alreadyVoided": true` and `"voidedRecords": 0`. `409` stale version.
 
+**Batches that rely on this one (ICI2-89).** When a later batch is committed, a cell whose identical grade is already recorded is skipped (`ALREADY_RECORDED`) and its row is still `imported`, so the later batch owns no record for that cell. Voiding the earlier batch alone would erase those grades while the later batch still says imported. The void is therefore refused while any other live (not voided) `imported` or `reconciled` grade batch has an imported cell matching one of this batch's live records:
+
+```json
+409 { "detail": "Batch #78 \"corrected-grades.csv\" (3 grade(s)) skipped grades that this batch recorded, so it relies on them. Void that batch first, then void this one and upload the corrected file again.",
+      "code": "VOID_HAS_DEPENDENT_BATCHES",
+      "dependentBatches": [ { "batchId": 78, "sourceName": "corrected-grades.csv", "sharedRecords": 3 } ] }
+```
+
+The same list is in `GET /batches/{id}` as `dependentBatches` (empty when nothing relies on the batch), so a screen can warn before the registrar tries. To replace an earlier file with a corrected superset: void the later batch, void the earlier one, then upload the corrected file again. Nothing is reassigned automatically and no schema change was needed: only one live record can exist per cell, so a matching imported cell of another live batch was always skipped. The void locks the batch's live records before the check, and a commit reads existing records `FOR SHARE`, so a commit running at the same time either is seen by the check or waits for the void and then records the grades itself.
+
 ### Discard
 
 `POST /batches/{id}/discard` — `{ "version", "reason" }` (reason 1–1000 characters). Only a `validated` batch that was never committed; the batch becomes `failed` with a `DISCARDED` exception (see "Void, discard and the checksum").
@@ -324,7 +334,7 @@ A repeat returns `200` with `"alreadyDiscarded": true`. `409`: a committed batch
 | 401 | No or invalid token |
 | 403 | Missing permission for the endpoint or campus; Admin-only mapping writes |
 | 404 | Batch, row or mapping not found, or not visible to the caller |
-| 409 | `DUPLICATE_FILE`; stale version; mapping name taken; batch not in the required status; flagged rows remain; `expectedValidCount` mismatch; review refused (`distinct`, not a candidate, not flagged); records changed since staging (rows demoted); concurrent commit; database conflict while writing; void/discard of the wrong kind of batch |
+| 409 | `DUPLICATE_FILE`; stale version; mapping name taken; batch not in the required status; flagged rows remain; `expectedValidCount` mismatch; review refused (`distinct`, not a candidate, not flagged); records changed since staging (rows demoted); concurrent commit; database conflict while writing; void/discard of the wrong kind of batch; void refused while another live batch relies on this batch's records (`VOID_HAS_DEPENDENT_BATCHES`) |
 | 413 | `FILE_TOO_LARGE`, `TOO_MANY_ROWS`, `TOO_MANY_CELLS`; nothing persisted |
 | 415 | Upload that is not a `.csv` |
 | 422 | `EMPTY_FILE`, `INVALID_ENCODING`, `MALFORMED_CSV`, `TOO_MANY_COLUMNS`, `CELL_TOO_LONG`, `MISSING_COLUMN`, `AMBIGUOUS_HEADER`, `UNMAPPED_COLUMN`, `UNKNOWN_SUBJECT`, `UNKNOWN_PERIOD`, `REPEATED_HEADER` (a failed batch is recorded and its id returned); unknown or inactive mapping (no batch) |
@@ -359,7 +369,7 @@ Warnings never change a row's status. Problems per row are capped (50 errors, 50
 
 `GradeMatrixImportController` (routes), `GradeMatrixValidationService` (`stageGradeMatrix`), `GradeMatrixBatchService` (reads, review, void, discard), `GradeMatrixCommitService` (commit), `GradeMatrixMappingService`, `GradeMatrixMapping` (parsed mapping), `GradeMatrixHeaders` (classification), `GradeReference` (existing setup rows), `GradeImportLimits`; reused: `CsvParser`, `ImportText`, `ImportLimits`, `ImportBatchService` (counts, row view, actor), `LegacyImportErrors` (now advises both controllers and adds `problems`), `IdentityMatcher`. `ImportFileException` has the grade-matrix codes and a `problems()` list.
 
-Tests (synthetic fixtures `backend/src/test/resources/import/synthetic-grades-*.csv`, embedded PostgreSQL): `GradeMatrixStagingTest` (service level) and `GradeMatrixApiTest` (real local HTTP: permission matrix, upload refusals, review, commit, idempotency, concurrent commits, rollback by a temporary database trigger, commit-time recheck, immutability, void and discard with re-upload, audit privacy, the `stagedSql` filter).
+Tests (synthetic fixtures `backend/src/test/resources/import/synthetic-grades-*.csv`, embedded PostgreSQL): `GradeMatrixStagingTest` (service level) and `GradeMatrixApiTest` (real local HTTP: permission matrix, upload refusals, review, commit, idempotency, concurrent commits, rollback by a temporary database trigger, commit-time recheck, immutability, void and discard with re-upload, void refused while a later superset batch relies on the voided batch (ICI2-89), audit privacy, the `stagedSql` filter).
 
 ## Phase plan
 

@@ -76,6 +76,7 @@ public class GradeMatrixBatchService {
             WHERE r.batch_id=:id AND r.status IN ('valid','imported') GROUP BY 1 ORDER BY 1""",Map.of("id",id)));
         m.put("liveRecordCount",db.queryForObject("SELECT count(*) FROM legacy_grade_records g JOIN import_rows r ON r.id=g.import_row_id WHERE r.batch_id=:id AND g.voided_at IS NULL",Map.of("id",id),Long.class));
         m.put("voidedRecordCount",db.queryForObject("SELECT count(*) FROM legacy_grade_records g JOIN import_rows r ON r.id=g.import_row_id WHERE r.batch_id=:id AND g.voided_at IS NOT NULL",Map.of("id",id),Long.class));
+        m.put("dependentBatches",dependents(id));
         return m;
     }
     @Transactional(readOnly=true) public Map<String,Object> rows(long id,String status,int page,int size){
@@ -134,17 +135,55 @@ public class GradeMatrixBatchService {
 
     // ---- void and discard ----------------------------------------------------------------------------------------------
 
-    /** Voids every live record of a committed batch in one transaction; the checksum is then free for a new upload. */
+    /**
+     * Voids every live record of a committed batch in one transaction; the checksum is then free for a new upload.
+     * Refused while another live batch relies on this batch's records (see {@link #dependents}).
+     */
     @Transactional public Map<String,Object> voidBatch(long batchId,int version,String reason){
         var batch=batch(batchId,true,true);common.actor();
         if(reason==null||reason.isBlank()||reason.trim().length()>2000)throw error(HttpStatus.BAD_REQUEST,"A reason of 1 to 2000 characters is required.");
         if(batch.get("voided_at")!=null)return voidResult(batchId,true,0);
         if(!"imported".equals(batch.get("status")))throw error(HttpStatus.CONFLICT,"Only a committed batch can be voided. Discard a batch that was never committed.");
         if(((Number)batch.get("version")).intValue()!=version)throw error(HttpStatus.CONFLICT,"The batch changed since you loaded it. Reload before voiding.");
+        // Lock this batch's live records before the check. A commit reads existing records FOR SHARE, so it either finished
+        // before this point (and the check sees it) or waits until the void is done (and then records the grades itself).
+        db.queryForList("SELECT g.id FROM legacy_grade_records g JOIN import_rows r ON r.id=g.import_row_id WHERE r.batch_id=:b AND g.voided_at IS NULL ORDER BY g.id FOR UPDATE OF g",Map.of("b",batchId));
+        var dependents=dependents(batchId);
+        if(!dependents.isEmpty())throw dependentsError(dependents);
         Map<String,Object> p=Map.of("b",batchId,"actor",common.identity().userId(),"reason",reason.trim());
         int voided=db.update("UPDATE legacy_grade_records SET voided_at=current_timestamp,voided_by=:actor,void_reason=:reason WHERE voided_at IS NULL AND import_row_id IN (SELECT id FROM import_rows WHERE batch_id=:b)",p);
         db.update("UPDATE import_batches SET voided_at=current_timestamp,voided_by=:actor,void_reason=:reason,version=version+1 WHERE id=:b",p);
         return voidResult(batchId,false,voided);
+    }
+    /**
+     * Other live grade batches that rely on this batch's live records (ICI2-89). When a later batch is committed, cells whose
+     * grade is already recorded are skipped as ALREADY_RECORDED and the row is still marked imported, so the later batch owns no
+     * record for them. Only one live record can exist per student, term, subject and period, so an imported cell of another live
+     * batch that matches one of this batch's live records was always skipped and depends on it.
+     */
+    List<Map<String,Object>> dependents(long batchId){
+        return db.queryForList("""
+            WITH owned AS (
+                SELECT g.student_id,g.term_id,g.subject_id,CASE WHEN g.record_kind='reported_final' THEN -1 ELSE g.grading_period_id END AS slot
+                FROM legacy_grade_records g JOIN import_rows r ON r.id=g.import_row_id
+                WHERE r.batch_id=:b AND g.voided_at IS NULL)
+            SELECT b.id AS "batchId",b.source_name AS "sourceName",count(*) AS "sharedRecords"
+            FROM import_batches b JOIN import_rows r ON r.batch_id=b.id AND r.status='imported'
+            CROSS JOIN LATERAL jsonb_array_elements(r.normalized_values->'cells') c
+            JOIN owned o ON o.student_id=r.student_id AND o.term_id=(r.normalized_values->'context'->>'termId')::bigint
+                AND o.subject_id=(c->>'subjectId')::bigint AND o.slot=CASE WHEN c->>'kind'='reported_final' THEN -1 ELSE (c->>'periodId')::bigint END
+            WHERE b.source_type=:s AND b.id<>:b AND b.voided_at IS NULL AND b.status IN ('imported','reconciled')
+              AND r.student_id IN (SELECT student_id FROM owned)
+            GROUP BY b.id,b.source_name ORDER BY b.id""",Map.of("b",batchId,"s",SOURCE));
+    }
+    private ResponseStatusException dependentsError(List<Map<String,Object>> dependents){
+        var named=dependents.stream().limit(5).map(d->"#"+d.get("batchId")+" \""+d.get("sourceName")+"\" ("+d.get("sharedRecords")+" grade(s))").toList();
+        String list=String.join(", ",named)+(dependents.size()>5?" and "+(dependents.size()-5)+" more":"");
+        boolean one=dependents.size()==1;
+        var e=error(HttpStatus.CONFLICT,(one?"Batch ":"Batches ")+list+" skipped grades that this batch recorded, so "+(one?"it relies":"they rely")
+            +" on them. Void "+(one?"that batch":"those batches")+" first, then void this one and upload the corrected file again.");
+        e.getBody().setProperty("code","VOID_HAS_DEPENDENT_BATCHES");e.getBody().setProperty("dependentBatches",dependents);
+        return e;
     }
     private Map<String,Object> voidResult(long batchId,boolean already,int voided){
         var b=db.queryForList("SELECT * FROM import_batches WHERE id=:id",Map.of("id",batchId)).getFirst();
