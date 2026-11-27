@@ -1,0 +1,195 @@
+/* ICI2-58 Guidance At-Risk Dashboard & Counseling Cases — aligned with foundation.css and enrollment.css. */
+.guidance-workspace {
+  max-width: 1450px;
+}
+
+.guidance-confidential-banner {
+  border-left: 4px solid var(--brand-primary);
+  background: #eaf3f7;
+  padding: 13px 18px;
+  margin-bottom: 20px;
+  line-height: 1.55;
+}
+
+.guidance-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  margin: 0 0 22px;
+}
+
+.guidance-stats > div {
+  padding: 18px 20px;
+  border-right: 1px solid var(--border);
+}
+
+.guidance-stats > div:last-child {
+  border-right: 0;
+}
+
+.guidance-stats > div > span:first-child {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.guidance-stats strong {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.guidance-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 18px;
+}
+
+.guidance-filters > div {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+
+.guidance-filters label {
+  font-size: 14px;
+}
+
+.guidance-filters input,
+.guidance-filters select {
+  margin-bottom: 0;
+}
+
+.guidance-filters .button {
+  min-height: 44px;
+}
+
+.guidance-signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.guidance-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 16px 0 20px;
+}
+
+.guidance-evidence-card {
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--border);
+  border-radius: 4px;
+  padding: 16px;
+  background: #fff;
+}
+
+.guidance-evidence-card.is-triggered {
+  border-top-color: #8c303c;
+  background: #fff7f8;
+}
+
+.guidance-evidence-card.is-unconfigured {
+  border-top-color: #b17a16;
+  background: #fffcf4;
+}
+
+.guidance-evidence-card h4 {
+  margin: 0 0 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+}
+
+.guidance-evidence-card p {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.guidance-textarea {
+  display: block;
+  width: 100%;
+  min-height: 92px;
+  resize: vertical;
+  border: 1px solid #8b9da9;
+  padding: 11px;
+  border-radius: 3px;
+  font: inherit;
+  margin-bottom: 16px;
+  color: var(--brand-charcoal);
+}
+
+.guidance-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.guidance-form-grid label {
+  font-size: 14px;
+}
+
+.guidance-two-col {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+.guidance-two-col .panel {
+  margin-top: 0;
+}
+
+.guidance-meta-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 28px;
+  padding: 14px 18px;
+  margin: 0 0 18px;
+  background: var(--brand-mist);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.guidance-meta-grid dt {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.guidance-meta-grid dd {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (max-width: 1050px) {
+  .guidance-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .guidance-stats > div {
+    border-bottom: 1px solid var(--border);
+  }
+  .guidance-two-col,
+  .guidance-evidence-grid,
+  .guidance-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .guidance-stats {
+    grid-template-columns: 1fr;
+  }
+  .guidance-stats > div {
+    border-right: 0;
+  }
+}
