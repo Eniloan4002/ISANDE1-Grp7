@@ -79,10 +79,16 @@ class OfficialDocumentTest {
         var policy=approve(create("FORM137",true));var input=selection(policy);
         assertThat(call(HttpMethod.POST,"/verify",input,token).getBody().get("reasons").toString()).contains("SPECIAL_ORDER_REQUIRED");
         String so="/special-orders/"+enrollment;
-        assertThat(call(HttpMethod.PUT,so,Map.of("version",-1,"number","WRONG-001","issuedOn","2026-01-01","issuingAuthority","Fictional authority"),token).getStatusCode()).isEqualTo(HttpStatus.OK);
+        var missing=call(HttpMethod.GET,so,null,token);
+        assertThat(missing.getBody().get("policyChecks").toString()).as("nothing recorded yet").contains("status=MISSING").contains("SO-");
+        var wrong=call(HttpMethod.PUT,so,Map.of("version",-1,"number","WRONG-001","issuedOn","2026-01-01","issuingAuthority","Fictional authority"),token);
+        assertThat(wrong.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(wrong.getBody().get("policyChecks").toString()).as("the registrar is told right away that the number does not match").contains("status=FORMAT_MISMATCH").contains("must start with");
         assertThat(call(HttpMethod.POST,"/verify",input,token).getBody().get("reasons").toString()).contains("SPECIAL_ORDER_FORMAT");
         var corrected=Map.of("version",0,"number","SO-001","issuedOn","2026-01-01","issuingAuthority","Fictional authority");
-        assertThat(call(HttpMethod.PUT,so,corrected,token).getStatusCode()).isEqualTo(HttpStatus.OK);
+        var fixed=call(HttpMethod.PUT,so,corrected,token);
+        assertThat(fixed.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(fixed.getBody().get("policyChecks").toString()).contains("status=OK").doesNotContain("FORMAT_MISMATCH");
         assertThat(call(HttpMethod.PUT,so,corrected,token).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         assertThat(call(HttpMethod.POST,"/verify",input,token).getBody()).containsEntry("eligible",true);
         var change=policyInput("FORM137",true);change.put("version",policy.get("version"));

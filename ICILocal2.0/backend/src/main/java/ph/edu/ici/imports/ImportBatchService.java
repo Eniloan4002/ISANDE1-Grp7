@@ -42,9 +42,43 @@ public class ImportBatchService {
         m.put("fileSizeBytes",b.get("file_size_bytes"));m.put("sourceCount",b.get("source_count"));m.put("validCount",b.get("valid_count"));m.put("invalidCount",b.get("invalid_count"));
         m.put("flaggedCount",b.get("flagged_count"));m.put("skippedCount",b.get("skipped_count"));m.put("importedCount",b.get("imported_count"));
         m.put("version",b.get("version"));m.put("startedAt",b.get("started_at"));m.put("createdBy",b.get("created_by"));m.put("importedBy",b.get("imported_by"));m.put("importedAt",b.get("imported_at"));
+        var discard=discardRecord(n(b.get("id")),(String)b.get("status"));
+        m.put("discarded",discard!=null);
+        if(discard!=null){m.put("discardedAt",discard.get("created_at"));m.put("discardedBy",discard.get("created_by"));m.put("discardReason",discard.get("detail"));}
         var snapshot=node(b.get("mapping_snapshot"));
         if(snapshot!=null)m.put("mapping",Map.of("id",snapshot.path("mappingId").asLong(),"name",snapshot.path("name").asText(),"version",snapshot.path("mappingVersion").asInt(),"realFileValidated",snapshot.path("realFileValidated").asBoolean()));
         return m;
+    }
+
+    /** A discarded batch is a `failed` batch carrying a batch-level DISCARDED exception (actor and time come from its metadata). */
+    private Map<String,Object> discardRecord(long batchId,String status){
+        if(!"failed".equals(status))return null;
+        var rows=db.queryForList("SELECT detail,created_at,created_by FROM import_exceptions WHERE batch_id=:id AND error_code='DISCARDED' AND row_number IS NULL ORDER BY id DESC LIMIT 1",Map.of("id",batchId));
+        return rows.isEmpty()?null:rows.getFirst();
+    }
+
+    /**
+     * Discards a batch that was staged or validated but never committed, for example a file uploaded under the wrong campus.
+     * It becomes `failed`, the existing status that already frees the file checksum and removes the batch's rows from other uploads'
+     * duplicate checks, and gets a batch-level DISCARDED exception holding the reason, actor and time. Rows are kept for audit.
+     */
+    @Transactional public Map<String,Object> discard(long batchId,int version,String reason){
+        var batch=batch(batchId,true,true);actor();
+        if(reason==null||reason.isBlank()||reason.trim().length()>1000)throw error(HttpStatus.BAD_REQUEST,"A reason of 1 to 1000 characters is required.");
+        String status=(String)batch.get("status");
+        if("failed".equals(status)){
+            if(discardRecord(batchId,status)==null)throw error(HttpStatus.CONFLICT,"A batch that failed on its own cannot be discarded.");
+            return discardResult(batchId,true);
+        }
+        if(!List.of("staged","validated").contains(status))throw error(HttpStatus.CONFLICT,"Only a batch that was never committed can be discarded.");
+        if(((Number)batch.get("version")).intValue()!=version)throw error(HttpStatus.CONFLICT,"The batch changed since you loaded it. Reload before discarding.");
+        db.update("UPDATE import_batches SET status='failed',version=version+1 WHERE id=:id",Map.of("id",batchId));
+        db.update("INSERT INTO import_exceptions(batch_id,error_code,detail,severity) VALUES (:id,'DISCARDED',:reason,'warning')",Map.of("id",batchId,"reason",reason.trim()));
+        return discardResult(batchId,false);
+    }
+    private Map<String,Object> discardResult(long batchId,boolean already){
+        var b=db.queryForList("SELECT * FROM import_batches WHERE id=:id",Map.of("id",batchId)).getFirst();
+        Map<String,Object> m=new LinkedHashMap<>();m.put("batchId",batchId);m.put("status",b.get("status"));m.put("discarded",true);m.put("version",b.get("version"));m.put("alreadyDiscarded",already);return m;
     }
 
     @Transactional(readOnly=true) public Map<String,Object> list(Long campusId,String status,int page,int size){

@@ -200,8 +200,10 @@ public class GradeService {
         if(missing>0)throw error(HttpStatus.BAD_REQUEST,missing+" student(s) have no grade or mark. Complete the grades before submitting.");
         actor();
         db.update("""
-            UPDATE grades SET state='submitted',version=version+1,updated_at=current_timestamp,updated_by=:actor
-            WHERE class_id=:class AND grading_period_id=:period AND state='draft'
+            UPDATE grades g SET state='submitted',version=g.version+1,updated_at=current_timestamp,updated_by=:actor
+            FROM enrollments e
+            WHERE g.class_id=:class AND g.grading_period_id=:period AND g.state='draft'
+              AND e.id=g.enrollment_id AND e.status IN ('provisional','enrolled')
             """,new MapSqlParameterSource().addValue("class",id).addValue("period",input.gradingPeriodId())
                 .addValue("actor",identity().userId()));
         var latestPeriod=period(id,input.termId(),input.gradingPeriodId());

@@ -59,6 +59,26 @@ class HonorRollTest {
         long id=create();approve(id,1);var r=call(HttpMethod.GET,roll(),null,principal);assertThat(r.getStatusCode()).as(r.toString()).isEqualTo(HttpStatus.OK);var items=(List<Map>)r.getBody().get("items");assertThat(items).allSatisfy(i->assertThat(i).containsEntry("eligible",false).containsEntry("rank",null));
         assertThat((List)items.stream().filter(i->((Number)i.get("enrollmentId")).longValue()==inc).findFirst().orElseThrow().get("reasons")).contains("non_numeric_mark_INC");assertThat((List)items.stream().filter(i->((Number)i.get("enrollmentId")).longValue()==missing).findFirst().orElseThrow().get("reasons")).contains("missing_grade");assertThat((List)items.stream().filter(i->((Number)i.get("enrollmentId")).longValue()==draft).findFirst().orElseThrow().get("reasons")).contains("unfinalized_or_missing_grade");assertThat((List)items.stream().filter(i->((Number)i.get("enrollmentId")).longValue()==low).findFirst().orElseThrow().get("reasons")).contains("below_subject_minimum");
     }
+    @Test void policiesCanBeListedAndFilteredWithinTheCallersCampuses(){
+        long draft=create();long approved=create();approve(approved,1);   // creating the second draft does not touch the first; approving it leaves one draft and one approved
+        String scope="/api/honors/policies?campusId="+campus+"&programId="+program+"&gradeLevel=11&gradingPeriodId="+period;
+        var all=call(HttpMethod.GET,scope,null,registrar);
+        assertThat(all.getStatusCode()).as(all.toString()).isEqualTo(HttpStatus.OK);
+        var items=(List<Map>)all.getBody().get("items");
+        assertThat(items).extracting(i->((Number)i.get("id")).longValue()).containsExactlyInAnyOrder(draft,approved);
+        assertThat(items).allSatisfy(i->assertThat(i.get("rules")).isInstanceOf(Map.class));
+        assertThat(((Number)all.getBody().get("total")).longValue()).isEqualTo(2);
+        var onlyApproved=(List<Map>)call(HttpMethod.GET,scope+"&status=approved",null,principal).getBody().get("items");
+        assertThat(onlyApproved).extracting(i->((Number)i.get("id")).longValue()).containsExactly(approved);
+        assertThat((List)call(HttpMethod.GET,scope+"&size=1",null,registrar).getBody().get("items")).hasSize(1);
+        assertThat(call(HttpMethod.GET,scope+"&status=bogus",null,registrar).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(call(HttpMethod.GET,scope+"&size=101",null,registrar).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(call(HttpMethod.GET,scope,null,foreign).getStatusCode()).as("another campus's scope").isEqualTo(HttpStatus.FORBIDDEN);
+        var foreignView=(List<Map>)call(HttpMethod.GET,"/api/honors/policies?programId="+program+"&gradeLevel=11&gradingPeriodId="+period,null,foreign).getBody().get("items");
+        assertThat(foreignView).as("Bugo sees none of Iligan's policies").isEmpty();
+        assertThat(call(HttpMethod.GET,scope,null,teacherToken).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.GET,scope,null,null).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
     @Test void authorizationVersioningSupersessionAndAuditAreEnforced(){
         assertThat(call(HttpMethod.POST,"/api/honors/policies",input(rules()),teacherToken).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);assertThat(call(HttpMethod.GET,roll(),null,null).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);assertThat(call(HttpMethod.GET,roll(),null,foreign).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         long id=create();String path="/api/honors/policies/"+id;assertThat(call(HttpMethod.GET,path,null,foreign).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);assertThat(call(HttpMethod.POST,path+"/approve",Map.of("version",1,"reference","Registrar cannot approve"),registrar).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);

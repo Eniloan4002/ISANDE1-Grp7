@@ -28,6 +28,12 @@ public class HonorController {
     @PostMapping("/policies") @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("@accessPolicy.hasPermission('honors.configure')")
     public Map<String,Object> create(@Valid @RequestBody PolicyInput input){return service.create(input);}
+    @GetMapping("/policies")
+    @PreAuthorize("@accessPolicy.hasPermission('honors.configure') or @accessPolicy.hasPermission('honors.approve') or @accessPolicy.hasPermission('reports.read')")
+    public Map<String,Object> list(@RequestParam(required=false) Long campusId,@RequestParam(required=false) Long programId,@RequestParam(required=false) String gradeLevel,
+            @RequestParam(required=false) Long gradingPeriodId,@RequestParam(required=false) String status,@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="25") int size){
+        return service.list(campusId,programId,gradeLevel,gradingPeriodId,status,page,size);
+    }
     @GetMapping("/policies/{id}")
     @PreAuthorize("@accessPolicy.hasPermission('honors.configure') or @accessPolicy.hasPermission('honors.approve') or @accessPolicy.hasPermission('reports.read')")
     public Map<String,Object> get(@PathVariable long id){return service.get(id);}
