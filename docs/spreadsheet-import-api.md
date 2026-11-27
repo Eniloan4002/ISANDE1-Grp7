@@ -1,6 +1,6 @@
 # Spreadsheet data cleaning & import utility — ICI2-39 (design draft)
 
-**Status: design (phase 1, amended by phase 1b); phase 2, the shared foundation, is built and described in §16; phase 3, import type A (section allocation), is built and described in §17.** Type B, the xlsx reader and the upload endpoints are not built. Phase 1 scoped a generic `.xlsx` reader for the ICI2-37/38 imports; **phase 1b re-targets the ticket to its real goal, two new import types: (A) section allocations, §12, and (B) document tracking logs, §13**, with shared design in §14 and a summary of what stayed and what was reversed in §15. Everything builds on ICI2-37 (`legacy-student-import-api.md`) and ICI2-38 (`legacy-grade-matrix-import-api.md`) and must not change their behavior unless a mapping opts in.
+**Status: design (phase 1, amended by phase 1b); phase 2, the shared foundation, is built and described in §16; phase 3, import type A (section allocation), is built and described in §17.** Type B, the xlsx reader and the upload endpoints are not built. Phase 1 scoped a generic `.xlsx` reader for the ICI2-37/38 imports; **phase 1b re-targets the ticket to its real goal, two new import types: (A) section allocations, §12, and (B) document tracking logs, §13**, with shared design in §14 and a summary of what stayed and what was reversed in §15. **Phase 1c switches the planned `.xlsx` reader from JDK-only to Apache POI (§7).** Everything builds on ICI2-37 (`legacy-student-import-api.md`) and ICI2-38 (`legacy-grade-matrix-import-api.md`) and must not change their behavior unless a mapping opts in.
 
 As in ICI2-37/38, **no real legacy file has been received**. Every value, alias, format or limit below is an engineering default or an open question, never school policy. Anything the registrar must decide is a stored-mapping setting that defaults to "off" or "refuse".
 
@@ -10,9 +10,9 @@ Jira ICI2-39: *"Build parsers to ingest external Excel files for sectioning allo
 
 - **Type A, section allocation (§12):** place already-enrolled students into existing sections for a term.
 - **Type B, document tracking log (§13):** record document (requirement) states against existing applications.
-- **Shared (§§4–7, 14):** the grid interface, the cleaning engine and a JDK-only `.xlsx` reader.
+- **Shared (§§4–7, 14):** the grid interface, the cleaning engine and an Apache POI `.xlsx` reader.
 
-Decisions already made by the product owner: **Excel `.xlsx` only** for A and B (no CSV, `.xls` or `.ods`), **one sheet per file**, **no new libraries** (JDK-only reader, built in a later phase), **hidden rows or columns fail the file**, **formula cells are accepted with a warning** (cached value, flagged), **trivial cleaning is counted** in `cleaningSummary` and **non-trivial changes are logged** in `import_rows.cleaning`.
+Decisions already made by the product owner: **Excel `.xlsx` only** for A and B (no CSV, `.xls` or `.ods`), **one sheet per file**, **hidden rows or columns fail the file**, **formula cells are accepted with a warning** (cached value, flagged), **trivial cleaning is counted** in `cleaningSummary` and **non-trivial changes are logged** in `import_rows.cleaning`. Phase 1b also recorded "no new libraries (JDK-only reader)"; **phase 1c reverses that**: the reader uses Apache POI, as the implementation plan specifies (§7).
 
 Principles:
 
@@ -58,11 +58,11 @@ Each phase is mergeable on its own, ends with all existing tests green, and adds
 | **2. Shared foundation (built, §16)** | `GridReader` interface (CSV reader implements it, output identical) and a `Grid` record with per-cell metadata; `CellCleaner`, `CleaningProfile`, trivial/non-trivial split (§5); new mapping settings validated on save in both existing mapping services; **behavior-identical extractions**: the campus-scoped student resolver from `GradeMatrixValidationService`, and generic batch reads (list, detail, rows, errors) parameterized by source type, so A and B do not become third and fourth copies of 38's services; `cleaning` and `cleaningSummary` exposed on the existing read routes. No spreadsheet code. | **V22** (§14) | **Golden regression**: every existing synthetic fixture with default settings yields byte-identical `normalized_values` and exceptions; per-rule cleaning tests (NBSP, zero-width, placeholders, dates, name case); mapping-save validation; audit-privacy test; the extractions covered by the existing 84 tests |
 | **3. Type A, section allocation** | Source type `section_allocation`: mapping service, staging, batch reads/review/commit/discard, controller (everything except the upload route). **Small, behavior-preserving refactor in the enrollment package**: split `EnrollmentService.assign` into a read-only `assignmentBlockers(enrollmentId, sectionId)` and the existing write, so staging reports the service's own refusals instead of re-implementing them. Staging takes a `Grid`; tests build grids in code (and from CSV fixtures through the CSV reader as a test-only stand-in). | **V23** | Staging matrix for every row outcome in §12.4; capacity simulation incl. swaps; commit all-or-nothing, rollback on a forced service refusal, stale-version demotion, idempotency, concurrency with a manual assignment; permission/campus matrix; privacy; **existing enrollment tests unchanged and green** |
 | **4. Type B, document tracking log** | Source type `document_log`: same set of pieces for B, committing through `RequirementService.update`; commit reports applications whose checklist became complete. | **V24** | Row outcomes in §13.4; regression/conflict review; state and document value maps; notes provenance; stale-version demotion; completeness effect; audit attribution (`/api/applications/{id}/requirements/audit` shows the committing user); existing requirement tests green |
-| **5. JDK-only `.xlsx` reader** | `XlsxGridReader` and its pre-scan (§6, §7). No endpoint yet. | none | Adversarial fixtures generated in test code (no binary files, no test-scope POI): the full list from §6, plus 1900/1904 dates, serial 60, shared and inline strings, rich text, formula with and without cached value, error cells, sparse cell at column XFD, lying `<dimension>` |
+| **5. Apache POI `.xlsx` reader** | `poi-ooxml` dependency, `XlsxGridReader` with the package checks and zip limits of §6 and §7. No endpoint yet. | none | Fixtures written with POI in test code (no binary files checked in): the full list from §6, plus 1900/1904 dates, serial 60, shared and inline strings, rich text, formula with and without cached value, error cells, sparse cell at column XFD. The few cases POI cannot write (macro part, external link, zip bomb, OLE2, truncated archive, `<!DOCTYPE>`) are raw zips built in the test |
 | **6. Upload endpoints** | The upload route for A and B (`.xlsx` by magic bytes, 415 otherwise), `source_format = 'xlsx'`, `sheet` setting active, error mapping in `LegacyImportErrors`, docs. Whether the ICI2-37/38 upload routes also accept `.xlsx` is an open question (Q18); if yes it is a few lines here, not a phase. | none | API tests mirroring ICI2-38's: permission and campus matrix, 413/415/422 paths, duplicate file, end-to-end stage, review, commit and discard for both types from real `.xlsx` bytes, privacy |
 | **7. Optional** | `POST …/inspect` (sheet names, first rows) so an Administrator can author a mapping for a real file. | none | only if wanted |
 
-Why this order: the cleaning engine and both new types can be built and tested at service level with in-code grids, so the riskiest, hand-written part (the zip and XML reader) lands once the consumers exist and its fixtures can be exercised end to end, and nothing is reachable over HTTP until the reader is hardened.
+Why this order: the cleaning engine and both new types can be built and tested at service level with in-code grids, and nothing is reachable over HTTP until the reader is hardened. Phase 1b put the reader late because it was the riskiest, hand-written part. **With POI (phase 1c) it no longer is, so phases 5 and 6 may land before phase 4.** That would make type A usable end to end from a real `.xlsx` file sooner; B then plugs into the same reader and route.
 
 ## 4. Storage (shared foundation, V22)
 
@@ -146,14 +146,15 @@ All keys optional; **absent means today's behavior**, so every stored mapping an
 
 ## 6. Safe spreadsheet parsing
 
-A mandatory **pre-scan with the JDK only** (`java.util.zip.ZipInputStream` over the in-memory bytes; nothing is extracted to disk, so zip-slip does not apply). It runs before any library sees the file and enforces, by counting **actually inflated bytes**, never trusting declared sizes:
+Mandatory checks before any cell is read. Since phase 1c they use **Apache POI's own guards and API** (§7), not a separate JDK zip pass. The file is read from the in-memory bytes and nothing is extracted to disk, so zip-slip does not apply. Limits count **actually inflated bytes** (POI's `ZipSecureFile`), never declared sizes:
 
 | Guard | Default (`ici.import.xlsx.*`) | Violation |
 | --- | --- | --- |
 | Compressed file size | shared `ici.import.max-file-bytes` (5,000,000) | `FILE_TOO_LARGE` 413 |
 | Entries in the archive | 200 | `XLSX_LIMIT_EXCEEDED` 413, nothing persisted |
-| Inflated bytes, per entry / total | 40 MB / 80 MB | same |
-| Compression ratio per entry | 100:1 (above a small absolute floor) | same |
+| Inflated bytes per entry (`ZipSecureFile.setMaxEntrySize`; also the memory bound, §7) | 10 MB | same |
+| Compression ratio per entry (`ZipSecureFile.setMinInflateRatio(0.01)`) | 100:1 | same |
+| Characters in a text part (`ZipSecureFile.setMaxTextSize`) | 10,000,000 | same |
 | Data rows / columns / cell characters | shared `max-rows`, `max-columns` (grades: 300), `max-cell-chars` | existing codes |
 | **Non-empty cells in the sheet** | 250,000 (`ici.import.xlsx.max-cells`) | `TOO_MANY_CELLS` 413 |
 | Duplicate entry names, absolute or `..` names, encrypted entries, nested archives read | rejected | `MALFORMED_XLSX` 422 |
@@ -172,23 +173,44 @@ Columns are enforced from the **cell reference** (`XFD1` alone must not create a
 | Any hidden row or column (decided); a hidden sheet counts as a sheet | `HIDDEN_CONTENT` |
 | `<!DOCTYPE>` or entity declarations anywhere in the XML parts; malformed XML or zip; truncated archive | `MALFORMED_XLSX` |
 
-Format is decided from **magic bytes**, never the extension or the client's content type (`PK\x03\x04` → xlsx; `D0CF11E0` → refused; the CSV decoder keeps handling everything else). XML is parsed with DTD and external entities disabled. **Formulas are never evaluated**: only the cached `<v>` is read, the cell is flagged, and the formula text is discarded (so a `=cmd|…` string is never stored; if raw values are ever exported to a spreadsheet in future, values starting with `=`, `+`, `-`, `@` need escaping — no export exists today). Hyperlinks are never followed; images and charts are ignored.
+Format is decided from **magic bytes** (`FileMagic`), never the extension or the client's content type (`OOXML` → xlsx; `OLE2` → refused; the CSV decoder keeps handling everything else). XML is parsed by POI, whose `XMLHelper` disables DTDs and external entities; a test with a `<!DOCTYPE>` part proves the file is refused (`MALFORMED_XLSX`) and no entity is expanded. **Formulas are never evaluated**: only the cached `<v>` is read, the cell is flagged, and the formula text is discarded (so a `=cmd|…` string is never stored; if raw values are ever exported to a spreadsheet in future, values starting with `=`, `+`, `-`, `@` need escaping — no export exists today). Hyperlinks are never followed; images and charts are ignored.
 
 Grid conventions: row numbers are the **sheet's row numbers** (what the registrar sees in Excel), blank rows skipped but counted, as with CSV. Rows are padded to the header width; a non-blank cell beyond the header width is `COLUMN_COUNT_MISMATCH`, as for CSV. Booleans read as `TRUE`/`FALSE`; shared strings concatenate rich-text runs and skip phonetic runs; the 1904 date system and the 1900 leap-year quirk are handled (serials below 61 are `INVALID_DATE`, not guessed).
 
-## 7. `.xlsx` reader: JDK-only (decision)
+## 7. `.xlsx` reader: Apache POI (decision, phase 1c)
 
-**Decision (product owner): no new library.** This reverses the phase 1 recommendation of fastexcel-reader. For the record, the phase 1 comparison found that neither fastexcel-reader nor Apache POI SAX covers the fail-closed list on its own (merged cells, package parts such as macros and external links, hidden rows and columns, cell caps all need our own scan), so most of the safety layer was ours either way; the JDK-only route removes the dependency, its transitive libraries and its advisory surface, at the cost of owning the spreadsheet-format details.
+**Decision (team, 2026-11-26): read `.xlsx` with Apache POI** (`org.apache.poi:poi-ooxml`, main scope). The project's implementation plan already specifies it for this feature (`docs/reference/implementation-plan.md`, Feature 5.3: "Apache POI parsing service ... from Excel files into PostgreSQL"). This reverses phase 1b's JDK-only reader. No other project document backed the "no new libraries" decision, and with POI the hand-written zip and XML parser is no longer needed. The safety rules of §6 do not change; most of them now come from POI's API and are no longer our own parsing code.
+
+Why POI and not fastexcel-reader: POI also exposes merged regions, hidden rows and columns, sheet visibility, the package's parts (macros, external links) and zip-bomb limits (`ZipSecureFile`). It is also what the plan names. fastexcel-reader is lighter and faster, but it lacks several of those, and it is pre-1.0 with essentially one maintainer.
 
 Design (phase 5), over the same in-memory `byte[]` (already capped by `ici.import.max-file-bytes`), so there is no check-then-read window:
 
-1. **Pass 1, guard.** `java.util.zip.ZipInputStream`; nothing is extracted to disk. Every entry is inflated through a counting stream with the limits of §6 (actual bytes, not declared sizes). Denylisted parts and duplicate, absolute or `..` entry names are rejected here. Small parts are kept in memory: `[Content_Types].xml`, `xl/workbook.xml` (sheet list, `state`, `date1904`), `xl/_rels/workbook.xml.rels`, `xl/styles.xml` (number-format class per style: date, percent, other number), `xl/sharedStrings.xml` (with a string-count and character cap).
-2. **Pass 2, the one selected sheet.** Opened again from the same bytes and streamed through StAX with DTD and external entities disabled: `<cols hidden>`, `<row hidden>`, `<mergeCells>`, `<c r t s>`, `<f>`, `<v>`, `<is>`. `<dimension>` is ignored; columns are limited from the cell reference, cells and rows are counted as read.
-3. **Output.** The same `Grid` the CSV reader produces (headers, rows with the sheet's row numbers, cells as strings) plus `CellMeta` for cells that were not plain text (native date, formula, number-format class, error), which the cleaner and the field parsers consult.
+1. **Format.** `FileMagic.valueOf(bytes)`: `OOXML` continues; `OLE2` (legacy `.xls`, and password-protected `.xlsx`, which is an OLE2 container) is `UNSUPPORTED_FORMAT`; anything else is 415 at the upload route.
+2. **Zip limits (process-wide, set once at startup).** `ZipSecureFile.setMinInflateRatio(0.01)` (100:1), `setMaxEntrySize(…)` and `setMaxTextSize(…)` from `ici.import.xlsx.*`. POI enforces them on actually inflated bytes while it reads, so a zip bomb fails with an exception that we map to `XLSX_LIMIT_EXCEEDED` (413, nothing persisted). The entry-size limit is also the memory bound (point 5).
+3. **Open and check the package.** `OPCPackage.open(new ByteArrayInputStream(bytes))`, then `XSSFWorkbook(pkg)`. Before any cell is read:
+   - Part count above `ici.import.xlsx.max-entries`: `XLSX_LIMIT_EXCEEDED`.
+   - A part named or typed like `vbaProject.bin`, `externalLinks/*`, `connections.xml`, `queryTables/*`, `embeddings/*` or `activeX/*`: `MACRO_ENABLED` or `EXTERNAL_CONTENT`. Checked on `pkg.getParts()` names and content types; no own zip pass.
+   - Sheets, counting hidden and very hidden ones (`isSheetHidden`, `isSheetVeryHidden`): more than one without `settings.sheet` is `MULTIPLE_SHEETS`; the named sheet absent is `SHEET_NOT_FOUND`; the selected or any other sheet hidden is `HIDDEN_CONTENT`.
+   - `sheet.getNumMergedRegions() > 0`: `MERGED_CELLS`.
+   - Any POI parse failure (`NotOfficeXmlFileException`, `POIXMLException`, `InvalidFormatException`, an XML error): `MALFORMED_XLSX`.
+4. **Read the selected sheet** with the row and cell iterators, which yield only cells that exist (a lone `XFD1` does not create 16,384 cells):
+   - Rows and columns are counted as read and limited by the shared limits; `max-cells` is checked on every cell.
+   - A row with `getZeroHeight()`, or a column with `isColumnHidden(i)` for any column up to the widest cell read: `HIDDEN_CONTENT`.
+   - Row numbers are `getRowNum() + 1` (the sheet's row numbers); `<dimension>` is never consulted.
+   - Cell type to grid text and `CellMeta`:
+     - `STRING`: `getStringCellValue()` (POI joins rich-text runs and decodes `_xHHHH_` escapes).
+     - `BOOLEAN`: `TRUE`/`FALSE`.
+     - `ERROR`: kind `ERROR`.
+     - `NUMERIC`: the raw `<v>` text (`XSSFCell.getRawValue()`), never `DataFormatter` display text, which depends on locale. `DateUtil.isCellDateFormatted(cell)` marks it a native date, converted to ISO `yyyy-MM-dd` with the workbook's date system (`isDate1904()`; serials below 61 stay `INVALID_DATE`, §6). A format string containing `%` marks it percent.
+     - `FORMULA`: flagged, with the cached result type read as above; a formula with no `<v>` (`!getCTCell().isSetV()`) is `cachedMissing`. Formulas are never evaluated (no `FormulaEvaluator`), and the formula text is never stored.
+5. **Memory.** `XSSFWorkbook` builds the sheet in memory. Files are at most 5 MB and the sheet part at most `max-entry-bytes` (default 10 MB, about 250,000 cells of typical XML, in line with `max-cells`), which keeps the in-memory model bounded. If real files prove larger, the fallback is POI's streaming reader (`XSSFReader` with `XSSFSheetXMLHandler`), behind the same `GridReader`. That fallback would need our own handling of `<row hidden>`, `<cols>` and `<mergeCells>`.
+6. **Output.** The same grid the CSV reader produces (`CsvParser.Parsed`: headers, rows with the sheet's row numbers, cells as strings) plus `CellMeta` for cells that were not plain text. The cleaner and the field parsers already consume `CellMeta` (§16.6 item 5).
 
-Estimated size: about 500 lines plus 25 to 30 fixtures built in test code. No POI or other library, not even test scope.
+Estimated size: about 200 lines for `XlsxGridReader`, plus the error mapping. **Test fixtures are written with POI in test code** (`XSSFWorkbook` → bytes): hidden rows, columns and sheets, merged cells, multiple sheets, native dates in both date systems, percent and date formats in grade cells, formulas with and without a cached value, error cells, rich text, numeric IDs, a sparse cell at `XFD`. Only the cases POI cannot write are assembled as raw zips with `java.util.zip` in the test: a `vbaProject.bin` part, an external link, a zip bomb, an OLE2 header, a truncated archive, a `<!DOCTYPE>` part.
 
-Risks to accept and test: custom number formats that mean "date" (rule: a numeric cell with an unclassifiable custom format in a date or grade-like field is an error, never a guess), `_xHHHH_` escapes, rich-text and phonetic runs, inline strings, shared formulas, the 1900 leap-year quirk and the 1904 system. Maintenance of this reader is ours; it sits behind `GridReader`, so it can be replaced later without touching A or B.
+Dependency: `poi-ooxml` pulls in `poi`, `poi-ooxml-lite`, `xmlbeans`, `commons-compress`, `commons-io`, `commons-collections4`, `commons-codec`, `commons-math3`, `SparseBitSet`, `curvesapi` and `log4j-api`. Pin the current 5.x release when phase 5 starts, check its advisories, and run the whole suite (see §9 on `commons-compress` and the embedded-Postgres test dependency). POI is not in the local Maven cache yet (`~/.m2`), so the first build after adding it needs to be online, not `./mvnw -o`.
+
+Risks to accept and test: custom number formats that mean "date" (`DateUtil` recognises the common ones; a numeric cell with an unclassifiable custom format in a date or grade field is an error, never a guess), phonetic runs in shared strings, shared formulas, the 1900 leap-year quirk. The reader sits behind `GridReader`, so it can be replaced without touching A or B.
 
 ## 8. API changes
 
@@ -217,15 +239,17 @@ Status codes follow ICI2-38: 413 `FILE_TOO_LARGE`, `TOO_MANY_ROWS`, `TOO_MANY_CE
 - Adding `source_type` values would silently exclude xlsx rows from cross-campus duplicate detection (`stagedSql`) and touch V21's provenance FK; hence none is added.
 - `CsvParser` signatures are used directly by tests (`new CsvParser(limits).parse(bytes, settings)`, `CsvParser.Record`, `CsvParser.Parsed`). Keep `CsvParser` and its records source-compatible; add the interface beside it.
 - `normalized_values` shape is read by the commit services; cleaning data goes in a separate column, so commit code is untouched.
-- Embedded-Postgres/test classpath: adding `commons-compress` 1.28.0 may change what the zonky test dependency resolves.
+- Embedded-Postgres/test classpath: `poi-ooxml` brings its own `commons-compress`, which the zonky embedded-Postgres test dependency also uses. Maven picks one version for both, so run the whole suite after adding POI and pin `commons-compress` in `dependencyManagement` if they disagree.
 
 **New risks:**
 
-- **Zip bombs and memory:** all protection is ours (§6); the cell cap is the main memory bound. Needs adversarial tests, not just happy paths.
+- **Zip bombs and memory:** POI's `ZipSecureFile` limits, configured by us (§6, §7), plus the cell cap. The per-entry inflate limit is the main memory bound. Needs adversarial tests, not just happy paths.
 - **Silent misreads that only spreadsheets cause:** percent or date formats on grade cells, leading zeros dropped from numeric IDs, formula-cached averages with many decimals, hidden rows that registrars consider "deleted", 1900/1904 date systems, a typed-locale date already converted to a serial (day/month swap cannot be detected). Each is an error, warning or a mapping option, never a guess.
 - **Cleaning log volume and privacy:** per-row cap, personal values only in `import_rows.cleaning` (excluded from audit), never in messages.
-- **Pre-1.0, single-maintainer dependency:** pinned and wrapped.
-- **Two-phase read** (our pre-scan, then the library) must operate on the same in-memory bytes to avoid a swap between check and read; it does, files are already ≤5 MB byte arrays.
+- **A large dependency (POI and about ten transitive libraries):** pinned, advisories checked when phase 5 starts and on upgrades, and wrapped behind `GridReader`.
+- **Memory of POI's in-memory model:** bounded by the 5 MB file cap and the per-entry inflate limit (§7 point 5); the streaming reader is the fallback.
+- **Process-wide zip limits:** `ZipSecureFile` settings are static. They are set once at startup from `ici.import.xlsx.*`; no other code in the backend uses POI today.
+- **Checks and read on the same bytes:** the package checks and the cell read operate on one opened `OPCPackage` over the same in-memory bytes (files are already ≤5 MB byte arrays), so nothing can be swapped between check and read.
 - Stored mapping is shared across CSV and xlsx; an Administrator editing it for one format affects the other. The snapshot keeps staged batches safe.
 
 **Added in 1b (types A and B):**
@@ -238,13 +262,13 @@ Status codes follow ICI2-38: 413 `FILE_TOO_LARGE`, `TOO_MANY_ROWS`, `TOO_MANY_CE
 - **Attribution is the importer and import time**, not the legacy verifier or date (§13.3). A reviewer reading the requirement audit sees the registrar who ran the import, with the legacy details in the note.
 - **No void and no automatic revert.** A wrong sectioning import is corrected through the existing section and checklist workflows; `applied` shows what changed (Q13).
 - **Layouts unseen.** Section lists as blocks or per-section sheets, wide document matrices and multi-event logs are refused, not guessed; if the real files are like that, a design amendment is needed before phase 3 or 4 is built.
-- **Own xlsx parser.** The JDK-only reader owns spreadsheet-format edge cases (§7); mitigated by adversarial fixtures and by keeping it behind `GridReader`.
+- **xlsx edge cases.** Since phase 1c POI handles the format itself (§7). What stays ours is the mapping from POI cells to `CellMeta` (raw values, date and percent classification, cached formulas) and the fail-closed checks. Both are covered by fixtures and kept behind `GridReader`.
 - **Migration collisions.** Three migrations (V22 to V24) increase the chance another branch claims a number first (Q21).
 - **Student matching refactor.** Extracting the resolver and the batch reads touches ICI2-38 code; the existing 84 import tests plus the golden regression are the guard.
 
 ## 10. Open questions
 
-Resolved by the product owner (no longer open): `.xlsx` only; one sheet per file; JDK-only reader; hidden rows and columns fail the file; formula cells accepted with a warning; trivial cleaning counted, non-trivial logged. (Phase 1 questions Q10, Q11, Q12, Q13 and Q16 are closed by these; the rest are folded in below, and the numbering here is new.)
+Resolved by the product owner (no longer open): `.xlsx` only; one sheet per file; hidden rows and columns fail the file; formula cells accepted with a warning; trivial cleaning counted, non-trivial logged. The reader library was decided separately in phase 1c (Apache POI, §7). (Phase 1 questions Q10, Q11, Q12, Q13 and Q16 are closed by these; the rest are folded in below, and the numbering here is new.)
 
 ### Real Excel layouts (registrar). These block validating anything against real data
 
@@ -286,7 +310,7 @@ Phase 3: `SectionAllocationMapping*`, `SectionAllocationValidationService` (stag
 
 Phase 4: `DocumentLogMapping*`, `DocumentLogValidationService`, `DocumentLogCommitService`, `DocumentLogImportController`; a read-only checklist lookup on `RequirementService` if the existing `checklist` method is not enough.
 
-Phase 5: `XlsxGridReader`, `XlsxPreScan`, `XlsxLimits`. Phase 6: the two upload routes and the `LegacyImportErrors` additions. Tests: `ImportFixtures` extended with an in-test xlsx builder and grid builders.
+Phase 5: `poi-ooxml` in `pom.xml`, `XlsxGridReader` (package checks and cell reading on POI), `XlsxLimits` (the `ici.import.xlsx.*` limits, applied to `ZipSecureFile` at startup). Phase 6: the two upload routes and the `LegacyImportErrors` additions. Tests: `ImportFixtures` extended with an in-test xlsx builder and grid builders.
 
 ## 12. Import type A: section allocation (`section_allocation`)
 
@@ -532,6 +556,15 @@ One new permission covers both types: they share an audience (only Admin and Reg
 | `.csv` and `.xlsx` accepted on upload | **`.xlsx` only** for A and B (415 otherwise); CSV stays only in the ICI2-37/38 routes and as a test stand-in |
 | Reuse ICI2-37/38 controllers | Two **new controllers** for A and B; the legacy ones untouched |
 | Phase 1 open questions Q9 to Q16 | Phase 1 Q10 (formulas), Q11 (hidden), Q12 (xls/multisheet), Q13 (cleaning log), Q16 (dependency) resolved by the decisions above; the rest folded into §10, with new numbering |
+
+**Phase 1c (2026-11-26)**
+
+| Phase 1b | Phase 1c |
+| --- | --- |
+| JDK-only reader: own zip pre-scan and StAX sheet parser, about 500 lines, fixtures assembled by hand as raw XML | **Apache POI** (`poi-ooxml`), as `docs/reference/implementation-plan.md` Feature 5.3 specifies: POI's zip limits, package parts, merged and hidden checks and date handling; about 200 lines; fixtures written with POI (§7) |
+| Reader deliberately last (riskiest part) | Reader may land before type B (§3) |
+
+Unchanged by 1c: every rule in §6, the grid and `CellMeta` contract, the cleaning engine, types A and B, migrations, API and permissions.
 
 ## 16. Phase 2 as built (shared foundation)
 
