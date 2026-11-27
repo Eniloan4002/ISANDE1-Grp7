@@ -76,8 +76,33 @@ public class OfficialDocumentService {
     private Map<String,Object> enrollment(long id){
         var rows=db.queryForList("SELECT * FROM enrollments WHERE id=?",id);if(rows.isEmpty())throw absent();var row=rows.getFirst();campus(num(row,"campus_id"));return row;
     }
+    /** The one rule for an SO number under a policy, used both when documents are verified and when an SO is entered. */
+    private static boolean soMatchesPolicy(String number,String prefix,long maxLength){return number.startsWith(prefix)&&number.length()<=maxLength;}
+
     public Map<String,Object> specialOrder(long enrollmentId){
-        enrollment(enrollmentId);return db.queryForList("SELECT * FROM student_special_orders WHERE enrollment_id=?",enrollmentId).stream().findFirst().orElse(Map.of("enrollment_id",enrollmentId,"version",-1));
+        var e=enrollment(enrollmentId);
+        var result=new LinkedHashMap<String,Object>(db.queryForList("SELECT * FROM student_special_orders WHERE enrollment_id=?",enrollmentId).stream().findFirst().orElse(Map.of("enrollment_id",enrollmentId,"version",-1)));
+        result.put("policyChecks",policyChecks(e,result.get("number")==null?null:result.get("number").toString()));
+        return result;
+    }
+    /**
+     * Tells the registrar right away whether the recorded SO number satisfies the document policy for each document type of the
+     * enrollment's campus and program. The number is still saved when it does not match, so a registrar can record what the paper says
+     * and fix it later; document generation stays blocked until it matches (SPECIAL_ORDER_FORMAT).
+     */
+    private List<Map<String,Object>> policyChecks(Map<String,Object> enrollment,String number){
+        var checks=new ArrayList<Map<String,Object>>();
+        for(var p:db.queryForList("SELECT document_type,so_required,so_prefix,so_max_length FROM official_document_policies WHERE campus_id=? AND program_id=? ORDER BY document_type",num(enrollment,"campus_id"),num(enrollment,"program_id"))){
+            var check=new LinkedHashMap<String,Object>();check.put("documentType",p.get("document_type"));check.put("required",p.get("so_required"));
+            String prefix=p.get("so_prefix").toString();long max=num(p,"so_max_length");
+            String rule="The SO number must start with \""+prefix+"\" and be at most "+max+" characters.";
+            if(!Boolean.TRUE.equals(p.get("so_required"))){check.put("status","NOT_REQUIRED");check.put("message","An SO is not required for this document type.");}
+            else if(number==null){check.put("status","MISSING");check.put("message","An SO is required before this document can be issued. "+rule);}
+            else if(soMatchesPolicy(number,prefix,max)){check.put("status","OK");check.put("message","The SO number matches the document policy.");}
+            else{check.put("status","FORMAT_MISMATCH");check.put("message","The SO number does not match the document policy. "+rule);}
+            checks.add(check);
+        }
+        return checks;
     }
     @Transactional public Map<String,Object> saveSpecialOrder(long enrollmentId,SpecialOrder input){
         var e=enrollment(enrollmentId);String number=text(input.number(),"SO number",120),authority=text(input.issuingAuthority(),"Issuing authority",200);
@@ -131,7 +156,7 @@ public class OfficialDocumentService {
             Map<String,Object> so=soRows.isEmpty()?Map.of():soRows.getFirst();term.put("specialOrder",so);
             if(Boolean.TRUE.equals(policy.get("so_required"))){
                 if(so.isEmpty())reasons.add("SPECIAL_ORDER_REQUIRED: Registrar SO information is required for enrollment "+id+".");
-                else {String number=so.get("number").toString();if(!number.startsWith(policy.get("so_prefix").toString())||number.length()>num(policy,"so_max_length"))reasons.add("SPECIAL_ORDER_FORMAT: SO information does not match the approved policy for enrollment "+id+".");}
+                else {String number=so.get("number").toString();if(!soMatchesPolicy(number,policy.get("so_prefix").toString(),num(policy,"so_max_length")))reasons.add("SPECIAL_ORDER_FORMAT: SO information does not match the approved policy for enrollment "+id+".");}
             }
             terms.add(term);
         }

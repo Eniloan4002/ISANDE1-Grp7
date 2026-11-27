@@ -29,13 +29,17 @@ public class AcademicHistoryService {
         return List.copyOf(allowed);
     }
 
+    // A student is visible to a campus that holds their home record or any of their enrollments,
+    // so a transferee's current campus can open them. Per-term rows stay filtered by enrollment campus.
+    private static final String STUDENT_IN_SCOPE="(st.campus_id IN (:scope) OR EXISTS(SELECT 1 FROM enrollments ae WHERE ae.student_id=st.id AND ae.campus_id IN (:scope)))";
+
     @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
     public Map<String,Object> students(String search,int page,int size){
         if(page<0||page>1000000||size<1||size>100||search.length()>150)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Use a search up to 150 characters, page >= 0 and size 1 to 100.");
         var params=new MapSqlParameterSource("scope",scope()).addValue("search","%"+search.trim().replace("!","!!").replace("%","!%").replace("_","!_")+"%")
                 .addValue("limit",size).addValue("offset",(long)page*size);
-        String where=" WHERE st.campus_id IN (:scope) AND (concat_ws(' ',st.first_name,st.middle_name,st.last_name) ILIKE :search ESCAPE '!' OR st.student_number ILIKE :search ESCAPE '!' OR st.lrn ILIKE :search ESCAPE '!')";
+        String where=" WHERE "+STUDENT_IN_SCOPE+" AND (concat_ws(' ',st.first_name,st.middle_name,st.last_name) ILIKE :search ESCAPE '!' OR st.student_number ILIKE :search ESCAPE '!' OR st.lrn ILIKE :search ESCAPE '!')";
         long total=db.queryForObject("SELECT count(*) FROM students st"+where,params,Long.class);
         var items=db.queryForList("SELECT st.id,st.first_name,st.middle_name,st.last_name,st.student_number,st.lrn,st.active FROM students st"+where+" ORDER BY st.last_name,st.first_name,st.id LIMIT :limit OFFSET :offset",params);
         return Map.of("items",items,"total",total,"page",page,"size",size);
@@ -50,8 +54,7 @@ public class AcademicHistoryService {
                    st.lrn,st.birth_date AS "birthDate",st.active,c.name AS campus,
                    p.code AS program,p.name AS "programName"
             FROM students st JOIN campuses c ON c.id=st.campus_id JOIN programs p ON p.id=st.program_id
-            WHERE st.id=:id AND st.campus_id IN (:scope)
-            """,Map.of("id",studentId,"scope",scope));
+            WHERE st.id=:id AND\s"""+STUDENT_IN_SCOPE,Map.of("id",studentId,"scope",scope));
         if(students.isEmpty())throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Student not found.");
         var params=Map.<String,Object>of("student",studentId,"scope",scope);
 

@@ -200,7 +200,8 @@ class HistoryWithdrawalTest {
     @Test void historyDirectoryAndDetailAreScopedAndHideConfidentialNotes(){
         long enrollment=enroll();long student=db.queryForObject("SELECT student_id FROM enrollments WHERE id=?",Long.class,enrollment);
         long offering=((Number)createOffering(teacher).get("classId")).longValue();
-        db.update("INSERT INTO class_memberships(class_id,enrollment_id,section_id,term_id) VALUES (?,?,?,?)",offering,enrollment,section,term);
+        // Creating the offering adds the section's active students to the class roster.
+        assertThat(db.queryForObject("SELECT count(*) FROM class_memberships WHERE class_id=? AND enrollment_id=?",Integer.class,offering,enrollment)).isEqualTo(1);
         long period=db.queryForObject("INSERT INTO grading_periods(term_id,code,sequence) VALUES (?,'Q1',1) RETURNING id",Long.class,term);
         db.update("INSERT INTO grades(class_id,enrollment_id,term_id,grading_period_id,value,state) VALUES (?,?,?,?,87,'submitted')",offering,enrollment,term,period);
         db.update("INSERT INTO student_notes(student_id,enrollment_id,category,body,author_id) VALUES (?,?,'guidance','Confidential counseling note',?)",student,enrollment,registrar);
