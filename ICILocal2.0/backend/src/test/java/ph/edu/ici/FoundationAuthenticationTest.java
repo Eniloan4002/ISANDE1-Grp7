@@ -148,7 +148,7 @@ class FoundationAuthenticationTest {
             statement.execute("INSERT INTO academic_terms(academic_year_id,code,name,starts_on,ends_on) VALUES (1,'S1','Existing term','2026-06-01','2026-10-31')");
             statement.execute("INSERT INTO grading_periods(term_id,code,sequence) VALUES (1,'Q1',1)");
         }
-        Flyway latest=Flyway.configure().dataSource(url,"postgres","").load();assertThat(latest.migrate().migrationsExecuted).isEqualTo(20);latest.validate();
+        Flyway latest=Flyway.configure().dataSource(url,"postgres","").load();assertThat(latest.migrate().migrationsExecuted).isEqualTo(21);latest.validate();
         try(var connection=java.sql.DriverManager.getConnection(url,"postgres","");var statement=connection.createStatement()){
             try(var rows=statement.executeQuery("SELECT name,version FROM subjects WHERE code='LEGACY'")){assertThat(rows.next()).isTrue();assertThat(rows.getString(1)).isEqualTo("Existing subject");assertThat(rows.getInt(2)).isZero();}
             try(var rows=statement.executeQuery("SELECT starts_on,ends_on FROM grading_periods WHERE code='Q1'")){assertThat(rows.next()).isTrue();assertThat(rows.getDate(1).toString()).isEqualTo("2026-06-01");assertThat(rows.getDate(2).toString()).isEqualTo("2026-10-31");}

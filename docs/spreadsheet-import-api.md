@@ -669,7 +669,11 @@ Backend and docs only; no frontend, no new library, nothing committed. **No uplo
 3. **Linked rows are not re-planned at review.** `same_person` makes the row `valid` as in ICI2-38; the commit decides what it does, and demotes it if it turns out to be a reassignment.
 4. **Per-row queries.** The planner runs about six small queries per row (enrollment lookup plus the service's blockers), at most 20,000 rows by the existing limit. Batching is possible later if real files are large.
 5. **V23 names `document_log` in the `apply` scope check ahead of V24**, so V24 only has to add its source type.
-6. **Pinned migration numbers** in two older tests moved to V23, as predicted in §16.6 item 9.
+6. **Pinned migration numbers** in two older tests moved to V23, as predicted in §16.6 item 9: latest version `"23"`, `migrationsExecuted` +1 in eight places, and the V18 test's list of `imports.*` role permissions gained `imports.enrollment.manage` for Admin and Registrar. No test logic and no published migration changed.
+
+### 17.4a Tests
+
+`SectionAllocationTest` (16 tests, embedded PostgreSQL; staging through the service with an in-code CSV grid, everything after through real HTTP): seeded default and mapping validation; every row outcome of §12.4 with its own code and no write; context mismatches; seat counting in file order, a swap between full sections and a chain that depends on a refused row; file-level errors with a recorded failed batch; the permission matrix (staging and writes, other campus 404, teacher 403, import-only role); commit through the enrollment service with `applied`, enrollment audit actor, idempotency and audit privacy; reassignment `apply` and a swap commit; skip and empty batch; identity link (`same_person`); rows changed after staging demoted with nothing imported, then reviewed and committed; a service refusal rolling the whole batch back with the row named; a commit racing a manual assignment never overfills a section; discard frees the checksum; committed batches cannot be discarded or voided and other source types are invisible. Whole backend suite after this phase: **290 tests, 0 failures** (`./mvnw -o test`); the 124 import tests of phase 2 are unchanged and green.
 
 ### 17.5 Not built, still open
 
