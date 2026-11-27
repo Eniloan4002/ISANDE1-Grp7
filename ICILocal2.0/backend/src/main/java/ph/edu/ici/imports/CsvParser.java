@@ -8,7 +8,10 @@ import ph.edu.ici.imports.ImportFileException.FileError;
 /** RFC 4180 reader driven by stored settings. Decoding is strict: bytes invalid for the configured encoding fail the file. */
 public final class CsvParser {
     /** Row numbers are 1-based record positions in the file (header and blank records included). */
-    public record Record(int number,List<String> cells) {}
+    /** @param meta optional per-cell metadata keyed by zero-based column (empty for CSV); the two-argument constructor keeps existing callers compiling */
+    public record Record(int number,List<String> cells,java.util.Map<Integer,CellMeta> meta) {
+        public Record(int number,List<String> cells){this(number,cells,java.util.Map.of());}
+    }
     public record Parsed(List<String> headers,List<Record> rows) {}
     private final ImportLimits limits;
     public CsvParser(ImportLimits limits){this.limits=limits;}

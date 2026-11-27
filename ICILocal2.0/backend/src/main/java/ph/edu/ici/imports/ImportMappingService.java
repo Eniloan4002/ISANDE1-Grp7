@@ -21,7 +21,7 @@ public class ImportMappingService {
     public static final String SOURCE="legacy_student_csv";
     public static final Set<String> ENCODINGS=Set.of("UTF-8","windows-1252");
     public static final Set<String> DELIMITERS=Set.of(",",";","\t");
-    private static final Set<String> SETTING_KEYS=Set.of("encoding","delimiter","headerRow","dateFormats","normalizeNameCase");
+    private static final Set<String> SETTING_KEYS=Set.of("encoding","delimiter","headerRow","dateFormats","normalizeNameCase","nativeDates","cleaning","sheet");
     private final NamedParameterJdbcTemplate db;private final ObjectMapper json;private final AccessPolicy access;
 
     public record MappingInput(String name,JsonNode mapping,JsonNode settings,boolean isDefault,boolean active,boolean realFileValidated) {}
@@ -102,7 +102,9 @@ public class ImportMappingService {
         if(!DELIMITERS.contains(settings.path("delimiter").asText("")))problems.add("delimiter must be a comma, semicolon or tab.");
         if(!settings.path("headerRow").isInt()||settings.get("headerRow").asInt()<1||settings.get("headerRow").asInt()>20)problems.add("headerRow must be a whole number from 1 to 20.");
         if(settings.has("normalizeNameCase")&&!settings.get("normalizeNameCase").isBoolean())problems.add("normalizeNameCase must be true or false.");
-        problems.addAll(dateProblems(settings.path("dateFormats")));
+        boolean extended=settings.path("cleaning").path("extendedDateFormats").asBoolean(false);
+        problems.addAll(dateProblems(settings.path("dateFormats"),extended));
+        CleaningProfile.validate(settings,ImportMapping.FIELDS,mapping.path("valueMaps"),problems);
         return problems;
     }
     /** Lower-case valid target codes for a reference-backed group; null for free-text groups (sex). */
@@ -111,21 +113,37 @@ public class ImportMappingService {
         if(sql==null)return null;Set<String> codes=new HashSet<>();db.getJdbcTemplate().queryForList(sql,String.class).forEach(c->codes.add(c.toLowerCase(Locale.ROOT)));return codes;
     }
     private static final Pattern DATE_SHAPE=Pattern.compile("(yyyy|MM|dd)([-/.])(yyyy|MM|dd)\\2(yyyy|MM|dd)");
-    static List<String> dateProblems(JsonNode formats){
+    private static final String TOKEN="(yyyy|MMMM|MMM|MM|M|dd|d)";
+    /** Extended shape (opt-in through cleaning.extendedDateFormats): three distinct date tokens separated by '-', '/', '.', spaces or commas. */
+    private static final Pattern EXTENDED_SHAPE=Pattern.compile(TOKEN+"([-/. ,]+)"+TOKEN+"([-/. ,]+)"+TOKEN);
+    static List<String> dateProblems(JsonNode formats){return dateProblems(formats,false);}
+    /** @param extended true when the mapping opted into M, d, MMM and MMMM tokens; otherwise only the ICI2-37 patterns are accepted */
+    static List<String> dateProblems(JsonNode formats,boolean extended){
         List<String> problems=new ArrayList<>();
         if(!formats.isArray()||formats.isEmpty()||formats.size()>5){problems.add("dateFormats must list 1 to 5 formats.");return problems;}
-        record Shape(String pattern,String sep,int yearPos,int monthPos){}
+        record Shape(String pattern,String literals,int yearPos,int monthPos,boolean numericMonth){}
         List<Shape> shapes=new ArrayList<>();
         for(JsonNode f:formats){
-            var m=DATE_SHAPE.matcher(f.asText(""));
-            if(!f.isTextual()||!m.matches()||!new HashSet<>(List.of(m.group(1),m.group(3),m.group(4))).equals(Set.of("yyyy","MM","dd"))){problems.add("Date format '"+ImportText.excerpt(f.asText(""))+"' must use yyyy, MM and dd once each with '-', '/' or '.' separators (four-digit years only).");continue;}
+            String text=f.asText("");
+            if(f.isTextual()&&!DATE_SHAPE.matcher(text).matches()&&extended){
+                var m=EXTENDED_SHAPE.matcher(text);
+                List<String> parts=m.matches()?List.of(m.group(1),m.group(3),m.group(5)):List.of();
+                boolean once=parts.size()==3&&parts.stream().map(x->x.charAt(0)).collect(java.util.stream.Collectors.toSet()).equals(Set.of('y','M','d'));
+                if(!once||!parts.contains("yyyy")){problems.add("Date format '"+ImportText.excerpt(text)+"' must use yyyy, a month (MM, M, MMM or MMMM) and a day (dd or d) once each, separated by '-', '/', '.', spaces or commas (four-digit years only).");continue;}
+                if(shapes.stream().anyMatch(s->s.pattern().equals(text)))problems.add("Date format '"+text+"' is listed twice.");
+                List<String> kinds=parts.stream().map(x->x.substring(0,1)).toList();
+                shapes.add(new Shape(text,m.group(2)+"|"+m.group(4),kinds.indexOf("y"),kinds.indexOf("M"),parts.contains("MM")||parts.contains("M")));
+                continue;
+            }
+            var m=DATE_SHAPE.matcher(text);
+            if(!f.isTextual()||!m.matches()||!new HashSet<>(List.of(m.group(1),m.group(3),m.group(4))).equals(Set.of("yyyy","MM","dd"))){problems.add("Date format '"+ImportText.excerpt(text)+"' must use yyyy, MM and dd once each with '-', '/' or '.' separators (four-digit years only).");continue;}
             List<String> parts=List.of(m.group(1),m.group(3),m.group(4));
-            if(shapes.stream().anyMatch(s->s.pattern().equals(f.asText())))problems.add("Date format '"+f.asText()+"' is listed twice.");
-            shapes.add(new Shape(f.asText(),m.group(2),parts.indexOf("yyyy"),parts.indexOf("MM")));
+            if(shapes.stream().anyMatch(s->s.pattern().equals(text)))problems.add("Date format '"+text+"' is listed twice.");
+            shapes.add(new Shape(text,m.group(2)+"|"+m.group(2),parts.indexOf("yyyy"),parts.indexOf("MM"),true));
         }
         for(int i=0;i<shapes.size();i++)for(int j=i+1;j<shapes.size();j++){
             var a=shapes.get(i);var b=shapes.get(j);
-            if(a.sep().equals(b.sep())&&a.yearPos()==b.yearPos()&&a.monthPos()!=b.monthPos())problems.add("Date formats '"+a.pattern()+"' and '"+b.pattern()+"' are ambiguous together (day and month swapped).");
+            if(a.literals().equals(b.literals())&&a.yearPos()==b.yearPos()&&a.monthPos()!=b.monthPos()&&a.numericMonth()&&b.numericMonth())problems.add("Date formats '"+a.pattern()+"' and '"+b.pattern()+"' are ambiguous together (day and month swapped).");
         }
         return problems;
     }

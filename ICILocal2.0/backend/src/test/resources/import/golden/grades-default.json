@@ -1,0 +1,1129 @@
+{
+  "ambiguous-header" : {
+    "batchMessages" : [ {
+      "detail" : "More than one column matches studentNumber: 'Student No' and 'student_no'.",
+      "error_code" : "AMBIGUOUS_HEADER",
+      "field_name" : null,
+      "severity" : "error"
+    } ],
+    "error" : "AMBIGUOUS_HEADER",
+    "message" : "More than one column matches studentNumber: 'Student No' and 'student_no'.",
+    "problems" : [ ]
+  },
+  "basic" : {
+    "batch" : {
+      "flagged_count" : 0,
+      "imported_count" : 0,
+      "invalid_count" : 0,
+      "skipped_count" : 0,
+      "source_count" : 3,
+      "status" : "validated",
+      "valid_count" : 3
+    },
+    "batchMessages" : [ ],
+    "rows" : [ {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : null,
+        "cells" : [ {
+          "kind" : "period",
+          "index" : 5,
+          "value" : "88.50",
+          "column" : "SYNMATH72000001 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNMATH72000001"
+        }, {
+          "kind" : "period",
+          "index" : 6,
+          "value" : "90.00",
+          "column" : "SYNMATH72000001 - Q2",
+          "periodId" : "Q2",
+          "subjectId" : "SYNMATH72000001"
+        }, {
+          "kind" : "period",
+          "mark" : "INC",
+          "index" : 7,
+          "column" : "SYNSCI72000001 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNSCI72000001"
+        } ],
+        "context" : {
+          "termId" : "S1",
+          "section" : null,
+          "gradeLevel" : "Grade 7",
+          "academicYearId" : "SY72000001"
+        },
+        "matchedBy" : "studentNumber",
+        "studentId" : "SYN-72000001-01",
+        "blankCells" : 1,
+        "studentNumber" : "SYN-72000001-01"
+      },
+      "raw" : {
+        "LRN" : "",
+        "Last Name" : "Alphaonejywcwuosdxkg",
+        "First Name" : "Ana",
+        "Student No" : "SYN-72000001-01",
+        "Grade Level" : "Grade 7",
+        "SYNSCI72000001 - Q1" : "INC",
+        "SYNSCI72000001 - Q2" : "",
+        "SYNMATH72000001 - Q1" : "88.50",
+        "SYNMATH72000001 - Q2" : "90"
+      },
+      "row" : 2,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : "997200000102",
+        "cells" : [ {
+          "kind" : "period",
+          "index" : 5,
+          "value" : "75.00",
+          "column" : "SYNMATH72000001 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNMATH72000001"
+        }, {
+          "kind" : "period",
+          "mark" : "NG",
+          "index" : 6,
+          "column" : "SYNMATH72000001 - Q2",
+          "periodId" : "Q2",
+          "subjectId" : "SYNMATH72000001"
+        }, {
+          "kind" : "period",
+          "mark" : "DRP",
+          "index" : 7,
+          "column" : "SYNSCI72000001 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNSCI72000001"
+        }, {
+          "kind" : "period",
+          "index" : 8,
+          "value" : "80.50",
+          "column" : "SYNSCI72000001 - Q2",
+          "periodId" : "Q2",
+          "subjectId" : "SYNSCI72000001"
+        } ],
+        "context" : {
+          "termId" : "S1",
+          "section" : null,
+          "gradeLevel" : "Grade 7",
+          "academicYearId" : "SY72000001"
+        },
+        "matchedBy" : "studentNumber",
+        "studentId" : "SYN-72000001-02",
+        "blankCells" : 0,
+        "studentNumber" : "SYN-72000001-02"
+      },
+      "raw" : {
+        "LRN" : "997200000102",
+        "Last Name" : "Betatwojywcwuosdxkg",
+        "First Name" : "Ben",
+        "Student No" : "SYN-72000001-02",
+        "Grade Level" : "Grade 7",
+        "SYNSCI72000001 - Q1" : "DRP",
+        "SYNSCI72000001 - Q2" : "80.5",
+        "SYNMATH72000001 - Q1" : "75",
+        "SYNMATH72000001 - Q2" : "NG"
+      },
+      "row" : 3,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "This row has no grade values; nothing will be recorded for it.",
+        "error_code" : "NO_GRADES_ON_ROW",
+        "field_name" : null,
+        "severity" : "warning"
+      } ],
+      "normalized" : {
+        "lrn" : null,
+        "cells" : [ ],
+        "context" : {
+          "termId" : "S1",
+          "section" : null,
+          "gradeLevel" : "Grade 7",
+          "academicYearId" : "SY72000001"
+        },
+        "matchedBy" : "studentNumber",
+        "studentId" : "SYN-72000001-03",
+        "blankCells" : 4,
+        "studentNumber" : "SYN-72000001-03"
+      },
+      "raw" : {
+        "LRN" : "",
+        "Last Name" : "Gammathreejywcwuosdxkg",
+        "First Name" : "Cara",
+        "Student No" : "SYN-72000001-03",
+        "Grade Level" : "Grade 7",
+        "SYNSCI72000001 - Q1" : "",
+        "SYNSCI72000001 - Q2" : "",
+        "SYNMATH72000001 - Q1" : "",
+        "SYNMATH72000001 - Q2" : ""
+      },
+      "row" : 4,
+      "status" : "valid"
+    } ]
+  },
+  "cells" : {
+    "batch" : {
+      "flagged_count" : 0,
+      "imported_count" : 0,
+      "invalid_count" : 7,
+      "skipped_count" : 0,
+      "source_count" : 12,
+      "status" : "validated",
+      "valid_count" : 5
+    },
+    "batchMessages" : [ ],
+    "rows" : [ {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : null,
+        "cells" : [ {
+          "kind" : "period",
+          "index" : 2,
+          "value" : "88.50",
+          "column" : "SYNMATH72000002 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNMATH72000002"
+        }, {
+          "kind" : "period",
+          "index" : 3,
+          "value" : "90.00",
+          "column" : "SYNMATH72000002 - Q2",
+          "periodId" : "Q2",
+          "subjectId" : "SYNMATH72000002"
+        }, {
+          "kind" : "period",
+          "mark" : "INC",
+          "index" : 4,
+          "column" : "SYNSCI72000002 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNSCI72000002"
+        } ],
+        "context" : {
+          "termId" : "S1",
+          "section" : null,
+          "gradeLevel" : "Grade 7",
+          "academicYearId" : "SY72000002"
+        },
+        "matchedBy" : "studentNumber",
+        "studentId" : "SYN-72000002-01",
+        "blankCells" : 1,
+        "studentNumber" : "SYN-72000002-01"
+      },
+      "raw" : {
+        "Student No" : "SYN-72000002-01",
+        "Grade Level" : "Grade 7",
+        "SYNSCI72000002 - Q1" : "INC",
+        "SYNSCI72000002 - Q2" : "",
+        "SYNMATH72000002 - Q1" : "88.50",
+        "SYNMATH72000002 - Q2" : "90"
+      },
+      "row" : 2,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : null,
+        "cells" : [ {
+          "kind" : "period",
+          "mark" : "NG",
+          "index" : 2,
+          "column" : "SYNMATH72000002 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNMATH72000002"
+        }, {
+          "kind" : "period",
+          "mark" : "DRP",
+          "index" : 3,
+          "column" : "SYNMATH72000002 - Q2",
+          "periodId" : "Q2",
+          "subjectId" : "SYNMATH72000002"
+        }, {
+          "kind" : "period",
+          "mark" : "DRP",
+          "index" : 4,
+          "column" : "SYNSCI72000002 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNSCI72000002"
+        }, {
+          "kind" : "period",
+          "index" : 5,
+          "value" : "85.00",
+          "column" : "SYNSCI72000002 - Q2",
+          "periodId" : "Q2",
+          "subjectId" : "SYNSCI72000002"
+        } ],
+        "context" : {
+          "termId" : "S1",
+          "section" : null,
+          "gradeLevel" : "Grade 7",
+          "academicYearId" : "SY72000002"
+        },
+        "matchedBy" : "studentNumber",
+        "studentId" : "SYN-72000002-02",
+        "blankCells" : 0,
+        "studentNumber" : "SYN-72000002-02"
+      },
+      "raw" : {
+        "Student No" : "SYN-72000002-02",
+        "Grade Level" : "Grade 7",
+        "SYNSCI72000002 - Q1" : "Drp",
+        "SYNSCI72000002 - Q2" : "85",
+        "SYNMATH72000002 - Q1" : "ng",
+        "SYNMATH72000002 - Q2" : "drp"
+      },
+      "row" : 3,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The mark is outside 0 to 100.",
+        "error_code" : "VALUE_OUT_OF_RANGE",
+        "field_name" : "SYNMATH72000002 - Q1",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "Student No" : "SYN-72000002-03",
+        "Grade Level" : "Grade 7",
+        "SYNSCI72000002 - Q1" : "90",
+        "SYNSCI72000002 - Q2" : "90",
+        "SYNMATH72000002 - Q1" : "101",
+        "SYNMATH72000002 - Q2" : "90"
+      },
+      "row" : 4,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The mark is outside 0 to 100.",
+        "error_code" : "VALUE_OUT_OF_RANGE",
+        "field_name" : "SYNMATH72000002 - Q1",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "Student No" : "SYN-72000002-04",
+        "Grade Level" : "Grade 7",
+        "SYNSCI72000002 - Q1" : "90",
+        "SYNSCI72000002 - Q2" : "90",
+        "SYNMATH72000002 - Q1" : "-1",
+        "SYNMATH72000002 - Q2" : "90"
+      },
+      "row" : 5,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The mark has more than two decimal places; it is never rounded.",
+        "error_code" : "TOO_MANY_DECIMALS",
+        "field_name" : "SYNMATH72000002 - Q1",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "Student No" : "SYN-72000002-05",
+        "Grade Level" : "Grade 7",
+        "SYNSCI72000002 - Q1" : "90",
+        "SYNSCI72000002 - Q2" : "90",
+        "SYNMATH72000002 - Q1" : "88.555",
+        "SYNMATH72000002 - Q2" : "90"
+      },
+      "row" : 6,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : null,
+        "cells" : [ {
+          "kind" : "period",
+          "index" : 2,
+          "value" : "88.50",
+          "column" : "SYNMATH72000002 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNMATH72000002"
+        }, {
+          "kind" : "period",
+          "index" : 3,
+          "value" : "90.00",
+          "column" : "SYNMATH72000002 - Q2",
+          "periodId" : "Q2",
+          "subjectId" : "SYNMATH72000002"
+        }, {
+          "kind" : "period",
+          "index" : 4,
+          "value" : "90.00",
+          "column" : "SYNSCI72000002 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNSCI72000002"
+        }, {
+          "kind" : "period",
+          "index" : 5,
+          "value" : "90.00",
+          "column" : "SYNSCI72000002 - Q2",
+          "periodId" : "Q2",
+          "subjectId" : "SYNSCI72000002"
+        } ],
+        "context" : {
+          "termId" : "S1",
+          "section" : null,
+          "gradeLevel" : "Grade 7",
+          "academicYearId" : "SY72000002"
+        },
+        "matchedBy" : "studentNumber",
+        "studentId" : "SYN-72000002-06",
+        "blankCells" : 0,
+        "studentNumber" : "SYN-72000002-06"
+      },
+      "raw" : {
+        "Student No" : "SYN-72000002-06",
+        "Grade Level" : "Grade 7",
+        "SYNSCI72000002 - Q1" : "90",
+        "SYNSCI72000002 - Q2" : "90",
+        "SYNMATH72000002 - Q1" : "88.500",
+        "SYNMATH72000002 - Q2" : "90"
+      },
+      "row" : 7,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The value is not a mark from 0 to 100, INC, NG or DRP (or a value the mapping translates to one).",
+        "error_code" : "INVALID_VALUE",
+        "field_name" : "SYNMATH72000002 - Q1",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "Student No" : "SYN-72000002-07",
+        "Grade Level" : "Grade 7",
+        "SYNSCI72000002 - Q1" : "90",
+        "SYNSCI72000002 - Q2" : "90",
+        "SYNMATH72000002 - Q1" : "85%",
+        "SYNMATH72000002 - Q2" : "90"
+      },
+      "row" : 8,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The value is not a mark from 0 to 100, INC, NG or DRP (or a value the mapping translates to one).",
+        "error_code" : "UNMAPPED_MARK",
+        "field_name" : "SYNMATH72000002 - Q1",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "Student No" : "SYN-72000002-08",
+        "Grade Level" : "Grade 7",
+        "SYNSCI72000002 - Q1" : "90",
+        "SYNSCI72000002 - Q2" : "90",
+        "SYNMATH72000002 - Q1" : "W",
+        "SYNMATH72000002 - Q2" : "90"
+      },
+      "row" : 9,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The value is not a mark from 0 to 100, INC, NG or DRP (or a value the mapping translates to one).",
+        "error_code" : "INVALID_VALUE",
+        "field_name" : "SYNMATH72000002 - Q1",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "Student No" : "SYN-72000002-09",
+        "Grade Level" : "Grade 7",
+        "SYNSCI72000002 - Q1" : "90",
+        "SYNSCI72000002 - Q2" : "90",
+        "SYNMATH72000002 - Q1" : "1,5",
+        "SYNMATH72000002 - Q2" : "90"
+      },
+      "row" : 10,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "This row has no grade values; nothing will be recorded for it.",
+        "error_code" : "NO_GRADES_ON_ROW",
+        "field_name" : null,
+        "severity" : "warning"
+      } ],
+      "normalized" : {
+        "lrn" : null,
+        "cells" : [ ],
+        "context" : {
+          "termId" : "S1",
+          "section" : null,
+          "gradeLevel" : "Grade 7",
+          "academicYearId" : "SY72000002"
+        },
+        "matchedBy" : "studentNumber",
+        "studentId" : "SYN-72000002-10",
+        "blankCells" : 4,
+        "studentNumber" : "SYN-72000002-10"
+      },
+      "raw" : {
+        "Student No" : "SYN-72000002-10",
+        "Grade Level" : "Grade 7",
+        "SYNSCI72000002 - Q1" : "",
+        "SYNSCI72000002 - Q2" : "",
+        "SYNMATH72000002 - Q1" : "",
+        "SYNMATH72000002 - Q2" : ""
+      },
+      "row" : 11,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : null,
+        "cells" : [ {
+          "kind" : "period",
+          "index" : 2,
+          "value" : "77.00",
+          "column" : "SYNMATH72000002 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNMATH72000002"
+        } ],
+        "context" : {
+          "termId" : "S1",
+          "section" : null,
+          "gradeLevel" : "Grade 7",
+          "academicYearId" : "SY72000002"
+        },
+        "matchedBy" : "studentNumber",
+        "studentId" : "SYN-72000002-11",
+        "blankCells" : 3,
+        "studentNumber" : "SYN-72000002-11"
+      },
+      "raw" : {
+        "Student No" : "SYN-72000002-11",
+        "Grade Level" : "Grade 7",
+        "SYNSCI72000002 - Q1" : "",
+        "SYNSCI72000002 - Q2" : "",
+        "SYNMATH72000002 - Q1" : " 77 ",
+        "SYNMATH72000002 - Q2" : ""
+      },
+      "row" : 12,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The value is not a mark from 0 to 100, INC, NG or DRP (or a value the mapping translates to one).",
+        "error_code" : "UNMAPPED_MARK",
+        "field_name" : "SYNMATH72000002 - Q2",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "Student No" : "SYN-72000002-12",
+        "Grade Level" : "Grade 7",
+        "SYNSCI72000002 - Q1" : "",
+        "SYNSCI72000002 - Q2" : "",
+        "SYNMATH72000002 - Q1" : "88",
+        "SYNMATH72000002 - Q2" : "W"
+      },
+      "row" : 13,
+      "status" : "invalid"
+    } ]
+  },
+  "no-identifier" : {
+    "batchMessages" : [ {
+      "detail" : "Required columns or upload values not found: [studentNumber or lrn]. Check the file's header row, the mapping's aliases or the upload form.",
+      "error_code" : "MISSING_COLUMN",
+      "field_name" : null,
+      "severity" : "error"
+    } ],
+    "error" : "MISSING_COLUMN",
+    "message" : "Required columns or upload values not found: [studentNumber or lrn]. Check the file's header row, the mapping's aliases or the upload form.",
+    "problems" : [ ]
+  },
+  "students" : {
+    "batch" : {
+      "flagged_count" : 3,
+      "imported_count" : 0,
+      "invalid_count" : 3,
+      "skipped_count" : 0,
+      "source_count" : 10,
+      "status" : "validated",
+      "valid_count" : 4
+    },
+    "batchMessages" : [ ],
+    "rows" : [ {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : null,
+        "cells" : [ {
+          "kind" : "period",
+          "index" : 5,
+          "value" : "90.00",
+          "column" : "SYNMATH72000004 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNMATH72000004"
+        } ],
+        "context" : {
+          "termId" : "S1",
+          "section" : null,
+          "gradeLevel" : "Grade 7",
+          "academicYearId" : "SY72000004"
+        },
+        "matchedBy" : "studentNumber",
+        "studentId" : "SYN-72000004-01",
+        "blankCells" : 0,
+        "studentNumber" : "SYN-72000004-01"
+      },
+      "raw" : {
+        "LRN" : "",
+        "Last Name" : "Alphaonehdmnrfafertb",
+        "First Name" : "Ana",
+        "Student No" : "SYN-72000004-01",
+        "Grade Level" : "Grade 7",
+        "SYNMATH72000004 - Q1" : "90"
+      },
+      "row" : 2,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : "997200000402",
+        "cells" : [ {
+          "kind" : "period",
+          "index" : 5,
+          "value" : "80.00",
+          "column" : "SYNMATH72000004 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNMATH72000004"
+        } ],
+        "context" : {
+          "termId" : "S1",
+          "section" : null,
+          "gradeLevel" : "Grade 7",
+          "academicYearId" : "SY72000004"
+        },
+        "matchedBy" : "studentNumber",
+        "studentId" : "SYN-72000004-02",
+        "blankCells" : 0,
+        "studentNumber" : "SYN-72000004-02"
+      },
+      "raw" : {
+        "LRN" : "997200000402",
+        "Last Name" : "Betatwohdmnrfafertb",
+        "First Name" : "Ben",
+        "Student No" : "SYN-72000004-02",
+        "Grade Level" : "Grade 7",
+        "SYNMATH72000004 - Q1" : "80"
+      },
+      "row" : 3,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : "997200000403",
+        "cells" : [ {
+          "kind" : "period",
+          "index" : 5,
+          "value" : "85.00",
+          "column" : "SYNMATH72000004 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNMATH72000004"
+        } ],
+        "context" : {
+          "termId" : "S1",
+          "section" : null,
+          "gradeLevel" : "Grade 7",
+          "academicYearId" : "SY72000004"
+        },
+        "matchedBy" : "lrn",
+        "studentId" : "SYN-72000004-03",
+        "blankCells" : 0,
+        "studentNumber" : "NOPE-72000004-03"
+      },
+      "raw" : {
+        "LRN" : "997200000403",
+        "Last Name" : "Gammathreehdmnrfafertb",
+        "First Name" : "Cara",
+        "Student No" : "NOPE-72000004-03",
+        "Grade Level" : "Grade 7",
+        "SYNMATH72000004 - Q1" : "85"
+      },
+      "row" : 4,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "No student with this student number or LRN exists at this campus. Import the student first (ICI2-37), then revalidate.",
+        "error_code" : "STUDENT_NOT_FOUND",
+        "field_name" : "studentNumber",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Last Name" : "Unknownhdmnrfafertb",
+        "First Name" : "Zed",
+        "Student No" : "SYN-72000004-99",
+        "Grade Level" : "Grade 7",
+        "SYNMATH72000004 - Q1" : "70"
+      },
+      "row" : 5,
+      "status" : "invalid"
+    }, {
+      "evidence" : [ {
+        "id" : "SYN-72000004-04",
+        "kind" : "student",
+        "rule" : "STUDENT_NUMBER",
+        "campusVisible" : true
+      }, {
+        "id" : "SYN-72000004-05",
+        "kind" : "student",
+        "rule" : "LRN",
+        "campusVisible" : true
+      } ],
+      "messages" : [ {
+        "detail" : "The student number and the LRN belong to two different students. Review before importing.",
+        "error_code" : "AMBIGUOUS_STUDENT",
+        "field_name" : null,
+        "severity" : "warning"
+      } ],
+      "normalized" : {
+        "lrn" : "997200000405",
+        "cells" : [ {
+          "kind" : "period",
+          "index" : 5,
+          "value" : "75.00",
+          "column" : "SYNMATH72000004 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNMATH72000004"
+        } ],
+        "context" : {
+          "termId" : "S1",
+          "section" : null,
+          "gradeLevel" : "Grade 7",
+          "academicYearId" : "SY72000004"
+        },
+        "matchedBy" : null,
+        "studentId" : null,
+        "blankCells" : 0,
+        "studentNumber" : "SYN-72000004-04"
+      },
+      "raw" : {
+        "LRN" : "997200000405",
+        "Last Name" : "Deltafourhdmnrfafertb",
+        "First Name" : "Dan",
+        "Student No" : "SYN-72000004-04",
+        "Grade Level" : "Grade 7",
+        "SYNMATH72000004 - Q1" : "75"
+      },
+      "row" : 6,
+      "status" : "duplicate_flagged"
+    }, {
+      "evidence" : [ {
+        "id" : "SYN-72000004-06",
+        "kind" : "student",
+        "rule" : "LRN_MISMATCH",
+        "campusVisible" : true
+      } ],
+      "messages" : [ {
+        "detail" : "The LRN in the file differs from the LRN on record for this student number. Review before importing.",
+        "error_code" : "AMBIGUOUS_STUDENT",
+        "field_name" : "lrn",
+        "severity" : "warning"
+      } ],
+      "normalized" : {
+        "lrn" : "997200000466",
+        "cells" : [ {
+          "kind" : "period",
+          "index" : 5,
+          "value" : "75.00",
+          "column" : "SYNMATH72000004 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNMATH72000004"
+        } ],
+        "context" : {
+          "termId" : "S1",
+          "section" : null,
+          "gradeLevel" : "Grade 7",
+          "academicYearId" : "SY72000004"
+        },
+        "matchedBy" : null,
+        "studentId" : null,
+        "blankCells" : 0,
+        "studentNumber" : "SYN-72000004-06"
+      },
+      "raw" : {
+        "LRN" : "997200000466",
+        "Last Name" : "Epsilonsixhdmnrfafertb",
+        "First Name" : "Eli",
+        "Student No" : "SYN-72000004-06",
+        "Grade Level" : "Grade 7",
+        "SYNMATH72000004 - Q1" : "75"
+      },
+      "row" : 7,
+      "status" : "duplicate_flagged"
+    }, {
+      "evidence" : [ {
+        "id" : "SYN-72000004-07",
+        "kind" : "student",
+        "rule" : "NAME_MISMATCH",
+        "nameScore" : 0.2,
+        "campusVisible" : true
+      } ],
+      "messages" : [ {
+        "detail" : "The name in the file does not match the student found by identifier. Review before importing.",
+        "error_code" : "NAME_MISMATCH",
+        "field_name" : null,
+        "severity" : "warning"
+      } ],
+      "normalized" : {
+        "lrn" : null,
+        "cells" : [ {
+          "kind" : "period",
+          "index" : 5,
+          "value" : "75.00",
+          "column" : "SYNMATH72000004 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNMATH72000004"
+        } ],
+        "context" : {
+          "termId" : "S1",
+          "section" : null,
+          "gradeLevel" : "Grade 7",
+          "academicYearId" : "SY72000004"
+        },
+        "matchedBy" : null,
+        "studentId" : null,
+        "blankCells" : 0,
+        "studentNumber" : "SYN-72000004-07"
+      },
+      "raw" : {
+        "LRN" : "",
+        "Last Name" : "Zzzzseven",
+        "First Name" : "Fay",
+        "Student No" : "SYN-72000004-07",
+        "Grade Level" : "Grade 7",
+        "SYNMATH72000004 - Q1" : "75"
+      },
+      "row" : 8,
+      "status" : "duplicate_flagged"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The matched student is inactive (archived); the grades will still be recorded.",
+        "error_code" : "STUDENT_INACTIVE",
+        "field_name" : null,
+        "severity" : "warning"
+      } ],
+      "normalized" : {
+        "lrn" : null,
+        "cells" : [ {
+          "kind" : "period",
+          "index" : 5,
+          "value" : "60.00",
+          "column" : "SYNMATH72000004 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNMATH72000004"
+        } ],
+        "context" : {
+          "termId" : "S1",
+          "section" : null,
+          "gradeLevel" : "Grade 7",
+          "academicYearId" : "SY72000004"
+        },
+        "matchedBy" : "studentNumber",
+        "studentId" : "SYN-72000004-08",
+        "blankCells" : 0,
+        "studentNumber" : "SYN-72000004-08"
+      },
+      "raw" : {
+        "LRN" : "",
+        "Last Name" : "Thetaeighthdmnrfafertb",
+        "First Name" : "Gus",
+        "Student No" : "SYN-72000004-08",
+        "Grade Level" : "Grade 7",
+        "SYNMATH72000004 - Q1" : "60"
+      },
+      "row" : 9,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "No student with this student number or LRN exists at this campus. Import the student first (ICI2-37), then revalidate.",
+        "error_code" : "STUDENT_NOT_FOUND",
+        "field_name" : "studentNumber",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Last Name" : "Iotaninehdmnrfafertb",
+        "First Name" : "Hal",
+        "Student No" : "BUGO-72000004-01",
+        "Grade Level" : "Grade 7",
+        "SYNMATH72000004 - Q1" : "88"
+      },
+      "row" : 10,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "This student already has a value for the same subject and period (term) on row 2.",
+        "error_code" : "DUPLICATE_IN_BATCH",
+        "field_name" : null,
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "LRN" : "",
+        "Last Name" : "Alphaonehdmnrfafertb",
+        "First Name" : "Ana",
+        "Student No" : "SYN-72000004-01",
+        "Grade Level" : "Grade 7",
+        "SYNMATH72000004 - Q1" : "91"
+      },
+      "row" : 11,
+      "status" : "invalid"
+    } ]
+  },
+  "terms" : {
+    "batch" : {
+      "flagged_count" : 0,
+      "imported_count" : 0,
+      "invalid_count" : 3,
+      "skipped_count" : 0,
+      "source_count" : 6,
+      "status" : "validated",
+      "valid_count" : 3
+    },
+    "batchMessages" : [ ],
+    "rows" : [ {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : null,
+        "cells" : [ {
+          "kind" : "period",
+          "index" : 4,
+          "value" : "90.00",
+          "column" : "SYNMATH72000003 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNMATH72000003"
+        } ],
+        "context" : {
+          "termId" : "S1",
+          "section" : null,
+          "gradeLevel" : "Grade 7",
+          "academicYearId" : "SY72000003"
+        },
+        "matchedBy" : "studentNumber",
+        "studentId" : "SYN-72000003-01",
+        "blankCells" : 0,
+        "studentNumber" : "SYN-72000003-01"
+      },
+      "raw" : {
+        "Term" : "S1",
+        "Student No" : "SYN-72000003-01",
+        "Grade Level" : "Grade 7",
+        "School Year" : "SY72000003",
+        "SYNMATH72000003 - Q1" : "90"
+      },
+      "row" : 2,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : null,
+        "cells" : [ {
+          "kind" : "period",
+          "index" : 4,
+          "value" : "91.00",
+          "column" : "SYNMATH72000003 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNMATH72000003"
+        } ],
+        "context" : {
+          "termId" : "S2",
+          "section" : null,
+          "gradeLevel" : "Grade 7",
+          "academicYearId" : "SY72000003"
+        },
+        "matchedBy" : "studentNumber",
+        "studentId" : "SYN-72000003-01",
+        "blankCells" : 0,
+        "studentNumber" : "SYN-72000003-01"
+      },
+      "raw" : {
+        "Term" : "S2",
+        "Student No" : "SYN-72000003-01",
+        "Grade Level" : "Grade 7",
+        "School Year" : "SY72000003",
+        "SYNMATH72000003 - Q1" : "91"
+      },
+      "row" : 3,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The term is not an existing term of that academic year and is not in the mapping's term value map.",
+        "error_code" : "UNKNOWN_TERM",
+        "field_name" : "term",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "Term" : "S9",
+        "Student No" : "SYN-72000003-02",
+        "Grade Level" : "Grade 7",
+        "School Year" : "SY72000003",
+        "SYNMATH72000003 - Q1" : "80"
+      },
+      "row" : 4,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The school year is not an existing academic year and is not in the mapping's schoolYear value map.",
+        "error_code" : "UNKNOWN_SCHOOL_YEAR",
+        "field_name" : "schoolYear",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "Term" : "S1",
+        "Student No" : "SYN-72000003-02",
+        "Grade Level" : "Grade 7",
+        "School Year" : "SY-NOPE-72000003",
+        "SYNMATH72000003 - Q1" : "80"
+      },
+      "row" : 5,
+      "status" : "invalid"
+    }, {
+      "evidence" : null,
+      "messages" : [ ],
+      "normalized" : {
+        "lrn" : null,
+        "cells" : [ {
+          "kind" : "period",
+          "index" : 4,
+          "value" : "80.00",
+          "column" : "SYNMATH72000003 - Q1",
+          "periodId" : "Q1",
+          "subjectId" : "SYNMATH72000003"
+        } ],
+        "context" : {
+          "termId" : "S1",
+          "section" : null,
+          "gradeLevel" : "Grade 7",
+          "academicYearId" : "SY72000003"
+        },
+        "matchedBy" : "studentNumber",
+        "studentId" : "SYN-72000003-03",
+        "blankCells" : 0,
+        "studentNumber" : "SYN-72000003-03"
+      },
+      "raw" : {
+        "Term" : "S1",
+        "Student No" : "SYN-72000003-03",
+        "Grade Level" : "Grade 7",
+        "School Year" : "",
+        "SYNMATH72000003 - Q1" : "80"
+      },
+      "row" : 6,
+      "status" : "valid"
+    }, {
+      "evidence" : null,
+      "messages" : [ {
+        "detail" : "The school year is not an existing academic year and is not in the mapping's schoolYear value map.",
+        "error_code" : "UNKNOWN_SCHOOL_YEAR",
+        "field_name" : "schoolYear",
+        "severity" : "error"
+      } ],
+      "normalized" : null,
+      "raw" : {
+        "Term" : "S1",
+        "Student No" : "SYN-72000003-03",
+        "Grade Level" : "Grade 7",
+        "School Year" : "SY72000003B",
+        "SYNMATH72000003 - Q1" : "80"
+      },
+      "row" : 7,
+      "status" : "invalid"
+    } ]
+  },
+  "unclassified" : {
+    "batchMessages" : [ {
+      "detail" : "Columns the mapping neither classifies nor lists in ignoredColumns (classify or ignore each): ['Remarks', 'Age', 'Advisory Note'].",
+      "error_code" : "UNMAPPED_COLUMN",
+      "field_name" : null,
+      "severity" : "error"
+    }, {
+      "detail" : "This column is not an identity or context column, is not listed in ignoredColumns, and is not shaped like 'Subject - Period'.",
+      "error_code" : "UNMAPPED_COLUMN",
+      "field_name" : "Remarks",
+      "severity" : "error"
+    }, {
+      "detail" : "This column is not an identity or context column, is not listed in ignoredColumns, and is not shaped like 'Subject - Period'.",
+      "error_code" : "UNMAPPED_COLUMN",
+      "field_name" : "Age",
+      "severity" : "error"
+    }, {
+      "detail" : "This column is not an identity or context column, is not listed in ignoredColumns, and is not shaped like 'Subject - Period'.",
+      "error_code" : "UNMAPPED_COLUMN",
+      "field_name" : "Advisory Note",
+      "severity" : "error"
+    } ],
+    "error" : "UNMAPPED_COLUMN",
+    "message" : "Columns the mapping neither classifies nor lists in ignoredColumns (classify or ignore each): ['Remarks', 'Age', 'Advisory Note'].",
+    "problems" : [ [ "UNMAPPED_COLUMN", "Remarks", "This column is not an identity or context column, is not listed in ignoredColumns, and is not shaped like 'Subject - Period'." ], [ "UNMAPPED_COLUMN", "Age", "This column is not an identity or context column, is not listed in ignoredColumns, and is not shaped like 'Subject - Period'." ], [ "UNMAPPED_COLUMN", "Advisory Note", "This column is not an identity or context column, is not listed in ignoredColumns, and is not shaped like 'Subject - Period'." ] ]
+  },
+  "unknown-period" : {
+    "batchMessages" : [ {
+      "detail" : "Columns naming an unknown grading period: ['SYNMATH72000013 - Q9'].",
+      "error_code" : "UNKNOWN_PERIOD",
+      "field_name" : null,
+      "severity" : "error"
+    }, {
+      "detail" : "The grading period 'Q9' does not exist in the term(s) this upload can refer to and is not in the mapping's period value map.",
+      "error_code" : "UNKNOWN_PERIOD",
+      "field_name" : "SYNMATH72000013 - Q9",
+      "severity" : "error"
+    } ],
+    "error" : "UNKNOWN_PERIOD",
+    "message" : "Columns naming an unknown grading period: ['SYNMATH72000013 - Q9'].",
+    "problems" : [ [ "UNKNOWN_PERIOD", "SYNMATH72000013 - Q9", "The grading period 'Q9' does not exist in the term(s) this upload can refer to and is not in the mapping's period value map." ] ]
+  },
+  "unknown-subject" : {
+    "batchMessages" : [ {
+      "detail" : "Columns naming an unknown subject: ['SYNNOPE72000014 - Q1', 'SYNNOPE272000014 - Q2'].",
+      "error_code" : "UNKNOWN_SUBJECT",
+      "field_name" : null,
+      "severity" : "error"
+    }, {
+      "detail" : "The subject 'SYNNOPE72000014' is not an existing subject code and is not in the mapping's subject value map.",
+      "error_code" : "UNKNOWN_SUBJECT",
+      "field_name" : "SYNNOPE72000014 - Q1",
+      "severity" : "error"
+    }, {
+      "detail" : "The subject 'SYNNOPE272000014' is not an existing subject code and is not in the mapping's subject value map.",
+      "error_code" : "UNKNOWN_SUBJECT",
+      "field_name" : "SYNNOPE272000014 - Q2",
+      "severity" : "error"
+    } ],
+    "error" : "UNKNOWN_SUBJECT",
+    "message" : "Columns naming an unknown subject: ['SYNNOPE72000014 - Q1', 'SYNNOPE272000014 - Q2'].",
+    "problems" : [ [ "UNKNOWN_SUBJECT", "SYNNOPE72000014 - Q1", "The subject 'SYNNOPE72000014' is not an existing subject code and is not in the mapping's subject value map." ], [ "UNKNOWN_SUBJECT", "SYNNOPE272000014 - Q2", "The subject 'SYNNOPE272000014' is not an existing subject code and is not in the mapping's subject value map." ] ]
+  }
+}
