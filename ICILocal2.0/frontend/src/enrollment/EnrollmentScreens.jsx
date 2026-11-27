@@ -50,6 +50,7 @@ function EnrollmentQueue({ referenceData, basePath, title }) {
     {label:'Pre-enlisted',value:statistics.data?.preEnlisted,description:'Ready for credential verification'},
     {label:'Duplicate flags',value:statistics.data?.duplicates,description:'For review'},
     {label:'Enrolled',value:statistics.data?.enrolled,description:'Confirmed enrollment'},
+    {label:'Pending requirements',value:statistics.data?.pendingRequirements,description:'Credentials still to collect',to:'/enrollment/requirements?requirements=open'},
   ];
 
   return <div className="enrollment-workspace">
@@ -58,9 +59,13 @@ function EnrollmentQueue({ referenceData, basePath, title }) {
       <Link className="button" to={intakePath}>New applicant</Link>
     </header>
     <div className="enrollment-stats" aria-label="Application statistics">
-      {stats.map(item => <section className="enrollment-stat" key={item.label}>
-        <strong>{item.value??"…"}</strong><div><span>{item.label}</span><small>{item.description}</small></div>
-      </section>)}
+      {stats.map(item => {
+        const body = <><strong>{item.value??"…"}</strong><div><span>{item.label}</span><small>{item.description}</small></div></>;
+        // A card with a destination is a real link, so it works with the keyboard and announces itself as one.
+        return item.to
+          ? <Link className="enrollment-stat enrollment-stat-link" key={item.label} to={item.to} aria-label={`${item.label}: ${item.value??'loading'}. Open the Requirements screen`}>{body}</Link>
+          : <section className="enrollment-stat" key={item.label}>{body}</section>;
+      })}
     </div>
     <section className="panel enrollment-panel" aria-labelledby="applicant-queue-title">
       <div className="enrollment-panel-heading"><div><h2 id="applicant-queue-title">Applicant Queue</h2><p>{directory.data?.total??0} matching applications</p></div></div>

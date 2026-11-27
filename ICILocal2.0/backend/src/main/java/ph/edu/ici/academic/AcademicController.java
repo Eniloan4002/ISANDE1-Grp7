@@ -75,6 +75,13 @@ public class AcademicController {
         return service.advisoryRosters(academicYearId,termId);
     }
 
+    @GetMapping("/api/academic/advisory/class-records")
+    @PreAuthorize("@accessPolicy.hasPermission('advisory.read')")
+    public Map<String,Object> advisoryClassRecords(@RequestParam long academicYearId,@RequestParam long termId,
+            @RequestParam long sectionId,@RequestParam(required=false) Long gradingPeriodId){
+        return service.advisoryClassRecords(academicYearId,termId,sectionId,gradingPeriodId);
+    }
+
     @GetMapping("/api/academic/withdrawal-endorsements")
     @PreAuthorize("@accessPolicy.hasPermission('advisory.read')")
     public Map<String,Object> withdrawalEndorsements(@RequestParam(defaultValue="0") int page,

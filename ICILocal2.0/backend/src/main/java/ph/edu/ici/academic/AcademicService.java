@@ -282,6 +282,52 @@ public class AcademicService {
         result.put("sections",rows);return result;
     }
 
+    /**
+     * Read-only grade matrix for one advisory section: every subject of the section against each student, for
+     * one grading period. Only submitted and finalized grades appear, so a teacher's working drafts never
+     * reach the adviser. Without gradingPeriodId the term's first period is used.
+     */
+    @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
+    public Map<String,Object> advisoryClassRecords(long academicYearId,long termId,long sectionId,Long gradingPeriodId){
+        var yearTerm=yearTerm(academicYearId,termId);
+        var section=db.queryForList("""
+            SELECT s.id,s.name,s.grade_level AS "gradeLevel" FROM sections s
+            WHERE s.id=:section AND s.term_id=:term AND s.adviser_id=:adviser AND s.campus_id IN (:scope)
+            """,Map.of("section",sectionId,"term",termId,"adviser",identity().userId(),"scope",scope("advisory.read")));
+        if(section.isEmpty())throw error(HttpStatus.NOT_FOUND,"Advisory section not found.");
+        var periods=db.queryForList("SELECT id,code FROM grading_periods WHERE term_id=:term ORDER BY sequence,id",Map.of("term",termId));
+        if(periods.isEmpty())throw error(HttpStatus.CONFLICT,"No grading periods are set up for this term.");
+        var period=gradingPeriodId==null?periods.getFirst():periods.stream().filter(item->number(item,"id")==gradingPeriodId).findFirst()
+                .orElseThrow(()->error(HttpStatus.BAD_REQUEST,"Grading period does not belong to the term."));
+        long periodId=number(period,"id");
+        var subjects=db.queryForList("""
+            SELECT co.id AS "classId",sub.code,sub.name FROM class_offerings co JOIN subjects sub ON sub.id=co.subject_id
+            WHERE co.section_id=:section AND co.term_id=:term ORDER BY sub.name,co.id
+            """,Map.of("section",sectionId,"term",termId));
+        var students=db.queryForList("""
+            SELECT e.id AS "enrollmentId",st.student_number AS "studentNumber",
+                   concat_ws(' ',st.first_name,st.middle_name,st.last_name,st.suffix) AS name
+            FROM enrollments e JOIN students st ON st.id=e.student_id
+            WHERE e.section_id=:section AND e.status IN ('provisional','enrolled')
+            ORDER BY st.last_name,st.first_name,st.id
+            """,Map.of("section",sectionId));
+        var grades=db.queryForList("""
+            SELECT g.enrollment_id AS "enrollmentId",g.class_id AS "classId",g.value,g.mark,g.state
+            FROM grades g JOIN class_offerings co ON co.id=g.class_id
+            WHERE co.section_id=:section AND g.grading_period_id=:period AND g.state IN ('submitted','finalized')
+            """,Map.of("section",sectionId,"period",periodId));
+        Map<Long,Map<String,Object>> byStudent=new HashMap<>();
+        for(var student:students){var own=new LinkedHashMap<String,Object>();student.put("grades",own);byStudent.put(number(student,"enrollmentId"),own);}
+        for(var grade:grades){
+            var own=byStudent.get(number(grade,"enrollmentId"));if(own==null)continue; // a student who has left the section
+            var cell=new LinkedHashMap<String,Object>();cell.put("value",grade.get("value"));cell.put("mark",grade.get("mark"));cell.put("state",grade.get("state"));
+            own.put(String.valueOf(number(grade,"classId")),cell);
+        }
+        var result=new LinkedHashMap<String,Object>(yearTerm);
+        result.put("section",section.getFirst());result.put("periods",periods);result.put("period",period);
+        result.put("subjects",subjects);result.put("students",students);return result;
+    }
+
     private static final String WITHDRAWAL_FROM="""
         FROM withdrawal_clearances wc JOIN withdrawals w ON w.id=wc.withdrawal_id
         JOIN enrollments e ON e.id=w.enrollment_id JOIN sections s ON s.id=e.section_id

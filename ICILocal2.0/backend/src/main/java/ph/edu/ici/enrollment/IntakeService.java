@@ -42,7 +42,13 @@ public class IntakeService {
             SELECT count(*) AS total,count(*) FILTER(WHERE status='submitted') AS submitted,
               count(*) FILTER(WHERE status='pre_enlisted') AS "preEnlisted",
               count(*) FILTER(WHERE status='duplicate_flag' OR EXISTS(SELECT 1 FROM duplicate_cases d WHERE (d.application_id=a.id OR d.matched_application_id=a.id) AND d.status='open')) AS duplicates,
-              count(*) FILTER(WHERE status='enrolled') AS enrolled
+              count(*) FILTER(WHERE status='enrolled') AS enrolled,
+              -- Open applications with a mandatory credential that is not yet submitted. Mirrors the
+              -- "Open" completeness filter on the application directory so the card and the list agree.
+              count(*) FILTER(WHERE a.status IN ('submitted','pre_enlisted','under_review','duplicate_flag') AND NOT (
+                EXISTS(SELECT 1 FROM requirement_types rt WHERE rt.mandatory) AND NOT EXISTS(
+                  SELECT 1 FROM requirement_types rt LEFT JOIN application_requirements ar ON ar.requirement_code=rt.code AND ar.application_id=a.id
+                  WHERE rt.mandatory AND coalesce(ar.status,'pending')<>'submitted'))) AS "pendingRequirements"
             FROM applications a WHERE campus_id IN (:scope)
             """,Map.of("scope",scope()));
     }

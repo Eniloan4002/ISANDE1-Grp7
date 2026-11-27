@@ -14,7 +14,7 @@ beforeEach(()=>{
  apiRequest.mockImplementation(async(path,options={})=>{
   if(options.method==='POST')return data;
   if(path.endsWith('/reference-data'))return catalogs;
-  if(path==='/api/intake/statistics')return {total:1,submitted:1,preEnlisted:0,duplicates:0,enrolled:0};
+  if(path==='/api/intake/statistics')return {total:1,submitted:1,preEnlisted:0,duplicates:0,enrolled:0,pendingRequirements:3};
   if(path.startsWith('/api/enrollment/applications?'))return {items:[row],total:1};
   if(path==='/api/intake/applications/10')return data;
   if(path.includes('/requirements/audit'))return {items:[],total:0};
@@ -54,4 +54,15 @@ it('shows intake guardian contacts before a student record exists and does not s
  render(<MemoryRouter initialEntries={['/enrollment/requirements?applicationId=10']}><RequirementsScreen/></MemoryRouter>);
  await screen.findByRole('button',{name:'Contact details for follow-up'});fireEvent.click(screen.getByRole('button',{name:'Contact details for follow-up'}));await screen.findByText('Maria Santos');expect(screen.queryByRole('button',{name:/Send/})).not.toBeInTheDocument();
  expect(apiRequest.mock.calls.every(([,options])=>!options?.method||options.method==='GET')).toBe(true);
+});
+it('shows the pending-requirements card as a link to the filtered Requirements screen',async()=>{
+ show('queue');
+ const card=await screen.findByRole('link',{name:/Pending requirements: 3/});
+ expect(card).toHaveAttribute('href','/enrollment/requirements?requirements=open');
+});
+it('opens the Requirements screen already filtered to open credentials',async()=>{
+ render(<MemoryRouter initialEntries={['/enrollment/requirements?requirements=open']}><RequirementsScreen/></MemoryRouter>);
+ await screen.findByText('APP-10');
+ expect(screen.getByLabelText('Filter by requirement status')).toHaveValue('Open');
+ await waitFor(()=>expect(apiRequest.mock.calls.some(([path])=>path.includes('/api/enrollment/applications?')&&path.includes('requirementsStatus=Open'))).toBe(true));
 });

@@ -70,6 +70,19 @@ class ReportingGuidanceTest {
         assertThat(((Number)call(HttpMethod.GET,report(),null,foreignToken).getBody().get("total")).intValue()).isEqualTo(1);
         assertThat(call(HttpMethod.GET,report()+"&size=101",null,registrarToken).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
+    @Test void filterOptionsStayInsideTheCallersReportCampuses(){
+        var principal=call(HttpMethod.GET,"/api/reports/filter-options",null,principalToken);
+        assertThat(principal.getStatusCode()).as(principal.toString()).isEqualTo(HttpStatus.OK);
+        assertThat(ids(principal.getBody(),"campuses")).contains(campus).doesNotContain(otherCampus);
+        assertThat(ids(principal.getBody(),"sections")).contains(section);
+        assertThat((List)principal.getBody().get("vouchers")).contains("QVR","ESC");
+        var foreign=call(HttpMethod.GET,"/api/reports/filter-options",null,foreignToken).getBody();
+        assertThat(ids(foreign,"campuses")).contains(otherCampus).doesNotContain(campus);
+        assertThat(ids(foreign,"sections")).doesNotContain(section);
+        assertThat(call(HttpMethod.GET,"/api/reports/filter-options",null,teacherToken).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.GET,"/api/reports/filter-options",null,null).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+    List<Long> ids(Map body,String key){return ((List<Map>)body.get(key)).stream().map(row->((Number)row.get("id")).longValue()).toList();}
     @Test void csvAndPdfExportsPreserveNamesAndPreventFormulas()throws Exception{
         String query="?termId="+term+"&voucher=QVR";var csv=bytes("/api/reports/enrollments/export"+query+"&format=csv",registrarToken);
         assertThat(csv.getStatusCode()).isEqualTo(HttpStatus.OK);String text=new String(csv.getBody(),StandardCharsets.UTF_8);assertThat(text).contains("'\u003dFORMULA\nJosé Ñ").doesNotContain("Hidden");
