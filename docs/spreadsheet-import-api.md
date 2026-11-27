@@ -1,6 +1,6 @@
 # Spreadsheet data cleaning & import utility — ICI2-39 (design draft)
 
-**Status: design (phase 1, amended by phase 1b); phase 2, the shared foundation, is built and described in §16.** Types A and B, the xlsx reader and the upload endpoints are not built. Phase 1 scoped a generic `.xlsx` reader for the ICI2-37/38 imports; **phase 1b re-targets the ticket to its real goal, two new import types: (A) section allocations, §12, and (B) document tracking logs, §13**, with shared design in §14 and a summary of what stayed and what was reversed in §15. Everything builds on ICI2-37 (`legacy-student-import-api.md`) and ICI2-38 (`legacy-grade-matrix-import-api.md`) and must not change their behavior unless a mapping opts in.
+**Status: design (phase 1, amended by phase 1b); phase 2, the shared foundation, is built and described in §16; phase 3, import type A (section allocation), is built and described in §17.** Type B, the xlsx reader and the upload endpoints are not built. Phase 1 scoped a generic `.xlsx` reader for the ICI2-37/38 imports; **phase 1b re-targets the ticket to its real goal, two new import types: (A) section allocations, §12, and (B) document tracking logs, §13**, with shared design in §14 and a summary of what stayed and what was reversed in §15. Everything builds on ICI2-37 (`legacy-student-import-api.md`) and ICI2-38 (`legacy-grade-matrix-import-api.md`) and must not change their behavior unless a mapping opts in.
 
 As in ICI2-37/38, **no real legacy file has been received**. Every value, alias, format or limit below is an engineering default or an open question, never school policy. Anything the registrar must decide is a stored-mapping setting that defaults to "off" or "refuse".
 
@@ -621,3 +621,56 @@ Baseline before any change (`./mvnw -o -Dtest='ph.edu.ici.imports.*Test' test`):
 7. **The golden snapshots replace database ids with codes** (student number, subject, period, term, campus, program) so they are stable; they were recorded from the unmodified code before any refactor and the test fails on any difference. One golden mapping writes the mark target as `inc`: the service upper-cases it, and a lower-case stored value keeps that test from tripping `GradeMatrixApiTest`'s search of the shared audit log for the literal `"INC"`.
 8. **Settings keys `sheet` and `nativeDates` are accepted now** (they have no effect until the reader exists), so a mapping can be authored ahead of the xlsx phases.
 9. **Two pre-existing tests pin the migration list and had to change.** `FoundationAuthenticationTest` and `MigrationReconciliationTest` assert how many migrations run on upgrade and that the latest version is `21`; any new migration moves those numbers (V21 did the same). Only the numbers changed (`migrationsExecuted` +1 in eight places, latest version `"22"`); no test logic and no published migration was touched. Expect the same edit for V23 and V24.
+
+## 17. Phase 3 as built (import type A: section allocation)
+
+Backend and docs only; no frontend, no new library, nothing committed. **No upload route yet**: a file is staged through `SectionAllocationValidationService.stage(...)` with a `GridReader` (the CSV reader stands in for tests; the `.xlsx` reader of phase 5 plugs in there), and everything after staging is HTTP. Type B, the xlsx reader and the upload endpoints are **not** started.
+
+### 17.1 Files
+
+| Area | Files (`ICILocal2.0/backend/src/main/java/ph/edu/ici/` unless noted) |
+| --- | --- |
+| Enrollment (behavior-preserving refactor) | `enrollment/EnrollmentService`: new public `assignmentBlockers(enrollmentId, sectionId)` returning `List<Blocker{code,status,message}>`. `assign` now calls the same private `statusBlocker` and `transferBlockers`, so staging, the commit recheck and the write cannot disagree. Messages and HTTP statuses of `assign` are unchanged |
+| Mapping | `imports/SectionAllocationMapping`, `SectionAllocationMappingService` (source type `section_allocation`, §12.6 save validation) |
+| Staging | `imports/SectionAllocationValidationService`, `SectionAllocationPlanner` (per-row decision, shared with commit) |
+| Batches | `imports/SectionAllocationBatchService` (reads through `BatchReads`, review, discard), `SectionAllocationCommitService`, `SectionAllocationImportController` at `/api/section-allocation-imports` |
+| Small changes | `GridReader` gained `default String format()` (stored in `source_format`); `LegacyImportErrors` also advises the new controller |
+| Migration | `src/main/resources/db/migration/V23__section_allocation_import.sql` |
+| Tests | new `SectionAllocationTest`; changed `FoundationAuthenticationTest`, `MigrationReconciliationTest` (pinned latest version, see §16.6 item 9) |
+
+### 17.2 V23
+
+- Permission **`imports.enrollment.manage`** (Admin, Registrar). Staging and every write need it **and** `enrollment.manage` at the batch's campus; `imports.manage` and `imports.grades.manage` are not enough.
+- `section_allocation` added to the `import_batches` and `import_column_mappings` source-type checks.
+- `import_rows.applied jsonb` (object, only on `imported` rows) and `import_row_audit()` replaced to omit it, like `raw_values`, `normalized_values` and `cleaning`.
+- Review decision `apply` added; a check allows it only for `section_allocation` and `document_log` rows (the latter name is reserved for V24).
+- One seeded, unvalidated default mapping (`real_file_validated = false`, empty value maps). No grade or student table is touched, and no batch of this type can be voided (`import_batch_void_scope` already forbids it).
+
+### 17.3 Behavior
+
+- **Staging** is a dry run. Every non-blank header must be a field alias or an ignored column, otherwise the whole file fails (`UNMAPPED_COLUMN`, `REPEATED_HEADER`, `MISSING_COLUMN`, `AMBIGUOUS_HEADER`) and a `failed` batch is recorded. Students resolve exactly as in ICI2-38 (`StudentResolver`); an inactive student is an error. The section label goes through `valueMaps.section`, then must equal exactly one section name of the campus and term (`UNKNOWN_SECTION`, `AMBIGUOUS_SECTION`). The enrollment is the student's enrollment in that term at the campus. Whether the section may take the student comes from `EnrollmentService.assignmentBlockers` (`NOT_CONFIRMED`, `ENROLLMENT_CLOSED`, `SECTION_INCOMPATIBLE`, `GRADE_LEVEL_MISSING`, `GRADE_MISMATCH`, `ACADEMIC_HISTORY_EXISTS`); `gradeLevel` and `program` columns are only cross-checked (`CONTEXT_MISMATCH`). The same student twice is `DUPLICATE_IN_BATCH`.
+- **Row statuses:** unassigned and fits is `valid`; already in the section is `valid` with warning `ALREADY_ASSIGNED` (no write); in a different section is `duplicate_flagged` with warning `REASSIGNMENT` and evidence `{kind: reassignment, fromSectionId, toSectionId}`; identity doubts are `duplicate_flagged` with student evidence as in ICI2-38; everything else is `invalid`.
+- **Capacity across the batch:** free seats = capacity − occupied + students of the batch leaving the section; arriving rows are admitted in file order and the rest get `SECTION_FULL` (numbers only, no names). A refused row stops leaving or arriving, so seats are recounted until stable (a swap between two full sections works; a chain that depends on a refused row is refused as well). Reassignments awaiting review count as applied; rows with unresolved identity are not counted.
+- **Review:** `same_person` (identity rows; the student must be one of the candidates), `apply` (a reassignment, or a row whose enrollment changed since staging; reason required), `skip`. `distinct` is a 409. A linked row is evaluated against live data only at commit.
+- **Commit** (`POST …/commit`, body `{version, expectedValidCount}`): one transaction under `FOR UPDATE NOWAIT`; gates as in ICI2-38 plus "no flagged rows left". Every valid row is re-planned with the same planner. A row whose plan now fails is demoted to `invalid` with the service's code; a row whose action, previous section or enrollment version differs from staging, or a reassignment without an `apply` decision, is demoted to `duplicate_flagged` (`CHANGED_SINCE_STAGING` or `REASSIGNMENT`) and its staged picture is refreshed so the decision approves what is true now. Any demotion applies nothing and answers 409. Otherwise reassignments are unassigned first (ordered by enrollment id), then every placement is made through `EnrollmentService.assign` ordered by `(section id, row number)`; a refusal by the service (for example a seat taken meanwhile) rolls the whole batch back and the 409 names the row. Imported rows keep `applied = {action, enrollmentId, fromSectionId, toSectionId, versionBefore, versionAfter}` (or `{action: noop, noop: true}`). Committing again returns 200 `alreadyImported`.
+- **Discard** works as in ICI2-38 (the batch becomes `failed` with a `DISCARDED` exception, which frees the checksum). A committed allocation is undone through the enrollment workflow, which audits it.
+- **Reads:** batch detail adds `uploadContext`, `actions` (counts of assign/reassign/noop) and `sections`.
+
+| Route (all under `/api/section-allocation-imports`) | Permission |
+| --- | --- |
+| `GET /mappings`, `/mappings/{id}`, `/batches`, `/batches/{id}`, `/batches/{id}/rows`, `/batches/{id}/errors` | `imports.read` for the campus (batches of another campus or type: 404) |
+| `POST /mappings`, `PUT /mappings/{id}` | `imports.mappings.manage` (Admin) |
+| `POST /batches/{id}/rows/{rowId}/review`, `/commit`, `/discard` | `imports.enrollment.manage` for the campus (403), batch of another campus 404 |
+
+### 17.4 Deviations from the design in §§12 and 14, and why
+
+1. **Staging takes the file bytes and a `GridReader`, not a ready `Grid`.** The checksum (duplicate-file rule) is over the bytes, and the reader is exactly what phase 5 supplies; tests pass the CSV reader.
+2. **`apply` is also accepted for a row demoted because its enrollment changed** (evidence kind `changed`), not only for reassignments. Without it a row whose enrollment version moved could never be committed without re-uploading.
+3. **Linked rows are not re-planned at review.** `same_person` makes the row `valid` as in ICI2-38; the commit decides what it does, and demotes it if it turns out to be a reassignment.
+4. **Per-row queries.** The planner runs about six small queries per row (enrollment lookup plus the service's blockers), at most 20,000 rows by the existing limit. Batching is possible later if real files are large.
+5. **V23 names `document_log` in the `apply` scope check ahead of V24**, so V24 only has to add its source type.
+6. **Pinned migration numbers** in two older tests moved to V23, as predicted in §16.6 item 9.
+
+### 17.5 Not built, still open
+
+Type B (V24), the `.xlsx` reader and upload route (phases 5 and 6), the inspect endpoint, any screen, and validation against a real registrar file. The open questions of §10 (real layouts, file-order seat rule Q11, unassign-then-assign audit Q12) are unchanged.

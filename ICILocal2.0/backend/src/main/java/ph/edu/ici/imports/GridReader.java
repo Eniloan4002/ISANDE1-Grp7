@@ -7,4 +7,6 @@ package ph.edu.ici.imports;
  */
 public interface GridReader {
     CsvParser.Parsed read(byte[] bytes,ImportMapping.Settings settings);
+    /** The value stored in {@code import_batches.source_format} for files this reader parsed ({@code csv} or {@code xlsx}). */
+    default String format(){return "csv";}
 }

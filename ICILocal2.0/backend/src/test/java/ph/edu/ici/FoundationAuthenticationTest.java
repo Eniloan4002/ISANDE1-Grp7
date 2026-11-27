@@ -54,7 +54,7 @@ class FoundationAuthenticationTest {
     Map subject(){return create("subjects",Map.of("code","SUB-"+UUID.randomUUID().toString().substring(0,8),"name","Mathematics","units",1,"active",true));}
 
     @Test void flywayRunsAndValidatesAllVersionsOnRealPostgres(){
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("22");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("23");
         flyway.validate();assertThat(flyway.migrate().migrationsExecuted).isZero();
         assertThat(jdbc.queryForObject("SELECT version()",String.class)).contains("PostgreSQL 17");
         assertThat(jdbc.queryForObject("SELECT count(*) FROM information_schema.tables t WHERE t.table_schema='public' AND t.table_name NOT IN ('audit_logs','revoked_tokens','flyway_schema_history') AND NOT EXISTS(SELECT 1 FROM information_schema.columns c WHERE c.table_schema=t.table_schema AND c.table_name=t.table_name AND c.column_name='created_by')",Integer.class)).isZero();
