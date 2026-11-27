@@ -79,7 +79,8 @@ export function AppShell() {
   }, [mobileOpen, closeNav]);
   // Opening moves focus into the panel; Escape or the scrim hands it back to the menu button.
   useEffect(() => {
-    if (mobileOpen) panel.current?.querySelector('.nav-item.active, .nav-item')?.focus();
+    // A selector list returns the first match in page order, so ask for the current page first.
+    if (mobileOpen) (panel.current?.querySelector('.nav-item.active') ?? panel.current?.querySelector('.nav-item'))?.focus();
     else if (restoreFocus.current) { restoreFocus.current = false; toggle.current?.focus(); }
   }, [mobileOpen]);
 
