@@ -1,0 +1,180 @@
+/* ICI2-56 Withdrawal Approvals & Clearance screens — aligned with foundation.css and enrollment.css. */
+.withdrawals-workspace {
+  max-width: 1450px;
+}
+
+.withdrawals-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 18px;
+}
+
+.withdrawals-filters > div {
+  flex: 0 1 220px;
+  min-width: 0;
+}
+
+.withdrawals-filters label {
+  font-size: 14px;
+}
+
+.withdrawals-filters input,
+.withdrawals-filters select {
+  margin-bottom: 0;
+}
+
+.withdrawals-filters .button {
+  min-height: 44px;
+}
+
+.withdrawals-chain {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  list-style: none;
+  padding: 0;
+  margin: 18px 0 22px;
+}
+
+.withdrawals-step {
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  padding: 16px;
+}
+
+.withdrawals-step.step-cleared {
+  border-top-color: #277a55;
+  background: #f5fbf7;
+}
+
+.withdrawals-step.step-rejected {
+  border-top-color: #8c303c;
+  background: #fff4f5;
+}
+
+.withdrawals-step.step-active {
+  border-top-color: #b17a16;
+  background: #fffaf0;
+}
+
+.withdrawals-step-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.withdrawals-step-head strong {
+  font-size: 15px;
+}
+
+.withdrawals-step-meta {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 6px 0 0;
+  line-height: 1.45;
+}
+
+.withdrawals-step-notes {
+  margin: 10px 0 0;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+  font-size: 14px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.withdrawals-release-box {
+  padding: 14px 18px;
+  border-left: 4px solid #277a55;
+  background: #e6f5ec;
+  margin: 0 0 20px;
+  line-height: 1.55;
+}
+
+.withdrawals-release-box.is-blocked {
+  border-left-color: #b17a16;
+  background: #fff7e4;
+}
+
+.withdrawals-release-box p {
+  margin: 6px 0 0;
+}
+
+.withdrawals-meta-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 28px;
+  padding: 14px 18px;
+  margin: 0 0 18px;
+  background: var(--brand-mist);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.withdrawals-meta-grid dt {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.withdrawals-meta-grid dd {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.withdrawals-textarea {
+  display: block;
+  width: 100%;
+  min-height: 92px;
+  resize: vertical;
+  border: 1px solid #8b9da9;
+  padding: 11px;
+  border-radius: 3px;
+  font: inherit;
+  margin-bottom: 16px;
+  color: var(--brand-charcoal);
+}
+
+.withdrawals-action-box {
+  background: #f8fbfd;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--brand-primary);
+  border-radius: 4px;
+  padding: 18px 20px;
+  margin: 18px 0 22px;
+}
+
+.withdrawals-action-box h3 {
+  margin: 0 0 10px;
+}
+
+.withdrawals-student-picker {
+  margin-bottom: 16px;
+}
+
+.withdrawals-selected-enrollment {
+  background: var(--brand-mist);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px 16px;
+  margin: 14px 0 16px;
+}
+
+@media (max-width: 950px) {
+  .withdrawals-chain {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .withdrawals-filters > div {
+    flex: 1 1 100%;
+  }
+}

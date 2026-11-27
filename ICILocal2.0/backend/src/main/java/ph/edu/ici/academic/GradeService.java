@@ -91,7 +91,7 @@ public class GradeService {
         return db.queryForList("""
             SELECT e.id AS "enrollmentId",st.student_number AS "studentNumber",
                    concat_ws(' ',st.first_name,st.middle_name,st.last_name,st.suffix) AS name,
-                   g.value,g.mark,coalesce(g.state,'draft') AS state,g.version
+                   g.id AS "gradeId",g.value,g.mark,coalesce(g.state,'draft') AS state,g.version
             FROM class_memberships cm JOIN enrollments e ON e.id=cm.enrollment_id
             JOIN students st ON st.id=e.student_id
             LEFT JOIN grades g ON g.class_id=cm.class_id AND g.enrollment_id=cm.enrollment_id AND g.grading_period_id=:period

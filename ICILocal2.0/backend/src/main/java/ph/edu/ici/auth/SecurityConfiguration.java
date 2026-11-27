@@ -19,7 +19,7 @@ public class SecurityConfiguration {
         return http.csrf(csrf->csrf.disable())
             .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .requestCache(cache->cache.disable()).formLogin(form->form.disable()).httpBasic(basic->basic.disable())
-            .authorizeHttpRequests(auth->auth.requestMatchers("/api/auth/login","/error").permitAll().anyRequest().authenticated())
+            .authorizeHttpRequests(auth->auth.requestMatchers("/api/auth/login","/api/public/enrollment/**","/error").permitAll().anyRequest().authenticated())
             .exceptionHandling(errors->errors.authenticationEntryPoint((request,response,exception)->unauthorized(response))
                 .accessDeniedHandler((request,response,exception)->{
                     response.setStatus(403);response.setContentType("application/problem+json");

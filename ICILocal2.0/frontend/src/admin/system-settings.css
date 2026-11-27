@@ -1,0 +1,227 @@
+/* Responsive styles for the System Administrator System Settings screen */
+
+.settings-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.settings-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.settings-header h1 {
+  margin: 0.15rem 0 0.2rem;
+}
+
+.settings-header p {
+  margin: 0;
+  color: var(--muted, #546670);
+}
+
+.settings-scope-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  align-items: end;
+}
+
+.settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--brand-charcoal, #1d2d35);
+}
+
+.settings-field input,
+.settings-field select,
+.settings-field textarea {
+  width: 100%;
+  min-height: 42px;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #c5d3dc;
+  border-radius: 6px;
+  font-size: 0.92rem;
+  background: #ffffff;
+  color: var(--brand-charcoal, #1d2d35);
+}
+
+.settings-field textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.settings-section {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.settings-section-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  border-bottom: 1px solid var(--border, #d8e2e8);
+  padding-bottom: 0.75rem;
+}
+
+.settings-section-head h2 {
+  margin: 0;
+  font-size: 1.12rem;
+}
+
+.settings-section-head p {
+  margin: 0.2rem 0 0;
+  font-size: 0.86rem;
+  color: var(--muted, #546670);
+}
+
+.settings-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.settings-audit-stamp {
+  font-size: 0.82rem;
+  color: var(--muted, #546670);
+  background: #f4f8fa;
+  border: 1px solid var(--border, #d8e2e8);
+  border-radius: 6px;
+  padding: 0.45rem 0.7rem;
+}
+
+.settings-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+}
+
+.settings-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.settings-actions .button,
+.settings-actions .button-outline {
+  width: 100%;
+  min-height: 42px;
+  justify-content: center;
+}
+
+/* School-day calendar section */
+.settings-calendar-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.settings-stat-box {
+  background: #f6f9fb;
+  border: 1px solid var(--border, #d8e2e8);
+  border-radius: 8px;
+  padding: 0.65rem 0.75rem;
+}
+
+.settings-stat-box span {
+  display: block;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted, #546670);
+}
+
+.settings-stat-box strong {
+  display: block;
+  font-size: 1.15rem;
+  margin-top: 0.15rem;
+  color: var(--brand-charcoal, #1d2d35);
+}
+
+.settings-subpanel {
+  border: 1px solid var(--border, #d8e2e8);
+  border-radius: 8px;
+  padding: 0.9rem;
+  background: #fafcfd;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.settings-subpanel h3 {
+  margin: 0;
+  font-size: 0.96rem;
+}
+
+.settings-checkbox-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.settings-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.settings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+  min-width: 520px;
+}
+
+.settings-table th,
+.settings-table td {
+  padding: 0.6rem;
+  border-bottom: 1px solid var(--border, #d8e2e8);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.settings-table th {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  color: var(--muted, #546670);
+  background: #f6f9fb;
+}
+
+@media (min-width: 640px) {
+  .settings-scope-grid,
+  .settings-form-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .settings-section-head {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .settings-actions {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .settings-actions .button,
+  .settings-actions .button-outline {
+    width: auto;
+  }
+}
+
+@media (min-width: 900px) {
+  .settings-scope-grid {
+    grid-template-columns: 1fr 1fr auto;
+  }
+
+  .settings-form-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
