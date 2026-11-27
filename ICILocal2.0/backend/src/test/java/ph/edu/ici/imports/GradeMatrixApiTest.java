@@ -387,7 +387,9 @@ class GradeMatrixApiTest {
         var s=setup();long st=student(s,"01");student(s,"02");long b=stage(s,csv(s,"SYN-%N%-01,Grade 7,88.55,INC,","SYN-%N%-02,Grade 7,101,90,"));assertThat(commit(registrarToken,b,1).getStatusCode()).isEqualTo(HttpStatus.OK);
         voidBatch(registrarToken,b,"Audit check");discard(registrarToken,stage(s,csv(s,"SYN-%N%-02,Grade 7,70.15,71,")),"Audit check");
         for(String table:List.of("import_batches","import_rows","import_exceptions","legacy_grade_records")){
-            assertThat(count("SELECT count(*) FROM audit_logs WHERE table_name=? AND (new_data::text LIKE '%88.55%' OR old_data::text LIKE '%88.55%' OR new_data::text LIKE '%70.15%' OR new_data::text LIKE '%\"INC\"%' OR new_data::text LIKE '%raw_values%' OR new_data::text LIKE '%normalized_values%')",table)).as(table).isZero();
+            // A batch row also stores its mapping snapshot, which is configuration (for example a value map translating "Inc." to the INC mark),
+            // not learner data. Other tests in the shared database create such mappings, so ignore the snapshot and scan everything else.
+            assertThat(count("SELECT count(*) FROM audit_logs WHERE table_name=? AND ((new_data-'mapping_snapshot')::text LIKE '%88.55%' OR (old_data-'mapping_snapshot')::text LIKE '%88.55%' OR (new_data-'mapping_snapshot')::text LIKE '%70.15%' OR (new_data-'mapping_snapshot')::text LIKE '%\"INC\"%' OR (new_data-'mapping_snapshot')::text LIKE '%raw_values%' OR (new_data-'mapping_snapshot')::text LIKE '%normalized_values%')",table)).as(table).isZero();
         }
         assertThat(count("SELECT count(*) FROM audit_logs WHERE table_name='legacy_grade_records' AND operation='INSERT' AND actor_id=?",registrar)).isEqualTo(2);
         assertThat(count("SELECT count(*) FROM audit_logs WHERE table_name='legacy_grade_records' AND (jsonb_exists(new_data,'value') OR jsonb_exists(new_data,'mark') OR jsonb_exists(old_data,'value') OR jsonb_exists(old_data,'mark'))")).isZero();
