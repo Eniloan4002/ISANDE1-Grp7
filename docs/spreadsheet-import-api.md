@@ -723,7 +723,7 @@ Backend and docs only; no frontend. One new library: Apache POI `poi-ooxml` **5.
 | Reader (phase 5) | new `XlsxGridReader` (Spring component, implements `GridReader`), `XlsxLimits` (`ici.import.xlsx.*`, defaults also in `application.yml`); `GridReader` gained `read(bytes, settings, sheet)` (a default method, so the CSV reader is unchanged); `ImportFileException.FileError` gained `XLSX_LIMIT_EXCEEDED` (413), `UNSUPPORTED_FORMAT`, `MALFORMED_XLSX`, `MACRO_ENABLED`, `EXTERNAL_CONTENT`, `MULTIPLE_SHEETS`, `SHEET_NOT_FOUND`, `HIDDEN_CONTENT`, `MERGED_CELLS` (422, failed batch recorded) |
 | Uploads (phase 6) | `POST /batches` on `SectionAllocationImportController` and the new `DocumentLogImportController`; `SectionAllocationMapping.Settings` gained `sheet`; `LegacyImportErrors` also advises the new controller; `pom.xml` (`poi-ooxml`) |
 | Type B (phase 4) | new `DocumentLogMapping`, `DocumentLogMappingService`, `DocumentLogPlanner`, `DocumentLogValidationService`, `DocumentLogBatchService`, `DocumentLogCommitService`, `DocumentLogImportController` at `/api/document-log-imports` |
-| Shared | new `TypedMappingService`: list, read, upload default, snapshot, create and update of a type's mappings, moved unchanged out of `SectionAllocationMappingService` (which now extends it and keeps only its validation) so type B does not add a second copy |
+| Shared | new `TypedMappingService`: list, read, upload default, snapshot, create and update of a type's mappings, moved unchanged out of `SectionAllocationMappingService` (which now extends it and keeps only its validation) so type B does not add a second copy. New `StagingSupport`: the staging machinery both types share (duplicate-file check, upload context, header classification, identity and term columns, student resolution, persistence of validated and failed batches, and a `Row` base class); `SectionAllocationValidationService` and `DocumentLogValidationService` keep only their own columns, required-column checks, planning and normalized values |
 | Migration | `src/main/resources/db/migration/V24__document_log_import.sql` |
 | Tests | new `XlsxGridReaderTest`, `XlsxFixtures` (POI-written workbooks and raw-zip rewrites), `DocumentLogTest`; `SectionAllocationTest` gained the upload tests; `FoundationAuthenticationTest`, `MigrationReconciliationTest` pinned numbers moved to V24 (§16.6 item 9) |
 
@@ -752,7 +752,7 @@ Backend and docs only; no frontend. One new library: Apache POI `poi-ooxml` **5.
 4. **`dateFormats` is a fixed list** of eight four-digit-year patterns (`yyyy-MM-dd`, `yyyy/MM/dd`, `MM/dd/yyyy`, `dd/MM/yyyy`, `M/d/yyyy`, `d/M/yyyy`, `MM-dd-yyyy`, `dd-MM-yyyy`), parsed strictly. Listing both a day-first and a month-first pattern makes dates like `06/07/2026` ambiguous, never guessed.
 5. **Rows awaiting identity review are planned at commit**, not at staging, as for type A (§17.4 item 3).
 6. **`repeatedEntries` accepts only `reject`**; `latest_by_date` remains unbuilt (Q9).
-7. **Mapping storage was extracted** into `TypedMappingService` (behavior-identical; the type A mapping tests are the regression).
+7. **Mapping storage and staging were extracted** into `TypedMappingService` and `StagingSupport` (behavior-identical; the type A tests are the regression). The two staging services went from 729 lines to 372, plus 255 shared. The batch services (`SectionAllocationBatchService`, `DocumentLogBatchService`) still repeat their discard and summary code (about 50 lines).
 
 ### 18.6 Tests
 
