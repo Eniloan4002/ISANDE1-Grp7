@@ -89,12 +89,13 @@ public class EnrollmentService {
         """;
     @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
     public Map<String,Object> applications(String search,Long campus,Long term,Long program,String completeness,String status,String district,String route,int page,int size){
-        return applications(search,campus,term,program,completeness,status,district,route,null,page,size);
+        return applications(search,campus,term,program,completeness,status,district,route,null,"",page,size);
     }
     @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
-    public Map<String,Object> applications(String search,Long campus,Long term,Long program,String completeness,String status,String district,String route,Long section,int page,int size){
+    public Map<String,Object> applications(String search,Long campus,Long term,Long program,String completeness,String status,String district,String route,Long section,String placement,int page,int size){
         paging(page,size);
         if(search.length()>200||district.length()>200||route.length()>200)throw error(HttpStatus.BAD_REQUEST,"Search values must be at most 200 characters.");
+        if(!List.of("","placed","unplaced").contains(placement))throw error(HttpStatus.BAD_REQUEST,"Unknown placement filter.");
         if(!List.of("","Complete","Incomplete","Pending","Open").contains(completeness)||!List.of("","submitted","duplicate_flag","under_review","pre_enlisted","enrolled","rejected","withdrawn").contains(status))throw error(HttpStatus.BAD_REQUEST,"Unknown application or requirement status.");
         Map<String,Object> params=new HashMap<>();params.put("scope",scope());params.put("limit",size);params.put("offset",(long)page*size);
         String where=" WHERE a.campus_id IN (:scope)";
@@ -102,6 +103,9 @@ public class EnrollmentService {
         if(term!=null){where+=" AND a.term_id=:term";params.put("term",term);}
         if(program!=null){where+=" AND a.program_id=:program";params.put("program",program);}
         if(section!=null){where+=" AND e.section_id=:section";params.put("section",section);}
+        // ICI2-100 placement tabs: confirmed enrollments with or without a section.
+        if(placement.equals("placed"))where+=" AND e.status='enrolled' AND e.section_id IS NOT NULL";
+        else if(placement.equals("unplaced"))where+=" AND e.status='enrolled' AND e.section_id IS NULL";
         if(!search.isBlank()){where+=" AND (strpos(lower(concat_ws(' ',a.application_number,a.first_name,a.last_name,a.lrn,st.student_number)),:search)>0)";params.put("search",search.trim().toLowerCase(Locale.ROOT));}
         // "Open" = still has credentials to collect (pending, missing or invalid) on an application that is still in play.
         if(completeness.equals("Open"))where+=" AND creds.status<>'Complete' AND a.status IN ('submitted','pre_enlisted','under_review','duplicate_flag')";

@@ -49,13 +49,15 @@ test('verify credentials, record attendance, confirm and allocate an enrollment'
   await page.getByRole('button',{name:'Create section',exact:true}).click();
   await expect(page.getByRole('heading',{name,exact:true})).toBeVisible();
   await page.goto(`/enrollment/enrolled?applicationId=${id}`,{waitUntil:'domcontentloaded'});
-  const card=page.locator('.section-card').filter({has:page.getByRole('heading',{name,exact:true})});
-  await card.getByRole('button',{name:'Assign to this section',exact:true}).click();
-  await page.getByRole('button',{name:'Confirm',exact:true}).click();
-  await expect(page.getByRole('heading',{name,exact:true}).first()).toBeVisible();
-  await expect(card.getByRole('button',{name:'Currently assigned',exact:true})).toBeDisabled();
-  await expect(card).toContainText('1 / 1');
-  await page.reload({waitUntil:'domcontentloaded'});await expect(page.getByRole('button',{name:'Currently assigned',exact:true})).toBeDisabled();
+  // ICI2-100: choose the section card, then the single primary action. The screen then moves on to the next
+  // student who needs a section, so reopen this one to check the placement.
+  const card=page.locator('.pl-card').filter({hasText:name});
+  await card.click();
+  await page.getByRole('button',{name:`Place in ${name}`,exact:true}).click();
+  await expect(page.getByText(`placed in ${name}.`)).toBeVisible();
+  await page.goto(`/enrollment/enrolled?applicationId=${id}`,{waitUntil:'domcontentloaded'});
+  await expect(card).toContainText('Current section');
+  await expect(card).toContainText('1 of 1 seats used');
   await page.screenshot({path:'test-results/allocation-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);

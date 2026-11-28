@@ -93,11 +93,13 @@ test('Pauline intake and requirements UI persists through confirmation and alloc
   const sectionResponse=await page.request.post('/api/sections',{headers,data:{campusId:campus.id,termId:term.id,programId:program.id,name:`Integrated-${suffix}`,gradeLevel:'11',capacity:1,room:'204'}});
   expect(sectionResponse.status()).toBe(201);
   await page.goto(`/enrollment/enrolled?applicationId=${applicant.id}`);
-  await page.getByRole('button',{name:'Assign to this section'}).click();
-  await page.getByRole('button',{name:'Confirm',exact:true}).click();
-  await expect(page.getByRole('button',{name:'Currently assigned'})).toBeDisabled();
-  await page.reload();await expect(page.getByRole('button',{name:'Currently assigned'})).toBeDisabled();
-  await expect(page.locator('.section-card')).toContainText('1 / 1');
+  const card=page.locator('.pl-card').filter({hasText:`Integrated-${suffix}`});
+  await card.click();
+  await page.getByRole('button',{name:`Place in Integrated-${suffix}`,exact:true}).click();
+  await expect(page.getByText(`placed in Integrated-${suffix}.`)).toBeVisible();
+  await page.goto(`/enrollment/enrolled?applicationId=${applicant.id}`);
+  await expect(card).toContainText('Current section');
+  await expect(card).toContainText('1 of 1 seats used');
   const final=await (await page.request.get(`/api/intake/applications/${applicant.id}`,{headers})).json();
   expect(final.status).toBe('enrolled');expect(final.workflow.enrollment.sectionId).toBeTruthy();
   await page.screenshot({path:'test-results/integrated-allocation-desktop.png',fullPage:true});

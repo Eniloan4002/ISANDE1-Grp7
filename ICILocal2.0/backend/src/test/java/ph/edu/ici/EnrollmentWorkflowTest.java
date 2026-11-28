@@ -121,6 +121,10 @@ class EnrollmentWorkflowTest {
         assertThat(placed.get("total")).isEqualTo(1);
         assertThat(((Number)((Map)((List)placed.get("items")).getFirst()).get("id")).longValue()).isEqualTo(app);
         assertThat(call(HttpMethod.GET,"/api/enrollment/applications?termId="+term+"&sectionId=999999",null).getBody().get("total")).isEqualTo(0);
+        java.util.function.Function<String,List<Long>> ids=placement->((List<Map>)call(HttpMethod.GET,"/api/enrollment/applications?size=100&termId="+term+"&placement="+placement,null).getBody().get("items")).stream().map(row->((Number)row.get("id")).longValue()).toList();
+        assertThat(ids.apply("placed")).as("placement tabs: placed").contains(app).doesNotContain(unplaced);
+        assertThat(ids.apply("unplaced")).as("placement tabs: needs a section").contains(unplaced).doesNotContain(app);
+        assertThat(call(HttpMethod.GET,"/api/enrollment/applications?placement=somewhere",null).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
     @Test void sectionCrudPreservesParentsVersionsAndOccupiedCapacity(){
         long s=section("STEM A",2);var input=sectionInput("STEM A renamed",3,0);

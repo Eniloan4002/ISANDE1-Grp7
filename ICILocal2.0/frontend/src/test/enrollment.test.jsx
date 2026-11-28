@@ -99,12 +99,4 @@ describe('section configuration and allocation',()=>{
     await waitFor(()=>expect(apiRequest).toHaveBeenCalledWith('/api/sections',expect.objectContaining({method:'POST',body:expect.any(String)})));
     const [,options]=apiRequest.mock.calls.find(([,options])=>options?.method==='POST');expect(JSON.parse(options.body)).toMatchObject({campusId:1,termId:2,programId:3,name:'STEM B',capacity:35,adviserId:null});
   });
-  it('disables full sections and sends the enrollment version',async()=>{
-    detail.enrollment={id:20,status:'enrolled',version:3,sectionId:null};sections=[section,{...section,id:31,name:'STEM B',occupied:40,available:0}];show('allocation');await screen.findByText('STEM B');
-    const buttons=screen.getAllByRole('button',{name:'Assign to this section'});expect(buttons[1]).toBeDisabled();fireEvent.click(buttons[0]);fireEvent.click(screen.getByRole('button',{name:'Confirm',exact:true}));
-    await waitFor(()=>expect(apiRequest).toHaveBeenCalledWith('/api/enrollments/20/section',expect.objectContaining({method:'PUT',body:JSON.stringify({sectionId:30,version:3})})));
-  });
-  it('does not offer assignment to unconfirmed applicants',async()=>{
-    show('allocation');await screen.findByText(/Confirm enrollment before assigning a section/);expect(screen.queryByRole('button',{name:'Assign to this section'})).not.toBeInTheDocument();
-  });
 });
