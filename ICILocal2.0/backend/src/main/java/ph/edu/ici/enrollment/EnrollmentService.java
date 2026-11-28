@@ -82,7 +82,8 @@ public class EnrollmentService {
         CROSS JOIN LATERAL (
           SELECT CASE WHEN count(*) FILTER(WHERE rt.mandatory)=0 THEN 'Pending'
             WHEN count(*) FILTER(WHERE rt.mandatory AND coalesce(ar.status,'pending')<>'submitted')=0 THEN 'Complete'
-            WHEN count(*) FILTER(WHERE rt.mandatory AND ar.status IN ('missing','invalid'))>0 THEN 'Incomplete' ELSE 'Pending' END AS status,max(ar.updated_at) AS updated_at
+            WHEN count(*) FILTER(WHERE rt.mandatory AND ar.status IN ('missing','invalid'))>0 THEN 'Incomplete' ELSE 'Pending' END AS status,max(ar.updated_at) AS updated_at,
+            count(*) FILTER(WHERE rt.mandatory) AS mandatory,count(*) FILTER(WHERE rt.mandatory AND ar.status='submitted') AS submitted
           FROM requirement_types rt LEFT JOIN application_requirements ar ON ar.requirement_code=rt.code AND ar.application_id=a.id
         ) creds
         """;
@@ -118,6 +119,7 @@ public class EnrollmentService {
               a.student_id AS "studentId",st.student_number AS "studentNumber",a.contact_phone AS phone,a.email,
               coalesce(a.profile->>'gradeLevel','') AS "gradeLevel",coalesce(a.profile->>'district','') AS district,
               coalesce(a.profile->>'transportRoute','') AS "transportRoute",creds.status AS "requirementsStatus",creds.updated_at AS "requirementsUpdatedAt",
+              creds.submitted AS "requirementsSubmitted",creds.mandatory AS "requirementsMandatory",
               EXISTS(SELECT 1 FROM orientation_attendance o WHERE o.application_id=a.id AND o.status='present') AS "attendancePresent",
               e.id AS "enrollmentId",e.version AS "enrollmentVersion",e.status AS "enrollmentStatus",
               e.section_id AS "sectionId",s.name AS section

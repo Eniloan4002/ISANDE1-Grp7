@@ -58,6 +58,7 @@ class EnrollmentWorkflowTest {
         Map page=call(HttpMethod.GET,base+"&requirementsStatus=Complete&district=Tibanga&transportRoute=North&size=1",null).getBody();
         assertThat(page.get("total")).isEqualTo(1);assertThat((List)page.get("items")).hasSize(1);
         Map row=(Map)((List)page.get("items")).getFirst();assertThat(((Number)row.get("id")).longValue()).isEqualTo(app);assertThat(row.get("requirementsStatus")).isEqualTo("Complete");
+        assertThat(((Number)row.get("requirementsMandatory")).longValue()).as("documents meter total").isPositive();assertThat(row.get("requirementsSubmitted")).as("a complete checklist has every mandatory credential submitted").isEqualTo(row.get("requirementsMandatory"));
         assertThat(call(HttpMethod.GET,base+"&campusId="+other,null).getBody().get("total")).isEqualTo(0);
         assertThat((List)call(HttpMethod.GET,base+"&size=1&page=1",null).getBody().get("items")).isEmpty();
         for(String suffix:List.of("&size=101","&page=-1","&requirementsStatus=unknown","&status=unknown"))assertThat(call(HttpMethod.GET,base+suffix,null).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
