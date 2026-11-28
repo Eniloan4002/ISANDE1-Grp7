@@ -31,7 +31,7 @@ V14 backfills open cases for existing submitted/finalized INC grades, and a grad
 
 Endpoints:
 
-- `GET /api/academic/incomplete-cases?page=0&size=100&search=...&status=...`: scoped page plus total and authorized display-filter options.
+- `GET /api/academic/incomplete-cases?page=0&size=100&search=...&status=...&academicYearId=&gradingPeriodId=&sectionId=&subjectId=&teacherId=`: scoped page plus total and authorized display-filter options. All filters are optional, combine with AND, and are bound SQL parameters applied on top of the campus/teacher scope, so an id from another campus simply matches nothing. `total` and paging reflect the filters; the returned `filters` option lists remain the unfiltered authorized set. Non-numeric ids return 400; `size` is still capped at 100.
 - `GET /api/academic/incomplete-cases/{id}`: full case and follow-up history.
 - `POST /api/academic/incomplete-cases/{id}/follow-ups`: `{version,note,method}`. Method: Email, Phone, In person, System note. This logs a contact; it sends no message.
 - `POST /api/academic/incomplete-cases/{id}/proposals`: assigned teacher `{version,gradeVersion,grade,note}`. Saves a proposal without changing marks, including when a locked period requires subsequent formal correction/evidence.

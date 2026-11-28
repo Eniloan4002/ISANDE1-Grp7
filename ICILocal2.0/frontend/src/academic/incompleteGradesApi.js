@@ -8,12 +8,18 @@ export const statusLabel = {
 };
 const base = '/api/academic/incomplete-cases';
 const normalize = item => ({ ...item, id: String(item.id) });
-export async function listIncompleteCases() {
-  const first = await apiRequest(`${base}?size=100&page=0`);
+const filterKeys = ['search', 'status', 'academicYearId', 'gradingPeriodId', 'sectionId', 'subjectId', 'teacherId'];
+function query(filters, page) {
+  const params = new URLSearchParams({ size: '100', page: String(page) });
+  for (const key of filterKeys) if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') params.set(key, String(filters[key]));
+  return params.toString();
+}
+export async function listIncompleteCases(filters = {}) {
+  const first = await apiRequest(`${base}?${query(filters, 0)}`);
   if (first.total > 10000) throw new Error('More than 10,000 incomplete cases are in scope. Use a narrower authorized campus scope for this workspace.');
   const items = [...first.items];
   for (let page = 1; items.length < first.total; page++) {
-    const next = await apiRequest(`${base}?size=100&page=${page}`);
+    const next = await apiRequest(`${base}?${query(filters, page)}`);
     if (!next.items.length) break;
     items.push(...next.items);
   }

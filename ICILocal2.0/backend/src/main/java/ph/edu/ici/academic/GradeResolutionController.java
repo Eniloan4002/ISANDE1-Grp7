@@ -44,7 +44,9 @@ public class GradeResolutionController {
     }
     @GetMapping("/api/academic/incomplete-cases")
     public Map<String,Object> cases(@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="100") int size,
-        @RequestParam(required=false) String search,@RequestParam(required=false) String status){return service.cases(page,size,search,status);}
+        @RequestParam(required=false) String search,@RequestParam(required=false) String status,
+        @RequestParam(required=false) Long academicYearId,@RequestParam(required=false) Long gradingPeriodId,@RequestParam(required=false) Long sectionId,
+        @RequestParam(required=false) Long subjectId,@RequestParam(required=false) Long teacherId){return service.cases(page,size,search,status,academicYearId,gradingPeriodId,sectionId,subjectId,teacherId);}
     @GetMapping("/api/academic/incomplete-cases/{id}") public Map<String,Object> incomplete(@PathVariable long id){return service.incomplete(id);}
     @PostMapping("/api/academic/incomplete-cases/{id}/follow-ups")
     public Map<String,Object> follow(@PathVariable long id,@Valid @RequestBody FollowUpInput input){return service.follow(id,input);}

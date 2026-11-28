@@ -145,11 +145,16 @@ public class GradeResolutionService {
     private static final String CASE_FIELDS=FIELDS+",ic.id,ic.version,ic.status AS \"caseState\",ic.proposed_value AS \"proposedGrade\",ic.proposed_grade_version AS \"proposedGradeVersion\",ic.updated_at AS \"updatedAt\",coalesce("+LOCKED+",false) AS \"periodLocked\","+CASE_STATUS+" AS status";
     private Map<String,Object> displayCase(Map<String,Object> source){var row=new LinkedHashMap<String,Object>(source);row.put("id",row.get("id").toString());row.put("canComplete",access.campuses("grades.review").contains(number(row,"campusId")));row.put("canPropose",access.campuses("grades.encode").contains(number(row,"campusId"))&&number(row,"teacherId")==actor());row.put("currentMark",row.get("mark")!=null?row.get("mark"):row.get("value")!=null?row.get("value").toString():"Not recorded");return row;}
     @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
-    public Map<String,Object> cases(int page,int size,String search,String status){
+    public Map<String,Object> cases(int page,int size,String search,String status,Long academicYearId,Long gradingPeriodId,Long sectionId,Long subjectId,Long teacherId){
         bounds(page,size);var p=params().addValue("size",size).addValue("offset",(long)page*size);
         String from=FROM+" JOIN incomplete_cases ic ON ic.grade_id=g.id WHERE "+SCOPE;
         if(search!=null&&!search.isBlank()){from+=" AND (concat_ws(' ',st.first_name,st.last_name,st.student_number,sub.code,sub.name) ILIKE :search)";p.addValue("search","%"+search.trim()+"%");}
         if(status!=null&&!status.isBlank()){if(!Set.of("pending_teacher_submission","registrar_review","grade_correction","completed").contains(status))throw error(HttpStatus.BAD_REQUEST,"Unknown incomplete-case status.");from+=" AND ("+CASE_STATUS+")=:status";p.addValue("status",status);}
+        if(academicYearId!=null){from+=" AND y.id=:academicYearId";p.addValue("academicYearId",academicYearId);}
+        if(gradingPeriodId!=null){from+=" AND gp.id=:gradingPeriodId";p.addValue("gradingPeriodId",gradingPeriodId);}
+        if(sectionId!=null){from+=" AND s.id=:sectionId";p.addValue("sectionId",sectionId);}
+        if(subjectId!=null){from+=" AND sub.id=:subjectId";p.addValue("subjectId",subjectId);}
+        if(teacherId!=null){from+=" AND co.teacher_id=:teacherId";p.addValue("teacherId",teacherId);}
         long total=db.queryForObject("SELECT count(*) "+from,p,Long.class);
         var items=db.queryForList("SELECT "+CASE_FIELDS+" "+from+" ORDER BY ic.id LIMIT :size OFFSET :offset",p).stream().map(this::displayCase).toList();
         var filterRows=db.queryForList("SELECT DISTINCT "+"s.grade_level AS \"gradeLevel\",s.name AS section,sub.name AS subject,teacher.full_name AS teacher,y.label AS \"academicYear\",gp.code AS \"gradingPeriod\","+CASE_STATUS+" AS status "+FROM+" JOIN incomplete_cases ic ON ic.grade_id=g.id WHERE "+SCOPE,p);
