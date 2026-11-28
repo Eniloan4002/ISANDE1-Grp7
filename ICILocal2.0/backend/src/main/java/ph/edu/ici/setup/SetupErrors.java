@@ -9,7 +9,8 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-@RestControllerAdvice
+@org.springframework.core.annotation.Order(org.springframework.core.Ordered.HIGHEST_PRECEDENCE)
+@RestControllerAdvice(assignableTypes=SetupController.class)
 public class SetupErrors {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ProblemDetail> integrity(DataIntegrityViolationException exception) {
