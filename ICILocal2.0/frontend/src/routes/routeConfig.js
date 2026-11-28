@@ -40,6 +40,7 @@ export const roleSections = [
       ] },
       { label: 'Data Migration', pages: [
         { path: '/migration/legacy-imports', label: 'Legacy Import Review' },
+        { path: '/migration/reconciliation', label: 'Cutover Reconciliation' },
       ] },
     ],
   },
@@ -107,6 +108,7 @@ export const roleSections = [
       { path: '/administration/audit-log', label: 'Audit Log' },
     ] }, { label: 'Data Migration', pages: [
       { path: '/migration/legacy-imports', label: 'Legacy Import Review' },
+        { path: '/migration/reconciliation', label: 'Cutover Reconciliation' },
     ] }],
   },
 ];
@@ -125,7 +127,7 @@ const iconByPath={
   '/enrollment/reporting-monitoring':'chart','/academic/assignments':'people','/academic/registrar-records':'history','/academic/incomplete-grades':'alert',
   '/academic/grade-approvals':'shield','/academic/finalize-grades':'lock','/academic/advisory':'people','/academic/class-records':'book','/academic/student-monitoring':'chart',
   '/academic/grade-entry':'edit','/academic/class-list':'book','/academic/progress-reports':'shield','/academic/withdrawal-approvals':'alert',
-  '/academic/daily-attendance':'attend','/documents/official':'book','/reporting/honor-roll':'chart',
+  '/academic/daily-attendance':'attend','/documents/official':'book','/migration/reconciliation':'shield','/reporting/honor-roll':'chart',
   '/reporting/guidance':'book','/reporting/student-profiles':'people','/reporting/reports':'chart','/cashiering/students':'people','/cashiering/clearances':'shield',
   '/administration/users':'people','/administration/system-settings':'settings','/administration/audit-log':'history',
   '/setup':'settings','/design-system':'place','/account/security':'lock',
