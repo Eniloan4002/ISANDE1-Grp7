@@ -13,14 +13,15 @@ test('verify credentials, record attendance, confirm and allocate an enrollment'
   await page.getByRole('button',{name:'Sign in',exact:true}).click();
   await expect(page.getByRole('heading',{name:'Requirements',exact:true})).toBeVisible();
   for(const code of ['COMPLETION','FORM137','GOOD_MORAL','PSA']){
+    await page.getByRole('button',{name:`Edit ${code}`,exact:true}).click();
     await page.getByLabel(`Status: ${code}`,{exact:true}).selectOption('submitted');
     await page.getByLabel(`Verification notes: ${code}`,{exact:true}).fill('Original document inspected during browser verification.');
     const saved=page.waitForResponse(response=>response.url().endsWith(`/requirements/${code}`)&&response.request().method()==='PUT');
     await page.getByRole('button',{name:`Save ${code}`,exact:true}).click();expect((await saved).status()).toBe(200);
-    await expect(page.getByRole('button',{name:`Save ${code}`,exact:true})).toBeEnabled();
-    await expect(page.getByText('Loading application…')).toHaveCount(0);
+    await expect(page.getByRole('button',{name:`Edit ${code}`,exact:true})).toBeVisible();
+    await expect(page.getByText('Loading checklist…')).toHaveCount(0);
   }
-  await expect(page.locator('.enrollment-stats').getByText('Complete',{exact:true})).toBeVisible();
+  await expect(page.locator('.rq-progress').getByText('Complete',{exact:true})).toBeVisible();
   await expect(page.getByRole('heading',{name:'Verification history'})).toBeVisible();
   await page.screenshot({path:'test-results/requirements-desktop.png',fullPage:true});
   await page.getByRole('link',{name:'Continue to attendance',exact:true}).click();
@@ -30,7 +31,7 @@ test('verify credentials, record attendance, confirm and allocate an enrollment'
   await expect(page.getByRole('button',{name:'Confirm enrollment',exact:true})).toBeEnabled();
   await page.getByRole('button',{name:'Confirm enrollment',exact:true}).click();
   await expect(page.getByRole('dialog')).toContainText('Ana Santos');
-  await page.getByRole('button',{name:'Confirm',exact:true}).click();
+  await page.getByRole('dialog').getByRole('button',{name:'Confirm enrollment',exact:true}).click();
   await expect(page.getByText('Enrollment confirmed',{exact:true})).toBeVisible();
   const token=await page.evaluate(()=>sessionStorage.getItem('ici_access_token'));
   const response=await page.request.get(`/api/applications/${id}/enrollment`,{headers:{Authorization:`Bearer ${token}`}});
@@ -48,13 +49,15 @@ test('verify credentials, record attendance, confirm and allocate an enrollment'
   await page.getByRole('button',{name:'Create section',exact:true}).click();
   await expect(page.getByRole('heading',{name,exact:true})).toBeVisible();
   await page.goto(`/enrollment/enrolled?applicationId=${id}`,{waitUntil:'domcontentloaded'});
-  const card=page.locator('.section-card').filter({has:page.getByRole('heading',{name,exact:true})});
-  await card.getByRole('button',{name:'Assign to this section',exact:true}).click();
-  await page.getByRole('button',{name:'Confirm',exact:true}).click();
-  await expect(page.getByRole('heading',{name,exact:true}).first()).toBeVisible();
-  await expect(card.getByRole('button',{name:'Currently assigned',exact:true})).toBeDisabled();
-  await expect(card).toContainText('1 / 1');
-  await page.reload({waitUntil:'domcontentloaded'});await expect(page.getByRole('button',{name:'Currently assigned',exact:true})).toBeDisabled();
+  // ICI2-100: choose the section card, then the single primary action. The screen then moves on to the next
+  // student who needs a section, so reopen this one to check the placement.
+  const card=page.locator('.pl-card').filter({hasText:name});
+  await card.click();
+  await page.getByRole('button',{name:`Place in ${name}`,exact:true}).click();
+  await expect(page.getByText(`placed in ${name}.`)).toBeVisible();
+  await page.goto(`/enrollment/enrolled?applicationId=${id}`,{waitUntil:'domcontentloaded'});
+  await expect(card).toContainText('Current section');
+  await expect(card).toContainText('1 of 1 seats used');
   await page.screenshot({path:'test-results/allocation-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);

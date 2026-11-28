@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import './enrollment.css';
 import {useDebouncedValue,useResource,Failure,Pager} from '../EnrollmentWorkspace.jsx';
-import {send,referenceData as adaptReference,intakePayload,queueApplicant,applicantDetail} from './enrollmentApi.js';
+import {send,referenceData as adaptReference,intakePayload,queueApplicant,applicantDetail,statusLabel} from './enrollmentApi.js';
+import { StatusChip } from '../ui/components.jsx';
+import './queue.css';
 
 const applicantCategories = [
   { code: 'new', name: 'New' },
@@ -33,59 +35,108 @@ function applicantUrl(basePath, id) {
   return `${basePath}/applicants/${encodeURIComponent(id)}`;
 }
 
+// ICI2-97: each tile is a status filter. Its count is the directory total for the chosen campus and term.
+const queueTiles = [
+  { key: '', label: 'All' },
+  { key: 'submitted', label: 'Needs review' },
+  { key: 'pre_enlisted', label: 'Pre-enlisted' },
+  { key: 'duplicate_flag', label: 'Duplicate flags' },
+  { key: 'enrolled', label: 'Enrolled' },
+];
+const chipTone = { submitted: 'attention', under_review: 'attention', pre_enlisted: 'info', duplicate_flag: 'blocked', enrolled: 'success' };
+
+/** The one thing to do next for an applicant. Every step opens the applicant's record, where that step lives. */
+export function nextStep(row) {
+  switch (row.statusCode) {
+    case 'submitted': case 'under_review': return 'Review & pre-enlist';
+    case 'duplicate_flag': return 'Resolve duplicate';
+    case 'pre_enlisted':
+      if (row.requirements !== 'Complete') return 'Open checklist';
+      return row.attendancePresent ? 'Confirm enrollment' : 'Record attendance';
+    case 'enrolled': return row.sectionId ? 'View record' : 'Place in section';
+    default: return 'View record';
+  }
+}
+
+function DocumentsMeter({ applicant }) {
+  const total = Number(applicant.requirementsMandatory);
+  const done = Number(applicant.requirementsSubmitted);
+  // Older servers send only the overall status; show it as text rather than invent a fraction.
+  if (!Number.isFinite(total) || !Number.isFinite(done) || total <= 0) return <span className="eq-docs-text">{applicant.requirements || '—'}</span>;
+  const text = `${done} of ${total} documents`;
+  return <div className="eq-docs">
+    <div className="eq-docs-track" role="meter" aria-label={`Documents for ${applicant.firstName} ${applicant.lastName}`} aria-valuemin={0} aria-valuemax={total} aria-valuenow={done} aria-valuetext={text}>
+      <div className={done >= total ? 'eq-docs-fill is-complete' : 'eq-docs-fill'} style={{ width: `${Math.min(done / total, 1) * 100}%` }} />
+    </div>
+    <span className="eq-docs-text" aria-hidden="true">{done}/{total}</span>
+  </div>;
+}
+
+function TileCount({ status, scope }) {
+  const query = new URLSearchParams({ page: '0', size: '1', status, campusId: scope.campus, termId: scope.term });
+  const count = useResource(`/api/enrollment/applications?${query}`);
+  return <span className="eq-tile-count">{count.error ? '—' : count.data?.total ?? '…'}</span>;
+}
+
 function EnrollmentQueue({ referenceData, basePath, title }) {
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('all');
-  const [program, setProgram] = useState('all');
-  const [campus, setCampus] = useState('all');
-  const intakePath = '/enrollment/intake';
-  const [page,setPage]=useState(0);
-  const effectiveSearch=useDebouncedValue(search);
-  const params=new URLSearchParams({page:String(page),size:'25',search:effectiveSearch,status:status==='all'?'':status,campusId:campus==='all'?'':campus,programId:program==='all'?'':program});
-  const directory=useResource(`/api/enrollment/applications?${params}`);
-  const statistics=useResource('/api/intake/statistics');
-  const filtered=(directory.data?.items??[]).map(queueApplicant);
-  const stats=[
-    {label:'Submitted',value:statistics.data?.submitted,description:'Awaiting registrar review'},
-    {label:'Pre-enlisted',value:statistics.data?.preEnlisted,description:'Ready for credential verification'},
-    {label:'Duplicate flags',value:statistics.data?.duplicates,description:'For review'},
-    {label:'Enrolled',value:statistics.data?.enrolled,description:'Confirmed enrollment'},
-    {label:'Pending requirements',value:statistics.data?.pendingRequirements,description:'Credentials still to collect',to:'/enrollment/requirements?requirements=open'},
-  ];
+  const [status, setStatus] = useState('');
+  const [program, setProgram] = useState('');
+  const [campus, setCampus] = useState('');
+  const [term, setTerm] = useState('');
+  const [page, setPage] = useState(0);
+  const effectiveSearch = useDebouncedValue(search);
+  const params = new URLSearchParams({ page: String(page), size: '25', search: effectiveSearch, status, campusId: campus, termId: term, programId: program });
+  const directory = useResource(`/api/enrollment/applications?${params}`);
+  const rows = (directory.data?.items ?? []).map(queueApplicant);
+  const filter = setter => event => { setter(event.target.value); setPage(0); };
+  const clear = () => { setSearch(''); setStatus(''); setProgram(''); setCampus(''); setTerm(''); setPage(0); };
 
-  return <div className="enrollment-workspace">
-    <header className="page-heading enrollment-heading">
-      <div><p className="eyebrow">ENROLLMENT MANAGEMENT</p><h1>{title||'Enrollment Queue'}</h1><p>Review and manage incoming applicant submissions.</p></div>
-      <Link className="button" to={intakePath}>New applicant</Link>
-    </header>
-    <div className="enrollment-stats" aria-label="Application statistics">
-      {stats.map(item => {
-        const body = <><strong>{item.value??"…"}</strong><div><span>{item.label}</span><small>{item.description}</small></div></>;
-        // A card with a destination is a real link, so it works with the keyboard and announces itself as one.
-        return item.to
-          ? <Link className="enrollment-stat enrollment-stat-link" key={item.label} to={item.to} aria-label={`${item.label}: ${item.value??'loading'}. Open the Requirements screen`}>{body}</Link>
-          : <section className="enrollment-stat" key={item.label}>{body}</section>;
-      })}
-    </div>
-    <section className="panel enrollment-panel" aria-labelledby="applicant-queue-title">
-      <div className="enrollment-panel-heading"><div><h2 id="applicant-queue-title">Applicant Queue</h2><p>{directory.data?.total??0} matching applications</p></div></div>
-      <div className="enrollment-filters">
-        <label>Search applicants<input type="search" value={search} onChange={event => { setSearch(event.target.value); setPage(0); }} placeholder="Name, application ID, or LRN" /></label>
-        <label>Status<select value={status} onChange={event => { setStatus(event.target.value); setPage(0); }}><option value="all">All statuses</option>{statuses.map(value => <option key={value} value={value}>{value.replaceAll('_',' ')}</option>)}</select></label>
-        <label>Program<select value={program} onChange={event => { setProgram(event.target.value); setPage(0); }}><option value="all">All programs</option>{referenceData.specializations.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
-        <label>Campus<select value={campus} onChange={event => { setCampus(event.target.value); setPage(0); }}><option value="all">All campuses</option>{referenceData.campuses.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+  return <div className="enrollment-workspace eq-screen">
+    <header className="eq-header">
+      <h1>{title || 'Enrollment Queue'}</h1>
+      <div className="eq-scope">
+        <label>Campus<select value={campus} onChange={filter(setCampus)}><option value="">All campuses</option>{referenceData.campuses.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+        <label>Term<select value={term} onChange={filter(setTerm)}><option value="">All terms</option>{referenceData.terms.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+        <Link className="ui-btn ui-btn-primary" to="/enrollment/intake">New applicant</Link>
       </div>
-      <Failure error={directory.error} reload={directory.reload}/><Failure error={statistics.error} reload={statistics.reload}/>{directory.loading&&<p role="status">Loading applications…</p>}
-      {!directory.loading&&!directory.error&&(filtered.length ? <div className="enrollment-table-wrap"><table className="enrollment-table">
-        <thead><tr><th scope="col">Applicant</th><th scope="col">Application ID</th><th scope="col">Submitted</th><th scope="col">Program</th><th scope="col">Campus</th><th scope="col">Requirements</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
-        <tbody>{filtered.map(applicant => <tr key={applicant.id}>
-          <td><strong>{applicant.lastName}, {applicant.firstName}</strong><small>{applicant.lrn ? `LRN ${applicant.lrn}` : 'LRN not provided'}</small></td>
-          <td>{applicant.applicationNumber}</td><td>{prettyDate(applicant.submittedAt)}</td><td>{applicant.track} · {applicant.strand}</td>
-          <td>{applicant.campus}</td><td><span className={`status ${applicant.requirements === 'Complete' ? 'status-success' : 'status-warning'}`}>{applicant.requirements}</span></td>
-          <td><span className={`status status-${statusTone(applicant.status)}`}>{applicant.status}</span>{applicant.duplicate && <small className="enrollment-flag">Possible duplicate</small>}</td>
-          <td><Link className="button button-outline enrollment-view" to={applicantUrl(basePath, applicant.id)}>View</Link></td>
-        </tr>)}</tbody>
-      </table></div> : <div className="empty-state enrollment-empty"><h3>No matching applicants</h3><p>Try changing or clearing the search and filters.</p><button className="button button-outline" type="button" onClick={() => { setSearch(''); setStatus('all'); setProgram('all'); setCampus('all'); }}>Clear filters</button></div>)}<Pager page={page} total={directory.data?.total??0} onChange={setPage} disabled={directory.loading}/>
+    </header>
+
+    <div className="eq-tiles" role="group" aria-label="Filter by application status">
+      {queueTiles.map(tile => <button key={tile.label} type="button" className={status === tile.key ? 'eq-tile is-selected' : 'eq-tile'} aria-pressed={status === tile.key}
+        onClick={() => { setStatus(tile.key); setPage(0); }}>
+        <span className="eq-tile-label">{tile.label}</span><TileCount status={tile.key} scope={{ campus, term }} />
+      </button>)}
+    </div>
+
+    <section className="eq-panel" aria-labelledby="applicant-queue-title">
+      <h2 id="applicant-queue-title" className="eq-hidden">Applicant Queue</h2>
+      <div className="eq-toolbar">
+        <label className="eq-search">Search applicants<input type="search" value={search} onChange={filter(setSearch)} placeholder="Name, application ID or LRN" /></label>
+        <label>Program<select value={program} onChange={filter(setProgram)}><option value="">All programs</option>{referenceData.specializations.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+        <label>Status<select value={status} onChange={filter(setStatus)}><option value="">All statuses</option>{statuses.map(value => <option key={value} value={value}>{statusLabel(value)}</option>)}</select></label>
+        <p className="eq-total" aria-live="polite">{directory.data?.total ?? 0} matching</p>
+      </div>
+      <Failure error={directory.error} reload={directory.reload} />
+      {directory.loading && <p role="status" className="eq-loading">Loading applications…</p>}
+      {!directory.loading && !directory.error && (rows.length
+        ? <div className="eq-table-wrap"><table className="eq-table">
+          <thead><tr><th scope="col">Applicant</th><th scope="col">Program</th><th scope="col">Submitted</th><th scope="col">Documents</th><th scope="col">Status</th><th scope="col"><span className="eq-hidden">Next step</span></th></tr></thead>
+          <tbody>{rows.map(applicant => {
+            const step = nextStep(applicant);
+            return <tr key={applicant.id}>
+              <td data-label="Applicant"><div><strong>{applicant.lastName}, {applicant.firstName}</strong><small>{applicant.lrn ? `LRN ${applicant.lrn}` : 'No LRN'}</small></div></td>
+              <td data-label="Program"><div><span className="eq-line">{applicant.strand}</span><small>{applicant.campus}</small></div></td>
+              <td data-label="Submitted">{prettyDate(applicant.submittedAt)}</td>
+              <td data-label="Documents"><DocumentsMeter applicant={applicant} /></td>
+              <td data-label="Status"><StatusChip tone={chipTone[applicant.statusCode] ?? 'neutral'}>{applicant.status}</StatusChip></td>
+              <td className="eq-action"><Link className="ui-btn ui-btn-secondary" to={applicantUrl(basePath, applicant.id)}
+                aria-label={`${step}: ${applicant.firstName} ${applicant.lastName}`}>{step}</Link></td>
+            </tr>;
+          })}</tbody>
+        </table></div>
+        : <div className="empty-state eq-empty"><h3>No matching applicants</h3><p>Try changing or clearing the search and filters.</p><button className="ui-btn ui-btn-secondary" type="button" onClick={clear}>Clear filters</button></div>)}
+      <Pager page={page} total={directory.data?.total ?? 0} onChange={setPage} disabled={directory.loading} />
     </section>
   </div>;
 }

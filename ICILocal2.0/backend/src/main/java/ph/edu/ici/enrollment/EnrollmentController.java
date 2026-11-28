@@ -32,9 +32,9 @@ public class EnrollmentController {
         @RequestParam(required=false) Long termId,@RequestParam(required=false) Long programId,
         @RequestParam(defaultValue="") String requirementsStatus,@RequestParam(defaultValue="") String status,
         @RequestParam(defaultValue="") String district,@RequestParam(defaultValue="") String transportRoute,
-        @RequestParam(required=false) Long sectionId,
+        @RequestParam(required=false) Long sectionId,@RequestParam(defaultValue="") String placement,
         @RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="25") int size){
-        return service.applications(search,campusId,termId,programId,requirementsStatus,status,district,transportRoute,sectionId,page,size);
+        return service.applications(search,campusId,termId,programId,requirementsStatus,status,district,transportRoute,sectionId,placement,page,size);
     }
     @GetMapping("/api/applications/{id}/enrollment") public Map<String,Object> detail(@PathVariable long id){return service.detail(id);}
     @PutMapping("/api/applications/{id}/attendance/{date}") public Map<String,Object> attendance(

@@ -64,17 +64,18 @@ test('Pauline intake and requirements UI persists through confirmation and alloc
   await expect(page.getByText('Pre-enlisted',{exact:true})).toBeVisible();
   await page.getByRole('link',{name:'Open requirements',exact:true}).click();
   await expect(page.getByRole('dialog',{name:'Requirements Checklist'})).toBeVisible();
-  await page.getByRole('button',{name:'Contact details for follow-up'}).click();
+  await page.getByRole('button',{name:'Contact for follow-up'}).click();
   await expect(page.getByText('Integration Guardian',{exact:true})).toBeVisible();
-  await page.getByRole('button',{name:'Close contact details'}).click();
+  await page.keyboard.press('Escape');await expect(page.getByRole('dialog',{name:'Requirements Checklist'})).toBeVisible();
   for(const code of ['COMPLETION','FORM137','GOOD_MORAL','PSA']){
+    await page.getByRole('button',{name:`Edit ${code}`,exact:true}).click();
     await page.getByLabel(`Status: ${code}`,{exact:true}).selectOption('submitted');
     await page.getByLabel(`Verification notes: ${code}`,{exact:true}).fill('Original inspected during integration test.');
     const saved=page.waitForResponse(response=>response.url().endsWith(`/requirements/${code}`)&&response.request().method()==='PUT');
     await page.getByRole('button',{name:`Save ${code}`,exact:true}).click();expect((await saved).status()).toBe(200);
-    await expect(page.getByLabel(`Status: ${code}`,{exact:true})).toHaveValue('submitted');
+    await expect(page.getByRole('button',{name:`Edit ${code}`,exact:true})).toBeVisible();
   }
-  await page.reload();await expect(page.getByLabel('Status: PSA',{exact:true})).toHaveValue('submitted');
+  await page.reload();await page.getByRole('button',{name:'Edit PSA',exact:true}).click();await expect(page.getByLabel('Status: PSA',{exact:true})).toHaveValue('submitted');
   await expect(page.getByLabel('Verification notes: PSA',{exact:true})).toHaveValue('Original inspected during integration test.');
   await page.screenshot({path:'test-results/integrated-requirements-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});
@@ -87,16 +88,18 @@ test('Pauline intake and requirements UI persists through confirmation and alloc
   await page.getByRole('button',{name:'Save attendance'}).click();
   await expect(page.getByRole('button',{name:'Confirm enrollment',exact:true})).toBeEnabled();
   await page.getByRole('button',{name:'Confirm enrollment',exact:true}).click();
-  await page.getByRole('button',{name:'Confirm',exact:true}).click();
+  await page.getByRole('dialog').getByRole('button',{name:'Confirm enrollment',exact:true}).click();
   await expect(page.getByText('Enrollment confirmed',{exact:true})).toBeVisible();
   const sectionResponse=await page.request.post('/api/sections',{headers,data:{campusId:campus.id,termId:term.id,programId:program.id,name:`Integrated-${suffix}`,gradeLevel:'11',capacity:1,room:'204'}});
   expect(sectionResponse.status()).toBe(201);
   await page.goto(`/enrollment/enrolled?applicationId=${applicant.id}`);
-  await page.getByRole('button',{name:'Assign to this section'}).click();
-  await page.getByRole('button',{name:'Confirm',exact:true}).click();
-  await expect(page.getByRole('button',{name:'Currently assigned'})).toBeDisabled();
-  await page.reload();await expect(page.getByRole('button',{name:'Currently assigned'})).toBeDisabled();
-  await expect(page.locator('.section-card')).toContainText('1 / 1');
+  const card=page.locator('.pl-card').filter({hasText:`Integrated-${suffix}`});
+  await card.click();
+  await page.getByRole('button',{name:`Place in Integrated-${suffix}`,exact:true}).click();
+  await expect(page.getByText(`placed in Integrated-${suffix}.`)).toBeVisible();
+  await page.goto(`/enrollment/enrolled?applicationId=${applicant.id}`);
+  await expect(card).toContainText('Current section');
+  await expect(card).toContainText('1 of 1 seats used');
   const final=await (await page.request.get(`/api/intake/applications/${applicant.id}`,{headers})).json();
   expect(final.status).toBe('enrolled');expect(final.workflow.enrollment.sectionId).toBeTruthy();
   await page.screenshot({path:'test-results/integrated-allocation-desktop.png',fullPage:true});

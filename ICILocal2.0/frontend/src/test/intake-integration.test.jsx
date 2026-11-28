@@ -42,23 +42,18 @@ it('keeps the intake draft when the service rejects a submission',async()=>{
  show('intake');await fillIntake();fireEvent.click(screen.getByRole('button',{name:'Add applicant to queue'}));await screen.findByRole('alert');expect(screen.getByLabelText(/First name/)).toHaveValue('Ana');expect(screen.getByRole('button',{name:'Add applicant to queue'})).toBeEnabled();
 });
 it('loads the persistent queue and applies server-side campus filters',async()=>{
- show('queue');await screen.findByText('APP-10');fireEvent.change(screen.getByLabelText('Campus'),{target:{value:'1'}});
+ show('queue');await screen.findByText('Santos, Ana');expect(screen.queryByText('APP-10')).not.toBeInTheDocument();fireEvent.change(screen.getByLabelText('Campus'),{target:{value:'1'}});
  await waitFor(()=>expect(apiRequest.mock.calls.some(([path])=>path.includes('/api/enrollment/applications?')&&path.includes('campusId=1'))).toBe(true));
 });
 it('uses the persisted checklist in Pauline’s dialog and preserves notes after a conflict',async()=>{
  render(<MemoryRouter initialEntries={['/enrollment/requirements?applicationId=10']}><RequirementsScreen/></MemoryRouter>);
- await screen.findByLabelText('Verification notes: PSA');const original=apiRequest.getMockImplementation();apiRequest.mockImplementation((path,options)=>options?.method==='PUT'?Promise.reject(new Error('Version conflict; reload.')):original(path,options));
+ fireEvent.click(await screen.findByRole('button',{name:'Edit PSA'}));await screen.findByLabelText('Verification notes: PSA');const original=apiRequest.getMockImplementation();apiRequest.mockImplementation((path,options)=>options?.method==='PUT'?Promise.reject(new Error('Version conflict; reload.')):original(path,options));
  fireEvent.change(screen.getByLabelText('Verification notes: PSA'),{target:{value:'Keep my note'}});fireEvent.click(screen.getByRole('button',{name:'Save PSA'}));await screen.findByRole('alert');expect(screen.getByLabelText('Verification notes: PSA')).toHaveValue('Keep my note');
 });
 it('shows intake guardian contacts before a student record exists and does not simulate sending',async()=>{
  render(<MemoryRouter initialEntries={['/enrollment/requirements?applicationId=10']}><RequirementsScreen/></MemoryRouter>);
- await screen.findByRole('button',{name:'Contact details for follow-up'});fireEvent.click(screen.getByRole('button',{name:'Contact details for follow-up'}));await screen.findByText('Maria Santos');expect(screen.queryByRole('button',{name:/Send/})).not.toBeInTheDocument();
+ fireEvent.click(await screen.findByRole('button',{name:'Contact for follow-up'}));await screen.findByText('Maria Santos');expect(screen.getByText(/09912345678/)).toBeInTheDocument();expect(screen.queryByRole('button',{name:/Send/})).not.toBeInTheDocument();
  expect(apiRequest.mock.calls.every(([,options])=>!options?.method||options.method==='GET')).toBe(true);
-});
-it('shows the pending-requirements card as a link to the filtered Requirements screen',async()=>{
- show('queue');
- const card=await screen.findByRole('link',{name:/Pending requirements: 3/});
- expect(card).toHaveAttribute('href','/enrollment/requirements?requirements=open');
 });
 it('opens the Requirements screen already filtered to open credentials',async()=>{
  render(<MemoryRouter initialEntries={['/enrollment/requirements?requirements=open']}><RequirementsScreen/></MemoryRouter>);

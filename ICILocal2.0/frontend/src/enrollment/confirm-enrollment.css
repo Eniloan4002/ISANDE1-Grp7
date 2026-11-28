@@ -1,0 +1,38 @@
+/* ICI2-99 First-Week Attendance table and Confirm enrollment dialog. */
+.ce-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.ce-table-wrap { overflow-x: auto; }
+.ce-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.ce-table th { padding: 8px 14px; color: var(--ink-2); font-size: 12px; font-weight: 600; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.ce-table td { padding: 8px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.ce-table tbody tr:hover { background: var(--canvas); }
+.ce-table tr.is-selected { background: var(--blue-50); box-shadow: inset 3px 0 0 var(--ici-blue); }
+.ce-table td strong, .ce-table td small, .ce-table .ce-line { display: block; }
+.ce-table td strong { font-weight: 600; }
+.ce-table td small { margin-top: 1px; color: var(--ink-2); font-size: 12px; }
+.ce-action { text-align: right; white-space: nowrap; }
+.ce-action .ui-btn { min-height: 32px; height: 32px; padding: 0 12px; font-size: 13px; text-decoration: none; }
+
+.ce-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; margin: 0 0 16px; }
+.ce-facts dt { color: var(--ink-2); font-size: 12px; font-weight: 600; }
+.ce-facts dd { margin: 0; font-size: 14px; overflow-wrap: anywhere; }
+.ce-checks, .ce-other { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 6px; }
+.ce-check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; }
+.ce-check small { display: block; color: var(--ink-2); font-size: 12px; }
+.ce-check-mark { display: inline-grid; place-items: center; width: 20px; height: 20px; flex: none; border-radius: 50%; background: var(--blocked-bg); color: var(--blocked); font-size: 12px; font-weight: 700; }
+.ce-check.is-ok .ce-check-mark { background: var(--success-bg); color: var(--success); }
+.ce-other li { padding-left: 10px; border-left: 3px solid var(--blocked); color: var(--blocked); font-size: 13px; }
+.ce-consequence { margin: 0 0 12px; font-size: 14px; line-height: 1.5; }
+.ui-dialog .notice-error { margin: 0; }
+
+@media (max-width: 700px) {
+  .ce-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .ce-table, .ce-table tbody, .ce-table tr, .ce-table td { display: block; width: 100%; }
+  .ce-table tr { padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  .ce-table td { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 4px 0; border: 0; text-align: right; }
+  .ce-table td::before { content: attr(data-label); color: var(--ink-2); font-size: 12px; font-weight: 600; text-align: left; }
+  .ce-action { padding-top: 8px; }
+  .ce-action::before { display: none; }
+  .ce-action .ui-btn { width: 100%; height: 44px; min-height: 44px; }
+  .ce-facts { grid-template-columns: 1fr; }
+}

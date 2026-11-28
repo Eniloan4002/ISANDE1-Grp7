@@ -82,18 +82,20 @@ public class EnrollmentService {
         CROSS JOIN LATERAL (
           SELECT CASE WHEN count(*) FILTER(WHERE rt.mandatory)=0 THEN 'Pending'
             WHEN count(*) FILTER(WHERE rt.mandatory AND coalesce(ar.status,'pending')<>'submitted')=0 THEN 'Complete'
-            WHEN count(*) FILTER(WHERE rt.mandatory AND ar.status IN ('missing','invalid'))>0 THEN 'Incomplete' ELSE 'Pending' END AS status,max(ar.updated_at) AS updated_at
+            WHEN count(*) FILTER(WHERE rt.mandatory AND ar.status IN ('missing','invalid'))>0 THEN 'Incomplete' ELSE 'Pending' END AS status,max(ar.updated_at) AS updated_at,
+            count(*) FILTER(WHERE rt.mandatory) AS mandatory,count(*) FILTER(WHERE rt.mandatory AND ar.status='submitted') AS submitted
           FROM requirement_types rt LEFT JOIN application_requirements ar ON ar.requirement_code=rt.code AND ar.application_id=a.id
         ) creds
         """;
     @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
     public Map<String,Object> applications(String search,Long campus,Long term,Long program,String completeness,String status,String district,String route,int page,int size){
-        return applications(search,campus,term,program,completeness,status,district,route,null,page,size);
+        return applications(search,campus,term,program,completeness,status,district,route,null,"",page,size);
     }
     @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
-    public Map<String,Object> applications(String search,Long campus,Long term,Long program,String completeness,String status,String district,String route,Long section,int page,int size){
+    public Map<String,Object> applications(String search,Long campus,Long term,Long program,String completeness,String status,String district,String route,Long section,String placement,int page,int size){
         paging(page,size);
         if(search.length()>200||district.length()>200||route.length()>200)throw error(HttpStatus.BAD_REQUEST,"Search values must be at most 200 characters.");
+        if(!List.of("","placed","unplaced").contains(placement))throw error(HttpStatus.BAD_REQUEST,"Unknown placement filter.");
         if(!List.of("","Complete","Incomplete","Pending","Open").contains(completeness)||!List.of("","submitted","duplicate_flag","under_review","pre_enlisted","enrolled","rejected","withdrawn").contains(status))throw error(HttpStatus.BAD_REQUEST,"Unknown application or requirement status.");
         Map<String,Object> params=new HashMap<>();params.put("scope",scope());params.put("limit",size);params.put("offset",(long)page*size);
         String where=" WHERE a.campus_id IN (:scope)";
@@ -101,6 +103,9 @@ public class EnrollmentService {
         if(term!=null){where+=" AND a.term_id=:term";params.put("term",term);}
         if(program!=null){where+=" AND a.program_id=:program";params.put("program",program);}
         if(section!=null){where+=" AND e.section_id=:section";params.put("section",section);}
+        // ICI2-100 placement tabs: confirmed enrollments with or without a section.
+        if(placement.equals("placed"))where+=" AND e.status='enrolled' AND e.section_id IS NOT NULL";
+        else if(placement.equals("unplaced"))where+=" AND e.status='enrolled' AND e.section_id IS NULL";
         if(!search.isBlank()){where+=" AND (strpos(lower(concat_ws(' ',a.application_number,a.first_name,a.last_name,a.lrn,st.student_number)),:search)>0)";params.put("search",search.trim().toLowerCase(Locale.ROOT));}
         // "Open" = still has credentials to collect (pending, missing or invalid) on an application that is still in play.
         if(completeness.equals("Open"))where+=" AND creds.status<>'Complete' AND a.status IN ('submitted','pre_enlisted','under_review','duplicate_flag')";
@@ -118,6 +123,7 @@ public class EnrollmentService {
               a.student_id AS "studentId",st.student_number AS "studentNumber",a.contact_phone AS phone,a.email,
               coalesce(a.profile->>'gradeLevel','') AS "gradeLevel",coalesce(a.profile->>'district','') AS district,
               coalesce(a.profile->>'transportRoute','') AS "transportRoute",creds.status AS "requirementsStatus",creds.updated_at AS "requirementsUpdatedAt",
+              creds.submitted AS "requirementsSubmitted",creds.mandatory AS "requirementsMandatory",
               EXISTS(SELECT 1 FROM orientation_attendance o WHERE o.application_id=a.id AND o.status='present') AS "attendancePresent",
               e.id AS "enrollmentId",e.version AS "enrollmentVersion",e.status AS "enrollmentStatus",
               e.section_id AS "sectionId",s.name AS section
@@ -161,7 +167,7 @@ public class EnrollmentService {
         Map<String,Object> result=new LinkedHashMap<>();
         var summary=new LinkedHashMap<String,Object>(Map.of("id",id,"applicationNumber",app.get("application_number"),"name",app.get("first_name")+" "+app.get("last_name"),"status",app.get("status"),"version",app.get("version"),"campusId",app.get("campus_id"),"termId",app.get("term_id"),"programId",app.get("program_id")));
         summary.put("phone",app.get("contact_phone"));summary.put("email",app.get("email"));result.put("application",summary);
-        result.put("attendanceWindow",window(number(app,"campus_id"),number(app,"term_id")));result.put("attendance",attendance);result.put("attendancePresent",present);result.put("checklist",checklist);
+        result.put("attendanceWindow",window(number(app,"campus_id"),number(app,"term_id")));result.put("attendance",attendance);result.put("attendancePresent",present);result.put("duplicateOpen",Boolean.TRUE.equals(flags.get("duplicate")));result.put("checklist",checklist);
         result.put("enrollment",enrollment.isEmpty()?null:enrollment.getFirst());result.put("blockers",blockers);result.put("canConfirm",blockers.isEmpty());return result;
     }
     @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)

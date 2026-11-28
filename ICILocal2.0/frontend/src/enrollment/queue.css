@@ -1,0 +1,71 @@
+/* ICI2-97 Enrollment Queue revamp. Scoped to .eq-screen so the shared enrollment.css screens are unchanged. */
+.eq-screen label { margin: 0; }
+.eq-screen select, .eq-screen input { margin: 0; }
+.eq-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.eq-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px 16px; flex-wrap: wrap; margin-bottom: 12px; }
+.eq-header h1 { margin: 0; font-size: 24px; line-height: 32px; }
+.eq-scope { display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
+.eq-scope label, .eq-toolbar label { display: grid; gap: 4px; color: var(--ink-2); font-size: 12px; font-weight: 600; min-width: 0; }
+.eq-scope select { min-width: 150px; height: 36px; padding: 0 8px; }
+.eq-scope .ui-btn { height: 36px; min-height: 36px; text-decoration: none; }
+
+.eq-tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+.eq-tile { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 8px 12px; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; font: inherit; }
+.eq-tile:hover { border-color: #B9CEDA; }
+.eq-tile:focus-visible { outline: 2px solid var(--ici-blue); outline-offset: 2px; }
+.eq-tile.is-selected { border-color: var(--ici-blue); background: var(--info-bg); box-shadow: inset 0 0 0 1px var(--ici-blue); }
+.eq-tile-label { color: var(--ink-2); font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.eq-tile.is-selected .eq-tile-label { color: var(--ici-blue); }
+.eq-tile-count { font-size: 22px; line-height: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.eq-panel { border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--surface); }
+.eq-toolbar { display: grid; grid-template-columns: minmax(220px, 2fr) minmax(160px, 1fr) minmax(160px, 1fr) auto; align-items: end; gap: 8px 12px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.eq-toolbar input, .eq-toolbar select { width: 100%; height: 36px; padding: 0 8px; }
+.eq-total { margin: 0; padding-bottom: 8px; color: var(--ink-2); font-size: 13px; white-space: nowrap; }
+.eq-loading { margin: 0; padding: 12px 14px; }
+
+.eq-table-wrap { overflow-x: auto; }
+.eq-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.eq-table th { padding: 8px 14px; color: var(--ink-2); font-size: 12px; font-weight: 600; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.eq-table td { padding: 6px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.eq-table tbody tr:hover { background: var(--canvas); }
+.eq-table td strong, .eq-table td small, .eq-table .eq-line { display: block; }
+.eq-table td strong { font-weight: 600; }
+.eq-table td small { margin-top: 1px; color: var(--ink-2); font-size: 12px; }
+.eq-action { text-align: right; white-space: nowrap; }
+.eq-action .ui-btn { min-height: 32px; height: 32px; padding: 0 12px; font-size: 13px; text-decoration: none; }
+
+.eq-docs { display: flex; align-items: center; gap: 8px; min-width: 120px; }
+.eq-docs-track { flex: 1; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.eq-docs-fill { height: 100%; background: var(--attention); }
+.eq-docs-fill.is-complete { background: var(--success); }
+.eq-docs-text { color: var(--ink-2); font-size: 12px; font-variant-numeric: tabular-nums; }
+.eq-empty { padding: 24px 14px; }
+.eq-screen .enrollment-pagination { padding: 10px 14px; }
+
+@media (max-width: 1000px) {
+  .eq-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .eq-toolbar { grid-template-columns: 1fr 1fr; }
+  .eq-search { grid-column: 1 / -1; }
+}
+@media (max-width: 700px) {
+  .eq-header, .eq-scope { align-items: stretch; }
+  .eq-scope { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+  .eq-scope select { min-width: 0; width: 100%; height: 44px; }
+  .eq-scope .ui-btn { grid-column: 1 / -1; height: 44px; }
+  .eq-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .eq-toolbar { grid-template-columns: 1fr; }
+  .eq-toolbar input, .eq-toolbar select { height: 44px; }
+  .eq-total { padding: 0; }
+  .eq-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .eq-table, .eq-table tbody, .eq-table tr, .eq-table td { display: block; width: 100%; }
+  .eq-table tr { padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  .eq-table td { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 4px 0; border: 0; text-align: right; }
+  .eq-table td::before { content: attr(data-label); color: var(--ink-2); font-size: 12px; font-weight: 600; text-align: left; }
+  .eq-table td > div { text-align: right; }
+  .eq-docs { min-width: 140px; }
+  .eq-action { padding-top: 8px; }
+  .eq-action::before { display: none; }
+  .eq-action .ui-btn { width: 100%; height: 44px; min-height: 44px; }
+}

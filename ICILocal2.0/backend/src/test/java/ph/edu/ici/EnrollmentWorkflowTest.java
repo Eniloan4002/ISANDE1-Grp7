@@ -58,6 +58,7 @@ class EnrollmentWorkflowTest {
         Map page=call(HttpMethod.GET,base+"&requirementsStatus=Complete&district=Tibanga&transportRoute=North&size=1",null).getBody();
         assertThat(page.get("total")).isEqualTo(1);assertThat((List)page.get("items")).hasSize(1);
         Map row=(Map)((List)page.get("items")).getFirst();assertThat(((Number)row.get("id")).longValue()).isEqualTo(app);assertThat(row.get("requirementsStatus")).isEqualTo("Complete");
+        assertThat(((Number)row.get("requirementsMandatory")).longValue()).as("documents meter total").isPositive();assertThat(row.get("requirementsSubmitted")).as("a complete checklist has every mandatory credential submitted").isEqualTo(row.get("requirementsMandatory"));
         assertThat(call(HttpMethod.GET,base+"&campusId="+other,null).getBody().get("total")).isEqualTo(0);
         assertThat((List)call(HttpMethod.GET,base+"&size=1&page=1",null).getBody().get("items")).isEmpty();
         for(String suffix:List.of("&size=101","&page=-1","&requirementsStatus=unknown","&status=unknown"))assertThat(call(HttpMethod.GET,base+suffix,null).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -74,7 +75,9 @@ class EnrollmentWorkflowTest {
         db.update("UPDATE applications SET status='pre_enlisted' WHERE id=?",app);
         db.update("UPDATE students SET active=false WHERE id=(SELECT student_id FROM applications WHERE id=?)",app);assertThat(confirm(app,0).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         db.update("UPDATE students SET active=true WHERE id=(SELECT student_id FROM applications WHERE id=?)",app);
+        assertThat(detail(app).get("duplicateOpen")).isEqualTo(false);
         long matched=application(campus);db.update("INSERT INTO duplicate_cases(application_id,matched_application_id) VALUES (?,?)",matched,app);
+        assertThat(detail(app).get("duplicateOpen")).as("an open case flags the confirmation dialog").isEqualTo(true);
         assertThat(confirm(app,0).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         db.update("DELETE FROM duplicate_cases WHERE matched_application_id=?",app);
         db.update("UPDATE applications SET student_id=null WHERE id=?",app);assertThat(confirm(app,0).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
@@ -118,6 +121,10 @@ class EnrollmentWorkflowTest {
         assertThat(placed.get("total")).isEqualTo(1);
         assertThat(((Number)((Map)((List)placed.get("items")).getFirst()).get("id")).longValue()).isEqualTo(app);
         assertThat(call(HttpMethod.GET,"/api/enrollment/applications?termId="+term+"&sectionId=999999",null).getBody().get("total")).isEqualTo(0);
+        java.util.function.Function<String,List<Long>> ids=placement->((List<Map>)call(HttpMethod.GET,"/api/enrollment/applications?size=100&termId="+term+"&placement="+placement,null).getBody().get("items")).stream().map(row->((Number)row.get("id")).longValue()).toList();
+        assertThat(ids.apply("placed")).as("placement tabs: placed").contains(app).doesNotContain(unplaced);
+        assertThat(ids.apply("unplaced")).as("placement tabs: needs a section").contains(unplaced).doesNotContain(app);
+        assertThat(call(HttpMethod.GET,"/api/enrollment/applications?placement=somewhere",null).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
     @Test void sectionCrudPreservesParentsVersionsAndOccupiedCapacity(){
         long s=section("STEM A",2);var input=sectionInput("STEM A renamed",3,0);
