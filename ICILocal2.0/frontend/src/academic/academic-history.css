@@ -1,0 +1,74 @@
+/* ICI2-103 Academic History master-detail. Uses the ICI2-96 tokens. */
+.ah-screen .ah-heading { margin-bottom: 16px; }
+.ah-screen .ah-heading h1 { margin: 2px 0 0; font-size: 26px; line-height: 32px; }
+.ah-muted { color: var(--ink-2); font-size: 13px; }
+.ah-pad { padding: 12px 16px; margin: 0; }
+
+.ah-layout { display: grid; grid-template-columns: minmax(260px, 320px) minmax(0, 1fr); gap: 20px; align-items: start; }
+
+/* Student list stays in view below the 60px top bar; its rows scroll on their own. */
+.ah-list { position: sticky; top: 76px; display: flex; flex-direction: column; max-height: calc(100vh - 92px); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-card); overflow: hidden; }
+.ah-search { display: grid; gap: 6px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.ah-search label { font-size: 12px; font-weight: 600; color: var(--ink-2); }
+.ah-search input { width: 100%; min-height: 38px; margin: 0; padding: 0 12px; border: 1px solid #B9CEDA; border-radius: var(--radius-control); font-size: 14px; }
+.ah-list .notice { margin: 12px 16px; }
+.ah-students { flex: 1; min-height: 0; overflow-y: auto; list-style: none; margin: 0; padding: 6px; }
+.ah-students button { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 8px; width: 100%; padding: 9px 10px; border: 0; border-radius: var(--radius-control); background: none; color: var(--ink); text-align: left; cursor: pointer; }
+.ah-students button:hover { background: var(--canvas); }
+.ah-students button.is-selected { background: var(--blue-50); box-shadow: inset 3px 0 0 var(--ici-blue); }
+.ah-students strong { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.ah-students small { grid-column: 1; display: flex; flex-wrap: wrap; gap: 0 10px; font-size: 12px; color: var(--ink-2); }
+.ah-students .ui-chip { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+.ah-pager { padding: 8px 12px; border-top: 1px solid var(--line); font-size: 13px; }
+.ah-pager .enrollment-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin: 0; padding: 0; border: 0; }
+.ah-pager .table-actions { display: flex; gap: 6px; }
+.ah-pager .button { min-height: 32px; padding: 0 10px; font-size: 13px; }
+
+.ah-detail { min-width: 0; scroll-margin-top: 72px; }
+.ah-empty { margin: 0; }
+.ah-record { display: grid; gap: 16px; }
+.ah-record-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px 20px; padding: 16px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-card); }
+.ah-record-head h2 { margin: 0; font-size: 22px; line-height: 28px; }
+.ah-record-head p { display: flex; flex-wrap: wrap; gap: 2px 14px; margin: 4px 0 0; }
+.ah-record-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+.ah-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.ah-stats .ui-stat-value { font-size: 24px; line-height: 32px; }
+
+.ah-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.ah-tabs [role=tab] { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; margin-bottom: -1px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--ink-2); font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.ah-tabs [role=tab][aria-selected=true] { color: var(--ici-blue); border-bottom-color: var(--ici-blue); }
+.ah-tabs [role=tab]:hover { color: var(--ink); }
+.ah-tab-count { min-width: 20px; padding: 0 6px; border-radius: var(--radius-full); background: var(--neutral-bg); color: var(--neutral); font-size: 12px; line-height: 20px; text-align: center; }
+.ah-tabpanel { display: grid; gap: 16px; }
+.ah-tabpanel:focus-visible { outline-offset: 4px; }
+.ah-tabpanel > .ah-muted { margin: 0; }
+
+.ah-block { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-card); overflow: hidden; }
+.ah-block-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.ah-block-head h3 { margin: 0; font-size: 15px; line-height: 22px; }
+.ah-block-head .ui-chip { margin-left: auto; }
+
+.ah-table-wrap { overflow-x: auto; }
+.ah-table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.ah-table th, .ah-table td { padding: 9px 16px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+.ah-table thead th { font-size: 12px; font-weight: 600; letter-spacing: .02em; color: var(--ink-2); white-space: nowrap; }
+.ah-table tbody th { font-weight: 600; }
+.ah-table tbody th strong, .ah-table tbody th small { display: block; }
+.ah-table tbody th small { margin-top: 2px; font-size: 12px; font-weight: 400; color: var(--ink-2); }
+.ah-table tbody tr:last-child > * { border-bottom: 0; }
+.ah-table .ah-num { text-align: right; white-space: nowrap; }
+
+.ah-timeline, .ah-notes { list-style: none; margin: 0; padding: 0; }
+.ah-timeline li, .ah-notes li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+.ah-timeline li:last-child, .ah-notes li:last-child { border-bottom: 0; }
+.ah-timeline li { flex-direction: column; align-items: flex-start; gap: 2px; }
+.ah-timeline small, .ah-notes small { display: block; font-size: 12px; color: var(--ink-2); }
+
+@media (max-width: 1100px) {
+  .ah-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .ah-layout { grid-template-columns: 1fr; }
+  .ah-list { position: static; max-height: 420px; }
+}
