@@ -88,16 +88,23 @@ public class EnrollmentService {
         """;
     @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
     public Map<String,Object> applications(String search,Long campus,Long term,Long program,String completeness,String status,String district,String route,int page,int size){
+        return applications(search,campus,term,program,completeness,status,district,route,null,page,size);
+    }
+    @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
+    public Map<String,Object> applications(String search,Long campus,Long term,Long program,String completeness,String status,String district,String route,Long section,int page,int size){
         paging(page,size);
         if(search.length()>200||district.length()>200||route.length()>200)throw error(HttpStatus.BAD_REQUEST,"Search values must be at most 200 characters.");
-        if(!List.of("","Complete","Incomplete","Pending").contains(completeness)||!List.of("","submitted","duplicate_flag","under_review","pre_enlisted","enrolled","rejected","withdrawn").contains(status))throw error(HttpStatus.BAD_REQUEST,"Unknown application or requirement status.");
+        if(!List.of("","Complete","Incomplete","Pending","Open").contains(completeness)||!List.of("","submitted","duplicate_flag","under_review","pre_enlisted","enrolled","rejected","withdrawn").contains(status))throw error(HttpStatus.BAD_REQUEST,"Unknown application or requirement status.");
         Map<String,Object> params=new HashMap<>();params.put("scope",scope());params.put("limit",size);params.put("offset",(long)page*size);
         String where=" WHERE a.campus_id IN (:scope)";
         if(campus!=null){where+=" AND a.campus_id=:campus";params.put("campus",campus);}
         if(term!=null){where+=" AND a.term_id=:term";params.put("term",term);}
         if(program!=null){where+=" AND a.program_id=:program";params.put("program",program);}
+        if(section!=null){where+=" AND e.section_id=:section";params.put("section",section);}
         if(!search.isBlank()){where+=" AND (strpos(lower(concat_ws(' ',a.application_number,a.first_name,a.last_name,a.lrn,st.student_number)),:search)>0)";params.put("search",search.trim().toLowerCase(Locale.ROOT));}
-        if(!completeness.isBlank()){where+=" AND creds.status=:completeness";params.put("completeness",completeness);}
+        // "Open" = still has credentials to collect (pending, missing or invalid) on an application that is still in play.
+        if(completeness.equals("Open"))where+=" AND creds.status<>'Complete' AND a.status IN ('submitted','pre_enlisted','under_review','duplicate_flag')";
+        else if(!completeness.isBlank()){where+=" AND creds.status=:completeness";params.put("completeness",completeness);}
         if(!status.isBlank()){where+=" AND a.status=:status";params.put("status",status);}
         if(!district.isBlank()){where+=" AND strpos(lower(coalesce(a.profile->>'district','')),:district)>0";params.put("district",district.trim().toLowerCase(Locale.ROOT));}
         if(!route.isBlank()){where+=" AND strpos(lower(coalesce(a.profile->>'transportRoute','')),:route)>0";params.put("route",route.trim().toLowerCase(Locale.ROOT));}

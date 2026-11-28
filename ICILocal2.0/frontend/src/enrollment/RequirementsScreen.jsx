@@ -20,7 +20,7 @@ function ChecklistDialog({id,onClose,onSaved}){
   </dialog>;
 }
 export default function RequirementsScreen(){
-  const [params,setParams]=useSearchParams(),[search,setSearch]=useState(''),[status,setStatus]=useState(''),[program,setProgram]=useState(''),[page,setPage]=useState(0);
+  const [params,setParams]=useSearchParams(),[search,setSearch]=useState(''),[status,setStatus]=useState(params.get('requirements')==='open'?'Open':''),[program,setProgram]=useState(''),[page,setPage]=useState(0);
   const selected=params.get('applicationId');
   const effectiveSearch=useDebouncedValue(search);
   const reference=useResource('/api/enrollment/reference-data');
@@ -31,7 +31,7 @@ export default function RequirementsScreen(){
     <Failure error={reference.error} reload={reference.reload}/>
     <section className="panel enrollment-panel" aria-labelledby="requirements-table-title"><div className="enrollment-panel-heading"><div><h2 id="requirements-table-title">Applicant Requirements</h2><p>Open an applicant to review and update their checklist.</p></div></div>
       <div className="enrollment-filters requirements-filters"><label>Search<input type="search" aria-label="Search requirements" maxLength={200} value={search} onChange={event=>{setSearch(event.target.value);setPage(0);}} placeholder="Name, application number or LRN"/></label>
-        <label>Status<select aria-label="Filter by requirement status" value={status} onChange={event=>{setStatus(event.target.value);setPage(0);}}><option value="">All statuses</option>{['Complete','Incomplete','Pending'].map(value=><option key={value}>{value}</option>)}</select></label>
+        <label>Status<select aria-label="Filter by requirement status" value={status} onChange={event=>{setStatus(event.target.value);setPage(0);}}><option value="">All statuses</option><option value="Open">Open (pending or incomplete)</option>{['Complete','Incomplete','Pending'].map(value=><option key={value}>{value}</option>)}</select></label>
         <label>Program<select aria-label="Filter by program" value={program} onChange={event=>{setProgram(event.target.value);setPage(0);}}><option value="">All programs</option>{reference.data?.programs.map(item=><option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
       </div><Failure error={directory.error} reload={directory.reload}/>{directory.loading&&<p role="status">Loading applications…</p>}
       {!directory.loading&&!directory.error&&(rows.length?<div className="enrollment-table-wrap"><table className="enrollment-table requirements-table"><thead><tr><th>Applicant</th><th>App ID</th><th>Category</th><th>Program</th><th>Overall status</th><th>Last updated</th><th>Action</th></tr></thead><tbody>{rows.map(row=><tr key={row.id}><td><strong>{row.name}</strong><small>LRN {row.lrn||'Not provided'}</small></td><td>{row.applicationNumber}</td><td>{row.category}</td><td>{row.program}</td><td><span className={`status status-${row.requirementsStatus==='Complete'?'success':row.requirementsStatus==='Incomplete'?'danger':'warning'}`}>{row.requirementsStatus}</span></td><td>{row.requirementsUpdatedAt?new Date(row.requirementsUpdatedAt).toLocaleString():'Not recorded'}</td><td><button className="button button-outline enrollment-view" onClick={()=>setParams({applicationId:String(row.id)})} aria-label={`Open ${row.applicationNumber}`}>View</button></td></tr>)}</tbody></table></div>:<div className="empty-state enrollment-empty"><h3>No matching applicants</h3><p>Try changing or clearing the search and filters.</p></div>)}

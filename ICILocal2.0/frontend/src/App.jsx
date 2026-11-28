@@ -19,6 +19,19 @@ import { LoginPage } from './Auth.jsx';
 import { useAuth } from './auth/AuthContext.jsx';
 import { AppShell } from './components/AppShell.jsx';
 import { firstAllowedPath, pages } from './routes/routeConfig.js';
+import AssignedClasses from './academic/AssignedClasses.jsx';
+import EnrollmentRecords from './enrollment/EnrollmentRecords.jsx';
+import ReportingMonitoring from './enrollment/ReportingMonitoring.jsx';
+import ClassRecords from './academic/ClassRecords.jsx';
+
+// Screens added from Sprint 2 on register here by path. Anything not listed falls through to the
+// original chain below, so new screens stay out of that ternary and merge without conflicts.
+const screenByPath = {
+  '/academic/class-list': <AssignedClasses />,
+  '/enrollment/academic-records': <EnrollmentRecords />,
+  '/enrollment/reporting-monitoring': <ReportingMonitoring />,
+  '/academic/class-records': <ClassRecords />,
+};
 
 function RequireAuth() {
   const { isAuthenticated,loading,user } = useAuth();
@@ -65,7 +78,7 @@ export default function App() {
         <Route path="/enrollment/applicants/:applicationId" element={<RoleGate allowedRoles={['admin','registrar']}><IntakeWorkspace screen="details"/></RoleGate>}/>
         <Route path="/account/security" element={<AccountSecurity />}/>
         {pages.filter(page=>page.path!=='/account/security').map(page => <Route key={page.path} path={page.path} element={
-          <RoleGate allowedRoles={page.allowedRoles}>{page.path==='/enrollment/duplicate'?<DuplicateRecords />:page.path==='/account/security'?<AccountSecurity />:page.path==='/administration/users'?<StaffAccounts />:page.path==='/setup'?<AcademicSetup />:page.path==='/academic/assignments'?<AcademicAssignments />:page.path==='/academic/grade-entry'?<GradeEntry />:page.path==='/academic/incomplete-grades'?<IncompleteGrades />:page.path==='/academic/finalize-grades'?<GradeFinalization />:page.path==='/academic/grade-approvals'?<GradeApprovals />:page.path==='/design-system'?<DesignSystem />:page.path==='/enrollment/queue'?<IntakeWorkspace screen="queue" />:page.path==='/enrollment/evaluate'?<IntakeWorkspace screen="queue" title="Evaluate Applications" />:page.path==='/enrollment/intake'?<IntakeWorkspace screen="intake" />:page.path==='/enrollment/requirements'?<RequirementsScreen />:page.path==='/enrollment/attendance'?<AttendanceScreen />:page.path==='/enrollment/enrolled'?<EnrollmentWorkspace mode="allocation" />:page.path==='/enrollment/sections'?<SectionConfiguration />:page.path==='/academic/advisory'?<AdvisoryClass />:page.path==='/academic/registrar-records'?<AcademicHistory />:<Placeholder page={page} />}</RoleGate>
+          <RoleGate allowedRoles={page.allowedRoles}>{screenByPath[page.path]??(page.path==='/enrollment/duplicate'?<DuplicateRecords />:page.path==='/account/security'?<AccountSecurity />:page.path==='/administration/users'?<StaffAccounts />:page.path==='/setup'?<AcademicSetup />:page.path==='/academic/assignments'?<AcademicAssignments />:page.path==='/academic/grade-entry'?<GradeEntry />:page.path==='/academic/incomplete-grades'?<IncompleteGrades />:page.path==='/academic/finalize-grades'?<GradeFinalization />:page.path==='/academic/grade-approvals'?<GradeApprovals />:page.path==='/design-system'?<DesignSystem />:page.path==='/enrollment/queue'?<IntakeWorkspace screen="queue" />:page.path==='/enrollment/evaluate'?<IntakeWorkspace screen="queue" title="Evaluate Applications" />:page.path==='/enrollment/intake'?<IntakeWorkspace screen="intake" />:page.path==='/enrollment/requirements'?<RequirementsScreen />:page.path==='/enrollment/attendance'?<AttendanceScreen />:page.path==='/enrollment/enrolled'?<EnrollmentWorkspace mode="allocation" />:page.path==='/enrollment/sections'?<SectionConfiguration />:page.path==='/academic/advisory'?<AdvisoryClass />:page.path==='/academic/registrar-records'?<AcademicHistory />:<Placeholder page={page} />)}</RoleGate>
         } />)}
       </Route>
     </Route>
