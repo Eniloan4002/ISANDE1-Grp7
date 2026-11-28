@@ -21,6 +21,7 @@ public class LegacyImportController {
         ImportMappingService.MappingInput input(){return new ImportMappingService.MappingInput(name,mapping,settings,Boolean.TRUE.equals(isDefault),active==null||active,Boolean.TRUE.equals(realFileValidated));}
     }
     public record ReviewBody(@NotNull @PositiveOrZero Integer version,@NotBlank @Pattern(regexp="same_person|distinct|skip") String decision,@NotBlank @Size(max=2000) String reason,@Positive Long studentId) {}
+    public record DiscardBody(@NotNull @PositiveOrZero Integer version,@NotBlank @Size(max=1000) String reason) {}
     public record CommitBody(@NotNull @PositiveOrZero Integer version,@NotNull @PositiveOrZero Integer expectedValidCount) {}
 
     private Map<String,Object> view(ImportMappingService.StoredMapping m){
@@ -58,6 +59,8 @@ public class LegacyImportController {
     public Map<String,Object> errors(@PathVariable long id,@RequestParam(required=false) String severity,@RequestParam(required=false) Integer rowNumber,@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="25") int size){return batches.errors(id,severity,rowNumber,page,size);}
     @PostMapping("/batches/{id}/rows/{rowId}/review") @PreAuthorize("@accessPolicy.hasPermission('imports.manage')")
     public Map<String,Object> review(@PathVariable long id,@PathVariable long rowId,@Valid @RequestBody ReviewBody body){return batches.review(id,rowId,body.version(),body.decision(),body.reason(),body.studentId());}
+    @PostMapping("/batches/{id}/discard") @PreAuthorize("@accessPolicy.hasPermission('imports.manage')")
+    public Map<String,Object> discard(@PathVariable long id,@Valid @RequestBody DiscardBody body){return batches.discard(id,body.version(),body.reason());}
     @PostMapping("/batches/{id}/commit") @PreAuthorize("@accessPolicy.hasPermission('imports.manage')")
     public Map<String,Object> commit(@PathVariable long id,@Valid @RequestBody CommitBody body){return commits.commit(id,body.version(),body.expectedValidCount());}
 }

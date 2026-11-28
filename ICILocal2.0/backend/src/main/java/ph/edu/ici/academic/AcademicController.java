@@ -44,6 +44,12 @@ public class AcademicController {
         return service.createClassOffering(input);
     }
 
+    @PostMapping("/api/academic/class-offerings/{id}/members/sync")
+    @PreAuthorize("@accessPolicy.hasPermission('enrollment.manage')")
+    public Map<String,Object> syncClassMembers(@PathVariable long id,@RequestParam long academicYearId,@RequestParam long termId){
+        return service.syncClassMembers(id,academicYearId,termId);
+    }
+
     @PutMapping("/api/academic/class-offerings/{id}/teacher")
     @PreAuthorize("@accessPolicy.hasPermission('enrollment.manage')")
     public Map<String,Object> assignTeacher(@PathVariable long id,@Valid @RequestBody TeacherAssignment input){

@@ -28,12 +28,12 @@ import ph.edu.ici.imports.ImportFileException.FileError;
 public class ImportValidationService {
     private static final int CHUNK=5_000,MAX_EVIDENCE=20,MAX_DUPLICATE_MESSAGES=10;
     private final NamedParameterJdbcTemplate db;private final ObjectMapper json;private final AccessPolicy access;
-    private final ImportMappingService mappings;private final ImportLimits limits;private final TransactionTemplate tx;
+    private final ImportMappingService mappings;private final ImportLimits limits;private final TransactionTemplate tx;private final GridReader reader;
 
     public record Staged(long batchId,String status,int sourceCount,int valid,int invalid,int flagged,int skipped) {}
     private static final class Row {
         final int number;final Map<String,String> raw;Map<String,Object> values;final List<RowProblem> problems=new ArrayList<>();
-        Long fileCampusId;final List<Map<String,Object>> evidence=new ArrayList<>();final Set<Long> matchedStudents=new HashSet<>();String status;
+        Long fileCampusId;final CleaningLog cleaning=new CleaningLog();final List<Map<String,Object>> evidence=new ArrayList<>();final Set<Long> matchedStudents=new HashSet<>();String status;
         Row(int number,Map<String,String> raw){this.number=number;this.raw=raw;}
         boolean eligible(){return problems.stream().noneMatch(p->RowProblem.ERROR.equals(p.severity()));}
         Map<String,Object> identity(){Map<String,Object> m=new HashMap<>();m.put("lrn",values.get("lrn"));m.put("birth_date",LocalDate.parse((String)values.get("birthDate")));m.put("first_name",values.get("firstName"));m.put("last_name",values.get("lastName"));return m;}
@@ -41,7 +41,7 @@ public class ImportValidationService {
     private record Candidate(String kind,long id,Long studentId,Long batchId,Integer rowNumber,Long campusId,Map<String,Object> identity) {}
 
     public ImportValidationService(NamedParameterJdbcTemplate db,ObjectMapper json,AccessPolicy access,ImportMappingService mappings,ImportLimits limits,PlatformTransactionManager transactions){
-        this.db=db;this.json=json;this.access=access;this.mappings=mappings;this.limits=limits;this.tx=new TransactionTemplate(transactions);
+        this.db=db;this.json=json;this.access=access;this.mappings=mappings;this.limits=limits;this.tx=new TransactionTemplate(transactions);this.reader=new CsvGridReader(limits);
     }
     private StaffIdentity identity(){return (StaffIdentity)SecurityContextHolder.getContext().getAuthentication().getPrincipal();}
     private void actor(){db.queryForObject("SELECT set_config('app.actor_id',:actor,true)",Map.of("actor",Long.toString(identity().userId())),String.class);}
@@ -61,16 +61,16 @@ public class ImportValidationService {
         if(ref.campuses().values().stream().noneMatch(c->c.id()==campusId))throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Select an existing campus.");
         String name=safeName(fileName);
         CsvParser.Parsed parsed;Map<String,Integer> columns;
-        try{parsed=new CsvParser(limits).parse(bytes,mapping.settings());columns=HeaderResolver.resolve(parsed.headers(),mapping);}
+        try{parsed=reader.read(bytes,mapping.settings());columns=HeaderResolver.resolve(parsed.headers(),mapping);}
         catch(ImportFileException e){
             if(e.error().recorded)e.batchId(recordFailure(campusId,name,hash,bytes.length,stored.id(),snapshot,e));
             throw e;
         }
-        var normalizer=new RowNormalizer(mapping,ref,campusId,LocalDate.now(),parsed.headers().size());
+        var normalizer=new RowNormalizer(mapping,ref,campusId,LocalDate.now(),parsed.headers());
         List<Row> rows=new ArrayList<>();
         for(var record:parsed.rows()){
             Map<String,String> raw=new LinkedHashMap<>();for(int i=0;i<record.cells().size()&&i<parsed.headers().size();i++)raw.put(parsed.headers().get(i),record.cells().get(i));
-            var row=new Row(record.number(),raw);var result=normalizer.normalize(record.cells(),columns);
+            var row=new Row(record.number(),raw);var result=normalizer.normalize(record.cells(),columns,record.meta(),row.cleaning);
             row.values=result.values();row.problems.addAll(result.problems());row.fileCampusId=result.fileCampusId();rows.add(row);
         }
         Set<Long> visible=new HashSet<>(access.campuses("imports.read"));visible.addAll(access.campuses("imports.manage"));
@@ -200,15 +200,17 @@ public class ImportValidationService {
     private Staged persist(long campusId,String name,String hash,long size,long mappingId,String snapshot,List<Row> rows,Set<Long> manageScope){
         actor();
         int valid=0,invalid=0,flagged=0;for(Row r:rows){switch(r.status){case "valid"->valid++;case "invalid"->invalid++;default->flagged++;}}
-        long batch=db.queryForObject("INSERT INTO import_batches(source_name,checksum,status,source_count,campus_id,mapping_id,mapping_snapshot,file_size_bytes,valid_count,invalid_count,flagged_count) VALUES (:name,:hash,'validated',:count,:campus,:mapping,CAST(:snapshot AS jsonb),:size,:valid,:invalid,:flagged) RETURNING id",
-            new MapSqlParameterSource(Map.of("name",name,"hash",hash,"count",rows.size(),"campus",campusId,"mapping",mappingId,"snapshot",snapshot,"size",size,"valid",valid,"invalid",invalid,"flagged",flagged)),Long.class);
+        long batch=db.queryForObject("INSERT INTO import_batches(source_name,checksum,status,source_count,campus_id,mapping_id,mapping_snapshot,file_size_bytes,valid_count,invalid_count,flagged_count,source_format,cleaning_summary) VALUES (:name,:hash,'validated',:count,:campus,:mapping,CAST(:snapshot AS jsonb),:size,:valid,:invalid,:flagged,'csv',CAST(:summary AS jsonb)) RETURNING id",
+            new MapSqlParameterSource(Map.of("name",name,"hash",hash,"count",rows.size(),"campus",campusId,"mapping",mappingId,"snapshot",snapshot,"size",size,"valid",valid,"invalid",invalid,"flagged",flagged))
+                .addValue("summary",CleaningSummary.json(rows.stream().map(r->r.cleaning).toList(),json)),Long.class);
         List<SqlParameterSource> inserts=new ArrayList<>();
         for(Row r:rows){
             boolean redact=r.fileCampusId!=null&&!manageScope.contains(r.fileCampusId);   // never retain another campus's personal data
             inserts.add(new MapSqlParameterSource().addValue("batch",batch).addValue("number",r.number).addValue("status",r.status).addValue("campus",campusId)
-                .addValue("raw",encode(redact?Map.of():r.raw)).addValue("normalized",r.status.equals("invalid")?null:encode(r.values)).addValue("evidence",r.status.equals("duplicate_flagged")?encode(r.evidence):null));
+                .addValue("raw",encode(redact?Map.of():r.raw)).addValue("normalized",r.status.equals("invalid")?null:encode(r.values)).addValue("evidence",r.status.equals("duplicate_flagged")?encode(r.evidence):null)
+                .addValue("cleaning",!redact&&r.cleaning.hasEntries()?encode(r.cleaning.entries()):null));
         }
-        db.batchUpdate("INSERT INTO import_rows(batch_id,row_number,status,campus_id,raw_values,normalized_values,duplicate_evidence) VALUES (:batch,:number,:status,:campus,CAST(:raw AS jsonb),CAST(:normalized AS jsonb),CAST(:evidence AS jsonb))",inserts.toArray(SqlParameterSource[]::new));
+        db.batchUpdate("INSERT INTO import_rows(batch_id,row_number,status,campus_id,raw_values,normalized_values,duplicate_evidence,cleaning) VALUES (:batch,:number,:status,:campus,CAST(:raw AS jsonb),CAST(:normalized AS jsonb),CAST(:evidence AS jsonb),CAST(:cleaning AS jsonb))",inserts.toArray(SqlParameterSource[]::new));
         Map<Integer,Long> ids=new HashMap<>();
         for(var m:db.queryForList("SELECT id,row_number FROM import_rows WHERE batch_id=:b",Map.of("b",batch)))ids.put(((Number)m.get("row_number")).intValue(),((Number)m.get("id")).longValue());
         List<SqlParameterSource> problems=new ArrayList<>();

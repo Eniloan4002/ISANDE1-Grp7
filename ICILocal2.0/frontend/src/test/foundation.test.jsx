@@ -17,7 +17,7 @@ const future = () => Math.floor(Date.now() / 1000) + 3600;
 
 async function show(path, token = null) {
   setAccessToken(token);
-  api.defaults.adapter=async config=>({status:200,statusText:'OK',headers:{},config,data:config.url.startsWith('/setup/')?[]:config.url.startsWith('/admin/accounts/reference-data')?{roles:[],campuses:[]}:config.url.startsWith('/admin/accounts')?{items:[],total:0}:(config.url.startsWith('/enrollment/reference-data')||config.url.startsWith('/intake/reference-data'))?{campuses:[],terms:[],programs:[],advisers:[],vouchers:[]}:config.url.startsWith('/duplicate-cases')||config.url.startsWith('/enrollment/applications')||config.url.startsWith('/sections')?{items:[],total:0}:{userId:1,username:'test',fullName:'Test Staff',grants:rolesFromClaims(readClaims(token)).map(role=>({campusId:1,campusCode:'ILIGAN',role}))}});
+  api.defaults.adapter=async config=>({status:200,statusText:'OK',headers:{},config,data:config.url.startsWith('/setup/')?[]:config.url.startsWith('/academic/terms')?{years:[],terms:[]}:config.url.startsWith('/academic/advisory/rosters')?{sections:[]}:config.url.startsWith('/academic/grade-corrections')||config.url.startsWith('/academic/withdrawals')||config.url.startsWith('/academic/withdrawal-endorsements')||config.url.startsWith('/academic/history/students')||config.url.startsWith('/guidance/risks')||config.url.startsWith('/guidance/cases')?{items:[],total:0}:config.url.startsWith('/guidance/policies/')||config.url.startsWith('/enrollment/attendance-window')?{configured:false,version:0}:config.url.startsWith('/academic/school-days/')?{items:[]}:config.url.startsWith('/admin/accounts/reference-data')?{roles:[],campuses:[]}:config.url.startsWith('/admin/audit-log/reference-data')?{campuses:[],users:[],recordTypes:[],operations:[]}:config.url.startsWith('/admin/accounts')||config.url.startsWith('/admin/audit-log')?{items:[],total:0}:(config.url.startsWith('/enrollment/reference-data')||config.url.startsWith('/intake/reference-data')||config.url.startsWith('/public/enrollment/reference-data'))?{campuses:[],terms:[],programs:[],advisers:[],vouchers:[],requirementTypes:[]}:config.url.startsWith('/duplicate-cases')||config.url.startsWith('/enrollment/applications')||config.url.startsWith('/sections')||config.url.startsWith('/legacy-student-imports/')||config.url.startsWith('/legacy-grade-imports/')?{items:[],total:0}:{userId:1,username:'test',fullName:'Test Staff',grants:rolesFromClaims(readClaims(token)).map(role=>({campusId:1,campusCode:'ILIGAN',role}))}});
   let result;
   await act(async()=>{result=render(<MemoryRouter initialEntries={[path]}><AuthProvider><App /></AuthProvider></MemoryRouter>);});
   return result;
@@ -45,7 +45,7 @@ describe('JWT claims', () => {
 
 describe('routes', () => {
   it('reserves every prototype page with a unique clean path', () => {
-    expect(pages).toHaveLength(34);
+    expect(pages).toHaveLength(35);
     expect(new Set(pages.map(page => page.path)).size).toBe(pages.length);
     expect(pages.every(page => page.allowedRoles.length > 0 && !page.path.endsWith('.html'))).toBe(true);
   });

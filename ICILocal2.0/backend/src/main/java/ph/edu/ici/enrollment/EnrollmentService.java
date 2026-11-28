@@ -276,21 +276,66 @@ public class EnrollmentService {
         if(rows.isEmpty())throw error(HttpStatus.NOT_FOUND,"Enrollment not found.");
         var app=application(number(rows.getFirst(),"application_id"),true);
         var enrollment=db.queryForList("SELECT * FROM enrollments WHERE id=:id FOR UPDATE",Map.of("id",id)).getFirst();version(enrollment,input.version());
-        if(!"enrolled".equals(enrollment.get("status")))throw error(HttpStatus.CONFLICT,"Confirm enrollment before allocating a section.");
+        var closed=statusBlocker(enrollment);if(closed!=null)throw error(closed.status(),closed.message());
         Object old=enrollment.get("section_id");if(Objects.equals(old,input.sectionId()))return assemble(app);
         // Stable order prevents deadlocks for concurrent swaps between sections.
         var ids=new TreeSet<Long>();if(old!=null)ids.add(((Number)old).longValue());if(input.sectionId()!=null)ids.add(input.sectionId());
         Map<String,Object> target=null;for(long sectionId:ids){var row=lockSection(sectionId);if(Objects.equals(sectionId,input.sectionId()))target=row;}
-        if(target!=null){
-            if(number(target,"campus_id")!=number(enrollment,"campus_id")||number(target,"term_id")!=number(enrollment,"term_id")||number(target,"program_id")!=number(enrollment,"program_id"))throw error(HttpStatus.CONFLICT,"Section must match the enrollment's campus, term and program.");
-            String grade=db.queryForObject("SELECT coalesce(profile->>'gradeLevel','') FROM applications WHERE id=:id",Map.of("id",app.get("id")),String.class);
-            if(grade==null||grade.isBlank())throw error(HttpStatus.CONFLICT,"Record the applicant's gradeLevel through intake before section assignment.");
-            if(!normalizeGrade(grade).equals(normalizeGrade((String)target.get("grade_level"))))throw error(HttpStatus.CONFLICT,"Section grade level does not match this applicant.");
-            long count=db.queryForObject("SELECT count(*) FROM enrollments WHERE section_id=:id AND status IN ('provisional','enrolled')",Map.of("id",target.get("id")),Long.class);
-            if(count>=number(target,"capacity"))throw error(HttpStatus.CONFLICT,"This section is full. Choose another section.");
-        }
-        if(Boolean.TRUE.equals(db.queryForObject("SELECT EXISTS(SELECT 1 FROM class_memberships WHERE enrollment_id=:id)",Map.of("id",id),Boolean.class)))throw error(HttpStatus.CONFLICT,"This enrollment has academic class memberships. Use the academic transfer workflow to preserve grades.");
+        var blockers=transferBlockers(enrollment,target);
+        if(!blockers.isEmpty())throw error(blockers.getFirst().status(),blockers.getFirst().message());
         actor();Map<String,Object> p=new HashMap<>();p.put("id",id);p.put("section",input.sectionId());db.update("UPDATE enrollments SET section_id=:section,version=version+1 WHERE id=:id",p);return assemble(app);
+    }
+
+    /** Why an assignment is refused, as a stable code with the HTTP status and message {@link #assign} answers with. */
+    public record Blocker(String code,HttpStatus status,String message) {}
+    private static final String CONFIRM_FIRST="Confirm enrollment before allocating a section.";
+    /** Only a confirmed ("enrolled") enrollment can hold a section; null when this one may. */
+    private Blocker statusBlocker(Map<String,Object> enrollment){
+        String status=(String)enrollment.get("status");
+        if("enrolled".equals(status))return null;
+        return new Blocker("provisional".equals(status)?"NOT_CONFIRMED":"ENROLLMENT_CLOSED",HttpStatus.CONFLICT,CONFIRM_FIRST);
+    }
+    /** What a move to {@code target} (a section row, or null to unassign) would break, in the order {@link #assign} checks it. */
+    private List<Blocker> transferBlockers(Map<String,Object> enrollment,Map<String,Object> target){
+        List<Blocker> result=new ArrayList<>();
+        long id=number(enrollment,"id");
+        if(target!=null){
+            if(number(target,"campus_id")!=number(enrollment,"campus_id")||number(target,"term_id")!=number(enrollment,"term_id")||number(target,"program_id")!=number(enrollment,"program_id"))
+                result.add(new Blocker("SECTION_INCOMPATIBLE",HttpStatus.CONFLICT,"Section must match the enrollment's campus, term and program."));
+            else{
+                String grade=db.queryForObject("SELECT coalesce(profile->>'gradeLevel','') FROM applications WHERE id=:id",Map.of("id",enrollment.get("application_id")),String.class);
+                if(grade==null||grade.isBlank())result.add(new Blocker("GRADE_LEVEL_MISSING",HttpStatus.CONFLICT,"Record the applicant's gradeLevel through intake before section assignment."));
+                else if(!normalizeGrade(grade).equals(normalizeGrade((String)target.get("grade_level"))))result.add(new Blocker("GRADE_MISMATCH",HttpStatus.CONFLICT,"Section grade level does not match this applicant."));
+                else{
+                    long count=db.queryForObject("SELECT count(*) FROM enrollments WHERE section_id=:id AND status IN ('provisional','enrolled')",Map.of("id",target.get("id")),Long.class);
+                    if(count>=number(target,"capacity"))result.add(new Blocker("SECTION_FULL",HttpStatus.CONFLICT,"This section is full. Choose another section."));
+                }
+            }
+        }
+        if(Boolean.TRUE.equals(db.queryForObject("SELECT EXISTS(SELECT 1 FROM class_memberships WHERE enrollment_id=:id)",Map.of("id",id),Boolean.class)))
+            result.add(new Blocker("ACADEMIC_HISTORY_EXISTS",HttpStatus.CONFLICT,"This enrollment has academic class memberships. Use the academic transfer workflow to preserve grades."));
+        return result;
+    }
+    /**
+     * Read-only preview of {@link #assign}: everything that would refuse moving this enrollment to {@code sectionId} (null to unassign), in the
+     * order assign checks it, using the same rules and the same caller scope (enrollment.manage). Empty when the move would succeed or is a no-op
+     * (already in that section). It takes no locks and never checks versions or writes, so it is advice, not a reservation: assign rechecks under locks.
+     * An enrollment or section outside the caller's campuses is reported as not found.
+     */
+    @Transactional(readOnly=true)
+    public List<Blocker> assignmentBlockers(long enrollmentId,Long sectionId){
+        var rows=db.queryForList("SELECT * FROM enrollments WHERE id=:id AND campus_id IN (:scope)",Map.of("id",enrollmentId,"scope",scope()));
+        if(rows.isEmpty())return List.of(new Blocker("ENROLLMENT_NOT_FOUND",HttpStatus.NOT_FOUND,"Enrollment not found."));
+        var enrollment=rows.getFirst();
+        var closed=statusBlocker(enrollment);if(closed!=null)return List.of(closed);
+        if(Objects.equals(enrollment.get("section_id"),sectionId))return List.of();
+        Map<String,Object> target=null;
+        if(sectionId!=null){
+            var found=db.queryForList("SELECT * FROM sections WHERE id=:id AND campus_id IN (:scope)",Map.of("id",sectionId,"scope",scope()));
+            if(found.isEmpty())return List.of(new Blocker("SECTION_NOT_FOUND",HttpStatus.NOT_FOUND,"Section not found."));
+            target=found.getFirst();
+        }
+        return transferBlockers(enrollment,target);
     }
     private String normalizeGrade(String grade){return grade.trim().toLowerCase(Locale.ROOT).replaceFirst("^grade\\s+","");}
 }

@@ -53,7 +53,21 @@ public class DuplicateService {
     }
     @Transactional public void scan(long id){
         serial();var a=app(id,true);if(!List.of("submitted","duplicate_flag","under_review").contains(a.get("status")))return;
-        actor();for(var b:candidates(a)){
+        actor();scanRow(id,a);
+    }
+    @Transactional void scanPublic(long id){
+        serial();
+        var rows=db.queryForList("SELECT * FROM applications WHERE id=:id FOR UPDATE",Map.of("id",id));
+        if(rows.isEmpty())return;
+        var a=rows.getFirst();
+        if(!List.of("submitted","duplicate_flag","under_review").contains(a.get("status")))return;
+        var auth=SecurityContextHolder.getContext().getAuthentication();
+        String actorId=auth!=null&&auth.getPrincipal() instanceof StaffIdentity staff?Long.toString(staff.userId()):"";
+        db.queryForObject("SELECT set_config('app.actor_id',:actor,true)",Map.of("actor",actorId),String.class);
+        scanRow(id,a);
+    }
+    private void scanRow(long id,Map<String,Object> a){
+        for(var b:candidates(a)){
             String field="student".equals(b.get("kind"))?"matched_student_id":"matched_application_id";
             if(settled(id,b)||Boolean.TRUE.equals(db.queryForObject("SELECT EXISTS(SELECT 1 FROM duplicate_cases WHERE application_id=:app AND "+field+"=:target)",Map.of("app",id,"target",b.get("id")),Boolean.class)))continue;
             var evidence=Map.of("type",sameLrn(a,b)?LRN_EXACT:NAME_DOB,"nameScore",nameScore(a,b));

@@ -1,0 +1,572 @@
+/* Mobile-first styles for the 6-step Prospective Student Enrollment Submission portal */
+
+.submission-standalone {
+  min-height: 100vh;
+  background: var(--brand-mist, #eef4f7);
+  display: flex;
+  flex-direction: column;
+}
+
+.submission-standalone-header {
+  background: var(--brand-primary, #005b7f);
+  color: #ffffff;
+  padding: 0.9rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.submission-standalone-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.submission-standalone-brand strong {
+  display: block;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.submission-standalone-brand span {
+  display: block;
+  font-size: 0.78rem;
+  opacity: 0.88;
+}
+
+.submission-standalone-link {
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 6px;
+  padding: 0.45rem 0.8rem;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.submission-standalone-link:hover,
+.submission-standalone-link:focus-visible {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.submission-standalone-main {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 1rem;
+  flex: 1;
+}
+
+.submission-page {
+  display: grid;
+  gap: 1rem;
+  max-width: 920px;
+}
+
+.submission-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.submission-header h1 {
+  margin: 0.15rem 0 0.25rem;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.submission-header p {
+  margin: 0;
+  color: var(--muted, #546670);
+}
+
+.submission-draft-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #b9d8e6;
+  background: #edf6fa;
+  font-size: 0.88rem;
+}
+
+.submission-draft-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Progress stepper (mobile-first) */
+.submission-stepper {
+  background: #ffffff;
+  border: 1px solid var(--border, #d8e2e8);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.submission-stepper-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.submission-stepper-count {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--brand-primary, #005b7f);
+}
+
+.submission-stepper-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--brand-charcoal, #1d2d35);
+}
+
+.submission-progress-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: #e4edf2;
+  overflow: hidden;
+}
+
+.submission-progress-fill {
+  height: 100%;
+  background: var(--brand-primary, #005b7f);
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+.submission-steps-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0.15rem;
+  display: flex;
+  gap: 0.45rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.submission-step-pill {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--border, #d8e2e8);
+  background: #f7fafc;
+  color: var(--muted, #546670);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 36px;
+}
+
+.submission-step-pill:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.submission-step-pill.is-active {
+  background: var(--brand-primary, #005b7f);
+  border-color: var(--brand-primary, #005b7f);
+  color: #ffffff;
+}
+
+.submission-step-pill.is-completed {
+  background: #e8f5ee;
+  border-color: #9ed4b6;
+  color: #165c37;
+}
+
+.submission-step-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.submission-step-pill.is-active .submission-step-num {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* Form card & fields */
+.submission-card {
+  background: #ffffff;
+  border: 1px solid var(--border, #d8e2e8);
+  border-radius: 10px;
+  padding: 1.1rem 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.submission-section-head h2 {
+  margin: 0 0 0.2rem;
+  font-size: 1.15rem;
+  color: var(--brand-charcoal, #1d2d35);
+}
+
+.submission-section-head p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--muted, #546670);
+}
+
+.submission-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.9rem;
+}
+
+.submission-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.submission-field label,
+.submission-fieldset legend {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--brand-charcoal, #1d2d35);
+}
+
+.submission-required {
+  color: #b42318;
+  margin-left: 0.15rem;
+}
+
+.submission-field input[type="text"],
+.submission-field input[type="email"],
+.submission-field input[type="tel"],
+.submission-field input[type="date"],
+.submission-field select,
+.submission-field textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #c5d3dc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: #ffffff;
+  color: var(--brand-charcoal, #1d2d35);
+}
+
+.submission-field input:focus,
+.submission-field select:focus,
+.submission-field textarea:focus {
+  outline: 2px solid var(--brand-primary, #005b7f);
+  outline-offset: 1px;
+  border-color: var(--brand-primary, #005b7f);
+}
+
+.submission-field input[aria-invalid="true"],
+.submission-field select[aria-invalid="true"] {
+  border-color: #b42318;
+  background: #fff9f9;
+}
+
+.submission-fieldset {
+  border: 1px solid var(--border, #d8e2e8);
+  border-radius: 8px;
+  padding: 0.85rem;
+  margin: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.submission-option-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.55rem;
+}
+
+.submission-option-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #cfdbe3;
+  border-radius: 6px;
+  background: #f9fbfc;
+  min-height: 44px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.submission-option-pill input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--brand-primary, #005b7f);
+  flex-shrink: 0;
+}
+
+.submission-subpanel {
+  padding: 0.85rem;
+  border-radius: 8px;
+  background: #f5f9fb;
+  border: 1px solid #d7e5ee;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.submission-consent {
+  padding: 0.85rem;
+  border-radius: 8px;
+  background: #f6f9fb;
+  border-left: 3px solid var(--brand-primary, #005b7f);
+  font-size: 0.86rem;
+  color: var(--muted, #465863);
+  line-height: 1.45;
+}
+
+/* Upload requirement cards */
+.submission-upload-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.submission-upload-card {
+  border: 1px solid var(--border, #d8e2e8);
+  border-radius: 8px;
+  padding: 0.9rem;
+  background: #fafcfd;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.submission-upload-card.has-file {
+  border-color: #8cc9a8;
+  background: #f3fbf6;
+}
+
+.submission-upload-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.submission-upload-head h3 {
+  margin: 0;
+  font-size: 0.96rem;
+  color: var(--brand-charcoal, #1d2d35);
+}
+
+.submission-upload-meta {
+  font-size: 0.8rem;
+  color: var(--muted, #546670);
+}
+
+.submission-upload-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.submission-file-input {
+  width: 100%;
+  font-size: 0.88rem;
+}
+
+.submission-file-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #b8dfca;
+  font-size: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.submission-file-chip-name {
+  font-weight: 600;
+  word-break: break-word;
+}
+
+/* Review summary before final submit */
+.submission-review-box {
+  border: 1px solid var(--border, #d8e2e8);
+  border-radius: 8px;
+  padding: 0.9rem;
+  background: #f8fbfd;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.submission-review-box h3 {
+  margin: 0;
+  font-size: 0.96rem;
+}
+
+.submission-review-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.submission-review-grid dt {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted, #546670);
+}
+
+.submission-review-grid dd {
+  margin: 0.1rem 0 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--brand-charcoal, #1d2d35);
+}
+
+/* Action bar (stacked full-width on phone) */
+.submission-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border, #d8e2e8);
+}
+
+.submission-actions-primary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.submission-actions .button,
+.submission-actions .button-outline {
+  width: 100%;
+  min-height: 44px;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Confirmation card */
+.submission-confirmation {
+  background: #ffffff;
+  border: 1px solid #9ed4b6;
+  border-radius: 10px;
+  padding: 1.25rem 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.submission-ref-banner {
+  background: #edf6fa;
+  border: 1px solid #b5d6e6;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.submission-ref-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--brand-primary, #005b7f);
+}
+
+.submission-ref-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--brand-charcoal, #1d2d35);
+  word-break: break-all;
+}
+
+.submission-next-steps {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--brand-charcoal, #1d2d35);
+}
+
+/* Tablet and Desktop progressive enhancements */
+@media (min-width: 640px) {
+  .submission-standalone-main {
+    padding: 1.5rem;
+  }
+
+  .submission-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .submission-card {
+    padding: 1.5rem;
+  }
+
+  .submission-draft-bar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .submission-grid-2,
+  .submission-grid-3,
+  .submission-option-grid,
+  .submission-review-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .submission-actions {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .submission-actions-primary {
+    flex-direction: row;
+  }
+
+  .submission-actions .button,
+  .submission-actions .button-outline {
+    width: auto;
+    min-width: 120px;
+  }
+
+  .submission-ref-banner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+@media (min-width: 900px) {
+  .submission-grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .submission-confirmation {
+    padding: 1.75rem;
+  }
+}

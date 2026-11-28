@@ -1,0 +1,339 @@
+/* Responsive styles for the read-only System Administrator Audit Log screen */
+
+.audit-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.audit-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.audit-header h1 {
+  margin: 0.15rem 0 0.2rem;
+}
+
+.audit-header p {
+  margin: 0;
+  color: var(--muted, #546670);
+}
+
+.audit-readonly-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: #edf6fa;
+  border: 1px solid #b8d7e6;
+  color: var(--brand-primary, #005b7f);
+  align-self: flex-start;
+}
+
+/* Filter bar */
+.audit-filters-panel {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.audit-filters-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.audit-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--brand-charcoal, #1d2d35);
+}
+
+.audit-filter-field input,
+.audit-filter-field select {
+  width: 100%;
+  min-height: 40px;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid #c5d3dc;
+  border-radius: 6px;
+  background: #ffffff;
+  font-size: 0.9rem;
+}
+
+.audit-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.audit-result-meta {
+  font-size: 0.86rem;
+  color: var(--muted, #546670);
+}
+
+/* Split layout: table + before/after detail drawer/panel */
+.audit-workspace {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.audit-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  min-width: 680px;
+}
+
+.audit-table th,
+.audit-table td {
+  padding: 0.7rem 0.65rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border, #d8e2e8);
+  vertical-align: top;
+}
+
+.audit-table th {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted, #546670);
+  background: #f6f9fb;
+}
+
+.audit-table tbody tr.is-selected {
+  background: #edf6fa;
+}
+
+.audit-table tbody tr:hover {
+  background: #f5f9fc;
+}
+
+.audit-cell-primary {
+  font-weight: 600;
+  color: var(--brand-charcoal, #1d2d35);
+  display: block;
+}
+
+.audit-cell-sub {
+  font-size: 0.78rem;
+  color: var(--muted, #546670);
+  display: block;
+}
+
+.audit-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  word-break: break-word;
+}
+
+/* Mobile cards shown on small phones */
+.audit-mobile-cards {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.audit-mobile-card {
+  border: 1px solid var(--border, #d8e2e8);
+  border-radius: 8px;
+  padding: 0.85rem;
+  background: #ffffff;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.audit-mobile-card.is-selected {
+  border-color: var(--brand-primary, #005b7f);
+  background: #f2f8fb;
+}
+
+.audit-mobile-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.audit-mobile-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem 0.75rem;
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.audit-mobile-meta dt {
+  color: var(--muted, #546670);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.audit-mobile-meta dd {
+  margin: 0.1rem 0 0;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.audit-desktop-only {
+  display: none;
+}
+
+/* Before / After Change Inspector */
+.audit-detail-panel {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.audit-detail-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.audit-detail-head h2 {
+  margin: 0.15rem 0 0;
+  font-size: 1.05rem;
+}
+
+.audit-detail-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: #f7fafc;
+  border: 1px solid var(--border, #d8e2e8);
+}
+
+.audit-detail-meta dt {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: var(--muted, #546670);
+}
+
+.audit-detail-meta dd {
+  margin: 0.1rem 0 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.audit-diff-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.audit-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.audit-diff-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.audit-diff-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+}
+
+.audit-diff-table th,
+.audit-diff-table td {
+  padding: 0.55rem;
+  border-bottom: 1px solid var(--border, #d8e2e8);
+  text-align: left;
+  vertical-align: top;
+}
+
+.audit-diff-table th {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  color: var(--muted, #546670);
+  background: #f6f9fb;
+}
+
+.audit-diff-row-changed {
+  background: #fffbeb;
+}
+
+.audit-diff-pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.79rem;
+}
+
+.audit-diff-before {
+  color: #9a2b20;
+}
+
+.audit-diff-after {
+  color: #165c37;
+}
+
+@media (min-width: 640px) {
+  .audit-header {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .audit-filters-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .audit-mobile-cards {
+    display: none;
+  }
+
+  .audit-desktop-only {
+    display: block;
+  }
+
+  .audit-filters-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1120px) {
+  .audit-filters-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .audit-workspace.has-selection {
+    grid-template-columns: minmax(0, 1.35fr) minmax(360px, 1fr);
+  }
+}

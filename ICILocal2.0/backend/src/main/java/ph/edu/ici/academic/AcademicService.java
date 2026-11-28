@@ -164,7 +164,36 @@ public class AcademicService {
             INSERT INTO class_offerings(section_id,term_id,subject_id,teacher_id)
             VALUES(:section,:term,:subject,:teacher) RETURNING id
             """,Map.of("section",input.sectionId(),"term",input.termId(),"subject",input.subjectId(),"teacher",input.teacherId()),Long.class);
+        addSectionMembers(id,input.sectionId(),input.termId());
         return offering(id,campuses,false);
+    }
+
+    /**
+     * Adds every active (provisional or enrolled) student of the section to the class roster.
+     * Students already on the roster are left unchanged, so this is safe to repeat.
+     */
+    private int addSectionMembers(long classId,long sectionId,long termId){
+        return db.update("""
+            INSERT INTO class_memberships(class_id,enrollment_id,section_id,term_id)
+            SELECT :class,e.id,e.section_id,e.term_id FROM enrollments e
+            WHERE e.section_id=:section AND e.term_id=:term AND e.status IN ('provisional','enrolled')
+            ON CONFLICT DO NOTHING
+            """,Map.of("class",classId,"section",sectionId,"term",termId));
+    }
+
+    /** Adds students who joined the section after the class was created (late enrollees, transferees). */
+    @Transactional
+    public Map<String,Object> syncClassMembers(long id,long academicYearId,long termId){
+        yearTerm(academicYearId,termId);
+        var campuses=scope("enrollment.manage");
+        var current=offering(id,campuses,true);
+        if(number(current,"termId")!=termId)throw error(HttpStatus.NOT_FOUND,"Class offering not found.");
+        sectionForManager(number(current,"sectionId"),termId,campuses,true);
+        actor();
+        int added=addSectionMembers(id,number(current,"sectionId"),termId);
+        var result=new LinkedHashMap<String,Object>(offering(id,campuses,false));
+        result.put("addedMembers",added);
+        return result;
     }
 
     @Transactional

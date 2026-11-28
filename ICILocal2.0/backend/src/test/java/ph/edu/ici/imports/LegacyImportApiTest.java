@@ -295,6 +295,44 @@ class LegacyImportApiTest {
         assertThat(db.queryForObject("SELECT normalized_values->>'firstName' FROM import_rows WHERE batch_id=?",String.class,cased)).isEqualTo("Juan");
     }
 
+    // ---- discard (ICI2-37 review finding: a wrongly staged batch used to be stuck forever) ---------------------------------
+    @Test void discardingAWronglyStagedBatchFreesTheFileAndStopsFalseDuplicateFlagsInOtherUploads(){
+        String n=n();var bytes=fixture("synthetic-basic.csv",n);
+        // The registrar of Bugo uploads a file meant for Iligan under the wrong campus.
+        var wrong=upload(bugoToken,bugo,null,"iligan-export.csv",bytes);assertThat(wrong.getStatusCode()).as(wrong.toString()).isEqualTo(HttpStatus.CREATED);long wrongBatch=id(wrong.getBody());
+        assertThat(upload(registrarToken,iligan,null,"iligan-export.csv",bytes).getStatusCode()).as("same bytes cannot be staged again while the wrong batch is live").isEqualTo(HttpStatus.CONFLICT);
+
+        assertThat(call(HttpMethod.POST,"/batches/"+wrongBatch+"/discard",Map.of("version",batchVersion(wrongBatch),"reason","Wrong campus"),teacherToken).getStatusCode()).as("teachers cannot discard").isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.POST,"/batches/"+wrongBatch+"/discard",Map.of("version",batchVersion(wrongBatch),"reason","Not mine"),registrarToken).getStatusCode()).as("another campus's batch is invisible").isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(HttpMethod.POST,"/batches/"+wrongBatch+"/discard",Map.of("version",batchVersion(wrongBatch),"reason"," "),bugoToken).getStatusCode()).as("a reason is required").isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(call(HttpMethod.POST,"/batches/"+wrongBatch+"/discard",Map.of("version",batchVersion(wrongBatch)+1,"reason","Wrong campus"),bugoToken).getStatusCode()).as("stale version").isEqualTo(HttpStatus.CONFLICT);
+
+        int studentsBefore=(int)students();
+        var discarded=call(HttpMethod.POST,"/batches/"+wrongBatch+"/discard",Map.of("version",batchVersion(wrongBatch),"reason","Uploaded under the wrong campus"),bugoToken);
+        assertThat(discarded.getStatusCode()).as(discarded.toString()).isEqualTo(HttpStatus.OK);
+        assertThat(discarded.getBody()).containsEntry("discarded",true).containsEntry("status","failed").containsEntry("alreadyDiscarded",false);
+        var detail=get("/batches/"+wrongBatch,bugoToken).getBody();
+        assertThat(detail).containsEntry("discarded",true).containsEntry("discardReason","Uploaded under the wrong campus").containsEntry("status","failed").containsKey("discardedAt");
+        assertThat(students()).as("discarding never creates students").isEqualTo(studentsBefore);
+        assertThat(call(HttpMethod.POST,"/batches/"+wrongBatch+"/discard",Map.of("version",0,"reason","again"),bugoToken).getBody()).as("repeat is a no-op").containsEntry("alreadyDiscarded",true);
+        assertThat(commit(bugoToken,wrongBatch,3).getStatusCode()).as("a discarded batch cannot be committed").isEqualTo(HttpStatus.CONFLICT);
+
+        // The same file can now be staged under the correct campus, and the discarded rows no longer flag its learners.
+        var right=upload(registrarToken,iligan,null,"iligan-export.csv",bytes);
+        assertThat(right.getStatusCode()).as("re-upload after discard: "+right).isEqualTo(HttpStatus.CREATED);
+        long rightBatch=id(right.getBody());
+        assertThat(db.queryForObject("SELECT count(*) FROM import_rows WHERE batch_id=? AND status='duplicate_flagged'",Integer.class,rightBatch))
+                .as("rows flagged as duplicates of the discarded batch").isZero();
+        assertThat(db.queryForObject("SELECT count(*) FROM audit_logs WHERE table_name='import_exceptions' AND operation='INSERT' AND actor_id=?",Integer.class,bugoRegistrar)).isGreaterThan(0);
+    }
+
+    @Test void aCommittedBatchCannotBeDiscarded(){
+        var s=resolved();assertThat(commit(registrarToken,s.batch(),3).getStatusCode()).isEqualTo(HttpStatus.OK);
+        var r=call(HttpMethod.POST,"/batches/"+s.batch()+"/discard",Map.of("version",batchVersion(s.batch()),"reason","Changed my mind"),registrarToken);
+        assertThat(r.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(db.queryForObject("SELECT status FROM import_batches WHERE id=?",String.class,s.batch())).isEqualTo("imported");
+    }
+
     // ---- privacy ----------------------------------------------------------------------------------------------------
     @Test void personalValuesNeverAppearInImportAuditsOrErrorMessages(){
         var s=resolved();commit(registrarToken,s.batch(),3);String token=s.n();

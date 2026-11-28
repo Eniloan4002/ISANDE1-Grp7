@@ -60,6 +60,28 @@ public class HonorService {
         if(scope.isEmpty())throw error(HttpStatus.FORBIDDEN,"Honor policy access is required.");
         var rows=db.queryForList("SELECT * FROM honor_policies WHERE id=:id AND campus_id IN (:scope)",Map.of("id",id,"scope",scope));if(rows.isEmpty())throw error(HttpStatus.NOT_FOUND,"Honor policy not found.");return exposed(rows.getFirst());
     }
+    /**
+     * Lists the honor policies the caller may see, newest first, optionally narrowed by scope fields or status. The honor-policy
+     * editor needs this to find the draft and the approved policy for a program, grade level and grading period without knowing ids.
+     */
+    @Transactional(readOnly=true)
+    public Map<String,Object> list(Long campusId,Long programId,String gradeLevel,Long gradingPeriodId,String status,int page,int size){
+        if(page<0||page>1_000_000||size<1||size>100)throw error(HttpStatus.BAD_REQUEST,"Use a nonnegative page and a size of 1 to 100.");
+        if(status!=null&&!List.of("draft","approved","superseded").contains(status))throw error(HttpStatus.BAD_REQUEST,"Status must be draft, approved or superseded.");
+        var scope=new TreeSet<Long>();for(String p:List.of("honors.configure","honors.approve","reports.read"))scope.addAll(access.campuses(p));
+        if(scope.isEmpty())throw error(HttpStatus.FORBIDDEN,"Honor policy access is required.");
+        if(campusId!=null&&!scope.contains(campusId))throw error(HttpStatus.FORBIDDEN,"Campus is outside your honor-policy scope.");
+        var params=new HashMap<String,Object>();params.put("scope",campusId==null?List.copyOf(scope):List.of(campusId));
+        var where=new StringBuilder(" WHERE campus_id IN (:scope)");
+        if(programId!=null){where.append(" AND program_id=:program");params.put("program",programId);}
+        if(gradeLevel!=null&&!gradeLevel.isBlank()){where.append(" AND grade_level=:grade");params.put("grade",gradeLevel.trim());}
+        if(gradingPeriodId!=null){where.append(" AND grading_period_id=:period");params.put("period",gradingPeriodId);}
+        if(status!=null){where.append(" AND status=:status");params.put("status",status);}
+        long total=db.queryForObject("SELECT count(*) FROM honor_policies"+where,params,Long.class);
+        params.put("limit",size);params.put("offset",(long)page*size);
+        var items=db.queryForList("SELECT * FROM honor_policies"+where+" ORDER BY updated_at DESC,id DESC LIMIT :limit OFFSET :offset",params).stream().map(this::exposed).toList();
+        return Map.of("items",items,"total",total,"page",page,"size",size);
+    }
     @Transactional
     public Map<String,Object> update(long id,DraftUpdate input){
         var row=row(id,true,"honors.configure");version(row,input.version());if(!"draft".equals(row.get("status")))throw error(HttpStatus.CONFLICT,"Approved policy content is immutable. Create a new draft revision.");validate(input.rules());audit();
