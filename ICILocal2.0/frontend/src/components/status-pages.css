@@ -1,0 +1,49 @@
+/* ICI2-105: sign-in, 404, access denied and placeholder screens. Uses the ICI2-96 tokens. */
+
+/* In-shell status screens: a calm, centred empty state. */
+.status-page { max-width: 560px; margin: 8vh auto 0; padding: 32px; text-align: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-card); }
+.status-page h1 { margin: 4px 0 12px; font-size: 24px; line-height: 32px; color: var(--ink); }
+.status-page-body p { margin: 0 0 8px; color: var(--ink-2); line-height: 1.55; }
+.status-page-body strong { color: var(--ink); }
+.status-page-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 20px; }
+.status-page-actions .ui-btn, .auth-actions .ui-btn { text-decoration: none; }
+.status-page-icon { display: inline-grid; place-items: center; width: 48px; height: 48px; margin-bottom: 12px; border-radius: 50%; background: var(--blue-50); color: var(--ici-blue); }
+.status-page-eyebrow { margin: 0; font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ici-blue); }
+.status-page-ticket { font-size: 13px; }
+.status-page code, .auth-card code { padding: 1px 6px; border-radius: 4px; background: var(--neutral-bg); color: var(--ink); font-size: 13px; overflow-wrap: anywhere; }
+
+/* Signed-out screens: centred card on the canvas, no side panel. */
+.auth-screen { min-height: 100dvh; display: grid; place-items: center; align-content: center; gap: 16px; padding: 32px 16px; background: var(--canvas); }
+.auth-card { width: 100%; max-width: 420px; padding: 32px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-card); box-shadow: 0 2px 8px rgba(27, 42, 51, .06); text-align: left; }
+.auth-card > .status-page-icon { margin-top: 8px; }
+.auth-card h1 { margin: 4px 0 8px; font-size: 24px; line-height: 32px; color: var(--ink); }
+.auth-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.auth-brand strong, .auth-brand small { display: block; }
+.auth-brand strong { font-size: 15px; line-height: 20px; color: var(--ink); }
+.auth-brand small { font-size: 12px; line-height: 16px; color: var(--ink-2); }
+.auth-logo { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: 10px; background: var(--ici-blue); color: #fff; font-size: 13px; font-weight: 700; letter-spacing: .02em; }
+.auth-muted { margin: 0 0 16px; color: var(--ink-2); font-size: 14px; line-height: 1.5; }
+.auth-actions { display: grid; gap: 8px; margin-top: 8px; }
+.auth-footnote { margin: 0; max-width: 420px; text-align: center; font-size: 13px; color: var(--ink-2); }
+
+/* Sign-in form */
+.auth-form { display: grid; gap: 16px; margin: 0; }
+.auth-field { display: grid; gap: 6px; }
+.auth-field-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.auth-field label { margin: 0; font-size: 14px; font-weight: 600; color: var(--ink); }
+.auth-field input { width: 100%; min-height: 44px; margin: 0; padding: 0 12px; border: 1px solid #8B9DA9; border-radius: var(--radius-control); background: var(--surface); color: var(--ink); font-size: 15px; }
+.auth-field input[aria-invalid=true] { border: 2px solid var(--blocked); }
+.auth-field-error { margin: 0; font-size: 13px; font-weight: 600; color: var(--blocked); }
+.auth-toggle { padding: 2px 4px; border: 0; background: none; color: var(--ici-blue); font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.auth-toggle:disabled { color: var(--ink-3); cursor: not-allowed; }
+.auth-submit { width: 100%; min-height: 44px; }
+.auth-card .notice { margin: 0 0 16px; }
+.auth-session { margin: 0 0 16px; padding: 10px 12px; border-radius: var(--radius-control); background: var(--info-bg); color: var(--info); font-size: 14px; }
+.auth-help { margin: 16px 0 0; font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+.auth-divider { margin: 20px 0 0; padding-top: 16px; border-top: 1px solid var(--line); font-size: 14px; color: var(--ink-2); }
+.auth-divider a { color: var(--ici-blue); font-weight: 600; }
+
+@media (max-width: 480px) {
+  .auth-card { padding: 24px 20px; }
+  .status-page { margin-top: 24px; padding: 24px 20px; }
+}

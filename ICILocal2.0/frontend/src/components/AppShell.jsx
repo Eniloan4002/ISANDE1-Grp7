@@ -45,7 +45,8 @@ function SidePanel({ groups, activePath, who, userName, inert, panelRef }) {
   </aside>;
 }
 
-export function AppShell() {
+/** Signed-in layout. Renders the matched route, or `children` when used outside a layout route (404, /apply). */
+export function AppShell({ children }) {
   const { roles, logout, user } = useAuth();
   const location = useLocation();
   const [logoutError, setLogoutError] = useState('');
@@ -100,7 +101,7 @@ export function AppShell() {
       <TopBarSlot.Provider value={slot}>
         <main className="main-content" id="main-content" tabIndex={-1}>
           {logoutError && <p className="notice notice-error" role="alert">{logoutError}</p>}
-          <Outlet />
+          {children ?? <Outlet />}
         </main>
       </TopBarSlot.Provider>
     </div>

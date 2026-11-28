@@ -30,7 +30,8 @@ test('administrator provisions accounts and every staff role signs in to an allo
   await page.goto('/administration/users');await page.getByLabel('Username',{exact:true}).fill(account.username);await page.getByLabel('Password',{exact:true}).fill(password);await page.getByRole('button',{name:'Sign in',exact:true}).click();
   await expect(page.getByRole('heading',{name:account.heading,exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'Access denied',exact:true})).toHaveCount(0);
   await page.reload();await expect(page.getByRole('heading',{name:account.heading,exact:true})).toBeVisible();
-  if(!['ROLE_ADMIN','ROLE_REGISTRAR'].includes(account.role))await expect(page.getByText(/You are signed in. This workflow is still under development/)).toBeVisible();
+  // ICI2-105: every landing screen is a real screen now, so none should show the planned-screen placeholder.
+  await expect(page.getByText('Coming soon',{exact:true})).toHaveCount(0);
  }
  expect(errors).toEqual([]);
 });
