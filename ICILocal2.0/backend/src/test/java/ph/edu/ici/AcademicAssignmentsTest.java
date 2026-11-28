@@ -219,4 +219,95 @@ class AcademicAssignmentsTest {
         assertThat(call(HttpMethod.PUT,"/api/academic/sections/"+section+"/adviser",assigned,registrarToken).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         assertThat(call(HttpMethod.PUT,"/api/academic/sections/"+section+"/adviser",assigned,adviserToken).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
+
+    String members(long classId){return "/api/academic/class-offerings/"+classId+"/members";}
+    String scopeQuery(){return "academicYearId="+year+"&termId="+term;}
+    List<Long> rosterIds(long classId){
+        var detail=call(HttpMethod.GET,"/api/academic/classes/"+classId+"?"+scopeQuery(),null,teacherToken);
+        assertThat(detail.getStatusCode()).isEqualTo(HttpStatus.OK);
+        return ((List<Map>)detail.getBody().get("students")).stream().map(row->((Number)row.get("enrollmentId")).longValue()).toList();
+    }
+    long period(){return db.queryForObject("INSERT INTO grading_periods(term_id,code,sequence,starts_on,ends_on) VALUES (?,'Q1',1,'2026-06-01','2026-08-15') RETURNING id",Long.class,term);}
+
+    @Test void removingAndReAddingAStudentUpdatesTheClassRosterAndSyncDoesNotUndoIt(){
+        long keep=studentEnrollment("Keep"),drop=studentEnrollment("Drop");
+        long classId=((Number)createOffering(teacher).get("classId")).longValue();
+        assertThat(rosterIds(classId)).containsExactlyInAnyOrder(keep,drop);
+
+        assertThat(call(HttpMethod.DELETE,members(classId)+"/"+drop+"?"+scopeQuery(),null,teacherToken).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        var removed=call(HttpMethod.DELETE,members(classId)+"/"+drop+"?"+scopeQuery(),null,registrarToken);
+        assertThat(removed.getStatusCode()).as(removed.toString()).isEqualTo(HttpStatus.OK);
+        assertThat(removed.getBody()).containsEntry("discardedDrafts",0);
+        assertThat(rosterIds(classId)).containsExactly(keep);
+        assertThat(call(HttpMethod.DELETE,members(classId)+"/"+drop+"?"+scopeQuery(),null,registrarToken).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(db.queryForObject("SELECT count(*) FROM audit_logs WHERE table_name='class_memberships' AND operation='DELETE' AND actor_id=?",Integer.class,registrar)).isEqualTo(1);
+        assertThat(db.queryForObject("SELECT count(*) FROM audit_logs WHERE table_name='class_membership_exclusions' AND operation='INSERT' AND actor_id=?",Integer.class,registrar)).isEqualTo(1);
+
+        var sync=call(HttpMethod.POST,members(classId)+"/sync?"+scopeQuery(),null,registrarToken);
+        assertThat(sync.getBody()).containsEntry("addedMembers",0);
+        assertThat(rosterIds(classId)).containsExactly(keep);
+
+        var added=call(HttpMethod.POST,members(classId),Map.of("academicYearId",year,"termId",term,"enrollmentId",drop),registrarToken);
+        assertThat(added.getStatusCode()).as(added.toString()).isEqualTo(HttpStatus.CREATED);
+        assertThat(rosterIds(classId)).containsExactlyInAnyOrder(keep,drop);
+        assertThat(call(HttpMethod.POST,members(classId),Map.of("academicYearId",year,"termId",term,"enrollmentId",drop),registrarToken).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(db.queryForObject("SELECT count(*) FROM audit_logs WHERE table_name='class_memberships' AND operation='INSERT' AND actor_id=?",Integer.class,registrar)).isEqualTo(3); // 2 on offering creation + 1 re-add
+        assertThat(db.queryForObject("SELECT count(*) FROM class_membership_exclusions WHERE class_id=?",Integer.class,classId)).isZero();
+    }
+
+    @Test void removalIsBlockedByGradesAndDraftsMustBeDiscardedExplicitly(){
+        long submitted=studentEnrollment("Submitted"),draft=studentEnrollment("Draft");
+        long classId=((Number)createOffering(teacher).get("classId")).longValue();long period=period();
+        db.update("INSERT INTO grades(class_id,enrollment_id,term_id,grading_period_id,value,state) VALUES (?,?,?,?,88,'submitted')",classId,submitted,term,period);
+        db.update("INSERT INTO grades(class_id,enrollment_id,term_id,grading_period_id,value,state) VALUES (?,?,?,?,77,'draft')",classId,draft,term,period);
+
+        var blocked=call(HttpMethod.DELETE,members(classId)+"/"+submitted+"?"+scopeQuery()+"&discardDrafts=true",null,registrarToken);
+        assertThat(blocked.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);assertThat(blocked.getBody().toString()).contains("submitted or finalized grade");
+        var draftBlocked=call(HttpMethod.DELETE,members(classId)+"/"+draft+"?"+scopeQuery(),null,registrarToken);
+        assertThat(draftBlocked.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);assertThat(draftBlocked.getBody().toString()).contains("discardDrafts=true");
+        assertThat(rosterIds(classId)).containsExactlyInAnyOrder(submitted,draft);
+
+        var discarded=call(HttpMethod.DELETE,members(classId)+"/"+draft+"?"+scopeQuery()+"&discardDrafts=true",null,registrarToken);
+        assertThat(discarded.getStatusCode()).as(discarded.toString()).isEqualTo(HttpStatus.OK);assertThat(discarded.getBody()).containsEntry("discardedDrafts",1);
+        assertThat(db.queryForObject("SELECT count(*) FROM grades WHERE enrollment_id=?",Integer.class,draft)).isZero();
+        assertThat(db.queryForObject("SELECT count(*) FROM audit_logs WHERE table_name='grades' AND operation='DELETE' AND actor_id=?",Integer.class,registrar)).isEqualTo(1);
+        assertThat(rosterIds(classId)).containsExactly(submitted);
+    }
+
+    @Test void aStudentOfAnotherSectionCanJoinOneClassWithinTheSameCampusAndTerm(){
+        String key=suffix();
+        long otherSection=db.queryForObject("INSERT INTO sections(campus_id,term_id,program_id,name,grade_level,capacity) VALUES (?,?,?,?,'Grade 11',30) RETURNING id",Long.class,campus,term,program,"Section "+key);
+        long visitor=studentEnrollment("Visitor");db.update("UPDATE enrollments SET section_id=? WHERE id=?",otherSection,visitor);
+        long classId=((Number)createOffering(teacher).get("classId")).longValue();
+        assertThat(rosterIds(classId)).isEmpty();
+
+        assertThat(call(HttpMethod.POST,members(classId),Map.of("academicYearId",year,"termId",term,"enrollmentId",visitor),teacherToken).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        var added=call(HttpMethod.POST,members(classId),Map.of("academicYearId",year,"termId",term,"enrollmentId",visitor),registrarToken);
+        assertThat(added.getStatusCode()).as(added.toString()).isEqualTo(HttpStatus.CREATED);
+        assertThat(rosterIds(classId)).containsExactly(visitor);
+        assertThat(db.queryForObject("SELECT section_id FROM class_memberships WHERE class_id=? AND enrollment_id=?",Long.class,classId,visitor)).isEqualTo(section);
+
+        // Removing a cross-section student leaves no exclusion (sync never re-adds them) and is audited.
+        assertThat(call(HttpMethod.DELETE,members(classId)+"/"+visitor+"?"+scopeQuery(),null,registrarToken).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(db.queryForObject("SELECT count(*) FROM class_membership_exclusions WHERE class_id=?",Integer.class,classId)).isZero();
+        assertThat(rosterIds(classId)).isEmpty();
+    }
+
+    @Test void classMembershipChangesAreCampusScopedTermScopedAndRejectInactiveStudents(){
+        long classId=((Number)createOffering(teacher).get("classId")).longValue();
+        long withdrawn=studentEnrollment("Gone");db.update("UPDATE enrollments SET status='withdrawn' WHERE id=?",withdrawn);
+        assertThat(call(HttpMethod.POST,members(classId),Map.of("academicYearId",year,"termId",term,"enrollmentId",withdrawn),registrarToken).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(call(HttpMethod.POST,members(classId),Map.of("academicYearId",year,"termId",term,"enrollmentId",999999999L),registrarToken).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+
+        long otherCampusRegistrar=staff("ROLE_REGISTRAR",otherCampus);String foreign=login(otherCampusRegistrar);
+        long live=studentEnrollment("Live");
+        assertThat(call(HttpMethod.POST,members(classId),Map.of("academicYearId",year,"termId",term,"enrollmentId",live),foreign).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(HttpMethod.DELETE,members(classId)+"/"+live+"?"+scopeQuery(),null,foreign).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+
+        // A finalized section is closed to roster changes.
+        db.update("INSERT INTO grading_periods(term_id,code,sequence,starts_on,ends_on) VALUES (?,'Q1',1,'2026-06-01','2026-08-15')",term);
+        long periodId=db.queryForObject("SELECT id FROM grading_periods WHERE term_id=?",Long.class,term);
+        db.update("INSERT INTO section_grading_windows(section_id,grading_period_id,term_id,finalized_at,finalized_by,locked_at,locked_by,reason) VALUES (?,?,?,current_timestamp,?,current_timestamp,?,'Finalized for test')",section,periodId,term,registrar,registrar);
+        assertThat(call(HttpMethod.POST,members(classId),Map.of("academicYearId",year,"termId",term,"enrollmentId",live),registrarToken).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+    }
 }

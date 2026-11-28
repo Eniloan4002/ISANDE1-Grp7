@@ -101,6 +101,23 @@ class HonorRollTest {
         var rounded=(List<Map>)call(HttpMethod.GET,roll(),null,principal).getBody().get("items");assertThat(rounded.getFirst()).containsEntry("average",90.04).containsEntry("eligible",false);
     }
 
+    @Test void exactlyOneClassMembershipPerConfiguredSubjectSurvivesPerSubjectMembershipChanges(){
+        long ambiguous=student("Twoclasses"),removed=student("Removed");marks(ambiguous,95,95,"finalized");
+        long otherSection=db.queryForObject("INSERT INTO sections(campus_id,term_id,program_id,name,grade_level,capacity) VALUES(?,?,?,?,'11',30) RETURNING id",Long.class,campus,term,program,"HO"+key());
+        long duplicateMath=db.queryForObject("INSERT INTO class_offerings(section_id,term_id,subject_id,teacher_id) VALUES(?,?,?,?) RETURNING id",Long.class,otherSection,term,subject1,teacher);
+        // A second class of the same configured subject (cross-section membership) makes the subject ambiguous, not silently averaged.
+        db.update("INSERT INTO class_memberships(class_id,enrollment_id,section_id,term_id) VALUES(?,?,?,?)",duplicateMath,ambiguous,otherSection,term);
+        db.update("INSERT INTO grades(class_id,enrollment_id,term_id,grading_period_id,value,state) VALUES(?,?,?,?,80,'finalized')",duplicateMath,ambiguous,term,period);
+        long year=db.queryForObject("SELECT academic_year_id FROM academic_terms WHERE id=?",Long.class,term);
+        var removal=call(HttpMethod.DELETE,"/api/academic/class-offerings/"+class1+"/members/"+removed+"?academicYearId="+year+"&termId="+term,null,registrar);
+        assertThat(removal.getStatusCode()).as(removal.toString()).isEqualTo(HttpStatus.OK);
+        long id=create();approve(id,1);
+        var items=(List<Map>)call(HttpMethod.GET,roll(),null,principal).getBody().get("items");
+        assertThat(items.stream().filter(i->((Number)i.get("enrollmentId")).longValue()==ambiguous).findFirst().orElseThrow()).containsEntry("eligible",false);
+        assertThat((List)items.stream().filter(i->((Number)i.get("enrollmentId")).longValue()==ambiguous).findFirst().orElseThrow().get("reasons")).contains("ambiguous_subject");
+        assertThat((List)items.stream().filter(i->((Number)i.get("enrollmentId")).longValue()==removed).findFirst().orElseThrow().get("reasons")).contains("missing_subject");
+    }
+
     @Test void pendingCorrectionMakesAnOtherwiseQualifiedFinalizedGradeIneligible(){
         long e=student("Disputed");marks(e,99,99,"finalized");long grade=db.queryForObject("SELECT id FROM grades WHERE enrollment_id=? AND class_id=?",Long.class,e,class1);
         db.update("INSERT INTO grade_corrections(grade_id,original_value,proposed_value,justification,evidence_storage_key,requested_by,grade_version) VALUES(?,99,98,'Fictional disputed mark','fictional-reference',?,0)",grade,teacher);
