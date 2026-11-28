@@ -31,6 +31,7 @@ export const roleSections = [
         { path: '/academic/grade-approvals', label: 'Grade Approvals' },
         { path: '/academic/finalize-grades', label: 'Grade Finalization' },
         { path: '/academic/withdrawal-approvals', label: 'Withdrawal Approvals' },
+        { path: '/academic/daily-attendance', label: 'Daily Attendance' },
         { path: '/documents/official', label: 'Official Documents' },
       ] },
       { label: 'Reporting', pages: [
@@ -58,6 +59,7 @@ export const roleSections = [
       { path: '/academic/incomplete-grades', label: 'Incomplete Grades' },
       { path: '/academic/class-list', label: 'Assigned Classes' },
       { path: '/academic/progress-reports', label: 'Grade Corrections' },
+      { path: '/academic/daily-attendance', label: 'Daily Attendance' },
     ] }],
   },
   {
@@ -123,7 +125,7 @@ const iconByPath={
   '/enrollment/reporting-monitoring':'chart','/academic/assignments':'people','/academic/registrar-records':'history','/academic/incomplete-grades':'alert',
   '/academic/grade-approvals':'shield','/academic/finalize-grades':'lock','/academic/advisory':'people','/academic/class-records':'book','/academic/student-monitoring':'chart',
   '/academic/grade-entry':'edit','/academic/class-list':'book','/academic/progress-reports':'shield','/academic/withdrawal-approvals':'alert',
-  '/documents/official':'book','/reporting/honor-roll':'chart',
+  '/academic/daily-attendance':'attend','/documents/official':'book','/reporting/honor-roll':'chart',
   '/reporting/guidance':'book','/reporting/student-profiles':'people','/reporting/reports':'chart','/cashiering/students':'people','/cashiering/clearances':'shield',
   '/administration/users':'people','/administration/system-settings':'settings','/administration/audit-log':'history',
   '/setup':'settings','/design-system':'place','/account/security':'lock',

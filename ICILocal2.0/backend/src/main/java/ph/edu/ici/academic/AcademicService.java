@@ -258,7 +258,7 @@ public class AcademicService {
 
     private List<Map<String,Object>> classStudents(long classId){
         return db.queryForList("""
-            SELECT st.student_number AS "studentNumber",concat_ws(' ',st.first_name,st.middle_name,st.last_name,st.suffix) AS name,
+            SELECT e.id AS "enrollmentId",st.student_number AS "studentNumber",concat_ws(' ',st.first_name,st.middle_name,st.last_name,st.suffix) AS name,
                    st.phone AS "contactNumber",
                    CASE e.status WHEN 'provisional' THEN 'Pre-enlisted' ELSE initcap(e.status) END AS "enrollmentStatus",
                    coalesce(requirement_summary.status,'Pending') AS "requirementsStatus"
