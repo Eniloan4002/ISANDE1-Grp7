@@ -36,6 +36,7 @@ import CashierRoster from './cashiering/CashierRoster.jsx';
 import DailyAttendance from './academic/DailyAttendance.jsx';
 import HonorRoll from './reporting/HonorRoll.jsx';
 import OfficialDocuments from './documents/OfficialDocuments.jsx';
+import CutoverReconciliation from './imports/CutoverReconciliation.jsx';
 
 // Screens added from Sprint 2 on register here by path. Anything not listed falls through to the
 // original chain below, so new screens stay out of that ternary and merge without conflicts.
@@ -48,6 +49,7 @@ const screenByPath = {
   '/academic/daily-attendance': <DailyAttendance />,
   '/reporting/honor-roll': <HonorRoll />,
   '/documents/official': <OfficialDocuments />,
+  '/migration/reconciliation': <CutoverReconciliation />,
 };
 
 function RequireAuth() {

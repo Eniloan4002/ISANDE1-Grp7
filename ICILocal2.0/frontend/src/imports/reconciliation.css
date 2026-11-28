@@ -1,0 +1,38 @@
+/* ICI2-73 Cutover Reconciliation. Builds on academic-screens.css and records-screens.css. */
+.rc-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.rc-banner { margin: 0 0 16px; padding: 12px 16px; border-left: 4px solid var(--attention); background: var(--attention-bg); color: var(--ink); line-height: 1.5; }
+.rc-banner-done { border-color: var(--success); background: var(--success-bg); }
+
+.rc-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; }
+.rc-gap { color: var(--blocked); font-weight: 600; }
+
+.rc-drawer { display: grid; gap: 8px; }
+.rc-drawer .ac-subheading { margin-bottom: 10px; }
+.rc-source { margin: 0; color: var(--ink-2); font-size: 13px; }
+.rc-file { margin: 2px 0 8px; font-weight: 600; overflow-wrap: anywhere; }
+
+.rc-compare { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
+.rc-compare div { display: grid; gap: 2px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; }
+.rc-compare span { color: var(--ink-2); font-size: 12px; font-weight: 600; }
+.rc-compare b { font-size: 20px; font-variant-numeric: tabular-nums; }
+.rc-compare .rc-gap { border-color: var(--blocked); background: var(--blocked-bg); }
+.rc-breakdown dd { font-variant-numeric: tabular-nums; }
+
+.rc-issues { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.rc-issues li { display: grid; gap: 2px; padding: 10px 12px; border-left: 3px solid var(--blocked); background: var(--blocked-bg); font-size: 14px; line-height: 1.45; }
+
+.rc-signoff { display: grid; gap: 8px; }
+.rc-signoff textarea { min-height: 72px; }
+.rc-confirm { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; font-size: 14px; line-height: 1.45; }
+.rc-confirm input[type="checkbox"] { margin-top: 3px; }
+.rc-signoff .ui-btn { justify-self: start; }
+
+@media (max-width: 700px) {
+  .rc-chips .ui-filter { min-height: 44px; }
+  .rc-signoff .ui-btn { justify-self: stretch; min-height: 44px; justify-content: center; }
+}
+@media (max-width: 420px) {
+  .rc-compare { grid-template-columns: 1fr; }
+  .rc-compare div { grid-template-columns: 1fr auto; align-items: center; }
+}
