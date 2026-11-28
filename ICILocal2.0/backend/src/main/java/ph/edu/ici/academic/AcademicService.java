@@ -177,6 +177,7 @@ public class AcademicService {
             INSERT INTO class_memberships(class_id,enrollment_id,section_id,term_id)
             SELECT :class,e.id,e.section_id,e.term_id FROM enrollments e
             WHERE e.section_id=:section AND e.term_id=:term AND e.status IN ('provisional','enrolled')
+              AND NOT EXISTS(SELECT 1 FROM class_membership_exclusions x WHERE x.class_id=:class AND x.enrollment_id=e.id)
             ON CONFLICT DO NOTHING
             """,Map.of("class",classId,"section",sectionId,"term",termId));
     }
@@ -193,6 +194,75 @@ public class AcademicService {
         int added=addSectionMembers(id,number(current,"sectionId"),termId);
         var result=new LinkedHashMap<String,Object>(offering(id,campuses,false));
         result.put("addedMembers",added);
+        return result;
+    }
+
+    private Map<String,Object> membershipClass(long id,long termId,List<Long> campuses){
+        var current=offering(id,campuses,true);
+        if(number(current,"termId")!=termId)throw error(HttpStatus.NOT_FOUND,"Class offering not found.");
+        sectionForManager(number(current,"sectionId"),termId,campuses,true);
+        if(Boolean.TRUE.equals(db.queryForObject("SELECT EXISTS(SELECT 1 FROM section_grading_windows WHERE section_id=:section AND finalized_at IS NOT NULL)",
+                Map.of("section",number(current,"sectionId")),Boolean.class)))
+            throw error(HttpStatus.CONFLICT,"This section has finalized grades. Class membership changes require a reviewed academic amendment.");
+        return current;
+    }
+
+    /**
+     * Takes one student out of one class (electives, students on a different subject load).
+     * Blocked (409) once the student has a submitted or finalized grade in the class. Draft grades also block
+     * unless {@code discardDrafts} is true, in which case the draft rows are deleted (audited) with the membership.
+     */
+    @Transactional
+    public Map<String,Object> removeClassMember(long id,long enrollmentId,long academicYearId,long termId,boolean discardDrafts){
+        yearTerm(academicYearId,termId);
+        var campuses=scope("enrollment.manage");
+        var current=membershipClass(id,termId,campuses);
+        if(!Boolean.TRUE.equals(db.queryForObject("SELECT EXISTS(SELECT 1 FROM class_memberships WHERE class_id=:class AND enrollment_id=:enrollment)",
+                Map.of("class",id,"enrollment",enrollmentId),Boolean.class)))
+            throw error(HttpStatus.NOT_FOUND,"This student is not a member of the class.");
+        var grades=db.queryForList("SELECT state,count(*) AS n FROM grades WHERE class_id=:class AND enrollment_id=:enrollment GROUP BY state",
+                Map.of("class",id,"enrollment",enrollmentId));
+        long drafts=0,locked=0;
+        for(var row:grades){long n=number(row,"n");if("draft".equals(row.get("state")))drafts+=n;else locked+=n;}
+        if(locked>0)throw error(HttpStatus.CONFLICT,"This student already has a submitted or finalized grade in this class and cannot be removed from it.");
+        if(drafts>0&&!discardDrafts)throw error(HttpStatus.CONFLICT,"This student has "+drafts+" draft grade(s) in this class. Pass discardDrafts=true to delete the drafts and remove the student.");
+        actor();
+        db.update("DELETE FROM grades WHERE class_id=:class AND enrollment_id=:enrollment AND state='draft'",Map.of("class",id,"enrollment",enrollmentId));
+        db.update("DELETE FROM class_memberships WHERE class_id=:class AND enrollment_id=:enrollment",Map.of("class",id,"enrollment",enrollmentId));
+        // Only home-section students are re-added by sync, so only they need an exclusion.
+        db.update("""
+            INSERT INTO class_membership_exclusions(class_id,enrollment_id)
+            SELECT :class,e.id FROM enrollments e WHERE e.id=:enrollment AND e.section_id=:section
+            ON CONFLICT DO NOTHING
+            """,Map.of("class",id,"enrollment",enrollmentId,"section",number(current,"sectionId")));
+        var result=new LinkedHashMap<String,Object>(offering(id,campuses,false));
+        result.put("removedEnrollmentId",enrollmentId);result.put("discardedDrafts",drafts);
+        return result;
+    }
+
+    /** Adds one active student of the same campus and term to one class, including students of another section. */
+    @Transactional
+    public Map<String,Object> addClassMember(long id,AddClassMember input){
+        yearTerm(input.academicYearId(),input.termId());
+        var campuses=scope("enrollment.manage");
+        var current=membershipClass(id,input.termId(),campuses);
+        var rows=db.queryForList("SELECT campus_id,term_id,status FROM enrollments WHERE id=:id AND campus_id IN (:scope)",
+                Map.of("id",input.enrollmentId(),"scope",campuses));
+        if(rows.isEmpty())throw error(HttpStatus.NOT_FOUND,"Enrollment not found.");
+        var enrollment=rows.getFirst();
+        if(number(enrollment,"campus_id")!=number(current,"campusId")||number(enrollment,"term_id")!=input.termId())
+            throw error(HttpStatus.BAD_REQUEST,"The student must be enrolled at the class's campus in the class's term.");
+        if(!Set.of("provisional","enrolled").contains(enrollment.get("status")))
+            throw error(HttpStatus.CONFLICT,"Only provisional or enrolled students can be added to a class.");
+        actor();
+        db.update("DELETE FROM class_membership_exclusions WHERE class_id=:class AND enrollment_id=:enrollment",Map.of("class",id,"enrollment",input.enrollmentId()));
+        int added=db.update("""
+            INSERT INTO class_memberships(class_id,enrollment_id,section_id,term_id) VALUES(:class,:enrollment,:section,:term)
+            ON CONFLICT DO NOTHING
+            """,Map.of("class",id,"enrollment",input.enrollmentId(),"section",number(current,"sectionId"),"term",input.termId()));
+        if(added==0)throw error(HttpStatus.CONFLICT,"This student is already a member of the class.");
+        var result=new LinkedHashMap<String,Object>(offering(id,campuses,false));
+        result.put("addedEnrollmentId",input.enrollmentId());
         return result;
     }
 
