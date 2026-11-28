@@ -160,6 +160,36 @@ class GradingWindowTest {
         assertThat(db.queryForObject("SELECT count(*) FROM section_grading_windows WHERE section_id=?",Integer.class,section)).isZero();
     }
 
+    @Test void pastDeadlinesAreRejectedWithoutChangingState(){
+        var body=new HashMap<String,Object>(deadline(0));
+        body.put("deadline",OffsetDateTime.now().minusMinutes(1).toString());
+        var response=call(HttpMethod.PUT,windowPath()+"/deadline",body,registrarToken);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(String.valueOf(response.getBody())).contains("Deadline must be in the future");
+        assertThat(db.queryForObject("SELECT count(*) FROM section_grading_windows WHERE section_id=?",Integer.class,section)).isZero();
+        assertThat(window(call(HttpMethod.GET,windowPath()+"/window",null,registrarToken))).containsEntry("status","open").containsEntry("version",0);
+        // Elapsed future deadline reports locked without inventing an actor.
+        assertThat(call(HttpMethod.PUT,windowPath()+"/deadline",deadline(0),registrarToken).getStatusCode()).isEqualTo(HttpStatus.OK);
+        db.update("UPDATE section_grading_windows SET deadline=clock_timestamp()-interval '1 second' WHERE section_id=?",section);
+        var elapsed=window(call(HttpMethod.GET,windowPath()+"/window",null,registrarToken));
+        assertThat(elapsed).containsEntry("status","locked").containsEntry("lockedBy",null).containsEntry("lockedAt",null);
+    }
+
+    @Test void finalizationSkipsAndReportsOfferingsWithoutActiveMembers(){
+        submitAll();
+        long subject2=db.queryForObject("INSERT INTO subjects(code,name) VALUES (?,'Empty Elective') RETURNING id",Long.class,"EMPTY"+suffix());
+        long empty=db.queryForObject("INSERT INTO class_offerings(section_id,term_id,subject_id,teacher_id) VALUES (?,?,?,?) RETURNING id",Long.class,section,term,subject2,teacher);
+        long withdrawn=db.queryForObject("INSERT INTO class_offerings(section_id,term_id,subject_id,teacher_id) VALUES (?,?,?,?) RETURNING id",Long.class,section,term,
+                db.queryForObject("INSERT INTO subjects(code,name) VALUES (?,'Withdrawn Elective') RETURNING id",Long.class,"WD"+suffix()),teacher);
+        db.update("INSERT INTO class_memberships(class_id,enrollment_id,section_id,term_id) VALUES (?,?,?,?)",withdrawn,e1,section,term);
+        db.update("UPDATE enrollments SET status='withdrawn' WHERE id=?",e1);
+        var result=call(HttpMethod.POST,windowPath()+"/finalize",change(0),registrarToken);
+        assertThat(result.getStatusCode()).as(result.toString()).isEqualTo(HttpStatus.OK);
+        assertThat(window(result)).containsEntry("status","finalized");
+        var skipped=(List<Map<String,Object>>)result.getBody().get("skippedClasses");
+        assertThat(skipped).extracting(row->((Number)row.get("classId")).longValue()).contains(empty);
+    }
+
     @Test void classesAddedAfterLockInheritIt(){
         assertThat(call(HttpMethod.POST,windowPath()+"/lock",change(0),registrarToken).getStatusCode()).isEqualTo(HttpStatus.OK);
         long subject2=db.queryForObject("INSERT INTO subjects(code,name) VALUES (?,'New Subject') RETURNING id",Long.class,"NEW"+suffix());
