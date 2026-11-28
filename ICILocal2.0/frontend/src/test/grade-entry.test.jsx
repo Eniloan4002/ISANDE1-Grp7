@@ -29,6 +29,15 @@ function renderPage() {
   return render(<GradeEntry />);
 }
 
+function renderPageWith(classList, search) {
+  window.history.replaceState({}, '', `/academic/grade-entry${search}`);
+  api.loadGradeCatalog.mockResolvedValue(catalog);
+  api.loadTeacherClasses.mockResolvedValue(classList);
+  api.loadGradingPeriods.mockResolvedValue(periods);
+  api.loadClassGradebook.mockResolvedValue(book);
+  return render(<GradeEntry />);
+}
+
 describe('Grade Entry', () => {
   it('is restricted to Subject Teachers', () => {
     expect(pages.find(page => page.path === '/academic/grade-entry').allowedRoles).toEqual(['teacher']);
@@ -39,6 +48,19 @@ describe('Grade Entry', () => {
     expect(await screen.findByText('Althea Santos')).toBeInTheDocument();
     expect(screen.getByText('2026-0001')).toBeInTheDocument();
     expect(screen.getByText('Incomplete mark')).toBeInTheDocument();
+  });
+
+  it('opens the class named in the link from Assigned Classes', async () => {
+    const second = { id: 302, subjectCode: 'PHYS101', subject: 'Physical Science', section: 'STEM 11-B', gradeLevel: 'Grade 11', room: 'Room 2' };
+    renderPageWith({ items: [classes.items[0], second] }, '?classId=302&academicYearId=1&termId=10');
+    await waitFor(() => expect(api.loadClassGradebook).toHaveBeenCalledWith('302', '7', { academicYearId: '1', termId: '10' }));
+    window.history.replaceState({}, '', '/');
+  });
+
+  it('falls back to the first class when the link names one that is not assigned', async () => {
+    renderPageWith(classes, '?classId=999');
+    await waitFor(() => expect(api.loadClassGradebook).toHaveBeenCalledWith('301', '7', { academicYearId: '1', termId: '10' }));
+    window.history.replaceState({}, '', '/');
   });
 
   it('validates numeric and non-numeric paths separately', async () => {

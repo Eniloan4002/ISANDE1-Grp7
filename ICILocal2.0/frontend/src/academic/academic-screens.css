@@ -1,0 +1,79 @@
+/* Shared by the Sprint 2 list screens (assigned classes, enrollment records, reports).
+   Uses the ICI2-96 tokens; stacks table rows into cards on phones. */
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+.ac-screen .ac-context { display: flex; flex-wrap: wrap; gap: 16px; padding: 16px; margin-bottom: 16px; }
+.ac-screen .ac-context label, .ac-filters label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.ac-screen .ac-context select, .ac-filters select, .ac-filters input { min-width: 180px; min-height: 40px; }
+
+.ac-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px 16px; padding: 16px; align-items: end; }
+.ac-filters .ac-filter-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.ac-muted { color: var(--ink-2); font-size: 13px; }
+.ac-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.ac-table th { text-align: left; padding: 10px 14px; color: var(--ink-2); font-size: 12px; font-weight: 600; letter-spacing: .02em; border-bottom: 1px solid var(--line); }
+.ac-table td { padding: 12px 14px; vertical-align: middle; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.ac-table td strong, .ac-table td small { display: block; }
+.ac-table td small { color: var(--ink-2); font-size: 12px; margin-top: 2px; }
+.ac-table .ac-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.ac-table .ac-actions .ui-btn { text-decoration: none; }
+.ac-submission { display: grid; gap: 4px; justify-items: start; }
+
+.ac-roster { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 0; }
+.ac-roster li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.ac-roster li strong, .ac-roster li small { display: block; }
+.ac-roster li small { color: var(--ink-2); font-size: 12px; }
+
+.ac-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 0 0 16px; }
+.ac-pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; flex-wrap: wrap; }
+
+@media (max-width: 700px) {
+  .ac-screen .ac-context label, .ac-filters label { width: 100%; }
+  .ac-screen .ac-context select, .ac-filters select, .ac-filters input { width: 100%; min-height: 44px; }
+  .ac-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .ac-table, .ac-table tbody, .ac-table tr, .ac-table td { display: block; width: 100%; }
+  .ac-table tr { padding: 12px 14px; border-bottom: 1px solid var(--line); }
+  .ac-table td { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 6px 0; border: 0; text-align: right; }
+  .ac-table td::before { content: attr(data-label); color: var(--ink-2); font-size: 12px; font-weight: 600; text-align: left; }
+  .ac-table td > :first-child { text-align: right; }
+  .ac-table .ac-actions { justify-content: stretch; }
+  .ac-table .ac-actions::before { display: none; }
+  .ac-table .ac-actions .ui-btn { flex: 1; min-height: 44px; justify-content: center; }
+}
+
+.ac-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px; margin: 0; }
+.ac-field dt { color: var(--ink-2); font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+.ac-field dd { margin: 0; font-size: 14px; overflow-wrap: anywhere; }
+.ac-subheading { margin: 20px 0 0; font-size: 14px; }
+@media (max-width: 480px) { .ac-fields { grid-template-columns: 1fr; } }
+
+.ac-vouchers { padding: 14px 16px; }
+.ac-vouchers h2, .ac-report-head h2 { margin: 0 0 8px; font-size: 15px; }
+.ac-vouchers ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.ac-vouchers li { display: flex; gap: 8px; align-items: baseline; font-variant-numeric: tabular-nums; }
+.ac-report-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 16px 0; }
+.ac-report-head h2 { margin: 0; }
+.ac-report-head + .notice, .ac-report-head ~ .notice { margin: 12px 16px 0; }
+@media (max-width: 700px) { .ac-report-head .ac-filter-actions { width: 100%; } .ac-report-head .ui-btn { flex: 1; min-height: 44px; } }
+
+/* Class records: subjects across, students down. The first column stays put while the grades scroll. */
+.ac-overview { padding: 14px 16px; margin-bottom: 12px; }
+.ac-overview h2 { margin: 2px 0; font-size: 18px; }
+.ac-matrix-wrap { overflow-x: auto; }
+.ac-matrix-wrap:focus-visible { outline: var(--focus-ring, 2px solid #075B80); outline-offset: var(--focus-offset, 2px); }
+.ac-matrix { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 14px; }
+.ac-matrix th, .ac-matrix td { padding: 10px 14px; border-bottom: 1px solid var(--line); text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ac-matrix thead th { color: var(--ink-2); font-size: 12px; font-weight: 600; background: var(--surface); }
+.ac-matrix thead th small, .ac-matrix .ac-sticky small { display: block; color: var(--ink-2); font-weight: 400; font-size: 12px; }
+.ac-matrix .ac-sticky { position: sticky; left: 0; z-index: 1; min-width: 170px; text-align: left; background: var(--surface); border-right: 1px solid var(--line); }
+.ac-matrix .ac-sticky strong { display: block; font-weight: 600; }
+.ac-grade small { display: block; font-size: 11px; font-weight: 600; }
+.ac-grade-pass { color: var(--ink); }
+.ac-grade-fail { background: var(--blocked-bg); color: var(--blocked); font-weight: 700; }
+.ac-grade-inc { background: var(--attention-bg); color: var(--attention); font-weight: 700; }
+.ac-grade-mark { font-weight: 600; }
+.ac-grade-missing { color: var(--ink-2); }
+.ac-legend { padding: 12px 16px; margin: 0; }
+@media (max-width: 700px) { .ac-matrix .ac-sticky { min-width: 130px; } }
+.ac-table td:first-child small { white-space: nowrap; }
+.ac-table td strong { font-weight: 600; }

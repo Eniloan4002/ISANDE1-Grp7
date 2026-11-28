@@ -110,6 +110,15 @@ class EnrollmentWorkflowTest {
         assertThat(confirm(app,0).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
         assertThat(call(HttpMethod.POST,"/api/sections",sectionInput("Blocked",10,0)).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
+    @Test void directoryFiltersEnrolledRecordsBySection(){
+        long s=section("STEM A",2),e=enrolled(app);
+        assertThat(assign(e,s,0).getStatusCode()).isEqualTo(HttpStatus.OK);
+        long unplaced=application(campus);enrolled(unplaced);
+        Map placed=call(HttpMethod.GET,"/api/enrollment/applications?termId="+term+"&sectionId="+s,null).getBody();
+        assertThat(placed.get("total")).isEqualTo(1);
+        assertThat(((Number)((Map)((List)placed.get("items")).getFirst()).get("id")).longValue()).isEqualTo(app);
+        assertThat(call(HttpMethod.GET,"/api/enrollment/applications?termId="+term+"&sectionId=999999",null).getBody().get("total")).isEqualTo(0);
+    }
     @Test void sectionCrudPreservesParentsVersionsAndOccupiedCapacity(){
         long s=section("STEM A",2);var input=sectionInput("STEM A renamed",3,0);
         assertThat(call(HttpMethod.PUT,"/api/sections/"+s,input).getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -253,6 +262,20 @@ class EnrollmentWorkflowTest {
         db.update("UPDATE user_role_grants SET role_code='ROLE_REGISTRAR' WHERE user_id=?",actor);
         long before=((Number)call(HttpMethod.GET,"/api/intake/statistics",null).getBody().get("total")).longValue();
         application(other);assertThat(((Number)call(HttpMethod.GET,"/api/intake/statistics",null).getBody().get("total")).longValue()).isEqualTo(before);
+    }
+
+    @Test void pendingRequirementsCardCountMatchesTheOpenDirectoryFilter(){
+        long id=intake(intakeInput());
+        var stats=call(HttpMethod.GET,"/api/intake/statistics",null).getBody();
+        long pending=((Number)stats.get("pendingRequirements")).longValue();
+        // A new application has collected nothing yet, so it counts as pending.
+        assertThat(pending).isGreaterThanOrEqualTo(1);
+        var open=call(HttpMethod.GET,"/api/enrollment/applications?requirementsStatus=Open&size=100",null).getBody();
+        assertThat(((Number)open.get("total")).longValue()).isEqualTo(pending);
+        assertThat(((java.util.List<Map<String,Object>>)open.get("items")).stream().map(item->((Number)item.get("id")).longValue())).contains(id);
+        // Another campus's application never changes this campus's count.
+        application(other);
+        assertThat(((Number)call(HttpMethod.GET,"/api/intake/statistics",null).getBody().get("pendingRequirements")).longValue()).isEqualTo(pending);
     }
 
     @Test void concurrentIntakeReviewCreatesOnlyOneStudentIdentity() throws Exception {
