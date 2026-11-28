@@ -120,6 +120,11 @@ public class GradingWindowService {
         // Re-read after waiting on writers: the database wall clock determines cutoff.
         window=current(sectionId,periodId,false);
         if(!"open".equals(window.get("status")))throw error(HttpStatus.CONFLICT,"Closed grading windows cannot be reopened through deadline edits.");
+        // Judge against the database wall clock, the same clock that evaluates cutoff. A past deadline would lock
+        // teachers out with no locked_at/locked_by; use the lock endpoint to close a window deliberately.
+        boolean past=Boolean.TRUE.equals(db.queryForObject("SELECT :deadline::timestamptz<=clock_timestamp()",
+                new MapSqlParameterSource("deadline",input.deadline()),Boolean.class));
+        if(past)throw error(HttpStatus.BAD_REQUEST,"Deadline must be in the future. Use the lock action to close grading now.");
         persist(sectionId,periodId,window,input.deadline(),input.reason(),false,false);
         return detail(sectionId,periodId);
     }
@@ -128,6 +133,7 @@ public class GradingWindowService {
     public Map<String,Object> change(long sectionId,long periodId,ChangeInput input,boolean finalize){
         var window=current(sectionId,periodId,true);expected(window,input.version());
         var classes=lockClasses(sectionId);
+        List<Map<String,Object>> skipped=List.of();
         if("finalized".equals(window.get("status")))throw error(HttpStatus.CONFLICT,"This grading period is already finalized.");
         if(!finalize&&window.get("lockedAt")!=null)throw error(HttpStatus.CONFLICT,"This grading period is already manually locked.");
         if(finalize){
@@ -139,9 +145,17 @@ public class GradingWindowService {
                 LEFT JOIN enrollments e ON e.id=cm.enrollment_id AND e.status IN ('provisional','enrolled')
                 LEFT JOIN grades g ON g.class_id=co.id AND g.enrollment_id=e.id AND g.grading_period_id=:period
                 WHERE co.section_id=:section GROUP BY co.id
-                HAVING count(e.id)=0 OR count(e.id)<>count(e.id) FILTER (WHERE g.state IN ('submitted','finalized'))
+                HAVING count(e.id)>0 AND count(e.id)<>count(e.id) FILTER (WHERE g.state IN ('submitted','finalized'))
                 """,params);
             if(!incomplete.isEmpty())throw error(HttpStatus.CONFLICT,"Every active class roster must have submitted grades before finalization. No grades were finalized.");
+            // Offerings with no active members have nothing to finalize; report them instead of blocking forever.
+            skipped=db.queryForList("""
+                SELECT co.id AS "classId",sub.code AS "subjectCode",sub.name AS subject
+                FROM class_offerings co JOIN subjects sub ON sub.id=co.subject_id
+                LEFT JOIN class_memberships cm ON cm.class_id=co.id
+                LEFT JOIN enrollments e ON e.id=cm.enrollment_id AND e.status IN ('provisional','enrolled')
+                WHERE co.section_id=:section GROUP BY co.id,sub.id HAVING count(e.id)=0 ORDER BY co.id
+                """,params);
             audit();
             db.update("""
                 UPDATE grades g SET state='finalized',version=g.version+1
@@ -151,6 +165,10 @@ public class GradingWindowService {
                 """,params);
         }
         persist(sectionId,periodId,window,window.get("deadline"),input.reason(),true,finalize);
-        return detail(sectionId,periodId);
+        var result=detail(sectionId,periodId);
+        if(!finalize)return result;
+        var withSkipped=new HashMap<String,Object>(result);
+        withSkipped.put("skippedClasses",skipped);
+        return withSkipped;
     }
 }

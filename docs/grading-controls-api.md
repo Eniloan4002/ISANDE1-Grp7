@@ -25,7 +25,7 @@ All control routes require a current `grades.review` grant at the section's camp
 }
 ```
 
-The deadline is an offset-aware ISO timestamp. A deadline in the past closes submissions immediately. Once the deadline has elapsed, or a manual lock/finalization exists, this endpoint cannot reopen the section by extending it. Before cutoff a versioned deadline edit is allowed. No reopen endpoint or implicit unlock is provided; post-lock changes belong to the separate correction workflow.
+The deadline is an offset-aware ISO timestamp and must be in the future (database clock); a past or present deadline returns 400. To close grading now, use the lock action, which records `lockedAt`/`lockedBy`. Once the deadline has elapsed, or a manual lock/finalization exists, this endpoint cannot reopen the section by extending it. Before cutoff a versioned deadline edit is allowed. No reopen endpoint or implicit unlock is provided; post-lock changes belong to the separate correction workflow.
 
 `POST /api/academic/sections/{sectionId}/grading-periods/{periodId}/lock`
 
@@ -54,6 +54,11 @@ Section enrollment and subject-class membership are distinct. This service valid
 - The PostgreSQL wall clock (`clock_timestamp()`) evaluates deadlines after waiting for the offering lock. Teacher writes check again after processing the batch and roll back if the deadline crossed. This is request-transaction cutoff enforcement, not a scheduler that stamps `locked_at` at the deadline or a guarantee about network delivery time.
 - An elapsed deadline reports `locked` even if `lockedAt` is null. Manual lock and finalization record their explicit actor/timestamp.
 - Section policies and grade changes use the existing transaction actor and append-only before/after audit triggers. A single transaction covers grades, policy and audit events. Prior reasons remain in the audit history.
+
+## Deadlines and empty class offerings (ICI2-93)
+
+- Past deadlines are rejected with 400 (`Deadline must be in the future...`). A deadline that later elapses reports `status: locked` with `lockedAt`/`lockedBy` null; no actor is invented, since no scheduler stamps the lock.
+- Finalization skips class offerings with no active (provisional or enrolled) members, for example an elective whose students all withdrew. The finalize response adds `skippedClasses` (`classId`, `subjectCode`, `subject`) so skipped offerings are visible. Every non-empty offering must still have all grades submitted. A section whose offerings are all empty can be finalized; it finalizes no grades.
 
 ## Migration and verification
 
