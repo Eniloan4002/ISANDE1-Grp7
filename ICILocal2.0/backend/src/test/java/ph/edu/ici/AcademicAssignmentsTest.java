@@ -180,6 +180,37 @@ class AcademicAssignmentsTest {
         assertThat(db.queryForObject("SELECT status FROM withdrawals WHERE id=?",String.class,rejected)).isEqualTo("rejected");
     }
 
+    @Test void advisoryClassRecordsShowOnlySubmittedGradesForTheAssignedSection(){
+        var assignAdviser=Map.of("academicYearId",year,"termId",term,"adviserId",adviser,"version",0);
+        assertThat(call(HttpMethod.PUT,"/api/academic/sections/"+section+"/adviser",assignAdviser,registrarToken).getStatusCode()).isEqualTo(HttpStatus.OK);
+        long classId=((Number)createOffering(teacher).get("classId")).longValue();
+        long enrollment=studentEnrollment("Mina");
+        db.update("INSERT INTO class_memberships(class_id,enrollment_id,section_id,term_id) VALUES (?,?,?,?)",classId,enrollment,section,term);
+        long period=db.queryForObject("INSERT INTO grading_periods(term_id,code,sequence,starts_on,ends_on) VALUES (?,'Q1',1,'2026-06-01','2026-08-15') RETURNING id",Long.class,term);
+        db.update("INSERT INTO grades(class_id,enrollment_id,term_id,grading_period_id,value,state) VALUES (?,?,?,?,88,'draft')",classId,enrollment,term,period);
+        String path="/api/academic/advisory/class-records?academicYearId="+year+"&termId="+term+"&sectionId="+section;
+
+        // A teacher's working draft is not visible to the adviser.
+        var draft=call(HttpMethod.GET,path,null,adviserToken);
+        assertThat(draft.getStatusCode()).as(draft.toString()).isEqualTo(HttpStatus.OK);
+        assertThat((List<Map>)draft.getBody().get("subjects")).extracting(row->((Number)row.get("classId")).longValue()).containsExactly(classId);
+        assertThat((List<Map>)draft.getBody().get("students")).singleElement().satisfies(student->assertThat((Map)student.get("grades")).isEmpty());
+        assertThat(((Number)((Map)draft.getBody().get("period")).get("id")).longValue()).isEqualTo(period);
+
+        db.update("UPDATE grades SET state='submitted' WHERE class_id=? AND enrollment_id=?",classId,enrollment);
+        var submitted=call(HttpMethod.GET,path+"&gradingPeriodId="+period,null,adviserToken);
+        assertThat(submitted.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat((List<Map>)submitted.getBody().get("students")).singleElement().satisfies(student->{
+            Map cell=(Map)((Map)student.get("grades")).get(String.valueOf(classId));
+            assertThat(cell).containsEntry("state","submitted");assertThat(((Number)cell.get("value")).doubleValue()).isEqualTo(88.0);
+        });
+
+        assertThat(call(HttpMethod.GET,path,null,otherAdviserToken).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(HttpMethod.GET,path+"&gradingPeriodId="+Long.MAX_VALUE,null,adviserToken).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(call(HttpMethod.GET,path,null,teacherToken).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.GET,path,null,null).getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
     @Test void sectionAdviserAssignmentRejectsWrongRoleCampusAndStaleVersions(){
         var body=Map.of("academicYearId",year,"termId",term,"adviserId",otherCampusTeacher,"version",0);
         assertThat(call(HttpMethod.PUT,"/api/academic/sections/"+section+"/adviser",body,registrarToken).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);

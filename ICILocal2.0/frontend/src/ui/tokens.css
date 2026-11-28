@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ICI Local 2.0 design tokens (ICI2-96). One place for colour, radius, type and focus.
+   Contrast pairs are checked by src/test/ui-tokens.test.js (>= 4.5:1 for text). */
+:root {
+  --ici-blue: #075B80;
+  --blue-100: #D7EBF4;
+  --blue-50: #EEF6FA;
+  --ink: #1B2A33;
+  --ink-2: #4A5A66;
+  --ink-nav: #33444F;
+  --ink-3: #5B6B77;
+  --line: #DCE3E8;
+  --canvas: #F4F6F8;
+  --surface: #FFFFFF;
+
+  --success: #14654A; --success-bg: #E4F5EC;
+  --attention: #7A5200; --attention-bg: #FFF3D6;
+  --blocked: #8E2433; --blocked-bg: #FDECEE;
+  --info: #075B80; --info-bg: #E6F1F7;
+  --neutral: #4A5A66; --neutral-bg: #EEF2F5;
+
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-full: 999px;
+
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --control-height: 40px;
+  --focus-ring: 2px solid var(--ici-blue);
+  --focus-offset: 2px;
+  --shadow-pop: 0 8px 24px rgba(27, 42, 51, .16);
+
+  /* Map the older foundation variables onto the shared tokens so existing screens follow. */
+  --action: var(--ici-blue);
+  --border: var(--line);
+  --muted: var(--ink-2);
+  --background-color: var(--canvas);
+  --text-primary: var(--ink);
+  --text-secondary: var(--ink-2);
+  --primary-dark: var(--ici-blue);
+  --primary-light: var(--blue-50);
+
+  font-family: var(--font-sans);
+  font-size: 16px;
+  color: var(--ink);
+  background: var(--canvas);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 900px) {
+  :root { --control-height: 44px; }
+}
+
+body { font-family: var(--font-sans); background: var(--canvas); color: var(--ink); }
+input, select, textarea, button { font-family: inherit; }
+
+/* 2 px ICI blue ring, 2 px offset, everywhere. */
+:focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}

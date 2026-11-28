@@ -55,6 +55,28 @@ public class ReportService {
         }
         return new Query(sql,params);
     }
+    /**
+     * Choices for the report filter panel, limited to the caller's report campuses. Principals hold only
+     * reports.read, so they cannot use the setup or enrollment reference endpoints that registrars use.
+     */
+    @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
+    public Map<String,Object> filterOptions(){
+        var scope=access.campuses("reports.read");if(scope.isEmpty())throw new ResponseStatusException(HttpStatus.FORBIDDEN,"A permission-bearing campus grant is required.");
+        var params=Map.of("scope",scope);
+        var enrollmentJoin="""
+            FROM enrollments e JOIN students st ON st.id=e.student_id JOIN applications a ON a.id=e.application_id
+            LEFT JOIN sections s ON s.id=e.section_id WHERE e.campus_id IN (:scope)
+            """;
+        var result=new LinkedHashMap<String,Object>();
+        result.put("campuses",db.queryForList("SELECT id,name FROM campuses WHERE id IN (:scope) ORDER BY name",params));
+        result.put("academicYears",db.queryForList("SELECT id,label FROM academic_years ORDER BY label DESC",Map.of()));
+        result.put("terms",db.queryForList("SELECT id,name,academic_year_id AS \"academicYearId\" FROM academic_terms ORDER BY starts_on DESC,id",Map.of()));
+        result.put("gradingPeriods",db.queryForList("SELECT id,code,term_id AS \"termId\" FROM grading_periods ORDER BY term_id,sequence",Map.of()));
+        result.put("sections",db.queryForList("SELECT id,name,term_id AS \"termId\",campus_id AS \"campusId\" FROM sections WHERE campus_id IN (:scope) ORDER BY name,id",params));
+        result.put("gradeLevels",db.queryForList("SELECT DISTINCT coalesce(s.grade_level,a.profile->>'gradeLevel','') AS level "+enrollmentJoin+" ORDER BY 1",params).stream().map(row->row.get("level")).filter(level->level!=null&&!level.toString().isBlank()).toList());
+        result.put("vouchers",db.queryForList("SELECT DISTINCT coalesce(a.voucher_code,st.voucher_code,'UNCLASSIFIED') AS code "+enrollmentJoin+" ORDER BY 1",params).stream().map(row->row.get("code")).toList());
+        return result;
+    }
     public List<Map<String,Object>> bounded(ReportFilter f,String permission){
         var q=query(f,permission);var rows=db.queryForList(q.sql+" ORDER BY e.id LIMIT "+(EXPORT_LIMIT+1),q.params);
         if(rows.size()>EXPORT_LIMIT)throw new ResponseStatusException(HttpStatus.PAYLOAD_TOO_LARGE,"Narrow the filters: this operation is limited to "+EXPORT_LIMIT+" enrollments.");return rows;

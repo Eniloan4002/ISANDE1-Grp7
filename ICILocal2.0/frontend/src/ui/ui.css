@@ -1,0 +1,63 @@
+/* Shared components (ICI2-96). Tokens come from ./tokens.css. */
+
+/* StatusChip */
+.ui-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 24px; padding: 2px 10px; border-radius: var(--radius-full); font-size: 12px; line-height: 16px; font-weight: 600; white-space: nowrap; background: var(--neutral-bg); color: var(--neutral); }
+.ui-chip-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
+.ui-chip-success { background: var(--success-bg); color: var(--success); }
+.ui-chip-attention { background: var(--attention-bg); color: var(--attention); }
+.ui-chip-blocked { background: var(--blocked-bg); color: var(--blocked); }
+.ui-chip-info { background: var(--info-bg); color: var(--info); }
+
+/* Button */
+.ui-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--control-height); padding: 0 16px; border-radius: var(--radius-control); border: 1px solid var(--ici-blue); font-size: 14px; font-weight: 600; line-height: 20px; cursor: pointer; text-decoration: none; }
+.ui-btn-primary { background: var(--ici-blue); color: #fff; }
+.ui-btn-primary:hover { background: #064A68; border-color: #064A68; }
+.ui-btn-secondary { background: var(--surface); color: var(--ici-blue); border-color: #B9CEDA; }
+.ui-btn-secondary:hover { background: var(--blue-50); }
+.ui-btn:disabled { opacity: .55; cursor: not-allowed; }
+.ui-icon-btn { display: inline-grid; place-items: center; width: var(--control-height); height: var(--control-height); border: 0; border-radius: var(--radius-control); background: transparent; color: var(--ink-2); cursor: pointer; }
+.ui-icon-btn:hover { background: var(--canvas); color: var(--ink); }
+
+/* FilterChip */
+.ui-filter { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 12px; border-radius: var(--radius-full); border: 1px solid var(--line); background: var(--surface); color: var(--ink-nav); font-size: 14px; font-weight: 500; cursor: pointer; }
+.ui-filter:hover { background: var(--canvas); }
+.ui-filter.is-selected { background: var(--blue-100); border-color: var(--blue-100); color: var(--ici-blue); font-weight: 600; }
+.ui-filter-count { min-width: 20px; padding: 0 6px; border-radius: var(--radius-full); background: var(--canvas); color: var(--ink-2); font-size: 12px; font-weight: 700; line-height: 20px; text-align: center; }
+.ui-filter.is-selected .ui-filter-count { background: var(--surface); color: var(--ici-blue); }
+@media (max-width: 900px) { .ui-filter { min-height: 44px; } }
+
+/* StatTile */
+.ui-stat { padding: 16px; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--surface); }
+.ui-stat-label { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+.ui-stat-value { margin-top: 4px; font-size: 28px; line-height: 36px; font-weight: 700; color: var(--ink); }
+.ui-stat-hint { margin-top: 2px; font-size: 14px; color: var(--ink-2); }
+.ui-stat-attention .ui-stat-value { color: var(--attention); }
+.ui-stat-blocked .ui-stat-value { color: var(--blocked); }
+.ui-stat-success .ui-stat-value { color: var(--success); }
+
+/* ProgressMeter */
+.ui-meter-head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; font-size: 12px; line-height: 16px; color: var(--ink-2); }
+.ui-meter-head b { color: var(--ink); }
+.ui-meter-track { height: 8px; border-radius: var(--radius-full); background: var(--line); overflow: hidden; }
+.ui-meter-fill { height: 100%; border-radius: var(--radius-full); background: var(--ici-blue); }
+
+/* Dialog */
+dialog.ui-dialog { width: min(480px, calc(100% - 32px)); padding: 24px; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--surface); color: var(--ink); box-shadow: var(--shadow-pop); }
+dialog.ui-dialog::backdrop, dialog.ui-drawer::backdrop { background: rgba(27, 42, 51, .45); }
+.ui-dialog-title { margin: 0 0 8px; font-size: 20px; line-height: 28px; font-weight: 700; }
+.ui-dialog-body { color: var(--ink-2); font-size: 14px; line-height: 22px; }
+.ui-dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 24px; }
+
+/* Drawer */
+dialog.ui-drawer { margin: 0 0 0 auto; padding: 0; width: min(440px, 100%); max-width: 100%; height: 100dvh; max-height: 100dvh; border: 0; background: transparent; }
+.ui-drawer-panel { display: flex; flex-direction: column; height: 100%; background: var(--surface); color: var(--ink); border-left: 1px solid var(--line); box-shadow: var(--shadow-pop); }
+.ui-drawer-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 12px 12px 24px; border-bottom: 1px solid var(--line); }
+.ui-drawer-head h2 { margin: 0; font-size: 18px; line-height: 28px; font-weight: 700; }
+.ui-drawer-body { flex: 1; min-height: 0; overflow-y: auto; padding: 24px; }
+.ui-drawer-foot { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 16px 24px; border-top: 1px solid var(--line); }
+
+/* Popover */
+.ui-popover { position: relative; display: inline-block; }
+.ui-popover-panel { position: absolute; top: calc(100% + 8px); z-index: 30; min-width: 240px; max-width: min(360px, calc(100vw - 32px)); padding: 16px; border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--surface); color: var(--ink); box-shadow: var(--shadow-pop); font-size: 14px; line-height: 22px; }
+.ui-popover-start { left: 0; }
+.ui-popover-end { right: 0; }

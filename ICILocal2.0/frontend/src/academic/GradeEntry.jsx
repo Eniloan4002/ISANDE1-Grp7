@@ -66,6 +66,8 @@ export default function GradeEntry() {
   const [saveState, setSaveState] = useState('Not saved');
   const [confirming, setConfirming] = useState(false);
   const inputRefs = useRef({});
+  // The Assigned Classes screen links here with ?classId=&academicYearId=&termId=. Read once on arrival.
+  const requested = useRef(typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search));
 
   useEffect(() => {
     let active = true;
@@ -74,8 +76,9 @@ export default function GradeEntry() {
       const years = result?.years || [];
       const terms = result?.terms || [];
       setCatalog({ years, terms });
-      const year = years[0];
-      const term = terms.find(item => optionValue(item.academic_year_id ?? item.academicYearId) === optionValue(year?.id));
+      const year = years.find(item => optionValue(item.id) === requested.current.get('academicYearId')) || years[0];
+      const inYear = terms.filter(item => optionValue(item.academic_year_id ?? item.academicYearId) === optionValue(year?.id));
+      const term = inYear.find(item => optionValue(item.id) === requested.current.get('termId')) || inYear[0];
       setFilters({ academicYearId: optionValue(year?.id), termId: optionValue(term?.id) });
       if (!year || !term) setLoading(false);
     }).catch(requestFailure => {
@@ -95,7 +98,9 @@ export default function GradeEntry() {
     loadTeacherClasses(filters).then(result => {
       if (!active) return;
       setClasses(result.items);
-      setSelectedClassId(String(result.items[0]?.id || ''));
+      const wanted = result.items.find(item => String(item.id) === requested.current.get('classId'));
+      requested.current = new URLSearchParams(); // later year or term changes go back to the first class
+      setSelectedClassId(String((wanted || result.items[0])?.id || ''));
       setPeriodId('');
       setPeriods([]);
     }).catch(requestFailure => active && setError(requestError(requestFailure))).finally(() => active && setLoading(false));
