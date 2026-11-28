@@ -32,6 +32,7 @@ import AssignedClasses from './academic/AssignedClasses.jsx';
 import EnrollmentRecords from './enrollment/EnrollmentRecords.jsx';
 import ReportingMonitoring from './enrollment/ReportingMonitoring.jsx';
 import ClassRecords from './academic/ClassRecords.jsx';
+import HonorRoll from './reporting/HonorRoll.jsx';
 
 // Screens added from Sprint 2 on register here by path. Anything not listed falls through to the
 // original chain below, so new screens stay out of that ternary and merge without conflicts.
@@ -40,6 +41,7 @@ const screenByPath = {
   '/enrollment/academic-records': <EnrollmentRecords />,
   '/enrollment/reporting-monitoring': <ReportingMonitoring />,
   '/academic/class-records': <ClassRecords />,
+  '/reporting/honor-roll': <HonorRoll />,
 };
 
 function RequireAuth() {

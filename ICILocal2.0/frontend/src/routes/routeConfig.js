@@ -34,6 +34,7 @@ export const roleSections = [
       ] },
       { label: 'Reporting', pages: [
         { path: '/enrollment/reporting-monitoring', label: 'Reporting & Monitoring' },
+        { path: '/reporting/honor-roll', label: 'Honor Roll' },
       ] },
       { label: 'Data Migration', pages: [
         { path: '/migration/legacy-imports', label: 'Legacy Import Review' },
@@ -76,6 +77,7 @@ export const roleSections = [
       ] },
       { label: 'Operational Reporting', pages: [
         { path: '/enrollment/reporting-monitoring', label: 'Reporting & Monitoring' },
+        { path: '/reporting/honor-roll', label: 'Honor Roll' },
       ] },
     ],
   },
@@ -120,6 +122,7 @@ const iconByPath={
   '/enrollment/reporting-monitoring':'chart','/academic/assignments':'people','/academic/registrar-records':'history','/academic/incomplete-grades':'alert',
   '/academic/grade-approvals':'shield','/academic/finalize-grades':'lock','/academic/advisory':'people','/academic/class-records':'book','/academic/student-monitoring':'chart',
   '/academic/grade-entry':'edit','/academic/class-list':'book','/academic/progress-reports':'shield','/academic/withdrawal-approvals':'alert',
+  '/reporting/honor-roll':'chart',
   '/reporting/guidance':'book','/reporting/student-profiles':'people','/reporting/reports':'chart','/cashiering/students':'people','/cashiering/clearances':'shield',
   '/administration/users':'people','/administration/system-settings':'settings','/administration/audit-log':'history',
   '/setup':'settings','/design-system':'place','/account/security':'lock',

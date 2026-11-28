@@ -1,0 +1,111 @@
+/* Sprint 3 screens: honor roll, official documents, cashiering roster, daily attendance.
+   Builds on academic-screens.css and the ICI2-96 tokens. */
+/* The app's base styles (foundation.css) give every input and select full width, padding and an 18px bottom
+   margin, every label 16px bold text with a margin, and every .panel > h2 a padded, ruled header. These screens
+   lay out their own fields, so undo that inside them. */
+.rs-screen label { margin-bottom: 0; }
+.rs-screen input, .rs-screen select, .rs-screen textarea { margin: 0; }
+.rs-screen textarea { display: block; width: 100%; box-sizing: border-box; border: 1px solid #8b9da9; border-radius: 3px; padding: 11px; background: #fff; color: inherit; font: inherit; resize: vertical; }
+.rs-screen input[type="checkbox"], .rs-screen input[type="radio"] { display: inline-block; width: 16px; height: 16px; min-height: 0; padding: 0; margin: 0; flex: none; accent-color: var(--ici-blue); }
+.rs-screen .rs-section > h2 { padding: 0; border: 0; }
+.rs-flush { margin: 0; }
+.rs-field { display: grid; gap: 6px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.rs-divider { border-top: 1px solid var(--line); padding-top: 14px; }
+.ac-table th.rs-right, .ac-table td.rs-right { text-align: right; }
+
+/* Context bar (year, term, class, date): an even grid so a long class name cannot push fields onto a new row. */
+.rs-context { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px 16px; padding: 16px; margin-bottom: 16px; }
+.rs-context label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; color: var(--ink-2); min-width: 0; }
+.rs-context select { width: 100%; min-height: 40px; }
+.rs-context .rs-wide { grid-column: span 2; }
+/* Year | term | class (wide) | date on one row; two columns on tablets, one on phones. */
+.rs-context.rs-context-class { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr); }
+.rs-context.rs-context-class .rs-wide { grid-column: auto; }
+@media (max-width: 1000px) { .rs-context.rs-context-class { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .rs-context.rs-context-class { grid-template-columns: 1fr; } }
+
+/* Six count tiles in one row on desktop, three or two per row on narrower screens. */
+.ac-stats.rs-stats-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+@media (max-width: 1100px) { .ac-stats.rs-stats-6 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .ac-stats.rs-stats-6 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.rs-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin: 0 0 16px; overflow-x: auto; }
+.rs-tabs button { appearance: none; background: none; border: 0; border-bottom: 2px solid transparent; padding: 10px 14px; font: inherit; font-weight: 600; color: var(--ink-2); cursor: pointer; min-height: 44px; white-space: nowrap; }
+.rs-tabs button[aria-selected="true"] { color: var(--ink, inherit); border-bottom-color: currentColor; }
+.rs-tabs button:focus-visible { outline: var(--focus-ring, 2px solid #075B80); outline-offset: -2px; }
+
+.rs-section { padding: 16px; display: grid; gap: 14px; }
+.rs-section > h2, .rs-section > header h2 { margin: 0; font-size: 16px; }
+.rs-section > header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.rs-section > header p { margin: 2px 0 0; }
+.rs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px 16px; align-items: end; }
+.rs-grid label, .rs-stack label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.rs-grid input, .rs-grid select, .rs-stack input, .rs-stack select, .rs-stack textarea { min-height: 40px; width: 100%; box-sizing: border-box; }
+.rs-stack { display: grid; gap: 12px; }
+.rs-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.rs-rows { display: grid; gap: 8px; }
+.rs-row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto; gap: 8px; align-items: end; }
+.rs-row label { display: grid; gap: 4px; font-size: 12px; font-weight: 600; color: var(--ink-2); }
+.rs-row input, .rs-row select { min-height: 40px; width: 100%; box-sizing: border-box; }
+.rs-reasons { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.rs-reasons li strong { display: block; }
+.rs-hash { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; overflow-wrap: anywhere; }
+.rs-picklist { list-style: none; margin: 0; padding: 0; display: grid; }
+.rs-picklist li { border-bottom: 1px solid var(--line); }
+.rs-picklist button { appearance: none; background: none; border: 0; width: 100%; text-align: left; padding: 10px 4px; font: inherit; cursor: pointer; min-height: 44px; }
+.rs-picklist button:hover { background: var(--blue-50); }
+.rs-picklist button[aria-pressed="true"] { font-weight: 600; background: var(--blue-50); box-shadow: inset 3px 0 0 var(--ici-blue); padding-left: 10px; }
+.rs-so-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; }
+.rs-so-list > li { padding: 12px 0; border-top: 1px solid var(--line); }
+.rs-picklist small { display: block; color: var(--ink-2); font-size: 12px; }
+.rs-checks { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; }
+.rs-checks legend { padding: 0; margin-bottom: 4px; }
+.rs-checks label { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; font-weight: 400; color: inherit; text-align: left; }
+.rs-screen .rs-checks input { margin-top: 3px; }
+.rs-marks { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; margin: 0; padding: 0; border: 0; }
+.rs-marks.rs-start { justify-content: flex-start; }
+.rs-marks label { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; cursor: pointer; min-height: 32px; }
+.rs-marks label { color: var(--ink); }
+.rs-marks label:has(input:checked) { border-color: var(--ici-blue); background: var(--blue-50); color: var(--ici-blue); font-weight: 600; }
+.rs-marks label:focus-within { outline: var(--focus-ring, 2px solid #075B80); outline-offset: 2px; }
+.rs-days { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.rs-days li label { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 13px; font-weight: 400; color: var(--ink); white-space: nowrap; }
+.rs-days li label:has(input:checked) { border-color: var(--ici-blue); background: var(--blue-50); }
+fieldset.rs-plain { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 14px; }
+
+@media (max-width: 700px) {
+  .rs-context .rs-wide { grid-column: auto; }
+  .ac-table th.rs-right, .ac-table td.rs-right { text-align: left; }
+  .rs-row { grid-template-columns: 1fr; }
+  .rs-actions .ui-btn { flex: 1; min-height: 44px; justify-content: center; }
+  .rs-marks { justify-content: flex-start; }
+  .rs-marks label { min-height: 44px; }
+}
+.rs-pad { padding: 0 16px; }
+.rs-gap { margin-bottom: 16px; }
+/* A lone checkbox in a row of inputs sits level with the middle of the inputs. */
+.rs-grid > label.rs-checks { min-height: 40px; align-items: center; }
+.rs-grid > label.rs-checks span { display: inline-flex; align-items: center; gap: 8px; }
+.rs-rows + .ui-btn { margin-top: 8px; justify-self: start; }
+
+/* Phone tables: the shared stacked-card style expects one element per cell. These cells hold a value and a
+   sub-line (name + student number), so lay each cell out as label | stacked values. */
+@media (max-width: 700px) {
+  .rs-screen .ac-table td { display: grid; grid-template-columns: minmax(96px, 38%) minmax(0, 1fr); column-gap: 12px; align-items: start; text-align: right; }
+  .rs-screen .ac-table td::before { grid-column: 1; grid-row: 1 / span 2; text-align: left; }
+  .rs-screen .ac-table td { row-gap: 2px; grid-auto-rows: min-content; }
+  .rs-screen .ac-table td small { margin-top: 0; }
+  .rs-screen .ac-table td > * { grid-column: 2; justify-self: end; text-align: right; }
+  .rs-screen .ac-table td[data-label="Actions"] { display: block; padding-top: 10px; }
+  .rs-screen .ac-table td[data-label="Actions"]::before { display: none; }
+  .rs-screen .ac-table td[data-label="Actions"] .ac-actions .ui-btn { flex: 1; min-height: 44px; justify-content: center; }
+  .rs-screen .ac-table td[data-label="Why"] { display: block; text-align: left; }
+  .rs-screen .ac-table td[data-label="Why"]::before { display: block; margin-bottom: 4px; }
+  .rs-screen .ac-table td[data-label="Why"] > * { text-align: left; }
+  .rs-screen .ac-report-head .ac-filter-actions { width: 100%; }
+  .rs-screen .ac-table td[data-label="Attendance"] { display: block; text-align: left; }
+  .rs-screen .ac-table td[data-label="Attendance"]::before { display: block; margin-bottom: 6px; }
+  .rs-screen .ac-table td[data-label="Attendance"] .rs-marks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .rs-screen .ac-table td[data-label="Attendance"] .rs-marks label { justify-content: center; }
+  .rs-tabs button { flex: 1 1 0; padding: 10px 6px; font-size: 14px; white-space: normal; line-height: 1.2; }
+}
