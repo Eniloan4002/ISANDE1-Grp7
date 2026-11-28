@@ -70,11 +70,11 @@ export function Dialog({ open, onClose, title, children, actions, tone }) {
 }
 
 /** Side drawer for looking at a record without leaving the page. Backdrop click and Escape close it. */
-export function Drawer({ open, onClose, title, children, footer }) {
+export function Drawer({ open, onClose, title, children, footer, className }) {
   const titleId = useId();
   const { ref, onCancel } = useModal(open, onClose);
   if (!open) return null;
-  return <dialog ref={ref} className="ui-drawer" aria-labelledby={titleId} onCancel={onCancel} onClick={event => { if (event.target === ref.current) onClose?.(); }}>
+  return <dialog ref={ref} className={cx('ui-drawer', className)} aria-labelledby={titleId} onCancel={onCancel} onClick={event => { if (event.target === ref.current) onClose?.(); }}>
     <div className="ui-drawer-panel">
       <header className="ui-drawer-head"><h2 id={titleId}>{title}</h2><button type="button" className="ui-icon-btn" aria-label="Close" onClick={onClose}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg></button></header>
       <div className="ui-drawer-body">{children}</div>
@@ -92,7 +92,8 @@ export function Popover({ label, children, align = 'start', className }) {
   useEffect(() => {
     if (!open) return undefined;
     const onPointer = event => { if (!wrapper.current?.contains(event.target)) setOpen(false); };
-    const onKey = event => { if (event.key === 'Escape') { setOpen(false); button.current?.focus(); } };
+    // preventDefault keeps Escape from also closing a Drawer or Dialog that contains the popover.
+    const onKey = event => { if (event.key === 'Escape') { event.preventDefault(); setOpen(false); button.current?.focus(); } };
     document.addEventListener('pointerdown', onPointer);
     document.addEventListener('keydown', onKey);
     return () => { document.removeEventListener('pointerdown', onPointer); document.removeEventListener('keydown', onKey); };

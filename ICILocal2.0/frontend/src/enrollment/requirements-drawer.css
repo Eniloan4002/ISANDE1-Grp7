@@ -1,0 +1,51 @@
+/* ICI2-98 requirements drawer. */
+dialog.ui-drawer.rq-drawer { width: min(560px, 100%); }
+.rq-drawer label { margin: 0; }
+.rq-drawer select, .rq-drawer textarea { margin: 0; }
+.rq-body { display: grid; gap: 12px; }
+.rq-muted { margin: 0; color: var(--ink-2); font-size: 13px; }
+.rq-name { margin: 0; font-size: 16px; font-weight: 700; }
+.rq-heading { margin: 4px 0 0; font-size: 15px; }
+
+.rq-who { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.rq-contact .ui-popover-panel { width: min(320px, calc(100vw - 48px)); }
+.rq-contacts { display: grid; gap: 8px; font-size: 14px; }
+.rq-contacts h3 { margin: 0; font-size: 14px; }
+.rq-contacts dl { display: grid; gap: 4px; margin: 0; }
+.rq-contacts dl div { display: flex; gap: 8px; }
+.rq-contacts dt { min-width: 48px; color: var(--ink-2); font-weight: 600; }
+.rq-contacts dd { margin: 0; overflow-wrap: anywhere; }
+.rq-contacts ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.rq-contacts li strong, .rq-contacts li span { display: block; }
+.rq-contacts li span { color: var(--ink-2); font-size: 13px; }
+.rq-contacts p { margin: 0; }
+
+.rq-progress { display: flex; align-items: flex-end; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius-card); }
+.rq-progress .ui-meter { flex: 1; }
+
+.rq-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--radius-card); }
+.rq-row { padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.rq-row:last-child { border-bottom: 0; }
+.rq-row.is-editing { background: var(--blue-50); }
+.rq-row-head { display: flex; align-items: center; gap: 10px; }
+.rq-row-name { flex: 1; min-width: 0; }
+.rq-row-name strong, .rq-row-name small { display: block; }
+.rq-row-name small { color: var(--ink-2); font-size: 12px; }
+.rq-edit { min-height: 32px; height: 32px; padding: 0 12px; }
+.rq-note { margin: 6px 0 0; color: var(--ink-2); font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.rq-form { display: grid; gap: 8px; margin-top: 10px; }
+.rq-form label { display: grid; gap: 4px; color: var(--ink-2); font-size: 12px; font-weight: 600; }
+.rq-form select { height: 36px; padding: 0 8px; }
+.rq-form textarea { width: 100%; box-sizing: border-box; padding: 8px; font: inherit; resize: vertical; }
+.rq-form-actions { display: flex; gap: 8px; }
+.rq-drawer .ui-drawer-foot .ui-btn { text-decoration: none; }
+.rq-drawer .panel { margin: 0; }
+
+@media (max-width: 600px) {
+  .rq-who { flex-direction: column; }
+  .rq-contact, .rq-contact > .ui-btn { width: 100%; }
+  .rq-progress { flex-direction: column; align-items: stretch; }
+  .rq-edit, .rq-form select, .rq-form-actions .ui-btn { min-height: 44px; height: 44px; }
+  .rq-form-actions .ui-btn { flex: 1; }
+  .rq-drawer .ui-drawer-foot .ui-btn { flex: 1; min-height: 44px; }
+}

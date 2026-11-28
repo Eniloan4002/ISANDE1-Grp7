@@ -64,17 +64,18 @@ test('Pauline intake and requirements UI persists through confirmation and alloc
   await expect(page.getByText('Pre-enlisted',{exact:true})).toBeVisible();
   await page.getByRole('link',{name:'Open requirements',exact:true}).click();
   await expect(page.getByRole('dialog',{name:'Requirements Checklist'})).toBeVisible();
-  await page.getByRole('button',{name:'Contact details for follow-up'}).click();
+  await page.getByRole('button',{name:'Contact for follow-up'}).click();
   await expect(page.getByText('Integration Guardian',{exact:true})).toBeVisible();
-  await page.getByRole('button',{name:'Close contact details'}).click();
+  await page.keyboard.press('Escape');await expect(page.getByRole('dialog',{name:'Requirements Checklist'})).toBeVisible();
   for(const code of ['COMPLETION','FORM137','GOOD_MORAL','PSA']){
+    await page.getByRole('button',{name:`Edit ${code}`,exact:true}).click();
     await page.getByLabel(`Status: ${code}`,{exact:true}).selectOption('submitted');
     await page.getByLabel(`Verification notes: ${code}`,{exact:true}).fill('Original inspected during integration test.');
     const saved=page.waitForResponse(response=>response.url().endsWith(`/requirements/${code}`)&&response.request().method()==='PUT');
     await page.getByRole('button',{name:`Save ${code}`,exact:true}).click();expect((await saved).status()).toBe(200);
-    await expect(page.getByLabel(`Status: ${code}`,{exact:true})).toHaveValue('submitted');
+    await expect(page.getByRole('button',{name:`Edit ${code}`,exact:true})).toBeVisible();
   }
-  await page.reload();await expect(page.getByLabel('Status: PSA',{exact:true})).toHaveValue('submitted');
+  await page.reload();await page.getByRole('button',{name:'Edit PSA',exact:true}).click();await expect(page.getByLabel('Status: PSA',{exact:true})).toHaveValue('submitted');
   await expect(page.getByLabel('Verification notes: PSA',{exact:true})).toHaveValue('Original inspected during integration test.');
   await page.screenshot({path:'test-results/integrated-requirements-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});

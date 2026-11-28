@@ -47,12 +47,12 @@ it('loads the persistent queue and applies server-side campus filters',async()=>
 });
 it('uses the persisted checklist in Pauline’s dialog and preserves notes after a conflict',async()=>{
  render(<MemoryRouter initialEntries={['/enrollment/requirements?applicationId=10']}><RequirementsScreen/></MemoryRouter>);
- await screen.findByLabelText('Verification notes: PSA');const original=apiRequest.getMockImplementation();apiRequest.mockImplementation((path,options)=>options?.method==='PUT'?Promise.reject(new Error('Version conflict; reload.')):original(path,options));
+ fireEvent.click(await screen.findByRole('button',{name:'Edit PSA'}));await screen.findByLabelText('Verification notes: PSA');const original=apiRequest.getMockImplementation();apiRequest.mockImplementation((path,options)=>options?.method==='PUT'?Promise.reject(new Error('Version conflict; reload.')):original(path,options));
  fireEvent.change(screen.getByLabelText('Verification notes: PSA'),{target:{value:'Keep my note'}});fireEvent.click(screen.getByRole('button',{name:'Save PSA'}));await screen.findByRole('alert');expect(screen.getByLabelText('Verification notes: PSA')).toHaveValue('Keep my note');
 });
 it('shows intake guardian contacts before a student record exists and does not simulate sending',async()=>{
  render(<MemoryRouter initialEntries={['/enrollment/requirements?applicationId=10']}><RequirementsScreen/></MemoryRouter>);
- await screen.findByRole('button',{name:'Contact details for follow-up'});fireEvent.click(screen.getByRole('button',{name:'Contact details for follow-up'}));await screen.findByText('Maria Santos');expect(screen.queryByRole('button',{name:/Send/})).not.toBeInTheDocument();
+ fireEvent.click(await screen.findByRole('button',{name:'Contact for follow-up'}));await screen.findByText('Maria Santos');expect(screen.getByText(/09912345678/)).toBeInTheDocument();expect(screen.queryByRole('button',{name:/Send/})).not.toBeInTheDocument();
  expect(apiRequest.mock.calls.every(([,options])=>!options?.method||options.method==='GET')).toBe(true);
 });
 it('opens the Requirements screen already filtered to open credentials',async()=>{

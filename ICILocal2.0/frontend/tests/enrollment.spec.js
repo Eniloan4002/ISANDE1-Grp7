@@ -13,14 +13,15 @@ test('verify credentials, record attendance, confirm and allocate an enrollment'
   await page.getByRole('button',{name:'Sign in',exact:true}).click();
   await expect(page.getByRole('heading',{name:'Requirements',exact:true})).toBeVisible();
   for(const code of ['COMPLETION','FORM137','GOOD_MORAL','PSA']){
+    await page.getByRole('button',{name:`Edit ${code}`,exact:true}).click();
     await page.getByLabel(`Status: ${code}`,{exact:true}).selectOption('submitted');
     await page.getByLabel(`Verification notes: ${code}`,{exact:true}).fill('Original document inspected during browser verification.');
     const saved=page.waitForResponse(response=>response.url().endsWith(`/requirements/${code}`)&&response.request().method()==='PUT');
     await page.getByRole('button',{name:`Save ${code}`,exact:true}).click();expect((await saved).status()).toBe(200);
-    await expect(page.getByRole('button',{name:`Save ${code}`,exact:true})).toBeEnabled();
-    await expect(page.getByText('Loading application…')).toHaveCount(0);
+    await expect(page.getByRole('button',{name:`Edit ${code}`,exact:true})).toBeVisible();
+    await expect(page.getByText('Loading checklist…')).toHaveCount(0);
   }
-  await expect(page.locator('.enrollment-stats').getByText('Complete',{exact:true})).toBeVisible();
+  await expect(page.locator('.rq-progress').getByText('Complete',{exact:true})).toBeVisible();
   await expect(page.getByRole('heading',{name:'Verification history'})).toBeVisible();
   await page.screenshot({path:'test-results/requirements-desktop.png',fullPage:true});
   await page.getByRole('link',{name:'Continue to attendance',exact:true}).click();
