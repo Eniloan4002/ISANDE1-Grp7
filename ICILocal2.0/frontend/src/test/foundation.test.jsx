@@ -141,3 +141,68 @@ it('forces a temporary-password session onto Account Security before business ro
  render(<MemoryRouter initialEntries={['/academic/grade-entry']}><AuthProvider><App/></AuthProvider></MemoryRouter>);
  expect(await screen.findByRole('heading',{name:'Account Security',exact:true})).toBeInTheDocument();expect(screen.queryByRole('heading',{name:'Grade Entry',exact:true})).not.toBeInTheDocument();
 });
+
+describe('screens outside the side panel (ICI2-105)', () => {
+  const teacher = () => tokenFor({ role: 'teacher', exp: future() });
+
+  it('shows the sign-in card with the logo and labelled fields', async () => {
+    await show('/sign-in');
+    const card = screen.getByRole('main', { name: 'Staff sign in' });
+    expect(card).toHaveTextContent('ICI Local 2.0');
+    expect(screen.getByLabelText('Username')).toBeInTheDocument();
+    expect(screen.getByLabelText('Password', { exact: true })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Submit an enrollment application' })).toHaveAttribute('href', '/apply');
+    expect(document.querySelector('.app-shell')).not.toBeInTheDocument();
+  });
+
+  it('says in words beside each field what is missing', async () => {
+    await show('/sign-in');
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+    const username = screen.getByLabelText('Username');
+    expect(username).toHaveAttribute('aria-invalid', 'true');
+    expect(username).toHaveAccessibleDescription('Enter your username.');
+    expect(screen.getByLabelText('Password', { exact: true })).toHaveAccessibleDescription('Enter your password.');
+    expect(document.activeElement).toBe(username);
+    fireEvent.change(username, { target: { value: 'teacher-test' } });
+    expect(screen.queryByText('Enter your username.')).not.toBeInTheDocument();
+  });
+
+  it('shows a 404 inside the side panel when signed in', async () => {
+    await show('/not-a-page', teacher());
+    expect(screen.getByRole('heading', { name: 'Page not found' })).toBeInTheDocument();
+    expect(screen.getByText('/not-a-page')).toBeInTheDocument();
+    expect(document.querySelector('.app-shell')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Go to Grade Entry' })).toHaveAttribute('href', '/academic/grade-entry');
+  });
+
+  it('shows a standalone 404 when signed out', async () => {
+    await show('/not-a-page');
+    expect(screen.getByRole('heading', { name: 'Page not found' })).toBeInTheDocument();
+    expect(document.querySelector('.app-shell')).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Staff sign in' })).toHaveAttribute('href', '/sign-in');
+  });
+
+  it('names the page and the roles that may open it, and links back to the first page', async () => {
+    await show('/administration/users', teacher());
+    expect(screen.getByRole('heading', { name: 'Access denied' })).toBeInTheDocument();
+    const body = screen.getByRole('region', { name: 'Access denied' });
+    expect(body).toHaveTextContent('User Accounts is only for System Administrator accounts.');
+    expect(body).toHaveTextContent('You are signed in as Subject Teacher.');
+    expect(screen.getByRole('link', { name: 'Go to Grade Entry' })).toHaveAttribute('href', '/academic/grade-entry');
+    expect(document.querySelector('.app-shell')).toBeInTheDocument();
+  });
+
+  it('keeps the application form inside the side panel for signed-in staff', async () => {
+    await show('/apply', teacher());
+    expect(document.querySelector('.app-shell')).toBeInTheDocument();
+  });
+
+  it('renders every page route inside the side panel', async () => {
+    for (const page of pages) {
+      const { unmount } = await show(page.path, tokenFor({ role: page.allowedRoles[0], exp: future() }));
+      expect(document.querySelector('.app-shell'), page.path).toBeInTheDocument();
+      unmount();
+      setAccessToken(null);
+    }
+  });
+});

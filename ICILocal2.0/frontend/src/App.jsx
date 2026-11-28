@@ -27,6 +27,7 @@ import SystemSettings from './admin/SystemSettings.jsx';
 import { LoginPage } from './Auth.jsx';
 import { useAuth } from './auth/AuthContext.jsx';
 import { AppShell } from './components/AppShell.jsx';
+import { AccessDenied, NotFound, Placeholder, StandaloneNotFound } from './components/StatusPages.jsx';
 import { firstAllowedPath, pages } from './routes/routeConfig.js';
 import AssignedClasses from './academic/AssignedClasses.jsx';
 import EnrollmentRecords from './enrollment/EnrollmentRecords.jsx';
@@ -60,7 +61,9 @@ function RequireAuth() {
 
 function RoleGate({ allowedRoles, children }) {
   const { roles } = useAuth();
-  return allowedRoles.some(role => roles.includes(role)) ? children : <Navigate to="/access-denied" replace />;
+  const { pathname } = useLocation();
+  // Tell the access-denied screen which page was asked for and which roles may open it.
+  return allowedRoles.some(role => roles.includes(role)) ? children : <Navigate to="/access-denied" replace state={{ from: pathname, allowedRoles }} />;
 }
 
 function HomeRedirect() {
@@ -68,27 +71,25 @@ function HomeRedirect() {
   return <Navigate to={firstAllowedPath(roles)} replace />;
 }
 
-function Placeholder({ page }) {
-  return <section className="content-card" aria-labelledby="page-title">
-    <p className="eyebrow">Screen placeholder</p>
-    <h1 id="page-title">{page.label}</h1>
-    <p>You are signed in. This workflow is still under development; no records are available on this screen yet.</p>
-  </section>;
+/** Unknown paths: inside the shell when signed in, the standalone card when signed out. */
+function UnknownPath() {
+  const { isAuthenticated, loading } = useAuth();
+  if (loading) return <p role="status">Checking staff session…</p>;
+  return isAuthenticated ? <AppShell><NotFound /></AppShell> : <StandaloneNotFound />;
 }
 
-function AccessDenied() {
-  return <section className="content-card"><h1>Access denied</h1><p>Your assigned role does not allow this screen.</p></section>;
-}
-
-function NotFound() {
-  return <main className="standalone-message"><h1>Page not found</h1><p>Check the address and try again.</p></main>;
+/** The public application form; signed-in staff see it inside the shell like every other screen. */
+function ApplyRoute() {
+  const { isAuthenticated, loading } = useAuth();
+  if (loading) return <p role="status">Checking staff session…</p>;
+  return isAuthenticated ? <AppShell><EnrollmentSubmission /></AppShell> : <EnrollmentSubmission standalone />;
 }
 
 export default function App() {
   return <Routes>
     <Route path="/login" element={<Navigate to="/sign-in" replace />} />
     <Route path="/sign-in" element={<LoginPage />} />
-    <Route path="/apply" element={<EnrollmentSubmission standalone />} />
+    <Route path="/apply" element={<ApplyRoute />} />
     <Route element={<RequireAuth />}>
       <Route element={<AppShell />}>
         <Route index element={<HomeRedirect />} />
@@ -100,6 +101,6 @@ export default function App() {
         } />)}
       </Route>
     </Route>
-    <Route path="*" element={<NotFound />} />
+    <Route path="*" element={<UnknownPath />} />
   </Routes>;
 }

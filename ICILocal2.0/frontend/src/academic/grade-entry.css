@@ -1,21 +1,54 @@
-.grade-entry-context{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;flex-wrap:wrap}
-.grade-entry-context .assignment-field{min-width:260px}
-.grade-entry-meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:0}
-.grade-entry-meta div{padding:14px 0;border-bottom:1px solid var(--border)}
-.grade-entry-meta dt{font-size:13px;color:var(--muted);margin-bottom:5px}
-.grade-entry-meta dd{margin:0;font-weight:600}
-.grade-entry-grid{overflow:auto}
-.grade-entry-table{border-collapse:collapse;min-width:760px;width:100%;font-size:15px}
-.grade-entry-table th,.grade-entry-table td{padding:13px 12px;border-bottom:1px solid var(--border);text-align:left;vertical-align:middle}
-.grade-entry-table th{color:var(--muted);font-size:14px;white-space:nowrap}
-.grade-entry-table th:first-child,.grade-entry-table td:first-child{padding-left:0}
-.grade-entry-table input{width:125px;margin:0}
-.grade-entry-table input[aria-invalid=true]{border:2px solid #a34755;background:#fff0f1}
-.grade-entry-table tr.has-error td{background:#fffafa}
-.grade-cell{display:flex;flex-direction:column;gap:5px}
-.grade-cell small{color:#8c303c;min-height:18px}
-.grade-entry-actions{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:18px}
-.grade-entry-actions .component-row{margin:0}
-.grade-entry-note{margin-top:0}
-.grade-entry-dialog p{line-height:1.6}
-@media(max-width:700px){.grade-entry-meta{grid-template-columns:repeat(2,minmax(0,1fr))}.grade-entry-context .assignment-field{width:100%;min-width:0}}
+/* ICI2-101 Grade Entry: sticky context bar over a compact score grid. Uses the ICI2-96 tokens. */
+.ge-screen .ge-heading { margin-bottom: 12px; }
+.ge-screen .ge-heading h1 { margin: 2px 0 0; font-size: 26px; line-height: 32px; }
+
+/* Sticks below the 60px top bar while the grid scrolls. */
+.ge-bar { position: sticky; top: 60px; z-index: 4; display: grid; gap: 10px; margin: 0 0 12px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-card); box-shadow: 0 2px 6px rgba(27, 42, 51, .06); }
+.ge-bar-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 16px; }
+.ge-field { display: grid; gap: 4px; margin: 0; font-size: 12px; line-height: 16px; font-weight: 600; color: var(--ink-2); }
+.ge-field select { width: auto; min-width: 96px; max-width: 260px; min-height: 36px; margin: 0; padding: 0 10px; border: 1px solid #B9CEDA; border-radius: var(--radius-control); background: var(--surface); color: var(--ink); font-size: 14px; text-overflow: ellipsis; }
+.ge-field-class select { min-width: 220px; max-width: 400px; }
+.ge-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; min-height: 36px; }
+
+.ge-bar-status { align-items: center; padding-top: 10px; border-top: 1px solid var(--line); }
+.ge-progress { flex: 1 1 280px; min-width: 0; max-width: 520px; }
+.ge-save { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--ink-2); white-space: nowrap; }
+.ge-save::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.ge-save-saved, .ge-save-submitted { color: var(--success); }
+.ge-save-dirty { color: var(--attention); }
+.ge-save-failed { color: var(--blocked); }
+.ge-actions { display: flex; gap: 8px; margin-left: auto; }
+.ge-actions .ui-btn { min-height: 36px; }
+
+.ge-notice { margin: 0 0 12px; }
+
+.ge-screen .ge-sheet { margin: 0; }
+.ge-sheet-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+.ge-sheet-head h2 { margin: 0; font-size: 16px; line-height: 24px; }
+.ge-sheet-head p { margin: 0; font-size: 13px; color: var(--ink-2); }
+.ge-sheet-alert { margin: 0; padding: 8px 16px; font-size: 13px; font-weight: 600; color: var(--blocked); background: var(--blocked-bg); border-bottom: 1px solid var(--line); }
+
+.ge-grid { overflow-x: auto; }
+.ge-table { width: 100%; min-width: 640px; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.ge-table th, .ge-table td { padding: 6px 16px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+.ge-table thead th { padding-top: 8px; padding-bottom: 8px; font-size: 12px; font-weight: 600; letter-spacing: .02em; color: var(--ink-2); white-space: nowrap; background: var(--surface); }
+.ge-table tbody th { font-weight: 600; color: var(--ink); }
+.ge-table tbody tr:last-child > * { border-bottom: 0; }
+.ge-table tr.has-error > * { background: var(--blocked-bg); }
+.ge-table .ge-num { text-align: right; }
+.ge-number { color: var(--ink-2); white-space: nowrap; }
+
+.ge-cell { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+.ge-cell input { width: 96px; min-height: 36px; margin: 0; padding: 0 10px; text-align: right; font-variant-numeric: tabular-nums; border: 1px solid #B9CEDA; border-radius: var(--radius-control); background: var(--surface); color: var(--ink); font-size: 14px; }
+.ge-cell input:disabled { background: var(--canvas); color: var(--ink-2); }
+.ge-cell input[aria-invalid=true] { border: 2px solid var(--blocked); }
+.ge-error { font-size: 12px; font-weight: 600; color: var(--blocked); white-space: nowrap; }
+
+@media (max-width: 700px) {
+  /* On phones the bar wraps to several lines, so it scrolls with the page instead of covering the grid. */
+  .ge-bar { position: static; }
+  .ge-field, .ge-field select, .ge-field-class select { width: 100%; min-width: 0; max-width: none; }
+  .ge-chips, .ge-actions { margin-left: 0; }
+  .ge-actions { width: 100%; }
+  .ge-actions .ui-btn { flex: 1; }
+}

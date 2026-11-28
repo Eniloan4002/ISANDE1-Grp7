@@ -3,6 +3,7 @@ import {Link,Navigate,useLocation,useNavigate} from 'react-router';
 import {apiRequest,hasAccessToken,setAccessToken,getAccessToken} from './api.js';
 import {readClaims,rolesFromClaims} from './auth/jwt.js';
 import {firstAllowedPath,canAccessPath} from './routes/routeConfig.js';
+import {BrandMark} from './components/BrandMark.jsx';
 const AuthContext=createContext(null);
 export const useAuth=()=>useContext(AuthContext);
 export function AuthProvider({children}) {
@@ -49,6 +50,7 @@ export function LoginPage() {
   const {user,loading,signIn,sessionMessage}=useAuth();
   const [username,setUsername]=useState(''),[password,setPassword]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false);
   const [passwordVisible,setPasswordVisible]=useState(false);
+  const [fieldErrors,setFieldErrors]=useState({});
   const location=useLocation(),navigate=useNavigate();
   const from=location.state?.from;
   const requested=typeof from==='string'?from:from?`${from.pathname}${from.search||''}${from.hash||''}`:undefined;
@@ -56,6 +58,54 @@ export function LoginPage() {
   const roles=rolesFromClaims({roles:user?.grants.map(grant=>grant.role)||[]});
   const destination=user?.passwordChangeRequired?'/account/security':canAccessPath(requestedPath,roles)?requested:firstAllowedPath(roles);
   if(user&&!loading)return <Navigate to={destination} replace/>;
-  async function submit(event){event.preventDefault();setBusy(true);setPasswordVisible(false);setError('');try{const profile=await signIn(username.trim(),password);const signedInRoles=rolesFromClaims({roles:profile.grants.map(grant=>grant.role)});setPassword('');navigate(profile.passwordChangeRequired?'/account/security':canAccessPath(requestedPath,signedInRoles)?requested:firstAllowedPath(signedInRoles),{replace:true});}catch(error){setError(error.message);setPassword('');}finally{setBusy(false);}}
-  return <div className="login-page"><section className="login-brand"><div className="brand"><span className="brand-mark">ICI</span><strong>ICI Local 2.0</strong></div><h1>Iligan Computer Institute</h1><p>Student records and enrollment management</p><small>Iligan Main / Kapatagan / Bugo</small></section><main className="login-panel"><h2>Staff sign in</h2><p>Use your school personnel account to continue.</p><p className="field-help">Forgot your password? Contact your school administrator for identity verification and a temporary password.</p>{sessionMessage&&<p role="status">{sessionMessage}</p>}{error&&<div role="alert" className="notice notice-error">{error}</div>}<form onSubmit={submit}><label htmlFor="login-username">Username</label><input id="login-username" autoComplete="username" maxLength={100} required value={username} disabled={busy||loading} onChange={event=>setUsername(event.target.value)}/><div className="password-label-row"><label htmlFor="login-password">Password</label><button className="password-visibility-toggle" type="button" aria-controls="login-password" aria-pressed={passwordVisible} disabled={busy||loading} onClick={()=>setPasswordVisible(visible=>!visible)}>{passwordVisible?'Hide password':'Show password'}</button></div><input id="login-password" type={passwordVisible?'text':'password'} autoComplete="current-password" required maxLength={72} value={password} disabled={busy||loading} onChange={event=>setPassword(event.target.value)}/><button className="button" disabled={busy||loading}>{busy?'Signing in…':'Sign in'}</button></form><p className="field-help" style={{marginTop:'1rem',borderTop:'1px solid var(--border, #d8e2e8)',paddingTop:'0.85rem'}}>Prospective student? <Link to="/apply">Submit an enrollment application</Link></p></main></div>;
+  async function submit(event){
+    event.preventDefault();
+    // Say what is missing beside the field instead of relying on the browser's tooltip.
+    const missing={};
+    if(!username.trim())missing.username='Enter your username.';
+    if(!password)missing.password='Enter your password.';
+    setFieldErrors(missing);
+    if(Object.keys(missing).length){event.currentTarget.querySelector(missing.username?'#login-username':'#login-password')?.focus();return;}
+    setBusy(true);setPasswordVisible(false);setError('');
+    try{
+      const profile=await signIn(username.trim(),password);
+      const signedInRoles=rolesFromClaims({roles:profile.grants.map(grant=>grant.role)});
+      setPassword('');
+      navigate(profile.passwordChangeRequired?'/account/security':canAccessPath(requestedPath,signedInRoles)?requested:firstAllowedPath(signedInRoles),{replace:true});
+    }catch(error){setError(error.message);setPassword('');}
+    finally{setBusy(false);}
+  }
+  const field=(name,value)=>{if(fieldErrors[name]&&value)setFieldErrors(current=>({...current,[name]:''}));};
+  return <div className="auth-screen">
+    <main className="auth-card" aria-labelledby="sign-in-title">
+      <BrandMark />
+      <h1 id="sign-in-title">Staff sign in</h1>
+      <p className="auth-muted">Use your school personnel account to continue.</p>
+      {sessionMessage&&<p className="auth-session" role="status">{sessionMessage}</p>}
+      {error&&<div role="alert" className="notice notice-error">{error}</div>}
+      <form className="auth-form" onSubmit={submit} noValidate>
+        <div className="auth-field">
+          <label htmlFor="login-username">Username</label>
+          <input id="login-username" autoComplete="username" maxLength={100} required value={username} disabled={busy||loading}
+            aria-invalid={fieldErrors.username?'true':'false'} aria-describedby={fieldErrors.username?'login-username-error':undefined}
+            onChange={event=>{setUsername(event.target.value);field('username',event.target.value.trim());}}/>
+          {fieldErrors.username&&<p className="auth-field-error" id="login-username-error">{fieldErrors.username}</p>}
+        </div>
+        <div className="auth-field">
+          <div className="auth-field-head">
+            <label htmlFor="login-password">Password</label>
+            <button className="auth-toggle password-visibility-toggle" type="button" aria-controls="login-password" aria-pressed={passwordVisible} disabled={busy||loading} onClick={()=>setPasswordVisible(visible=>!visible)}>{passwordVisible?'Hide password':'Show password'}</button>
+          </div>
+          <input id="login-password" type={passwordVisible?'text':'password'} autoComplete="current-password" required maxLength={72} value={password} disabled={busy||loading}
+            aria-invalid={fieldErrors.password?'true':'false'} aria-describedby={fieldErrors.password?'login-password-error':undefined}
+            onChange={event=>{setPassword(event.target.value);field('password',event.target.value);}}/>
+          {fieldErrors.password&&<p className="auth-field-error" id="login-password-error">{fieldErrors.password}</p>}
+        </div>
+        <button className="ui-btn ui-btn-primary auth-submit" type="submit" disabled={busy||loading}>{busy?'Signing in…':'Sign in'}</button>
+      </form>
+      <p className="auth-help">Forgot your password? Contact your school administrator for identity verification and a temporary password.</p>
+      <p className="auth-divider">Prospective student? <Link to="/apply">Submit an enrollment application</Link></p>
+    </main>
+    <p className="auth-footnote">Iligan Main · Kapatagan · Bugo</p>
+  </div>;
 }
