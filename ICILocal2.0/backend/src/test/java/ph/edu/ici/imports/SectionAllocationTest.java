@@ -392,13 +392,15 @@ class SectionAllocationTest {
 
     @Test void anXlsxUploadIsStagedReviewedAndCommittedEndToEnd(){
         var s=setup();long a=enrolled(s,"X1",null),b=enrolled(s,"X2",null);
-        var r=upload(registrarToken,iligan,s,"sections.xlsx",xlsx(s,new String[]{"X1","Alpha"},new String[]{"X2","Beta"}));
+        // POI stamps the workbook with the current time, so building the file twice can give different bytes; reuse one copy.
+        byte[] file=xlsx(s,new String[]{"X1","Alpha"},new String[]{"X2","Beta"});
+        var r=upload(registrarToken,iligan,s,"sections.xlsx",file);
         assertThat(r.getStatusCode()).as(r.toString()).isEqualTo(HttpStatus.CREATED);
         assertThat(r.getBody().get("sourceFormat")).isEqualTo("xlsx");assertThat(r.getBody().get("validCount")).isEqualTo(2);
         long batch=((Number)r.getBody().get("id")).longValue();
         assertThat(commit(registrarToken,batch,2).getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(sectionOf(a)).isEqualTo(s.alpha());assertThat(sectionOf(b)).isEqualTo(s.beta());
-        assertThat(upload(registrarToken,iligan,s,"again.xlsx",xlsx(s,new String[]{"X1","Alpha"},new String[]{"X2","Beta"})).getStatusCode()).as("identical bytes").isEqualTo(HttpStatus.CONFLICT);
+        assertThat(upload(registrarToken,iligan,s,"again.xlsx",file).getStatusCode()).as("identical bytes").isEqualTo(HttpStatus.CONFLICT);
     }
 
     @Test void uploadsAreXlsxOnlyAndRefusedFilesAreRecordedOrNotAsTheirStatusSays(){
