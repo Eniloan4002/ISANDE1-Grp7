@@ -32,6 +32,7 @@ import AssignedClasses from './academic/AssignedClasses.jsx';
 import EnrollmentRecords from './enrollment/EnrollmentRecords.jsx';
 import ReportingMonitoring from './enrollment/ReportingMonitoring.jsx';
 import ClassRecords from './academic/ClassRecords.jsx';
+import CashierRoster from './cashiering/CashierRoster.jsx';
 import HonorRoll from './reporting/HonorRoll.jsx';
 import OfficialDocuments from './documents/OfficialDocuments.jsx';
 
@@ -42,6 +43,7 @@ const screenByPath = {
   '/enrollment/academic-records': <EnrollmentRecords />,
   '/enrollment/reporting-monitoring': <ReportingMonitoring />,
   '/academic/class-records': <ClassRecords />,
+  '/cashiering/students': <CashierRoster />,
   '/reporting/honor-roll': <HonorRoll />,
   '/documents/official': <OfficialDocuments />,
 };
