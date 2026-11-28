@@ -15,7 +15,7 @@
 .ah-students { flex: 1; min-height: 0; overflow-y: auto; list-style: none; margin: 0; padding: 6px; }
 .ah-students button { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 8px; width: 100%; padding: 9px 10px; border: 0; border-radius: var(--radius-control); background: none; color: var(--ink); text-align: left; cursor: pointer; }
 .ah-students button:hover { background: var(--canvas); }
-.ah-students button.is-selected { background: var(--blue-50); box-shadow: inset 3px 0 0 var(--ici-blue); }
+.ah-students button.is-selected { background: var(--blue-50); }
 .ah-students strong { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
 .ah-students small { grid-column: 1; display: flex; flex-wrap: wrap; gap: 0 10px; font-size: 12px; color: var(--ink-2); }
 .ah-students .ui-chip { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
