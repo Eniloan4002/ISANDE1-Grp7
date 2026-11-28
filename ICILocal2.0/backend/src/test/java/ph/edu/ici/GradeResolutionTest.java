@@ -205,4 +205,49 @@ class GradeResolutionTest {
         long draft=db.queryForObject("INSERT INTO grades(class_id,enrollment_id,term_id,grading_period_id,mark) VALUES (?,?,?,?,'INC') RETURNING id",Long.class,classId,e2,term,period1);
         assertThat(db.queryForObject("SELECT count(*) FROM incomplete_cases WHERE grade_id=?",Integer.class,draft)).isZero();
     }
+
+    long foreignCase(){
+        long bugo=db.queryForObject("SELECT id FROM campuses WHERE code='BUGO'",Long.class);String key=suffix();
+        long foreignSection=db.queryForObject("INSERT INTO sections(campus_id,term_id,program_id,name,grade_level,capacity) VALUES (?,?,?,?,'Grade 11',30) RETURNING id",Long.class,bugo,term,program,"Foreign "+key);
+        long foreignClass=db.queryForObject("INSERT INTO class_offerings(section_id,term_id,subject_id,teacher_id) VALUES (?,?,?,?) RETURNING id",Long.class,foreignSection,term,subject,teacher);
+        long student=db.queryForObject("INSERT INTO students(student_number,first_name,last_name,birth_date) VALUES (?,'Foreign','Student','2009-01-01') RETURNING id",Long.class,"STU-"+key);
+        long application=db.queryForObject("INSERT INTO applications(application_number,campus_id,term_id,program_id,student_id,category,first_name,last_name,birth_date) VALUES (?,?,?,?,?,'new','Foreign','Student','2009-01-01') RETURNING id",Long.class,"APP-"+key,bugo,term,program,student);
+        long enrollment=db.queryForObject("INSERT INTO enrollments(student_id,application_id,campus_id,term_id,program_id,section_id,status) VALUES (?,?,?,?,?,?,'provisional') RETURNING id",Long.class,student,application,bugo,term,program,foreignSection);
+        db.update("INSERT INTO class_memberships(class_id,enrollment_id,section_id,term_id) VALUES (?,?,?,?)",foreignClass,enrollment,foreignSection,term);
+        long grade=db.queryForObject("INSERT INTO grades(class_id,enrollment_id,term_id,grading_period_id,mark,state) VALUES (?,?,?,?,'INC','submitted') RETURNING id",Long.class,foreignClass,enrollment,term,period1);
+        return caseId(grade);
+    }
+    List<Map<String,Object>> items(String query,String token){
+        var response=call(HttpMethod.GET,"/api/academic/incomplete-cases"+query,null,token);
+        assertThat(response.getStatusCode()).as(response.toString()).isEqualTo(HttpStatus.OK);
+        return (List<Map<String,Object>>)response.getBody().get("items");
+    }
+
+    @Test void incompleteFiltersNarrowTotalsAndPagingWithinCampusScope(){
+        long q1=inc(false);
+        long q2=db.queryForObject("INSERT INTO grades(class_id,enrollment_id,term_id,grading_period_id,mark,state) VALUES (?,?,?,?,'INC','submitted') RETURNING id",Long.class,classId,e2,term,period2);
+        long first=caseId(q1),second=caseId(q2);
+        assertThat(items("?academicYearId="+year,registrarToken)).hasSize(2);
+        var byPeriod=call(HttpMethod.GET,"/api/academic/incomplete-cases?academicYearId="+year+"&gradingPeriodId="+period2,null,registrarToken).getBody();
+        assertThat(((Number)byPeriod.get("total")).intValue()).isEqualTo(1);
+        assertThat(((List<Map>)byPeriod.get("items")).getFirst().get("id")).isEqualTo(String.valueOf(second));
+        var paged=call(HttpMethod.GET,"/api/academic/incomplete-cases?academicYearId="+year+"&sectionId="+section+"&subjectId="+subject+"&teacherId="+teacher+"&size=1&page=1",null,registrarToken).getBody();
+        assertThat(((Number)paged.get("total")).intValue()).isEqualTo(2);
+        assertThat((List)paged.get("items")).hasSize(1);
+        assertThat(items("?gradingPeriodId="+period1+"&teacherId="+otherTeacher,registrarToken)).isEmpty();
+        assertThat(items("?academicYearId=-1",registrarToken)).isEmpty();
+        assertThat(call(HttpMethod.GET,"/api/academic/incomplete-cases?subjectId=abc",null,registrarToken).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test void incompleteFiltersNeverExposeAnotherCampusCases(){
+        long own=caseId(inc(false)),foreign=foreignCase();
+        assertThat(items("?academicYearId="+year,registrarToken)).extracting(r->r.get("id")).containsExactly(String.valueOf(own));
+        String query="?academicYearId="+year+"&gradingPeriodId="+period1+"&subjectId="+subject+"&teacherId="+teacher;
+        assertThat(items(query,registrarToken)).extracting(r->r.get("id")).containsExactly(String.valueOf(own));
+        long foreignSection=db.queryForObject("SELECT s.id FROM sections s JOIN class_offerings co ON co.section_id=s.id JOIN incomplete_cases ic ON ic.id=? JOIN grades g ON g.id=ic.grade_id AND g.class_id=co.id",Long.class,foreign);
+        var direct=call(HttpMethod.GET,"/api/academic/incomplete-cases?sectionId="+foreignSection,null,registrarToken);
+        assertThat(direct.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat((List)direct.getBody().get("items")).isEmpty();
+        assertThat(((Number)direct.getBody().get("total")).intValue()).isZero();
+    }
 }

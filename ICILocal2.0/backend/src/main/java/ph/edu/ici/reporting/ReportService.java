@@ -1,12 +1,15 @@
 package ph.edu.ici.reporting;
 
+import java.security.MessageDigest;
 import java.util.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.namedparam.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import ph.edu.ici.auth.AccessPolicy;
+import ph.edu.ici.auth.StaffIdentity;
 
 @Service
 public class ReportService {
@@ -90,14 +93,28 @@ public class ReportService {
         q.params.addValue("limit",size).addValue("offset",(long)page*size);
         return Map.of("items",db.queryForList(q.sql+" ORDER BY e.id LIMIT :limit OFFSET :offset",q.params),"total",totals.get("total"),"summary",totals,"vouchers",vouchers,"page",page,"size",size);
     }
-    @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
+    private static final byte[] UTF8_BOM={(byte)0xEF,(byte)0xBB,(byte)0xBF};
+    /** Writes the audit row in the same transaction as the read, so a file is never delivered without its record. */
+    @Transactional(isolation=Isolation.REPEATABLE_READ)
     public byte[] export(ReportFilter f,String format){
+        if(!Set.of("csv","pdf").contains(format))throw bad("Export format must be csv or pdf.");
         var items=bounded(f,"reports.read");
         var headers=List.of("Student number","Name","Campus","Academic year","Term","Grade level","Section","Program","Voucher","Standing","Missing documents");
         var rows=new ArrayList<List<Object>>();var lines=new ArrayList<String>();lines.add("Matching enrollments: "+items.size());
         for(var item:items){var row=new ArrayList<Object>();for(String k:List.of("studentNumber","name","campus","academicYear","term","gradeLevel","section","program","voucher","status","missingDocuments"))row.add(item.get(k));rows.add(row);lines.add(String.join(" | ",row.stream().map(v->v==null?"":v.toString()).toList()));}
-        if(format.equals("csv"))return ReportDocuments.csv(headers,rows);
-        if(format.equals("pdf"))return ReportDocuments.pdf("ICI operational enrollment report",lines);
-        throw bad("Export format must be csv or pdf.");
+        byte[] bytes;
+        if(format.equals("csv")){var body=ReportDocuments.csv(headers,rows);bytes=new byte[UTF8_BOM.length+body.length];System.arraycopy(UTF8_BOM,0,bytes,0,UTF8_BOM.length);System.arraycopy(body,0,bytes,UTF8_BOM.length,body.length);}
+        else bytes=ReportDocuments.pdf("ICI operational enrollment report",lines);
+        String digest;
+        try{digest=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));}
+        catch(java.security.NoSuchAlgorithmException impossible){throw new IllegalStateException(impossible);}
+        long actor=((StaffIdentity)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).userId();
+        // Provenance only: counts, hash, format and filters. Never names, student numbers or document lists.
+        db.update("INSERT INTO audit_logs(table_name,record_id,operation,new_data,actor_id) VALUES ('enrollment_report_exports',:id,'EXPORT',jsonb_build_object('rows',:rows,'sha256',:digest,'format',:format,'scope',cast(:scope AS jsonb),'campusId',cast(:campus AS bigint),'academicYearId',cast(:year AS bigint),'termId',cast(:term AS bigint),'gradingPeriodId',cast(:period AS bigint),'sectionId',cast(:section AS bigint),'gradeLevel',cast(:grade AS text),'voucher',cast(:voucher AS text),'requirementStatus',cast(:req AS text),'enrollmentStatus',cast(:status AS text)),:actor)",
+                new MapSqlParameterSource("id",UUID.randomUUID().toString()).addValue("rows",items.size()).addValue("digest",digest).addValue("format",format)
+                        .addValue("scope",access.campuses("reports.read").toString()).addValue("campus",f.campusId()).addValue("year",f.academicYearId()).addValue("term",f.termId())
+                        .addValue("period",f.gradingPeriodId()).addValue("section",f.sectionId()).addValue("grade",f.gradeLevel()).addValue("voucher",f.voucher())
+                        .addValue("req",f.requirementStatus()).addValue("status",f.enrollmentStatus()).addValue("actor",actor));
+        return bytes;
     }
 }

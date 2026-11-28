@@ -1,5 +1,6 @@
 package ph.edu.ici.setup;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,6 +50,7 @@ public class SetupService {
     @Transactional
     public Map<String, Object> create(Kind kind, Map<String, Object> values) {
         attributeActor();
+        if (kind == Kind.PERIODS) checkPeriodDates(values, null);
         // Only enum-owned table and column names enter SQL; all input values are bound.
         List<Object> args = kind.columns.stream().map(values::get).toList();
         String placeholders = String.join(",", kind.columns.stream().map(column -> "?").toList());
@@ -61,6 +63,7 @@ public class SetupService {
     public Map<String, Object> update(Kind kind, long id, Integer version, Map<String, Object> values) {
         attributeActor();
         if (version == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The record version is required when saving changes.");
+        if (kind == Kind.PERIODS) checkPeriodDates(values, id);
         List<Object> args = new ArrayList<>(kind.columns.stream().map(values::get).toList());
         args.add(id); args.add(version);
         String setters = String.join(",", kind.columns.stream().map(column -> column + "=?").toList());
@@ -74,6 +77,26 @@ public class SetupService {
         attributeActor();
         int count = jdbc.update("DELETE FROM " + kind.table + " WHERE id=? AND version=?", id, version);
         if (count == 0) { get(kind, id); throw stale(); }
+    }
+
+    /** A term's grading periods must not overlap, and their dates must follow their sequence order. */
+    private void checkPeriodDates(Map<String, Object> values, Long ownId) {
+        Object termId = values.get("term_id");
+        if (!(values.get("starts_on") instanceof LocalDate starts) || !(values.get("ends_on") instanceof LocalDate ends)) return;
+        if (ends.isBefore(starts)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The grading period end date cannot be before its start date.");
+        // Serialize concurrent period edits within a term so two requests cannot both pass the check.
+        jdbc.queryForList("SELECT id FROM academic_terms WHERE id=? FOR UPDATE", termId);
+        long own = ownId == null ? -1 : ownId;
+        List<Map<String, Object>> overlaps = jdbc.queryForList("SELECT code FROM grading_periods WHERE term_id=? AND id<>? AND starts_on<=? AND ends_on>=? ORDER BY sequence",
+            termId, own, ends, starts);
+        if (!overlaps.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+            "These dates overlap grading period " + overlaps.get(0).get("code") + " in the same term. Grading periods in a term cannot share dates.");
+        int sequence = ((Number) values.get("sequence")).intValue();
+        List<Map<String, Object>> outOfOrder = jdbc.queryForList("SELECT code FROM grading_periods WHERE term_id=? AND id<>? AND ((sequence<? AND starts_on>?) OR (sequence>? AND ends_on<?)) ORDER BY sequence",
+            termId, own, sequence, ends, sequence, starts);
+        if (!outOfOrder.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+            "These dates do not match the sequence order. A grading period with a lower sequence number must come earlier than grading period "
+            + outOfOrder.get(0).get("code") + ". Adjust the dates or the sequence number.");
     }
 
     private ResponseStatusException stale() {

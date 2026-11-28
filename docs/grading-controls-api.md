@@ -25,7 +25,7 @@ All control routes require a current `grades.review` grant at the section's camp
 }
 ```
 
-The deadline is an offset-aware ISO timestamp. A deadline in the past closes submissions immediately. Once the deadline has elapsed, or a manual lock/finalization exists, this endpoint cannot reopen the section by extending it. Before cutoff a versioned deadline edit is allowed. No reopen endpoint or implicit unlock is provided; post-lock changes belong to the separate correction workflow.
+The deadline is an offset-aware ISO timestamp and must be in the future (database clock); a past or present deadline returns 400. To close grading now, use the lock action, which records `lockedAt`/`lockedBy`. Once the deadline has elapsed, or a manual lock/finalization exists, this endpoint cannot reopen the section by extending it. Before cutoff a versioned deadline edit is allowed. No reopen endpoint or implicit unlock is provided; post-lock changes belong to the separate correction workflow.
 
 `POST /api/academic/sections/{sectionId}/grading-periods/{periodId}/lock`
 
@@ -44,7 +44,22 @@ Use the version from the latest read response; 0 means no section policy exists.
 
 Manual lock freezes teacher draft saves and submission without requiring submitted grades. Finalization additionally requires at least one configured class and at least one active student in each class roster. All active roster grades must be submitted or already finalized. Any missing/draft grade or empty configured class rejects the whole operation with 409; there are no partial changes. Success finalizes submitted active-roster grades and locks the section/period atomically. Numeric values and INC/NG/DRP marks are retained; grade versions increment. Repeated finalization is rejected, preventing duplicate grade-version increments.
 
-Section enrollment and subject-class membership are distinct. This service validates configured active class rosters. Creating a class offering (`POST /api/academic/class-offerings`) adds every active (provisional or enrolled) student of that section and term to the class roster. Students who join the section later are added with `POST /api/academic/class-offerings/{id}/members/sync?academicYearId=&termId=` (requires `enrollment.manage`; safe to repeat; the response includes `addedMembers`). Removing a student from a single subject (electives, cross-enrollment) is not implemented yet. This service does not close enrollment. New subject offerings are rejected for a section with any finalized period, avoiding a new ungradable subject beneath an already-finalized section.
+Section enrollment and subject-class membership are distinct. This service validates configured active class rosters. Creating a class offering (`POST /api/academic/class-offerings`) adds every active (provisional or enrolled) student of that section and term to the class roster. Students who join the section later are added with `POST /api/academic/class-offerings/{id}/members/sync?academicYearId=&termId=` (requires `enrollment.manage`; safe to repeat; the response includes `addedMembers`). Per-subject membership changes are described in "Per-subject class membership (ICI2-94)" below. This service does not close enrollment. New subject offerings are rejected for a section with any finalized period, avoiding a new ungradable subject beneath an already-finalized section.
+
+## Per-subject class membership (ICI2-94)
+
+Both endpoints require `enrollment.manage` and are campus-scoped (other-campus classes or enrollments return 404). The class's term must match `termId`, and `academicYearId` must own that term.
+
+- `DELETE /api/academic/class-offerings/{id}/members/{enrollmentId}?academicYearId=&termId=&discardDrafts=false` removes one student from one class. Returns the class plus `removedEnrollmentId` and `discardedDrafts`.
+- `POST /api/academic/class-offerings/{id}/members` with `{academicYearId, termId, enrollmentId}` adds one provisional/enrolled student of the same campus and term, including a student from a different section (201). Already a member returns 409; non-active students 409; wrong campus/term 400/404.
+
+Grade rule on removal: a submitted or finalized grade always blocks removal (409, message says so). **Draft grades also block by default** (409 naming the draft count); the registrar must pass `discardDrafts=true` to delete the draft rows together with the membership. Drafts are never discarded implicitly. Both changes are rejected (409) once any period of the class's section is finalized.
+
+`sync` and class creation skip students deliberately removed from a class of their own section (table `class_membership_exclusions`), so a sync never undoes a removal. Adding the student again clears the exclusion. Cross-section additions need no exclusion.
+
+Audit: `class_memberships` insert/delete, `class_membership_exclusions` and discarded `grades` rows go through the standard `audit_logs` triggers with the acting user (`app.actor_id`). Grade entry, finalization, honor roll, advisory records, history and official documents all read `class_memberships`, so they reflect the change immediately. Honor roll keeps its "exactly one class membership per configured subject" rule: a removed student reports `missing_subject`, a student in two classes of the same configured subject reports `ambiguous_subject`.
+
+Migration `V26__class_membership_exclusions.sql` replaces the membership-to-enrollment section foreign key with a term-level key (so cross-section members are possible) and creates the exclusions table.
 
 ## Enforcement, concurrency and audit
 
@@ -54,6 +69,11 @@ Section enrollment and subject-class membership are distinct. This service valid
 - The PostgreSQL wall clock (`clock_timestamp()`) evaluates deadlines after waiting for the offering lock. Teacher writes check again after processing the batch and roll back if the deadline crossed. This is request-transaction cutoff enforcement, not a scheduler that stamps `locked_at` at the deadline or a guarantee about network delivery time.
 - An elapsed deadline reports `locked` even if `lockedAt` is null. Manual lock and finalization record their explicit actor/timestamp.
 - Section policies and grade changes use the existing transaction actor and append-only before/after audit triggers. A single transaction covers grades, policy and audit events. Prior reasons remain in the audit history.
+
+## Deadlines and empty class offerings (ICI2-93)
+
+- Past deadlines are rejected with 400 (`Deadline must be in the future...`). A deadline that later elapses reports `status: locked` with `lockedAt`/`lockedBy` null; no actor is invented, since no scheduler stamps the lock.
+- Finalization skips class offerings with no active (provisional or enrolled) members, for example an elective whose students all withdrew. The finalize response adds `skippedClasses` (`classId`, `subjectCode`, `subject`) so skipped offerings are visible. Every non-empty offering must still have all grades submitted. A section whose offerings are all empty can be finalized; it finalizes no grades.
 
 ## Migration and verification
 

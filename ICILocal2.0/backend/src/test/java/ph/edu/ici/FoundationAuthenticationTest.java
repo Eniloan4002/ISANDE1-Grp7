@@ -31,8 +31,8 @@ class FoundationAuthenticationTest {
     @Autowired JdbcTemplate jdbc;
     @Autowired PasswordEncoder passwords;
     @Autowired Flyway flyway;
-    String username,password="Valid-Test-Password-123!",token;
-    long userId;
+    String username,password="Valid-Test-Password-123!",token,adminToken;
+    long userId,adminId;
 
     @BeforeEach void staff(){
         username="test-"+UUID.randomUUID();
@@ -41,6 +41,48 @@ class FoundationAuthenticationTest {
         jdbc.update("INSERT INTO user_role_grants(user_id,role_code,campus_id) SELECT ?,'ROLE_REGISTRAR',id FROM campuses WHERE code='ILIGAN'",userId);
         var response=login(username,password);assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         token=(String)response.getBody().get("accessToken");
+        String adminName="admin-"+UUID.randomUUID();
+        adminId=jdbc.queryForObject("INSERT INTO users(username,email,full_name,password_hash) VALUES (?,?,?,?) RETURNING id",Long.class,
+            adminName,adminName+"@example.invalid","Test Admin",passwords.encode(password));
+        jdbc.update("INSERT INTO user_role_grants(user_id,role_code,campus_id) SELECT ?,'ROLE_ADMIN',id FROM campuses WHERE code='ILIGAN'",adminId);
+        adminToken=(String)login(adminName,password).getBody().get("accessToken");
+    }
+    HttpHeaders bearer(String value){HttpHeaders headers=new HttpHeaders();headers.setBearerAuth(value);return headers;}
+    Map period(Object term,String code,int sequence,String starts,String ends){return Map.of("termId",term,"code",code,"sequence",sequence,"startsOn",starts,"endsOn",ends);}
+    @Test void registrarsCanReadButNotEditSetupWhileAdminsStillCan(){
+        Map year=year(),term=term(year),subject=subject();
+        assertThat(rest.exchange("/api/setup/subjects",HttpMethod.GET,new HttpEntity<>(bearer(token)),Object.class).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(rest.exchange("/api/setup/terms",HttpMethod.GET,new HttpEntity<>(bearer(token)),Object.class).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(call(HttpMethod.POST,"/api/setup/subjects",Map.of("code","REG-"+UUID.randomUUID().toString().substring(0,8),"name","Nope","units",1,"active",true),token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.POST,"/api/setup/academic-years",Map.of("label","X","startsOn","2030-06-01","endsOn","2031-04-30"),token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.PUT,"/api/setup/terms/"+term.get("id"),Map.of("academicYearId",year.get("id"),"code","S1","name","Renamed","startsOn","2026-06-01","endsOn","2026-10-31","version",0),token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.POST,"/api/setup/grading-periods",period(term.get("id"),"Q1",1,"2026-06-01","2026-08-31"),token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(call(HttpMethod.DELETE,"/api/setup/subjects/"+subject.get("id")+"?version=0",null,token).getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+        assertThat(jdbc.queryForObject("SELECT name FROM academic_terms WHERE id=?",String.class,term.get("id"))).isEqualTo("First semester");
+        assertThat(call(HttpMethod.PUT,"/api/setup/terms/"+term.get("id"),Map.of("academicYearId",year.get("id"),"code","S1","name","Renamed","startsOn","2026-06-01","endsOn","2026-10-31","version",0),adminToken).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(jdbc.queryForObject("SELECT array_agg(role_code ORDER BY role_code)::text FROM role_permissions WHERE permission_code='setup.manage'",String.class)).isEqualTo("{ROLE_ADMIN}");
+    }
+    @Test void gradingPeriodsCannotOverlapOrContradictTheirSequence(){
+        Map term=term(year());
+        create("grading-periods",period(term.get("id"),"Q2",2,"2026-08-01","2026-09-30"));
+        var overlap=call(HttpMethod.POST,"/api/setup/grading-periods",period(term.get("id"),"Q3",3,"2026-09-30","2026-10-31"),adminToken);
+        assertThat(overlap.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);assertThat(overlap.getBody().get("detail").toString()).contains("overlap").contains("Q2");
+        var order=call(HttpMethod.POST,"/api/setup/grading-periods",period(term.get("id"),"Q1",1,"2026-10-01","2026-10-31"),adminToken);
+        assertThat(order.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);assertThat(order.getBody().get("detail").toString()).contains("sequence order");
+        assertThat(call(HttpMethod.POST,"/api/setup/grading-periods",period(term.get("id"),"Q1",1,"2026-06-01","2026-07-31"),adminToken).getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        Map q3=create("grading-periods",period(term.get("id"),"Q3",3,"2026-10-01","2026-10-31"));
+        // Editing a period may keep its own dates, but not move into a neighbour or ahead of an earlier sequence.
+        assertThat(call(HttpMethod.PUT,"/api/setup/grading-periods/"+q3.get("id"),Map.of("termId",term.get("id"),"code","Q3","sequence",3,"startsOn","2026-09-15","endsOn","2026-10-31","version",0),adminToken).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(call(HttpMethod.PUT,"/api/setup/grading-periods/"+q3.get("id"),Map.of("termId",term.get("id"),"code","Q3","sequence",3,"startsOn","2026-10-01","endsOn","2026-10-30","version",0),adminToken).getStatusCode()).isEqualTo(HttpStatus.OK);
+        // Another term may reuse the same dates.
+        Map other=create("terms",Map.of("academicYearId",term.get("academic_year_id"),"code","S2","name","Second","startsOn","2026-06-01","endsOn","2026-10-31"));
+        assertThat(call(HttpMethod.POST,"/api/setup/grading-periods",period(other.get("id"),"Q1",1,"2026-06-01","2026-07-31"),adminToken).getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    }
+    @Test void setupErrorMessagesDoNotLeakToOtherControllers(){
+        var other=call(HttpMethod.PUT,"/api/academic/sections/1/grading-periods/1/deadline",Map.of("deadline","2030-01-01T00:00:00Z","version",0),token);
+        assertThat(other.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);assertThat(String.valueOf(other.getBody())).doesNotContain("Check the highlighted fields").doesNotContain("YYYY-MM-DD");
+        var setup=call(HttpMethod.POST,"/api/setup/subjects",Map.of("code"," ","name","","units",0,"active",true),adminToken);
+        assertThat(setup.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);assertThat(setup.getBody().get("detail")).isEqualTo("Check the highlighted fields.");
     }
     ResponseEntity<Map> login(String name,String password){return rest.postForEntity("/api/auth/login",Map.of("username",name,"password",password),Map.class);}
     ResponseEntity<Map> call(HttpMethod method,String path,Object body,String bearer){
@@ -48,13 +90,13 @@ class FoundationAuthenticationTest {
         if(bearer!=null)headers.setBearerAuth(bearer);
         return rest.exchange(path,method,new HttpEntity<>(body,headers),Map.class);
     }
-    Map create(String path,Map input){var response=call(HttpMethod.POST,"/api/setup/"+path,input,token);assertThat(response.getStatusCode()).describedAs(response.toString()).isEqualTo(HttpStatus.CREATED);return response.getBody();}
+    Map create(String path,Map input){var response=call(HttpMethod.POST,"/api/setup/"+path,input,adminToken);assertThat(response.getStatusCode()).describedAs(response.toString()).isEqualTo(HttpStatus.CREATED);return response.getBody();}
     Map year(){return create("academic-years",Map.of("label",UUID.randomUUID().toString().substring(0,20),"startsOn","2026-06-01","endsOn","2027-04-30"));}
     Map term(Map year){return create("terms",Map.of("academicYearId",year.get("id"),"code","S1","name","First semester","startsOn","2026-06-01","endsOn","2026-10-31"));}
     Map subject(){return create("subjects",Map.of("code","SUB-"+UUID.randomUUID().toString().substring(0,8),"name","Mathematics","units",1,"active",true));}
 
     @Test void flywayRunsAndValidatesAllVersionsOnRealPostgres(){
-        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("24");
+        assertThat(flyway.info().current().getVersion().getVersion()).isEqualTo("26");
         flyway.validate();assertThat(flyway.migrate().migrationsExecuted).isZero();
         assertThat(jdbc.queryForObject("SELECT version()",String.class)).contains("PostgreSQL 17");
         assertThat(jdbc.queryForObject("SELECT count(*) FROM information_schema.tables t WHERE t.table_schema='public' AND t.table_name NOT IN ('audit_logs','revoked_tokens','flyway_schema_history') AND NOT EXISTS(SELECT 1 FROM information_schema.columns c WHERE c.table_schema=t.table_schema AND c.table_name=t.table_name AND c.column_name='created_by')",Integer.class)).isZero();
@@ -102,24 +144,24 @@ class FoundationAuthenticationTest {
         Map year=year(),term=term(year),subject=subject();
         Map period=create("grading-periods",Map.of("termId",term.get("id"),"code","Q1","sequence",1,"startsOn","2026-06-01","endsOn","2026-08-31"));
         assertThat(period.get("starts_on")).isEqualTo("2026-06-01");
-        assertThat(call(HttpMethod.POST,"/api/setup/subjects",Map.of("code",subject.get("code").toString().toLowerCase(),"name","Duplicate","units",1,"active",true),token).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-        assertThat(call(HttpMethod.POST,"/api/setup/terms",Map.of("academicYearId",year.get("id"),"code","S2","name","Invalid","startsOn","2027-05-01","endsOn","2027-06-01"),token).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(call(HttpMethod.POST,"/api/setup/grading-periods",Map.of("termId",term.get("id"),"code","Q2","sequence",2,"startsOn","2026-09-01","endsOn","2026-11-30"),token).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(call(HttpMethod.POST,"/api/setup/subjects",Map.of("code"," ","name","","units",0,"active",true),token).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(call(HttpMethod.DELETE,"/api/setup/academic-years/"+year.get("id")+"?version=0",null,token).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-        assertThat(call(HttpMethod.DELETE,"/api/setup/terms/"+term.get("id")+"?version=0",null,token).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(call(HttpMethod.POST,"/api/setup/subjects",Map.of("code",subject.get("code").toString().toLowerCase(),"name","Duplicate","units",1,"active",true),adminToken).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(call(HttpMethod.POST,"/api/setup/terms",Map.of("academicYearId",year.get("id"),"code","S2","name","Invalid","startsOn","2027-05-01","endsOn","2027-06-01"),adminToken).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(call(HttpMethod.POST,"/api/setup/grading-periods",Map.of("termId",term.get("id"),"code","Q2","sequence",2,"startsOn","2026-09-01","endsOn","2026-11-30"),adminToken).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(call(HttpMethod.POST,"/api/setup/subjects",Map.of("code"," ","name","","units",0,"active",true),adminToken).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(call(HttpMethod.DELETE,"/api/setup/academic-years/"+year.get("id")+"?version=0",null,adminToken).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(call(HttpMethod.DELETE,"/api/setup/terms/"+term.get("id")+"?version=0",null,adminToken).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
     }
     @Test void setupUsesOptimisticVersionsAndAttributedAudits(){
         Map subject=subject();String path="/api/setup/subjects/"+subject.get("id");
         Map input=Map.of("code",subject.get("code"),"name","Updated","units",2,"active",true,"version",0);
-        assertThat(call(HttpMethod.PUT,path,input,token).getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(call(HttpMethod.PUT,path,input,token).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-        assertThat(call(HttpMethod.DELETE,path+"?version=0",null,token).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-        Map audit=jdbc.queryForMap("SELECT actor_id,old_data->>'name' old_name,new_data->>'name' new_name FROM audit_logs WHERE table_name='subjects' AND operation='UPDATE' AND actor_id=? ORDER BY id DESC LIMIT 1",userId);
-        assertThat(((Number)audit.get("actor_id")).longValue()).isEqualTo(userId);assertThat(audit.get("new_name")).isEqualTo("Updated");
-        assertThat(jdbc.queryForObject("SELECT created_by FROM subjects WHERE id=?",Long.class,subject.get("id"))).isEqualTo(userId);
-        assertThat(call(HttpMethod.DELETE,path+"?version=1",null,token).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-        assertThat(call(HttpMethod.GET,path,null,token).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(call(HttpMethod.PUT,path,input,adminToken).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(call(HttpMethod.PUT,path,input,adminToken).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(call(HttpMethod.DELETE,path+"?version=0",null,adminToken).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        Map audit=jdbc.queryForMap("SELECT actor_id,old_data->>'name' old_name,new_data->>'name' new_name FROM audit_logs WHERE table_name='subjects' AND operation='UPDATE' AND actor_id=? ORDER BY id DESC LIMIT 1",adminId);
+        assertThat(((Number)audit.get("actor_id")).longValue()).isEqualTo(adminId);assertThat(audit.get("new_name")).isEqualTo("Updated");
+        assertThat(jdbc.queryForObject("SELECT created_by FROM subjects WHERE id=?",Long.class,subject.get("id"))).isEqualTo(adminId);
+        assertThat(call(HttpMethod.DELETE,path+"?version=1",null,adminToken).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(call(HttpMethod.GET,path,null,adminToken).getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
     @Test void assignmentsProtectSubjectsAndGradingWindowsProtectPeriods(){
         Map year=year(),term=term(year),subject=subject();
@@ -127,8 +169,8 @@ class FoundationAuthenticationTest {
         long section=jdbc.queryForObject("INSERT INTO sections(campus_id,term_id,program_id,name,grade_level,capacity) SELECT c.id,?,p.id,'Protection test','11',10 FROM campuses c CROSS JOIN programs p WHERE c.code='ILIGAN' AND p.code='STEM' RETURNING id",Long.class,term.get("id"));
         long offering=jdbc.queryForObject("INSERT INTO class_offerings(section_id,term_id,subject_id,teacher_id) VALUES (?,?,?,?) RETURNING id",Long.class,section,term.get("id"),subject.get("id"),userId);
         jdbc.update("INSERT INTO grading_windows(class_id,grading_period_id) VALUES (?,?)",offering,period.get("id"));
-        assertThat(call(HttpMethod.DELETE,"/api/setup/subjects/"+subject.get("id")+"?version=0",null,token).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
-        assertThat(call(HttpMethod.DELETE,"/api/setup/grading-periods/"+period.get("id")+"?version=0",null,token).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(call(HttpMethod.DELETE,"/api/setup/subjects/"+subject.get("id")+"?version=0",null,adminToken).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(call(HttpMethod.DELETE,"/api/setup/grading-periods/"+period.get("id")+"?version=0",null,adminToken).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         assertThatThrownBy(()->jdbc.update("UPDATE academic_years SET ends_on='2026-07-01' WHERE id=?",year.get("id"))).hasMessageContaining("contain all terms");
         assertThatThrownBy(()->jdbc.update("UPDATE academic_terms SET ends_on='2026-07-01' WHERE id=?",term.get("id"))).hasMessageContaining("contain all grading periods");
     }
@@ -148,7 +190,7 @@ class FoundationAuthenticationTest {
             statement.execute("INSERT INTO academic_terms(academic_year_id,code,name,starts_on,ends_on) VALUES (1,'S1','Existing term','2026-06-01','2026-10-31')");
             statement.execute("INSERT INTO grading_periods(term_id,code,sequence) VALUES (1,'Q1',1)");
         }
-        Flyway latest=Flyway.configure().dataSource(url,"postgres","").load();assertThat(latest.migrate().migrationsExecuted).isEqualTo(22);latest.validate();
+        Flyway latest=Flyway.configure().dataSource(url,"postgres","").load();assertThat(latest.migrate().migrationsExecuted).isEqualTo(24);latest.validate();
         try(var connection=java.sql.DriverManager.getConnection(url,"postgres","");var statement=connection.createStatement()){
             try(var rows=statement.executeQuery("SELECT name,version FROM subjects WHERE code='LEGACY'")){assertThat(rows.next()).isTrue();assertThat(rows.getString(1)).isEqualTo("Existing subject");assertThat(rows.getInt(2)).isZero();}
             try(var rows=statement.executeQuery("SELECT starts_on,ends_on FROM grading_periods WHERE code='Q1'")){assertThat(rows.next()).isTrue();assertThat(rows.getDate(1).toString()).isEqualTo("2026-06-01");assertThat(rows.getDate(2).toString()).isEqualTo("2026-10-31");}

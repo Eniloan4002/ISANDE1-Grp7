@@ -16,6 +16,8 @@ import static ph.edu.ici.setup.SetupService.values;
 @RequestMapping("/api/setup")
 @PreAuthorize("@accessPolicy.hasPermission('enrollment.manage')")
 public class SetupController {
+    /** Edits change global data shared by every campus, so they need the dedicated permission, not campus-scoped enrollment.manage. */
+    private static final String WRITE="@accessPolicy.hasPermission('setup.manage')";
     private final SetupService service;
     public SetupController(SetupService service) { this.service=service; }
 
@@ -41,33 +43,33 @@ public class SetupController {
 
     @GetMapping("/subjects") public List<Map<String,Object>> subjects() { return service.list(SUBJECTS,null); }
     @GetMapping("/subjects/{id}") public Map<String,Object> subject(@PathVariable long id) { return service.get(SUBJECTS,id); }
-    @PostMapping("/subjects") @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize(WRITE) @PostMapping("/subjects") @ResponseStatus(HttpStatus.CREATED)
     public Map<String,Object> addSubject(@Valid @RequestBody SubjectInput input) { return service.create(SUBJECTS,input.fields()); }
-    @PutMapping("/subjects/{id}") public Map<String,Object> updateSubject(@PathVariable long id,@Valid @RequestBody SubjectInput input) { return service.update(SUBJECTS,id,input.version(),input.fields()); }
-    @DeleteMapping("/subjects/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize(WRITE) @PutMapping("/subjects/{id}") public Map<String,Object> updateSubject(@PathVariable long id,@Valid @RequestBody SubjectInput input) { return service.update(SUBJECTS,id,input.version(),input.fields()); }
+    @PreAuthorize(WRITE) @DeleteMapping("/subjects/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteSubject(@PathVariable long id,@RequestParam int version) { service.delete(SUBJECTS,id,version); }
 
     @GetMapping("/academic-years") public List<Map<String,Object>> years() { return service.list(YEARS,null); }
     @GetMapping("/academic-years/{id}") public Map<String,Object> year(@PathVariable long id) { return service.get(YEARS,id); }
-    @PostMapping("/academic-years") @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize(WRITE) @PostMapping("/academic-years") @ResponseStatus(HttpStatus.CREATED)
     public Map<String,Object> addYear(@Valid @RequestBody YearInput input) { return service.create(YEARS,input.fields()); }
-    @PutMapping("/academic-years/{id}") public Map<String,Object> updateYear(@PathVariable long id,@Valid @RequestBody YearInput input) { return service.update(YEARS,id,input.version(),input.fields()); }
-    @DeleteMapping("/academic-years/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize(WRITE) @PutMapping("/academic-years/{id}") public Map<String,Object> updateYear(@PathVariable long id,@Valid @RequestBody YearInput input) { return service.update(YEARS,id,input.version(),input.fields()); }
+    @PreAuthorize(WRITE) @DeleteMapping("/academic-years/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteYear(@PathVariable long id,@RequestParam int version) { service.delete(YEARS,id,version); }
 
     @GetMapping("/terms") public List<Map<String,Object>> terms(@RequestParam(required=false) Long academicYearId) { return service.list(TERMS,academicYearId); }
     @GetMapping("/terms/{id}") public Map<String,Object> term(@PathVariable long id) { return service.get(TERMS,id); }
-    @PostMapping("/terms") @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize(WRITE) @PostMapping("/terms") @ResponseStatus(HttpStatus.CREATED)
     public Map<String,Object> addTerm(@Valid @RequestBody TermInput input) { return service.create(TERMS,input.fields()); }
-    @PutMapping("/terms/{id}") public Map<String,Object> updateTerm(@PathVariable long id,@Valid @RequestBody TermInput input) { return service.update(TERMS,id,input.version(),input.fields()); }
-    @DeleteMapping("/terms/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize(WRITE) @PutMapping("/terms/{id}") public Map<String,Object> updateTerm(@PathVariable long id,@Valid @RequestBody TermInput input) { return service.update(TERMS,id,input.version(),input.fields()); }
+    @PreAuthorize(WRITE) @DeleteMapping("/terms/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTerm(@PathVariable long id,@RequestParam int version) { service.delete(TERMS,id,version); }
 
     @GetMapping("/grading-periods") public List<Map<String,Object>> periods(@RequestParam(required=false) Long termId) { return service.list(PERIODS,termId); }
     @GetMapping("/grading-periods/{id}") public Map<String,Object> period(@PathVariable long id) { return service.get(PERIODS,id); }
-    @PostMapping("/grading-periods") @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize(WRITE) @PostMapping("/grading-periods") @ResponseStatus(HttpStatus.CREATED)
     public Map<String,Object> addPeriod(@Valid @RequestBody PeriodInput input) { return service.create(PERIODS,input.fields()); }
-    @PutMapping("/grading-periods/{id}") public Map<String,Object> updatePeriod(@PathVariable long id,@Valid @RequestBody PeriodInput input) { return service.update(PERIODS,id,input.version(),input.fields()); }
-    @DeleteMapping("/grading-periods/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize(WRITE) @PutMapping("/grading-periods/{id}") public Map<String,Object> updatePeriod(@PathVariable long id,@Valid @RequestBody PeriodInput input) { return service.update(PERIODS,id,input.version(),input.fields()); }
+    @PreAuthorize(WRITE) @DeleteMapping("/grading-periods/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePeriod(@PathVariable long id,@RequestParam int version) { service.delete(PERIODS,id,version); }
 }

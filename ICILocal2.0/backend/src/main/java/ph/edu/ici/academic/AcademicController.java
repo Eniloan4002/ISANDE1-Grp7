@@ -15,6 +15,8 @@ public class AcademicController {
     public record CreateClassOffering(@NotNull @Positive Long academicYearId,
             @NotNull @Positive Long termId,@NotNull @Positive Long sectionId,
             @NotNull @Positive Long subjectId,@NotNull @Positive Long teacherId) {}
+    public record AddClassMember(@NotNull @Positive Long academicYearId,
+            @NotNull @Positive Long termId,@NotNull @Positive Long enrollmentId) {}
     public record TeacherAssignment(@NotNull @Positive Long academicYearId,
             @NotNull @Positive Long termId,@NotNull @Positive Long teacherId,
             @NotNull @PositiveOrZero Integer version) {}
@@ -48,6 +50,20 @@ public class AcademicController {
     @PreAuthorize("@accessPolicy.hasPermission('enrollment.manage')")
     public Map<String,Object> syncClassMembers(@PathVariable long id,@RequestParam long academicYearId,@RequestParam long termId){
         return service.syncClassMembers(id,academicYearId,termId);
+    }
+
+    @PostMapping("/api/academic/class-offerings/{id}/members")
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("@accessPolicy.hasPermission('enrollment.manage')")
+    public Map<String,Object> addClassMember(@PathVariable long id,@Valid @RequestBody AddClassMember input){
+        return service.addClassMember(id,input);
+    }
+
+    @DeleteMapping("/api/academic/class-offerings/{id}/members/{enrollmentId}")
+    @PreAuthorize("@accessPolicy.hasPermission('enrollment.manage')")
+    public Map<String,Object> removeClassMember(@PathVariable long id,@PathVariable long enrollmentId,
+            @RequestParam long academicYearId,@RequestParam long termId,@RequestParam(defaultValue="false") boolean discardDrafts){
+        return service.removeClassMember(id,enrollmentId,academicYearId,termId,discardDrafts);
     }
 
     @PutMapping("/api/academic/class-offerings/{id}/teacher")

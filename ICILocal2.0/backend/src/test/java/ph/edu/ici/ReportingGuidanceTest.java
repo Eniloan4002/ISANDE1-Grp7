@@ -85,10 +85,27 @@ class ReportingGuidanceTest {
     List<Long> ids(Map body,String key){return ((List<Map>)body.get(key)).stream().map(row->((Number)row.get("id")).longValue()).toList();}
     @Test void csvAndPdfExportsPreserveNamesAndPreventFormulas()throws Exception{
         String query="?termId="+term+"&voucher=QVR";var csv=bytes("/api/reports/enrollments/export"+query+"&format=csv",registrarToken);
-        assertThat(csv.getStatusCode()).isEqualTo(HttpStatus.OK);String text=new String(csv.getBody(),StandardCharsets.UTF_8);assertThat(text).contains("'\u003dFORMULA\nJosé Ñ").doesNotContain("Hidden");
+        assertThat(csv.getStatusCode()).isEqualTo(HttpStatus.OK);String text=new String(csv.getBody(),StandardCharsets.UTF_8);assertThat(csv.getBody()).startsWith((byte)0xEF,(byte)0xBB,(byte)0xBF);assertThat(text).contains("'\u003dFORMULA\nJosé Ñ").doesNotContain("Hidden");
         var pdf=bytes("/api/reports/enrollments/export"+query+"&format=pdf",principalToken);assertThat(pdf.getStatusCode()).as(new String(pdf.getBody(),StandardCharsets.UTF_8)).isEqualTo(HttpStatus.OK);
         try(var doc=Loader.loadPDF(pdf.getBody())){assertThat(new PDFTextStripper().getText(doc)).contains("José Ñ").contains("Matching enrollments: 1");}
         assertThat(bytes("/api/reports/enrollments/export"+query+"&format=exe",registrarToken).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+    @Test void exportWritesOneAuditRowWithoutNamesAndPreviewWritesNone()throws Exception{
+        String sql="SELECT count(*) FROM audit_logs WHERE table_name='enrollment_report_exports'";
+        int before=db.queryForObject(sql,Integer.class);
+        assertThat(call(HttpMethod.GET,report()+"&voucher=QVR",null,registrarToken).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(db.queryForObject(sql,Integer.class)).isEqualTo(before);
+        var csv=bytes("/api/reports/enrollments/export?termId="+term+"&voucher=QVR&format=csv",registrarToken);assertThat(csv.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(db.queryForObject(sql,Integer.class)).isEqualTo(before+1);
+        var audit=db.queryForMap("SELECT operation,actor_id,new_data->>'rows' AS rows,new_data->>'sha256' AS sha,new_data->>'format' AS format,new_data->>'termId' AS term,new_data->>'voucher' AS voucher,new_data::text AS data FROM audit_logs WHERE table_name='enrollment_report_exports' ORDER BY id DESC LIMIT 1");
+        assertThat(audit.get("operation")).isEqualTo("EXPORT");assertThat(audit.get("actor_id")).isNotNull();assertThat(audit.get("rows")).isEqualTo("1");assertThat(audit.get("format")).isEqualTo("csv");
+        assertThat(audit.get("term")).isEqualTo(String.valueOf(term));assertThat(audit.get("voucher")).isEqualTo("QVR");
+        assertThat(audit.get("sha")).isEqualTo(java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(csv.getBody())));
+        assertThat((String)audit.get("data")).doesNotContain("José").doesNotContain("Reportstudent").doesNotContain("FORMULA");
+        assertThat(bytes("/api/reports/enrollments/export?termId="+term+"&format=pdf",principalToken).getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(db.queryForObject(sql,Integer.class)).isEqualTo(before+2);
+        assertThat(bytes("/api/reports/enrollments/export?termId="+term+"&format=exe",registrarToken).getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(db.queryForObject(sql,Integer.class)).isEqualTo(before+2);
     }
     @Test void explicitCalendarAttendanceAndConfiguredRiskSignals(){
         var initial=call(HttpMethod.GET,"/api/guidance/risks?termId="+term+"&asOf=2026-01-08",null,guidanceToken);assertThat(initial.getStatusCode()).as(initial.toString()).isEqualTo(HttpStatus.OK);
