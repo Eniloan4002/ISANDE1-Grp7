@@ -163,7 +163,7 @@ public class EnrollmentService {
         Map<String,Object> result=new LinkedHashMap<>();
         var summary=new LinkedHashMap<String,Object>(Map.of("id",id,"applicationNumber",app.get("application_number"),"name",app.get("first_name")+" "+app.get("last_name"),"status",app.get("status"),"version",app.get("version"),"campusId",app.get("campus_id"),"termId",app.get("term_id"),"programId",app.get("program_id")));
         summary.put("phone",app.get("contact_phone"));summary.put("email",app.get("email"));result.put("application",summary);
-        result.put("attendanceWindow",window(number(app,"campus_id"),number(app,"term_id")));result.put("attendance",attendance);result.put("attendancePresent",present);result.put("checklist",checklist);
+        result.put("attendanceWindow",window(number(app,"campus_id"),number(app,"term_id")));result.put("attendance",attendance);result.put("attendancePresent",present);result.put("duplicateOpen",Boolean.TRUE.equals(flags.get("duplicate")));result.put("checklist",checklist);
         result.put("enrollment",enrollment.isEmpty()?null:enrollment.getFirst());result.put("blockers",blockers);result.put("canConfirm",blockers.isEmpty());return result;
     }
     @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)

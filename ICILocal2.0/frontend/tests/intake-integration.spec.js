@@ -88,7 +88,7 @@ test('Pauline intake and requirements UI persists through confirmation and alloc
   await page.getByRole('button',{name:'Save attendance'}).click();
   await expect(page.getByRole('button',{name:'Confirm enrollment',exact:true})).toBeEnabled();
   await page.getByRole('button',{name:'Confirm enrollment',exact:true}).click();
-  await page.getByRole('button',{name:'Confirm',exact:true}).click();
+  await page.getByRole('dialog').getByRole('button',{name:'Confirm enrollment',exact:true}).click();
   await expect(page.getByText('Enrollment confirmed',{exact:true})).toBeVisible();
   const sectionResponse=await page.request.post('/api/sections',{headers,data:{campusId:campus.id,termId:term.id,programId:program.id,name:`Integrated-${suffix}`,gradeLevel:'11',capacity:1,room:'204'}});
   expect(sectionResponse.status()).toBe(201);

@@ -31,7 +31,7 @@ test('verify credentials, record attendance, confirm and allocate an enrollment'
   await expect(page.getByRole('button',{name:'Confirm enrollment',exact:true})).toBeEnabled();
   await page.getByRole('button',{name:'Confirm enrollment',exact:true}).click();
   await expect(page.getByRole('dialog')).toContainText('Ana Santos');
-  await page.getByRole('button',{name:'Confirm',exact:true}).click();
+  await page.getByRole('dialog').getByRole('button',{name:'Confirm enrollment',exact:true}).click();
   await expect(page.getByText('Enrollment confirmed',{exact:true})).toBeVisible();
   const token=await page.evaluate(()=>sessionStorage.getItem('ici_access_token'));
   const response=await page.request.get(`/api/applications/${id}/enrollment`,{headers:{Authorization:`Bearer ${token}`}});

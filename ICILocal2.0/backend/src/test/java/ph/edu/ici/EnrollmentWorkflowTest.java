@@ -75,7 +75,9 @@ class EnrollmentWorkflowTest {
         db.update("UPDATE applications SET status='pre_enlisted' WHERE id=?",app);
         db.update("UPDATE students SET active=false WHERE id=(SELECT student_id FROM applications WHERE id=?)",app);assertThat(confirm(app,0).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         db.update("UPDATE students SET active=true WHERE id=(SELECT student_id FROM applications WHERE id=?)",app);
+        assertThat(detail(app).get("duplicateOpen")).isEqualTo(false);
         long matched=application(campus);db.update("INSERT INTO duplicate_cases(application_id,matched_application_id) VALUES (?,?)",matched,app);
+        assertThat(detail(app).get("duplicateOpen")).as("an open case flags the confirmation dialog").isEqualTo(true);
         assertThat(confirm(app,0).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         db.update("DELETE FROM duplicate_cases WHERE matched_application_id=?",app);
         db.update("UPDATE applications SET student_id=null WHERE id=?",app);assertThat(confirm(app,0).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);

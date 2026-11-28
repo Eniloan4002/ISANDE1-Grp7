@@ -86,7 +86,7 @@ describe('attendance and confirmation UI',()=>{
   });
   it('requires explicit confirmation and sends the application version',async()=>{
     detail.canConfirm=true;detail.blockers=[];detail.application.version=7;show('attendance');await screen.findByRole('button',{name:'Confirm enrollment'});fireEvent.click(screen.getByRole('button',{name:'Confirm enrollment'}));
-    expect(screen.getByRole('dialog')).toBeInTheDocument();expect(apiRequest.mock.calls.some(([,options])=>options?.method==='POST')).toBe(false);fireEvent.click(screen.getByRole('button',{name:'Confirm',exact:true}));
+    const dialog=await screen.findByRole('dialog');expect(apiRequest.mock.calls.some(([,options])=>options?.method==='POST')).toBe(false);fireEvent.click(within(dialog).getByRole('button',{name:'Confirm enrollment'}));
     await waitFor(()=>expect(apiRequest).toHaveBeenCalledWith('/api/applications/10/confirm-enrollment',expect.objectContaining({method:'POST',body:JSON.stringify({version:7})})));
   });
 });
