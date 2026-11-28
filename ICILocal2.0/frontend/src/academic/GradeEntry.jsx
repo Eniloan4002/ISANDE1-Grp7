@@ -1,19 +1,24 @@
+// ICI2-101: Grade Entry with one sticky context bar (class, period, term, status chips, progress, save state,
+// actions) above a compact score grid, so a teacher sees at least eight students at 1440×900.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Confirm, Failure } from '../EnrollmentWorkspace.jsx';
-import { approvedNonNumericMarks, loadClassGradebook, loadGradeCatalog, loadGradingPeriods, loadTeacherClasses, saveGradeDraft, submitGrades } from './gradeEntryApi.js';
+import { Button, ProgressMeter, StatusChip } from '../ui/components.jsx';
+import { approvedNonNumericMarks, loadClassGradebook, loadGradingPeriods, loadTeacherClasses, saveGradeDraft, submitGrades } from './gradeEntryApi.js';
+import { useAcademicContext } from './useAcademicContext.js';
+import { shortStudentNumber } from './studentNumber.js';
 import './grade-entry.css';
 
 const numericPattern = /^\d{1,3}(\.\d{1,2})?$/;
+const markLabels = { INC: 'Incomplete', NG: 'No grade', DRP: 'Dropped' };
 
-function validateGrade(value) {
+export function validateGrade(value) {
   const normalized = value.trim().toUpperCase();
   if (!normalized) return { kind: 'empty', error: '' };
   if (approvedNonNumericMarks.includes(normalized)) return { kind: 'mark', error: '' };
-  if (!numericPattern.test(normalized)) return { kind: 'invalid', error: 'Enter 0.00–100.00 or an approved mark.' };
-  const number = Number(normalized);
-  return number >= 0 && number <= 100
-    ? { kind: 'numeric', error: '' }
-    : { kind: 'invalid', error: 'Numeric grades must be between 0.00 and 100.00.' };
+  if (/^\d+(\.\d*)?$/.test(normalized) && Number(normalized) > 100) return { kind: 'invalid', error: 'Max is 100.00' };
+  if (/^\d+\.\d{3,}$/.test(normalized)) return { kind: 'invalid', error: 'Use up to 2 decimal places' };
+  if (!numericPattern.test(normalized)) return { kind: 'invalid', error: `Enter 0.00–100.00 or ${approvedNonNumericMarks.join(', ')}` };
+  return { kind: 'numeric', error: '' };
 }
 
 function normalizedGrades(grades) {
@@ -29,72 +34,55 @@ function requestError(error) {
   return error?.message || 'The grade-entry request failed.';
 }
 
-function GradeInput({ student, grade, readOnly, onChange, onKeyDown, inputRef }) {
-  const validation = validateGrade(grade.value);
-  return <div className="grade-cell">
-    <input
-      ref={inputRef}
-      aria-label={`Grade for ${student.name}`}
-      aria-invalid={validation.error ? 'true' : 'false'}
-      value={grade.value}
-      disabled={readOnly}
-      inputMode="decimal"
-      onChange={event => onChange(event.target.value)}
-      onKeyDown={onKeyDown}
-    />
-    <small>{validation.error || (validation.kind === 'mark' ? 'Non-numeric mark' : '\u00a0')}</small>
-  </div>;
+const saveLabels = {
+  saved: 'All changes saved',
+  dirty: 'Unsaved changes',
+  saving: 'Saving…',
+  failed: 'Not saved. Try again.',
+  submitting: 'Submitting…',
+  submitted: 'Submitted',
+};
+
+function rowChip(result, value) {
+  if (result.error) return <StatusChip tone="blocked">Fix value</StatusChip>;
+  if (result.kind === 'empty') return <StatusChip tone="neutral">Not graded</StatusChip>;
+  if (result.kind === 'mark') return <StatusChip tone="attention">{markLabels[value.trim().toUpperCase()] || 'Mark'}</StatusChip>;
+  return <StatusChip tone="success">Graded</StatusChip>;
 }
 
-function optionValue(value) {
-  return value == null ? '' : String(value);
+function periodChip(book, readOnly) {
+  if (book.submission === 'submitted') return <StatusChip tone="info">Submitted · read-only</StatusChip>;
+  if (readOnly) return <StatusChip tone="blocked">Period locked</StatusChip>;
+  return <StatusChip tone="success">Period open</StatusChip>;
 }
 
 export default function GradeEntry() {
-  const [catalog, setCatalog] = useState({ years: [], terms: [] });
-  const [filters, setFilters] = useState({ academicYearId: '', termId: '' });
+  // The Assigned Classes screen links here with ?classId=&academicYearId=&termId=. Read once on arrival.
+  const requested = useRef(typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search));
+  const academic = useAcademicContext({ academicYearId: requested.current.get('academicYearId'), termId: requested.current.get('termId') });
+  const { filters } = academic;
   const [classes, setClasses] = useState([]);
+  const [classesLoaded, setClassesLoaded] = useState(false);
   const [periods, setPeriods] = useState([]);
   const [selectedClassId, setSelectedClassId] = useState('');
   const [periodId, setPeriodId] = useState('');
   const [book, setBook] = useState(null);
   const [grades, setGrades] = useState({});
-  const [loading, setLoading] = useState(true);
   const [loadingBook, setLoadingBook] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
-  const [saveState, setSaveState] = useState('Not saved');
+  const [saveState, setSaveState] = useState('saved');
   const [confirming, setConfirming] = useState(false);
   const inputRefs = useRef({});
-  // The Assigned Classes screen links here with ?classId=&academicYearId=&termId=. Read once on arrival.
-  const requested = useRef(typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search));
 
   useEffect(() => {
+    if (!academic.ready) return undefined;
     let active = true;
-    loadGradeCatalog().then(result => {
-      if (!active) return;
-      const years = result?.years || [];
-      const terms = result?.terms || [];
-      setCatalog({ years, terms });
-      const year = years.find(item => optionValue(item.id) === requested.current.get('academicYearId')) || years[0];
-      const inYear = terms.filter(item => optionValue(item.academic_year_id ?? item.academicYearId) === optionValue(year?.id));
-      const term = inYear.find(item => optionValue(item.id) === requested.current.get('termId')) || inYear[0];
-      setFilters({ academicYearId: optionValue(year?.id), termId: optionValue(term?.id) });
-      if (!year || !term) setLoading(false);
-    }).catch(requestFailure => {
-      if (!active) return;
-      setError(requestError(requestFailure));
-      setLoading(false);
-    });
-    return () => { active = false; };
-  }, []);
-
-  useEffect(() => {
-    if (!filters.academicYearId || !filters.termId) return;
-    let active = true;
-    setLoading(true);
+    setClassesLoaded(false);
     setError('');
     setBook(null);
+    setSelectedClassId(''); // so the period load reruns even when the new term has the same first class
+    setPeriodId('');
     loadTeacherClasses(filters).then(result => {
       if (!active) return;
       setClasses(result.items);
@@ -103,12 +91,12 @@ export default function GradeEntry() {
       setSelectedClassId(String((wanted || result.items[0])?.id || ''));
       setPeriodId('');
       setPeriods([]);
-    }).catch(requestFailure => active && setError(requestError(requestFailure))).finally(() => active && setLoading(false));
+    }).catch(requestFailure => active && setError(requestError(requestFailure))).finally(() => active && setClassesLoaded(true));
     return () => { active = false; };
-  }, [filters.academicYearId, filters.termId]);
+  }, [academic.ready, filters.academicYearId, filters.termId]);
 
   useEffect(() => {
-    if (!selectedClassId) return;
+    if (!selectedClassId) return undefined;
     let active = true;
     loadGradingPeriods(selectedClassId, filters).then(result => {
       if (!active) return;
@@ -119,7 +107,7 @@ export default function GradeEntry() {
   }, [selectedClassId]);
 
   useEffect(() => {
-    if (!selectedClassId || !periodId) return;
+    if (!selectedClassId || !periodId) return undefined;
     let active = true;
     setLoadingBook(true);
     setError('');
@@ -127,26 +115,48 @@ export default function GradeEntry() {
       if (!active) return;
       setBook(result);
       setGrades(result.grades);
-      setSaveState('Not saved');
+      setSaveState(result.submission === 'submitted' ? 'submitted' : 'saved');
     }).catch(requestFailure => active && setError(requestError(requestFailure))).finally(() => active && setLoadingBook(false));
     return () => { active = false; };
   }, [selectedClassId, periodId]);
 
-  const terms = useMemo(() => catalog.terms.filter(term => optionValue(term.academic_year_id ?? term.academicYearId) === filters.academicYearId), [catalog.terms, filters.academicYearId]);
-
-  function updateYear(value) {
-    const term = catalog.terms.find(item => optionValue(item.academic_year_id ?? item.academicYearId) === value);
-    setFilters({ academicYearId: value, termId: optionValue(term?.id) });
-  }
-
   const validation = useMemo(() => Object.fromEntries(Object.entries(grades).map(([id, grade]) => [id, validateGrade(grade.value)])), [grades]);
+  const resultFor = id => validation[id] || { kind: 'empty', error: '' };
   const hasErrors = Object.values(validation).some(item => item.error);
   const readOnly = book?.submission === 'submitted' || book?.period.status !== 'open';
+  const busy = saveState === 'saving' || saveState === 'submitting';
+
+  const progress = useMemo(() => {
+    const students = book?.students || [];
+    const kinds = students.map(student => (validation[student.id] || { kind: 'empty' }).kind);
+    const graded = kinds.filter(kind => kind === 'numeric').length;
+    const attention = kinds.filter(kind => kind === 'invalid' || kind === 'mark').length;
+    const text = `${graded} of ${students.length} graded${attention ? ` · ${attention} ${attention === 1 ? 'needs' : 'need'} attention` : ''}`;
+    return { graded, total: students.length, text };
+  }, [book, validation]);
+
+  const termOptions = useMemo(() => academic.catalog.years.flatMap(year => academic.catalog.terms
+    .filter(term => String(term.academic_year_id ?? term.academicYearId) === String(year.id))
+    .map(term => ({ id: String(term.id), yearId: String(year.id), label: `${year.label} · ${term.name}` }))), [academic.catalog]);
+
+  function changeTerm(termId) {
+    const option = termOptions.find(item => item.id === termId);
+    if (!option) return;
+    if (option.yearId !== filters.academicYearId) academic.setYear(option.yearId);
+    academic.setTerm(option.id);
+  }
+
+  function changeClass(classId) {
+    setSelectedClassId(classId);
+    setPeriodId('');
+    setBook(null);
+    setNotice('');
+  }
 
   function updateGrade(studentId, value) {
     const upper = value.toUpperCase();
     setGrades(current => ({ ...current, [studentId]: { value: upper, kind: validateGrade(upper).kind } }));
-    setSaveState('Unsaved changes');
+    setSaveState('dirty');
     setNotice('');
   }
 
@@ -164,83 +174,116 @@ export default function GradeEntry() {
 
   async function save() {
     if (hasErrors || readOnly) return;
-    setSaveState('Saving…');
+    setSaveState('saving');
     setError('');
     try {
       const result = await saveGradeDraft(selectedClassId, periodId, normalizedGrades(grades), book.students, filters);
-      setBook(result); setGrades(result.grades); setSaveState('Draft saved'); setNotice('Draft grades saved.');
-    } catch (requestFailure) { setSaveState('Save failed'); setError(requestError(requestFailure)); }
+      setBook(result); setGrades(result.grades); setSaveState('saved'); setNotice('Draft grades saved.');
+    } catch (requestFailure) { setSaveState('failed'); setError(requestError(requestFailure)); }
   }
 
   async function submit() {
     if (hasErrors || readOnly) return;
-    setSaveState('Submitting…');
+    setSaveState('submitting');
     setError('');
     try {
       await saveGradeDraft(selectedClassId, periodId, normalizedGrades(grades), book.students, filters);
       const result = await submitGrades(selectedClassId, periodId, filters);
-      setBook(result); setGrades(result.grades); setSaveState('Submitted'); setNotice('Grades submitted. This grading period is now read-only.');
+      setBook(result); setGrades(result.grades); setSaveState('submitted'); setNotice('Grades submitted. This grading period is now read-only.');
       setConfirming(false);
-    } catch (requestFailure) { setSaveState('Submission failed'); setConfirming(false); setError(requestError(requestFailure)); }
+    } catch (requestFailure) { setSaveState('failed'); setConfirming(false); setError(requestError(requestFailure)); }
   }
 
-  if (loading) return <p role="status">Loading assigned classes…</p>;
-  return <div className="academic-workspace">
-    <header className="page-heading">
+  const loadingClasses = !academic.loaded || (academic.ready && !classesLoaded);
+  const hasClasses = classes.length > 0;
+
+  return <div className="academic-workspace ge-screen">
+    <header className="page-heading ge-heading">
       <p className="eyebrow">Academic Records · Subject Teacher</p>
       <h1>Grade Entry</h1>
-      <p>Encode grading-period marks for classes assigned to your account.</p>
     </header>
-    {notice && <div className="notice" role="status">{notice}</div>}
-    {error && <Failure error={error} />}
-    {!classes.length && !error && <div className="empty-state"><h2>No assigned classes</h2><p>Your Registrar-assigned classes will appear here when available.</p></div>}
-    {catalog.years.length > 0 && <section className="panel">
-      <div className="panel-body grade-entry-context">
-        <label className="assignment-field">Academic year
-          <select value={filters.academicYearId} onChange={event => updateYear(event.target.value)} disabled={loadingBook}>
-            {catalog.years.map(year => <option key={year.id} value={year.id}>{year.label}</option>)}
+    <Failure error={academic.error || error} />
+    {loadingClasses && !academic.error && <p role="status">Loading assigned classes…</p>}
+    {academic.loaded && !academic.error && !academic.ready && <div className="empty-state"><h2>No academic term available</h2><p>Ask the registrar to set up an academic year and term.</p></div>}
+
+    {academic.ready && <section className="ge-bar" aria-label="Grade entry context">
+      <div className="ge-bar-row">
+        <label className="ge-field ge-field-class">Class
+          <select value={selectedClassId} onChange={event => changeClass(event.target.value)} disabled={!hasClasses || loadingBook || busy}>
+            {!hasClasses && <option value="">No assigned classes</option>}
+            {classes.map(item => <option key={item.id} value={item.id}>{item.subjectCode} {item.subject} · {item.gradeLevel} {item.section}</option>)}
           </select>
         </label>
-        <label className="assignment-field">Term
-          <select value={filters.termId} onChange={event => setFilters(current => ({ ...current, termId: event.target.value }))} disabled={loadingBook}>
-            {terms.map(term => <option key={term.id} value={term.id}>{term.name} ({term.code})</option>)}
-          </select>
-        </label>
-        {classes.length > 0 && <label className="assignment-field">Assigned class
-          <select value={selectedClassId} onChange={event => { setSelectedClassId(event.target.value); setPeriodId(''); setBook(null); }} disabled={loadingBook}>
-            {classes.map(item => <option key={item.id} value={item.id}>{item.subjectCode} — {item.section}</option>)}
-          </select>
-        </label>}
-        {classes.length > 0 && <label className="assignment-field">Grading period
-          <select value={periodId} onChange={event => setPeriodId(event.target.value)} disabled={loadingBook}>
+        <label className="ge-field">Grading period
+          <select value={periodId} onChange={event => setPeriodId(event.target.value)} disabled={!periods.length || loadingBook || busy}>
             {periods.map(period => <option key={period.id} value={period.id}>{period.label}</option>)}
           </select>
-        </label>}
+        </label>
+        <label className="ge-field">Term
+          <select value={filters.termId} onChange={event => changeTerm(event.target.value)} disabled={loadingBook || busy}>
+            {termOptions.map(term => <option key={term.id} value={term.id}>{term.label}</option>)}
+          </select>
+        </label>
+        {book && !loadingBook && <div className="ge-chips">
+          {periodChip(book, readOnly)}
+          <StatusChip tone="neutral">{book.period.deadline === 'Not set' ? 'No deadline' : `Due ${book.period.deadline}`}</StatusChip>
+        </div>}
+      </div>
+      {book && !loadingBook && <div className="ge-bar-row ge-bar-status">
+        <div className="ge-progress"><ProgressMeter label="Grading progress" value={progress.graded} max={progress.total} valueText={progress.text} /></div>
+        <span className={`ge-save ge-save-${saveState}`} role="status">{saveLabels[saveState]}</span>
+        <div className="ge-actions">
+          <Button variant="secondary" onClick={save} disabled={readOnly || hasErrors || busy}>Save draft</Button>
+          <Button onClick={() => setConfirming(true)} disabled={readOnly || hasErrors || busy}>Submit grades</Button>
+        </div>
+      </div>}
+    </section>}
+
+    {notice && <div className="notice ge-notice" role="status">{notice}</div>}
+    {classesLoaded && !hasClasses && !error && <div className="empty-state"><h2>No assigned classes</h2><p>Your Registrar-assigned classes will appear here when available.</p></div>}
+    {loadingBook && <p role="status">Loading grade book…</p>}
+
+    {book && !loadingBook && <section className="panel ge-sheet" aria-label="Score sheet">
+      <div className="ge-sheet-head">
+        <h2>Score sheet</h2>
+        <p>Arrow keys, Tab or Enter move between cells. Grades are 0.00–100.00, or {approvedNonNumericMarks.join(', ')}.</p>
+      </div>
+      {hasErrors && <p className="ge-sheet-alert" role="alert">Fix the highlighted grades before saving or submitting.</p>}
+      <div className="ge-grid">
+        <table className="ge-table">
+          <thead><tr><th scope="col">Student</th><th scope="col">Student no.</th><th scope="col" className="ge-num">{book.period.label} grade</th><th scope="col">Status</th></tr></thead>
+          <tbody>
+            {book.students.map((student, index) => {
+              const item = grades[student.id] || { value: '', kind: 'empty' };
+              const result = resultFor(student.id);
+              const errorId = `grade-error-${student.id}`;
+              return <tr key={student.id} className={result.error ? 'has-error' : undefined}>
+                <th scope="row">{student.name}</th>
+                <td className="ge-number" title={student.studentNumber}>{shortStudentNumber(student.studentNumber)}</td>
+                <td className="ge-num">
+                  <div className="ge-cell">
+                    {result.error && <span className="ge-error" id={errorId}>{result.error}</span>}
+                    <input
+                      ref={element => { inputRefs.current[student.id] = element; }}
+                      aria-label={`Grade for ${student.name}`}
+                      aria-invalid={result.error ? 'true' : 'false'}
+                      aria-describedby={result.error ? errorId : undefined}
+                      value={item.value}
+                      disabled={readOnly}
+                      inputMode="decimal"
+                      autoComplete="off"
+                      onChange={event => updateGrade(student.id, event.target.value)}
+                      onKeyDown={event => handleKeyDown(event, index)}
+                    />
+                  </div>
+                </td>
+                <td>{rowChip(result, item.value)}</td>
+              </tr>;
+            })}
+          </tbody>
+        </table>
       </div>
     </section>}
-    {loadingBook && <p role="status">Loading grade book…</p>}
-    {book && !loadingBook && <><section className="panel">
-      <div className="panel-body"><dl className="grade-entry-meta">
-        <div><dt>Subject</dt><dd>{book.class.subjectCode} · {book.class.subject}</dd></div>
-        <div><dt>Section</dt><dd>{book.class.gradeLevel} · {book.class.section}</dd></div>
-        <div><dt>Access</dt><dd><span className={`status ${readOnly ? 'status-warning' : 'status-success'}`}>{readOnly ? (book.submission === 'submitted' ? 'Submitted · read-only' : 'Period locked') : 'Period open'}</span></dd></div>
-        <div><dt>Deadline</dt><dd>{book.period.deadline}</dd></div>
-      </dl></div>
-    </section><section className="panel">
-      <h2>Student score sheet</h2>
-      <div className="panel-body">
-        <p className="field-help">Use Arrow keys, Tab, or Enter to move between student cells. Numeric grades accept 0.00–100.00; approved marks are validated separately.</p>
-        <div className="grade-entry-grid"><table className="grade-entry-table"><thead><tr><th>Student</th><th>Student number</th><th>{book.period.label}</th><th>Status</th></tr></thead><tbody>
-          {book.students.map((student, index) => {
-            const item = grades[student.id] || { value: '', kind: 'empty' };
-            const result = validation[student.id];
-            return <tr key={student.id} className={result.error ? 'has-error' : ''}><td><strong>{student.name}</strong></td><td>{student.studentNumber}</td><td><GradeInput student={student} grade={item} readOnly={readOnly} onChange={value => updateGrade(student.id, value)} onKeyDown={event => handleKeyDown(event, index)} inputRef={element => { inputRefs.current[student.id] = element; }} /></td><td><span className={`status ${result.error ? 'status-danger' : result.kind === 'empty' ? 'status-warning' : 'status-success'}`}>{result.error ? 'Invalid' : result.kind === 'empty' ? 'Missing score' : result.kind === 'mark' ? 'Incomplete mark' : 'Valid'}</span></td></tr>;
-          })}
-        </tbody></table></div>
-        <div className="grade-entry-actions"><span role="status">Save status: {saveState}</span><div className="component-row"><button className="button button-outline" onClick={save} disabled={readOnly || hasErrors || saveState === 'Saving…'}>Save draft</button><button className="button" onClick={() => setConfirming(true)} disabled={readOnly || hasErrors}>Submit grades</button></div></div>
-        {hasErrors && <p className="field-error" role="alert">Correct invalid grades before saving or submitting.</p>}
-      </div>
-    </section></>}
-    {confirming && <Confirm title="Submit grades?" busy={saveState === 'Submitting…'} onCancel={() => setConfirming(false)} onConfirm={submit}><p>This will make the selected grading period read-only. Draft grades are saved first, and the class cannot be edited after submission.</p></Confirm>}
+    {confirming && <Confirm title="Submit grades?" busy={saveState === 'submitting'} onCancel={() => setConfirming(false)} onConfirm={submit}><p>This will make the selected grading period read-only. Draft grades are saved first, and the class cannot be edited after submission.</p></Confirm>}
   </div>;
 }

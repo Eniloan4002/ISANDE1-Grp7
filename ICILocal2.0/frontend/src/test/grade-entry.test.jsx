@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import GradeEntry from '../academic/GradeEntry.jsx';
 import { pages } from '../routes/routeConfig.js';
 import * as api from '../academic/gradeEntryApi.js';
@@ -47,7 +47,53 @@ describe('Grade Entry', () => {
     renderPage();
     expect(await screen.findByText('Althea Santos')).toBeInTheDocument();
     expect(screen.getByText('2026-0001')).toBeInTheDocument();
-    expect(screen.getByText('Incomplete mark')).toBeInTheDocument();
+    expect(screen.getByText('Incomplete')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Grade for Althea Santos' })).toHaveValue('87.50');
+  });
+
+  it('keeps class, period, term, status and actions in one sticky context bar', async () => {
+    renderPage();
+    await screen.findByText('Althea Santos');
+    const bar = screen.getByRole('region', { name: 'Grade entry context' });
+    expect(within(bar).getByRole('combobox', { name: 'Class' })).toHaveDisplayValue('MATH101 Mathematics · Grade 11 STEM 11-A');
+    expect(within(bar).getByRole('combobox', { name: 'Grading period' })).toHaveDisplayValue('Q1');
+    expect(within(bar).getByRole('combobox', { name: 'Term' })).toHaveDisplayValue('2026-2027 · First Term');
+    expect(within(bar).getByText('Period open')).toBeInTheDocument();
+    expect(within(bar).getByText('Due October 15, 2026')).toBeInTheDocument();
+    expect(within(bar).getByRole('button', { name: 'Save draft' })).toBeInTheDocument();
+    expect(within(bar).getByRole('button', { name: 'Submit grades' })).toBeInTheDocument();
+    expect(screen.getAllByRole('combobox')).toHaveLength(3);
+  });
+
+  it('counts graded students and those that need attention', async () => {
+    renderPage();
+    await screen.findByText('Althea Santos');
+    expect(screen.getByRole('meter', { name: 'Grading progress' })).toHaveAttribute('aria-valuetext', '1 of 2 graded · 1 needs attention');
+    fireEvent.change(screen.getByRole('textbox', { name: 'Grade for Brandon Cruz' }), { target: { value: '90' } });
+    expect(screen.getByRole('meter', { name: 'Grading progress' })).toHaveAttribute('aria-valuetext', '2 of 2 graded');
+  });
+
+  it('shows the save state as grades change', async () => {
+    renderPage();
+    await screen.findByText('Althea Santos');
+    expect(screen.getByText('All changes saved')).toBeInTheDocument();
+    fireEvent.change(screen.getByRole('textbox', { name: 'Grade for Althea Santos' }), { target: { value: '88' } });
+    expect(screen.getByText('Unsaved changes')).toBeInTheDocument();
+    api.saveGradeDraft.mockResolvedValue(book);
+    fireEvent.click(screen.getByRole('button', { name: 'Save draft' }));
+    expect(await screen.findByText('All changes saved')).toBeInTheDocument();
+  });
+
+  it('shortens generated student numbers and keeps the full value as a tooltip', async () => {
+    const uuid = 'STU-3f2a9c1d-7b4e-4c1a-9e2f-0a1b2c3d4e5f';
+    api.loadGradeCatalog.mockResolvedValue(catalog);
+    api.loadTeacherClasses.mockResolvedValue(classes);
+    api.loadGradingPeriods.mockResolvedValue(periods);
+    api.loadClassGradebook.mockResolvedValue({ ...book, students: [{ ...book.students[0], studentNumber: uuid }] });
+    render(<GradeEntry />);
+    const cell = await screen.findByText('STU-3F2A9C1D');
+    expect(cell).toHaveAttribute('title', uuid);
+    expect(screen.queryByText(uuid)).not.toBeInTheDocument();
   });
 
   it('opens the class named in the link from Assigned Classes', async () => {
@@ -68,9 +114,20 @@ describe('Grade Entry', () => {
     await screen.findByRole('textbox', { name: 'Grade for Althea Santos' });
     const input = screen.getByRole('textbox', { name: 'Grade for Althea Santos' });
     fireEvent.change(input, { target: { value: '101' } });
-    expect(screen.getByText('Numeric grades must be between 0.00 and 100.00.')).toBeInTheDocument();
-    fireEvent.change(input, { target: { value: 'INC' } });
-    expect(screen.getAllByText('Non-numeric mark')).toHaveLength(2);
+    expect(screen.getByText('Max is 100.00')).toBeInTheDocument();
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(input).toHaveAccessibleDescription('Max is 100.00');
+    expect(screen.getByRole('button', { name: 'Save draft' })).toBeDisabled();
+    fireEvent.change(input, { target: { value: '87.555' } });
+    expect(screen.getByText('Use up to 2 decimal places')).toBeInTheDocument();
+    fireEvent.change(input, { target: { value: 'abc' } });
+    expect(screen.getByText('Enter 0.00–100.00 or INC, NG, DRP')).toBeInTheDocument();
+    fireEvent.change(input, { target: { value: '100.00' } });
+    expect(input).toHaveAttribute('aria-invalid', 'false');
+    fireEvent.change(input, { target: { value: 'drp' } });
+    expect(input).toHaveValue('DRP');
+    expect(screen.getByText('Dropped')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save draft' })).toBeEnabled();
   });
 
   it('moves focus with keyboard navigation', async () => {
@@ -83,6 +140,12 @@ describe('Grade Entry', () => {
     expect(document.activeElement).toBe(second);
     fireEvent.keyDown(second, { key: 'ArrowUp' });
     expect(document.activeElement).toBe(first);
+    fireEvent.keyDown(first, { key: 'Enter' });
+    expect(document.activeElement).toBe(second);
+    fireEvent.keyDown(second, { key: 'Tab', shiftKey: true });
+    expect(document.activeElement).toBe(first);
+    fireEvent.keyDown(first, { key: 'Tab' });
+    expect(document.activeElement).toBe(second);
   });
 
   it('loads the class for the selected year, term and grading period', async () => {
